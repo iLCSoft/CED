@@ -1,0 +1,139 @@
+First try to run glced
+
+If it will not work try 
+make
+
+then it should work on any computer
+
+
+1) How to link with CED?
+
+#----- add libraries needed --------
+ifdef CED
+USERLIBS +=  $(CED)/ced.o $(CED)/ced_cli.o
+endif
+
+and include
+   ced_cli.h
+
+2)  Start as separate task executable:
+    glced          
+
+  CED window should be occured:
+------------------------------------------------------------------
+Control will work if mouse is at the CED window:
+
+       Keyboard:
+ESC - stop task glced and remove it from memory
+
+key r:     redispaly in some initial projection
+key f:     front projection
+key s:     side projection
+
+key c:     move center of rotation at the neares hit to the mouse position
+
+key 0,1,2,3 ... 0, SHIFT 1, SHIFT 2, ... SHIFT 0 -- visibility layer toggles
+
+    Mouse:
+left:   rotation
+middle: shift
+right:  zoom
+
+------------------------------------------------------------------
+//  Somewhere at the beginning of file ******Processor.cc
+
+#include <ced_cli.h>
+
+//   Visibility layers types: should be included as:
+#define PHOTON_LAYER (0<<CED_LAYER_SHIFT)
+#define PHOTON_LAYER (1<<CED_LAYER_SHIFT)
+#define NHADR_LAYER  (2<<CED_LAYER_SHIFT)
+#define CHADR_LAYER  (3<<CED_LAYER_SHIFT)
+#define TPC_LAYER    (4<<CED_LAYER_SHIFT)
+#define ECAL_LAYER   (5<<CED_LAYER_SHIFT)
+#define HCAL_LAYER   (6<<CED_LAYER_SHIFT)
+     ...........................
+#define SOME_LAYER   (19<<CED_LAYER_SHIFT)
+
+------------------------------------------------------------------
+// Once per task in first init: 
+
+  void *********Processor::init() { 
+  //    Initialize event display   
+    ced_client_init("localhost",7286);
+    ced_register_elements();
+
+
+In the first called Processor::processEvent( LCEvent * evt ) {
+      initialize the geometry:
+//-----------------------------------------------------------------------
+  ced_new_event();  // Reset drawing buffer and START drawing collection
+  //          The Simplest geometry has Z axis as beam axis
+  static CED_GeoCylinder geoCylinders[] = {       // for TESLA Detector Geometry
+    {    50.0,  6,  0.0, 5658.5, -5658.5, 0xff      }, // beam tube
+    {   380.0, 24,  0.0, 2658.5, -2658.5, 0xff      }, // inner TPC
+    {  1840.0,  8, 22.5, 2700.0, -2700.0, 0x7f7f1f  }, // inner ECAL
+    {  2045.7,  8, 22.5, 2700.0, -2700.0, 0x7f7f1f  }, // outer ECAL
+    {  2045.7,  8, 22.5, 101.00,  2820.0, 0x7f7f1f  }, // endcap ECAL
+    {  2045.7,  8, 22.5, 101.00, -3022.0, 0x7f7f1f  }, // endcap ECAL
+    {  3000.0, 16,  0.0, 2658.5, -2658.5, 0xcf00    }, // outer HCAL
+    {  3000.0,  8, 22.5, 702.25,  2826.0, 0xcf00    }, // endcap HCAL
+    {  3000.0,  8, 22.5, 702.25, -4230.5, 0xcf00    }, // endcap HCAL
+// radius,poligon order,angle degree,1/2 length,shift in z, color
+  }; 
+
+  /*
+  static CED_GeoCylinder geoCylinders[] = {    // for Prototype
+    {    180.0,  4,  45.0, 110.0, 0.0, 0xff }, // ECAL
+    {    500.0,  4,  45.0, 250.0, 220., 0xff } // HCAL
+  };
+  */
+
+  ced_geocylinders(sizeof(geoCylinders)/sizeof(CED_GeoCylinder),geoCylinders);
+//------------------------------------------------------------------
+ One canput here as much cylinders as one want.
+
+------------------------------------------------------------------
+//in any Processor:
+
+  void ********Processor::processEvent( LCEvent * evt ) { 
+
+//  hit/point types are predefined as
+//    CED_HIT_POINT=0,
+//    CED_HIT_CROSS=1,
+//    CED_HIT_STAR=2,
+
+//in loop:   one can call either hit drawing or line drawing with functions:
+
+// void ced_hit(float x,float y,float z,unsigned type,unsigned size,unsigned color);
+// void ced_line(float x0,float y0,float z0,
+//	      float x1,float y1,float z1,
+//	      unsigned type,unsigned width,unsigned color);
+
+to define colors is better use gimp - it gives that crasy numbers easily
+
+// Possible type combinations:
+
+// real call
+     for (int i=0; i<nn,i++){ // along hit/point collection or so
+       kcol = 0xf2290e;
+//  ECAL_LAYER-- mean hit will be switch on/off by keyboad key number 5 and 
+//       will draw as CED_POINT i.e. . 
+ 	 ced_hit(cc_red[kk][nn].x,cc_red[kk][nn].y,cc_red[kk][nn].z,ECAL_LAYER,3,kcol);
+
+       kcol = 0x25cb17;
+//  HCAL_LAYER|2 -- mean hit will be switch on/off by keyboad key number 6 and 
+//  will draw as CED_HIT_STAR i.e. * 
+	 ced_hit(cc_blue[kk][nn].x,cc_blue[kk][nn].y,cc_blue[kk][nn].z,HCAL_LAYER|2,3,kcol);
+
+//or:
+         ced_line(x1,y1,z1,x2,y2,z2, CHADR_LAYER , 1, 0x7af774);
+}
+
+// after loop   
+   ced_send_event();    // Does not clean up screen
+
+
+// at the end of event 
+  ced_draw_event();    // Make clean up screen before drawing
+---------------------------------------------------------------------------------------------
