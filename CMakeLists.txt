@@ -5,7 +5,7 @@
 
 # cmake minimum required version
 CMAKE_MINIMUM_REQUIRED( VERSION 2.4 )
-SET( CMAKE_BACKWARDS_COMPATIBILITY 2.2 )
+#SET( CMAKE_BACKWARDS_COMPATIBILITY 2.4 )
 MARK_AS_ADVANCED(CMAKE_BACKWARDS_COMPATIBILITY)
 
 # allow more human readable "if then else" constructs
