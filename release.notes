@@ -1,0 +1,22 @@
+##################################################
+#
+#   CED event display 
+#
+#   original author A.Zhelezov, DESY
+##################################################
+
+  -------
+ | v00-02 |   - to be released
+  -------
+     - added ced_geobox for displaying a box with offset in x,y 
+       (author A.Bulgheroni, INFN) 
+     F.Gaede, DESY:
+     - added world_size command line parameter to glced
+     - added help message for "glced -help [ -h, -?] "
+     - replaced fixed size window geometry with geometry comand-line option
+     - added simple example program test_ced (only built with cmake)
+       
+  -------
+ | v00-01 |  
+  -------
+     - initial release in marlinreco cvs
