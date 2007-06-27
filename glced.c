@@ -7,6 +7,10 @@
  *            server to glut's timer loop to make glced 
  *            "standard glut" compliant
  *
+ * June 2007, F.Gaede: - added world_size command line parameter
+ *                     - added help message for "-help, -h, -?"
+ *                     - replaced fixed size window geometry with geometry comand-line option
+ *                     
  */
 
 #include <GL/gl.h>
@@ -19,6 +23,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <string.h>
 #include <math.h>
 
 #include <ced.h>
@@ -26,6 +31,26 @@
 
 #include <errno.h>
 #include <sys/select.h>
+
+#define DEFAULT_WORLD_SIZE 6000. 
+
+static float WORLD_SIZE ;
+
+//fg - make axe a global to be able to rescale the world volume
+static GLfloat axe[][3]={
+  { 0., 0., 0., },
+  { DEFAULT_WORLD_SIZE/2, 0., 0. },
+  { 0., DEFAULT_WORLD_SIZE/2, 0. },
+  { 0., 0., DEFAULT_WORLD_SIZE/2 }
+};
+
+// allows to reset the visible world size
+static void set_world_size( float length) {
+  WORLD_SIZE = length ;
+  axe[1][0] = WORLD_SIZE / 2. ;
+  axe[2][1] = WORLD_SIZE / 2. ;
+  axe[3][2] = WORLD_SIZE / 2. ;
+}
 
 
 
@@ -45,7 +70,7 @@ unsigned ced_visible_layers;
 
 
 // The size of initialy visible world (+-)
-#define WORLD_SIZE 6000.
+//#define WORLD_SIZE 6000.
 
 static struct _geoCylinder {
   GLuint obj;
@@ -179,12 +204,12 @@ static void axe_arrow(void){
 }
 
 static void display_world(void){
-  static GLfloat axe[][3]={
-    { 0., 0., 0., },
-    { WORLD_SIZE/2, 0., 0. },
-    { 0., WORLD_SIZE/2, 0. },
-    { 0., 0., WORLD_SIZE/2 }
-  };
+/*   static GLfloat axe[][3]={ */
+/*     { 0., 0., 0., }, */
+/*     { WORLD_SIZE/2, 0., 0. }, */
+/*     { 0., WORLD_SIZE/2, 0. }, */
+/*     { 0., 0., WORLD_SIZE/2 } */
+/*   }; */
   //  unsigned i;
 
   glColor3f(0.2,0.2,0.8);
@@ -489,14 +514,42 @@ static void input_data(void *data){
 
 int main(int argc,char *argv[]){
 
+  WORLD_SIZE = DEFAULT_WORLD_SIZE ;
+
+  int i ;
+  for(i=0;i<argc ; i++){
+
+    if(!strcmp( argv[i] , "-world_size" ) ) {
+      float w_size = atof(  argv[i+1] )  ;
+      printf( "  setting world size to  %f " , w_size ) ;
+      set_world_size( w_size ) ;
+    }
+
+    if(!strcmp( argv[i] , "-h" ) || 
+       !strcmp( argv[i] , "-help" )|| 
+       !strcmp( argv[i] , "-?" )
+       ) {
+      printf( "\n  CED event display server: \n\n" 
+	      "   Usage:  glced [-world_size length] [-geometry x_geometry] \n" 
+	      "        where:  \n"
+	      "              - length is the visible world-cube size in mm (default: 6000) \n" 
+	      "              - x_geometry is the window position and size in the form WxH+X+Y \n" 
+	      "                (W:width, H: height, X: x-offset, Y: y-offset) \n"
+	      "   Example: \n\n"
+	      "     ./bin/glced -world_size 1000. -geometry 600x600+500+0  > /tmp/glced.log 2>&1 & \n\n"  
+	      ) ;      
+      exit(0) ;
+    }    
+  }
+
   ced_register_elements();
 
   glut_tcp_server(7286,input_data);
 
   glutInit(&argc,argv);
   glutInitDisplayMode(GLUT_DOUBLE|GLUT_RGB);
-  glutInitWindowSize(900,900);
-  glutInitWindowPosition(500,0);
+/*   glutInitWindowSize(600,600); // change to smaller window size */
+/*   glutInitWindowPosition(500,0); */
   glutCreateWindow("C Event Display (CED)");
 
   init();
