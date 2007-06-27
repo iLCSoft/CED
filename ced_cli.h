@@ -120,6 +120,31 @@ void ced_geocylinder(float d,unsigned sides,float rotate,float z,float shift,
 		     unsigned color);
 void ced_geocylinders(unsigned n,CED_GeoCylinder *all);
 
+  /** GeoBox structure
+   */
+  typedef struct {
+    /** The three box sizes in mm */
+    double sizes[3];
+    /** position of the center of the box*/
+    double center[3];
+    /** box color */
+    unsigned int color;
+  } CED_GeoBox;
+
+  /** Send/Draw a box at position center (x,y,z in mm) with lengths along the 
+   * axes specified in sizes.
+   * 
+   * @author A.Bulgheroni, INFN
+   */
+  void ced_geobox(double * sizes, double * center, unsigned int color );
+
+    /** Send/Draw several boxes.
+   * 
+   * @author A.Bulgheroni, INFN
+   */
+  void ced_geoboxes( unsigned int nBox, CED_GeoBox * allBoxes);
+
+
 #ifdef __cplusplus
 };
 #endif
