@@ -112,6 +112,12 @@ TARGET_LINK_LIBRARIES( bin lib_${PROJECT_NAME} )
 INSTALL( TARGETS bin DESTINATION . )
 INSTALL( TARGETS bin DESTINATION bin )
 
+
+ADD_EXECUTABLE( test_ced test_ced.c ced_cli.c )
+TARGET_LINK_LIBRARIES( test_ced lib_${PROJECT_NAME} )
+
+
+
 ###################################################################################
 
 # display status message for important variables

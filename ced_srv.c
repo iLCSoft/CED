@@ -206,11 +206,102 @@ static void ced_draw_geocylinder(CED_GeoCylinder *c){
   glPopMatrix();
 }
 
+/*
+ * GeoBox
+ */
+static unsigned GEOB_ID = 0;
+
+static void ced_draw_geobox(CED_GeoBox * box )  {
+
+  // a box has 8 vertices, four belonging to the first surface facing
+  // the beam, the other four from the second surface
+  const unsigned int nPoint = 4;
+  const unsigned int nDim   = 3;
+  const unsigned int nFace  = 2;
+  double face[nFace][nPoint][nDim];
+  //  unsigned int iDim, iPoint, iFace;
+
+
+  ced_color(box->color);
+  glLineWidth(2.);
+
+  face[0][0][0] = box->center[0] + (0.5 * box->sizes[0]);
+  face[0][0][1] = box->center[1] + (0.5 * box->sizes[1]);
+  face[0][0][2] = box->center[2] - (0.5 * box->sizes[2]);
+
+  face[0][1][0] = box->center[0] + (0.5 * box->sizes[0]);
+  face[0][1][1] = box->center[1] - (0.5 * box->sizes[1]);
+  face[0][1][2] = box->center[2] - (0.5 * box->sizes[2]);
+
+  face[0][2][0] = box->center[0] - (0.5 * box->sizes[0]);
+  face[0][2][1] = box->center[1] - (0.5 * box->sizes[1]);
+  face[0][2][2] = box->center[2] - (0.5 * box->sizes[2]);
+
+  face[0][3][0] = box->center[0] - (0.5 * box->sizes[0]);
+  face[0][3][1] = box->center[1] + (0.5 * box->sizes[1]);
+  face[0][3][2] = box->center[2] - (0.5 * box->sizes[2]);    
+
+  face[1][0][0] = box->center[0] + (0.5 * box->sizes[0]);
+  face[1][0][1] = box->center[1] + (0.5 * box->sizes[1]);
+  face[1][0][2] = box->center[2] + (0.5 * box->sizes[2]);
+
+  face[1][1][0] = box->center[0] + (0.5 * box->sizes[0]);
+  face[1][1][1] = box->center[1] - (0.5 * box->sizes[1]);
+  face[1][1][2] = box->center[2] + (0.5 * box->sizes[2]);
+
+  face[1][2][0] = box->center[0] - (0.5 * box->sizes[0]);
+  face[1][2][1] = box->center[1] + (0.5 * box->sizes[1]);
+  face[1][2][2] = box->center[2] + (0.5 * box->sizes[2]);
+
+  face[1][3][0] = box->center[0] + (0.5 * box->sizes[0]);
+  face[1][3][1] = box->center[1] + (0.5 * box->sizes[1]);
+  face[1][3][2] = box->center[2] + (0.5 * box->sizes[2]);
+
+  glBegin(GL_LINES);
+  glVertex3f( (float) face[0][0][0], (float) face[0][0][1],  (float) face[0][0][2] );
+  glVertex3f( (float) face[0][1][0], (float) face[0][1][1],  (float) face[0][1][2] );
+
+  glVertex3f( (float) face[0][1][0], (float) face[0][1][1],  (float) face[0][1][2] ); 
+  glVertex3f( (float) face[0][2][0], (float) face[0][2][1],  (float) face[0][2][2] ); 
+
+  glVertex3f( (float) face[0][2][0], (float) face[0][2][1],  (float) face[0][2][2] );
+  glVertex3f( (float) face[0][3][0], (float) face[0][3][1],  (float) face[0][3][2] );
+
+  glVertex3f( (float) face[0][3][0], (float) face[0][3][1],  (float) face[0][3][2] );
+  glVertex3f( (float) face[0][0][0], (float) face[0][0][1],  (float) face[0][0][2] );
+
+  glVertex3f( (float) face[1][0][0], (float) face[1][0][1],  (float) face[1][0][2] );
+  glVertex3f( (float) face[1][1][0], (float) face[1][1][1],  (float) face[1][1][2] );
+
+  glVertex3f( (float) face[1][1][0], (float) face[1][1][1],  (float) face[1][1][2] );
+  glVertex3f( (float) face[1][2][0], (float) face[0][2][1],  (float) face[1][2][2] );
+
+  glVertex3f( (float) face[1][2][0], (float) face[1][2][1],  (float) face[1][2][2] );
+  glVertex3f( (float) face[0][3][0], (float) face[1][3][1],  (float) face[0][3][2] );
+
+  glVertex3f( (float) face[1][3][0], (float) face[1][3][1],  (float) face[1][3][2] );
+  glVertex3f( (float) face[1][0][0], (float) face[1][0][1],  (float) face[1][0][2] );
+  
+  glVertex3f( (float) face[0][0][0], (float) face[0][0][1],  (float) face[0][0][2] );
+  glVertex3f( (float) face[1][0][0], (float) face[1][0][1],  (float) face[1][0][2] );
+
+  glVertex3f( (float) face[0][1][0], (float) face[0][1][1],  (float) face[0][1][2] );
+  glVertex3f( (float) face[1][1][0], (float) face[1][1][1],  (float) face[1][1][2] );
+
+  glVertex3f( (float) face[0][2][0], (float) face[0][2][1],  (float) face[0][2][2] );
+  glVertex3f( (float) face[1][2][0], (float) face[1][2][1],  (float) face[1][2][2] );
+
+  glVertex3f( (float) face[0][3][0], (float) face[0][3][1],  (float) face[0][3][2] );
+  glVertex3f( (float) face[1][3][0], (float) face[1][3][1],  (float) face[1][3][2] );
+
+  glEnd();
+}
 
 void ced_register_elements(void){
   GEOC_ID  =ced_register_element(sizeof(CED_GeoCylinder),(ced_draw_cb)ced_draw_geocylinder);
   LINE_ID  =ced_register_element(sizeof(CED_Line),(ced_draw_cb)ced_draw_line);
   HIT_ID   =ced_register_element(sizeof(CED_Hit),(ced_draw_cb)ced_draw_hit);
+  GEOB_ID  =ced_register_element(sizeof(CED_GeoBox),(ced_draw_cb)ced_draw_geobox);
 }
 
 
