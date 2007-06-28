@@ -1,3 +1,16 @@
+++++++++++++++++++++++++++++++++++++++++++++++++++++
++ NEW: building with CMake
++ -------------------------
++ CED can (and should ) be build with cmake:
++   http://www.cmake.org/
++
++ mkdir build
++ cd build
++ cmake path_to_CED_source_dir
++ make install
++
++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 First try to run glced
 
 If it will not work try 
