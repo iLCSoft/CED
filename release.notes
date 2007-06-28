@@ -8,8 +8,10 @@
   -------
  | v00-02 |   - to be released
   -------
+     - new build scripts for CMake (J.Engels, DESY)
      - added ced_geobox for displaying a box with offset in x,y 
        (author A.Bulgheroni, INFN) 
+	 - ported to MAC (thanks to E. Corrin)  (need to build with cmake)  
      F.Gaede, DESY:
      - added world_size command line parameter to glced
      - added help message for "glced -help [ -h, -?] "

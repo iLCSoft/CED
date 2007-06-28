@@ -125,7 +125,12 @@ int glut_tcp_server(unsigned short port,
   long flags;
   tcp_srv_sock *list;
 
-  setsockopt(fd,SOL_TCP,TCP_NODELAY,&one,sizeof(one));
+#ifdef __APPLE__
+  setsockopt(fd,IPPROTO_TCP,TCP_NODELAY,&one,sizeof(one));
+#else
+  setsockopt(fd,SOL_TCP,TCP_NODELAY,&one,sizeof(one));  
+#endif    
+
   setsockopt(fd,SOL_SOCKET,SO_REUSEADDR,&one,sizeof(one));
   flags=fcntl(fd,F_GETFL);
   flags|=O_NONBLOCK;

@@ -3,11 +3,17 @@
  *
  * Alexey Zhelezov, DESY/ITEP, 2005 */
 
+#ifdef __APPLE__
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
+#include <GLUT/glut.h>
+#else
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <X11/Xlib.h>
-//#include <GL/glx.h>
 #include <GL/glut.h>
+#endif
+
 
 #include <stdio.h>
 #include <stdlib.h>
