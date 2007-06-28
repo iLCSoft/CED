@@ -18,7 +18,7 @@ int main(){
   double l = 100. ;
   // geocylinder actually draws a 'polygonal cylinder' along z axis
   // with outer(!) radius, n-edges, rotation in degrees, half-z, z-offset, color 
-  ced_geocylinder( sqrt(2.)*l , 4, 45. , l , -l , 0xffffff ) ;
+  ced_geocylinder( M_SQRT2*l , 4, 45. , l , -l , 0xffffff ) ;
     
   ced_send_event();    // Does not clean up screen
   
