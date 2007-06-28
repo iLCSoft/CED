@@ -123,6 +123,7 @@ INSTALL( TARGETS bin DESTINATION bin )
 
 
 ADD_EXECUTABLE( test_ced test_ced.c ced_cli.c ced.c)
+INSTALL( TARGETS test_ced DESTINATION bin )
 #TARGET_LINK_LIBRARIES( test_ced lib_${PROJECT_NAME} )
 
 
