@@ -256,19 +256,20 @@ static void ced_draw_geobox(CED_GeoBox * box )  {
   face[1][1][2] = box->center[2] + (0.5 * box->sizes[2]);
 
   face[1][2][0] = box->center[0] - (0.5 * box->sizes[0]);
-  face[1][2][1] = box->center[1] + (0.5 * box->sizes[1]);
+  face[1][2][1] = box->center[1] - (0.5 * box->sizes[1]);
   face[1][2][2] = box->center[2] + (0.5 * box->sizes[2]);
 
-  face[1][3][0] = box->center[0] + (0.5 * box->sizes[0]);
+  face[1][3][0] = box->center[0] - (0.5 * box->sizes[0]);
   face[1][3][1] = box->center[1] + (0.5 * box->sizes[1]);
   face[1][3][2] = box->center[2] + (0.5 * box->sizes[2]);
 
   glBegin(GL_LINES);
+  //  drawing the first face
   glVertex3f( (float) face[0][0][0], (float) face[0][0][1],  (float) face[0][0][2] );
   glVertex3f( (float) face[0][1][0], (float) face[0][1][1],  (float) face[0][1][2] );
 
-  glVertex3f( (float) face[0][1][0], (float) face[0][1][1],  (float) face[0][1][2] ); 
-  glVertex3f( (float) face[0][2][0], (float) face[0][2][1],  (float) face[0][2][2] ); 
+  glVertex3f( (float) face[0][1][0], (float) face[0][1][1],  (float) face[0][1][2] );
+  glVertex3f( (float) face[0][2][0], (float) face[0][2][1],  (float) face[0][2][2] );
 
   glVertex3f( (float) face[0][2][0], (float) face[0][2][1],  (float) face[0][2][2] );
   glVertex3f( (float) face[0][3][0], (float) face[0][3][1],  (float) face[0][3][2] );
@@ -276,18 +277,22 @@ static void ced_draw_geobox(CED_GeoBox * box )  {
   glVertex3f( (float) face[0][3][0], (float) face[0][3][1],  (float) face[0][3][2] );
   glVertex3f( (float) face[0][0][0], (float) face[0][0][1],  (float) face[0][0][2] );
 
+
+  // drawing the sencod face
   glVertex3f( (float) face[1][0][0], (float) face[1][0][1],  (float) face[1][0][2] );
   glVertex3f( (float) face[1][1][0], (float) face[1][1][1],  (float) face[1][1][2] );
 
   glVertex3f( (float) face[1][1][0], (float) face[1][1][1],  (float) face[1][1][2] );
-  glVertex3f( (float) face[1][2][0], (float) face[0][2][1],  (float) face[1][2][2] );
+  glVertex3f( (float) face[1][2][0], (float) face[1][2][1],  (float) face[1][2][2] );
 
   glVertex3f( (float) face[1][2][0], (float) face[1][2][1],  (float) face[1][2][2] );
-  glVertex3f( (float) face[0][3][0], (float) face[1][3][1],  (float) face[0][3][2] );
+  glVertex3f( (float) face[1][3][0], (float) face[1][3][1],  (float) face[1][3][2] );
 
   glVertex3f( (float) face[1][3][0], (float) face[1][3][1],  (float) face[1][3][2] );
   glVertex3f( (float) face[1][0][0], (float) face[1][0][1],  (float) face[1][0][2] );
   
+
+  // drawing the connections
   glVertex3f( (float) face[0][0][0], (float) face[0][0][1],  (float) face[0][0][2] );
   glVertex3f( (float) face[1][0][0], (float) face[1][0][1],  (float) face[1][0][2] );
 
