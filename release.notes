@@ -6,7 +6,14 @@
 ##################################################
 
   -------
- | v00-02 |   - to be released
+ | v00-03 |
+  -------
+    - minor fixes
+    - improved test_ced.c with more examples
+    - improved MacOSX support (cmake)
+ 
+  -------
+ | v00-02 |
   -------
      - new build scripts for CMake (J.Engels, DESY)
      - added ced_geobox for displaying a box with offset in x,y 
