@@ -21,8 +21,8 @@ OPTION( BUILD_SHARED_LIBS "Set to OFF to build static libraries" ON )
 
 # project version
 SET( ${PROJECT_NAME}_MAJOR_VERSION 0 )
-SET( ${PROJECT_NAME}_MINOR_VERSION 1 )
-SET( ${PROJECT_NAME}_PATCH_LEVEL 1 )
+SET( ${PROJECT_NAME}_MINOR_VERSION 3 )
+SET( ${PROJECT_NAME}_PATCH_LEVEL 0 )
 
 # set default install prefix to project root directory
 IF( CMAKE_INSTALL_PREFIX STREQUAL "/usr/local" )
