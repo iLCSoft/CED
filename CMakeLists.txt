@@ -26,7 +26,7 @@ SET( ${PROJECT_NAME}_PATCH_LEVEL 0 )
 
 # set default install prefix to project root directory
 IF( CMAKE_INSTALL_PREFIX STREQUAL "/usr/local" )
-    SET( CMAKE_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}" )
+    SET( CMAKE_INSTALL_PREFIX "${PROJECT_SOURCE_DIR}" )
 ENDIF()
 
 # library *nix style versioning
@@ -50,32 +50,32 @@ SET( CMAKE_INSTALL_RPATH_USE_LINK_PATH 1 )
 MARK_AS_ADVANCED( CMAKE_INSTALL_RPATH_USE_LINK_PATH )
 
 # output directories
-SET( EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin" CACHE PATH
+SET( EXECUTABLE_OUTPUT_PATH "${PROJECT_BINARY_DIR}/bin" CACHE PATH
     "EXECUTABLE_OUTPUT_PATH" FORCE )
-SET( LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}/lib" CACHE PATH
+SET( LIBRARY_OUTPUT_PATH "${PROJECT_BINARY_DIR}/lib" CACHE PATH
     "LIBRARY_OUTPUT_PATH" FORCE )
 MARK_AS_ADVANCED( EXECUTABLE_OUTPUT_PATH LIBRARY_OUTPUT_PATH )
 
 # create uninstall configuration file
-CONFIGURE_FILE( "${CMAKE_SOURCE_DIR}/cmake_uninstall.cmake.in"
-                "${CMAKE_BINARY_DIR}/cmake_uninstall.cmake"
+CONFIGURE_FILE( "${PROJECT_SOURCE_DIR}/cmake_uninstall.cmake.in"
+                "${PROJECT_BINARY_DIR}/cmake_uninstall.cmake"
                 IMMEDIATE @ONLY )
                                                                                                                                                             
 # create uninstall target
 ADD_CUSTOM_TARGET( uninstall
-  "${CMAKE_COMMAND}" -P "${CMAKE_BINARY_DIR}/cmake_uninstall.cmake" )
+  "${CMAKE_COMMAND}" -P "${PROJECT_BINARY_DIR}/cmake_uninstall.cmake" )
                                                                                                                                                             
 # create configuration file from .in file
-CONFIGURE_FILE( "${CMAKE_SOURCE_DIR}/${PROJECT_NAME}Config.cmake.in"
-                "${CMAKE_BINARY_DIR}/${PROJECT_NAME}Config.cmake" @ONLY )
+CONFIGURE_FILE( "${PROJECT_SOURCE_DIR}/${PROJECT_NAME}Config.cmake.in"
+                "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake" @ONLY )
                                                                                                                                                             
 # install configuration file
-INSTALL( FILES "${CMAKE_BINARY_DIR}/${PROJECT_NAME}Config.cmake" DESTINATION . )
+INSTALL( FILES "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake" DESTINATION . )
 
 # install include files
-INSTALL( FILES "${CMAKE_SOURCE_DIR}/ced.h" "${CMAKE_SOURCE_DIR}/ced_cli.h"
+INSTALL( FILES "${PROJECT_SOURCE_DIR}/ced.h" "${PROJECT_SOURCE_DIR}/ced_cli.h"
         DESTINATION . )
-INSTALL( FILES "${CMAKE_SOURCE_DIR}/ced.h" "${CMAKE_SOURCE_DIR}/ced_cli.h"
+INSTALL( FILES "${PROJECT_SOURCE_DIR}/ced.h" "${PROJECT_SOURCE_DIR}/ced_cli.h"
         DESTINATION include )
 
 ###################################################################################
