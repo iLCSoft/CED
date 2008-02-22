@@ -146,7 +146,7 @@ void ced_geocylinders(unsigned n,CED_GeoCylinder *all);
 
 
 #ifdef __cplusplus
-};
+}
 #endif
 
 #endif /* __CED_CLI_H */
