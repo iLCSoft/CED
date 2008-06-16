@@ -36,7 +36,7 @@
 #include <errno.h>
 #include <sys/select.h>
 
-#define DEFAULT_WORLD_SIZE 6000. 
+#define DEFAULT_WORLD_SIZE 1000.  //SJA:FIXED Reduce world size to give better scale
 
 static float WORLD_SIZE ;
 
@@ -70,8 +70,8 @@ extern struct __glutSocketList {
 // from ced_srv.c
 void ced_prepare_objmap(void);
 int ced_get_selected(int x,int y,GLfloat *wx,GLfloat *wy,GLfloat *wz);
-unsigned ced_visible_layers;
-
+//SJA:FIXED set this to extern as it is a global from ced_srv.c
+extern unsigned ced_visible_layers; 
 
 // The size of initialy visible world (+-)
 //#define WORLD_SIZE 6000.
@@ -166,7 +166,7 @@ static struct {
 } mm = {
   -20.,
   20.,
-  1.,
+  0.2, //SJA:FIXED set redraw scale a lot smaller
   { 0., 0., 0. },
   0.,
   0.,
@@ -340,10 +340,12 @@ static void mouse(int btn,int state,int x,int y){
 
 static void toggle_layer(unsigned l){
   ced_visible_layers^=(1<<l);
+  //  printf("Toggle Layer %u  and ced_visible_layers = %u \n",l,ced_visible_layers);  
 }
 
 static void show_all_layers(void){
   ced_visible_layers=0xffffffff;
+  //  printf("show all layers  ced_visible_layers = %u \n",ced_visible_layers);
 }
 
 static void keypressed(unsigned char key,int x,int y){
