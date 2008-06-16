@@ -144,6 +144,18 @@ void ced_geocylinders(unsigned n,CED_GeoCylinder *all);
    */
   void ced_geoboxes( unsigned int nBox, CED_GeoBox * allBoxes);
 
+  typedef struct {
+    /** The three box sizes in mm */
+    double sizes[3];
+    /** position of the center of the box*/
+    double center[3];
+    /** box color */
+    unsigned int color;
+    /** rotation angle in degrees */
+    double rotate;
+  } CED_GeoBoxR;
+
+  void ced_geobox_r(double * sizes, double * center, double rotate,unsigned int color );
 
 #ifdef __cplusplus
 }
