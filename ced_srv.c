@@ -37,6 +37,7 @@ static GLdouble projM[16];
 static GLint    viewport[4];
 
 typedef struct {
+  unsigned int ID;
   int x; // in window
   int y;
   int max_dxy; // after this distance, ignore this object
@@ -90,14 +91,14 @@ int ced_get_selected(int x,int y,GLfloat *wx,GLfloat *wy,GLfloat *wz){
   *wx=best->p.x;
   *wy=best->p.y;
   *wz=best->p.z;
-  printf("Will center in: %.1f %.1f %.1f\n",*wx,*wy,*wz);
+  printf("Will center in: %.1f %.1f %.1f for HIT %d\n",*wx,*wy,*wz,best->ID);
   return 0;
 }
 
 /*
  * To be called from drawing functions
  */
-static void ced_add_objmap(CED_Point *p,int max_dxy){
+static void ced_add_objmap(CED_Point *p,int max_dxy, unsigned int ID){
   GLdouble winx,winy,winz;
   if(omap_count==omap_alloced){
     omap_alloced+=256;
@@ -106,6 +107,7 @@ static void ced_add_objmap(CED_Point *p,int max_dxy){
   if(gluProject((GLdouble)p->x,(GLdouble)p->y,(GLdouble)p->z,
 		modelM,projM,viewport,&winx,&winy,&winz)!=GL_TRUE)
     return;
+  omap[omap_count].ID=ID;
   omap[omap_count].x=winx;
   omap[omap_count].y=winy;
   omap[omap_count].max_dxy=max_dxy;
@@ -146,20 +148,30 @@ static void ced_draw_hit(CED_Hit *h){
 	case CED_HIT_STAR:
 	    glLineWidth(1.);
 	    glBegin(GL_LINES);
-	    if(h->type==CED_HIT_CROSS){
-		d=h->size/M_SQRT2;
-		glVertex3f(h->p.x-d,h->p.y-d,h->p.z);
-		glVertex3f(h->p.x+d,h->p.y+d,h->p.z);
-		glVertex3f(h->p.x+d,h->p.y-d,h->p.z);
-		glVertex3f(h->p.x-d,h->p.y+d,h->p.z);
+	    if((h->type & CED_HIT_CROSS)==CED_HIT_CROSS){
+	      //	      printf("cross type == %d \n",(h->type & CED_HIT_CROSS));
+	      d=h->size/2;
+	      glVertex3f(h->p.x-d,h->p.y-d,h->p.z+d);
+	      glVertex3f(h->p.x+d,h->p.y+d,h->p.z-d);
+
+	      glVertex3f(h->p.x+d,h->p.y-d,h->p.z+d);
+	      glVertex3f(h->p.x-d,h->p.y+d,h->p.z-d);
+
+	      glVertex3f(h->p.x+d,h->p.y+d,h->p.z+d);
+	      glVertex3f(h->p.x-d,h->p.y-d,h->p.z-d);
+
+	      glVertex3f(h->p.x-d,h->p.y+d,h->p.z+d);
+	      glVertex3f(h->p.x+d,h->p.y-d,h->p.z-d);
+
 	    } else {
-		d=h->size/2.;
-		glVertex3f(h->p.x-d,h->p.y,h->p.z);
-		glVertex3f(h->p.x+d,h->p.y,h->p.z);
-		glVertex3f(h->p.x,h->p.y-d,h->p.z);
-		glVertex3f(h->p.x,h->p.y+d,h->p.z);
-		glVertex3f(h->p.x,h->p.y,h->p.z-d);
-		glVertex3f(h->p.x,h->p.y,h->p.z+d);
+	      //	      printf("star type == %d \n",(h->type & CED_HIT_STAR));
+	      d=h->size/2.;
+	      glVertex3f(h->p.x-d,h->p.y,h->p.z);
+	      glVertex3f(h->p.x+d,h->p.y,h->p.z);
+	      glVertex3f(h->p.x,h->p.y-d,h->p.z);
+	      glVertex3f(h->p.x,h->p.y+d,h->p.z);
+	      glVertex3f(h->p.x,h->p.y,h->p.z-d);
+	      glVertex3f(h->p.x,h->p.y,h->p.z+d);
 	    }
 	    break;
 	default:
@@ -168,7 +180,7 @@ static void ced_draw_hit(CED_Hit *h){
 	    glVertex3fv(&h->p.x);
     }
     glEnd();
-    ced_add_objmap(&h->p,5);
+    ced_add_objmap(&h->p,5,h->lcioID);
 }
 
 /*
@@ -326,6 +338,7 @@ static unsigned GEOBR_ID = 0;
 
 static void ced_draw_geobox_r(CED_GeoBoxR * box )  {
 
+  if(!IS_VISIBLE(box->layer)){
   // a box has 8 vertices, four belonging to the first surface facing
   // the beam, the other four from the second surface
   const unsigned int nPoint = 4;
@@ -422,7 +435,7 @@ static void ced_draw_geobox_r(CED_GeoBoxR * box )  {
 
 
   glPopMatrix();
-
+  }
 
 
 }

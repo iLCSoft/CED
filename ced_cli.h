@@ -6,9 +6,6 @@
 #ifndef __CED_CLI_H
 #define __CED_CLI_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /*
  * This is the first function to call (before any other).
@@ -84,9 +81,11 @@ typedef struct {
   unsigned type;  // not yet defined...
   unsigned color; // in ARGB form (so, 0xff0000 is RED)
   unsigned size;  // size of point/size of cross
+  unsigned lcioID; // unique id of LICO object
 } CED_Hit;
 
 void ced_hit(float x,float y,float z,unsigned type,unsigned size,unsigned color);
+void ced_hit_ID(float x,float y,float z,unsigned type,unsigned size,unsigned color, unsigned lcioID);
 
 /*
  * Line element
@@ -153,12 +152,12 @@ void ced_geocylinders(unsigned n,CED_GeoCylinder *all);
     unsigned int color;
     /** rotation angle in degrees */
     double rotate;
+    /** layer for toggling display */
+    unsigned int layer;
   } CED_GeoBoxR;
 
-  void ced_geobox_r(double * sizes, double * center, double rotate,unsigned int color );
+void ced_geobox_r(double * sizes, double * center, double rotate, unsigned int color, unsigned int layer );
 
-#ifdef __cplusplus
-}
-#endif
+
 
 #endif /* __CED_CLI_H */
