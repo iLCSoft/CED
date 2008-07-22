@@ -6,6 +6,17 @@
 ##################################################
 
   -------
+ | v00-04 |
+  -------
+     -  improved CMakeLists.txt: (F.Gaede)
+	    create true client library libCED.so 
+        
+     -  corrected implementation of crosses for displaying hits (S.Aplin)
+	 -  added layer functionality to CED_GeoBoxR
+	 -  added a unique id variable (int) to CED_Hit, which is printed to
+		screen whenever the 'C' key is pressed to center on a hit
+
+  -------
  | v00-03 |
   -------
     - minor fixes

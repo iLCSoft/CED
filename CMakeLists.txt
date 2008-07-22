@@ -21,7 +21,7 @@ OPTION( BUILD_SHARED_LIBS "Set to OFF to build static libraries" ON )
 
 # project version
 SET( ${PROJECT_NAME}_MAJOR_VERSION 0 )
-SET( ${PROJECT_NAME}_MINOR_VERSION 3 )
+SET( ${PROJECT_NAME}_MINOR_VERSION 4 )
 SET( ${PROJECT_NAME}_PATCH_LEVEL 0 )
 
 # set default install prefix to project root directory
@@ -96,7 +96,8 @@ INCLUDE_DIRECTORIES( ${GLUT_INCLUDE_DIR} )
 ADD_DEFINITIONS( "-Wall" )
 
 # LIBRARY
-ADD_LIBRARY( lib_${PROJECT_NAME} ced_srv.c ced.c glut_socks.c )
+#ADD_LIBRARY( lib_${PROJECT_NAME} ced_srv.c ced.c glut_socks.c )
+ADD_LIBRARY( lib_${PROJECT_NAME} ced_cli.c ced.c glut_socks.c )
 
 ADD_CUSTOM_TARGET( lib DEPENDS lib_${PROJECT_NAME} )
 SET_TARGET_PROPERTIES( lib_${PROJECT_NAME} PROPERTIES
@@ -121,7 +122,7 @@ INSTALL( TARGETS lib_${PROJECT_NAME} DESTINATION lib PERMISSIONS
         WORLD_READ WORLD_EXECUTE )
 
 # BINARY
-ADD_EXECUTABLE( bin glced.c )
+ADD_EXECUTABLE( bin glced.c ced_srv.c)
 SET_TARGET_PROPERTIES( bin PROPERTIES OUTPUT_NAME glced )
 TARGET_LINK_LIBRARIES( bin lib_${PROJECT_NAME} )
 INSTALL( TARGETS bin DESTINATION . )
