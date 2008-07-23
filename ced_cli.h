@@ -6,6 +6,10 @@
 #ifndef __CED_CLI_H
 #define __CED_CLI_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+		
 
 /*
  * This is the first function to call (before any other).
@@ -158,6 +162,9 @@ void ced_geocylinders(unsigned n,CED_GeoCylinder *all);
 
 void ced_geobox_r(double * sizes, double * center, double rotate, unsigned int color, unsigned int layer );
 
-
+#ifdef __cplusplus
+ }
+#endif
+	
 
 #endif /* __CED_CLI_H */

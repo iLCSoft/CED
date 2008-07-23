@@ -12,6 +12,10 @@
 #ifndef __CED_H
 #define __CED_H
 
+#ifdef __cplusplus
+ extern "C" {
+#endif
+		
 typedef void (*ced_draw_cb)(void *data);
 
 
@@ -67,5 +71,11 @@ void ced_do_draw_event(void);
  *          <do redraw>
  */
 int ced_process_input(void *data);
+
+#ifdef __cplusplus
+ }
+#endif
+
+	 
 
 #endif /* __CED_H  */
