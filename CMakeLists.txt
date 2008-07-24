@@ -19,6 +19,8 @@ PROJECT( CED C )
 # project options
 OPTION( BUILD_SHARED_LIBS "Set to OFF to build static libraries" ON )
 
+OPTION( CED_SERVER "Set to ON to build the glced server" OFF )
+
 # project version
 SET( ${PROJECT_NAME}_MAJOR_VERSION 0 )
 SET( ${PROJECT_NAME}_MINOR_VERSION 4 )
@@ -73,30 +75,34 @@ CONFIGURE_FILE( "${PROJECT_SOURCE_DIR}/${PROJECT_NAME}Config.cmake.in"
 INSTALL( FILES "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake" DESTINATION . )
 
 # install include files
-INSTALL( FILES "${PROJECT_SOURCE_DIR}/ced.h" "${PROJECT_SOURCE_DIR}/ced_cli.h"
-        DESTINATION . )
-INSTALL( FILES "${PROJECT_SOURCE_DIR}/ced.h" "${PROJECT_SOURCE_DIR}/ced_cli.h"
-        DESTINATION include )
+#INSTALL( FILES "${PROJECT_SOURCE_DIR}/ced.h" "${PROJECT_SOURCE_DIR}/ced_cli.h"
+#        DESTINATION . )
+
+INSTALL( FILES  "${PROJECT_SOURCE_DIR}/ced_cli.h" DESTINATION include )
 
 ###################################################################################
 
-# GLUT is required for building CED
-FIND_PACKAGE( GLUT REQUIRED )
+IF( CED_SERVER )
+  # GLUT is required for building CED server
+  FIND_PACKAGE( GLUT REQUIRED )
 
-# MAC ONLY
-IF(APPLE)
-FIND_PACKAGE( OpenGL REQUIRED )
-ENDIF(APPLE)
+  # MAC ONLY
+  IF(APPLE)
+    FIND_PACKAGE( OpenGL REQUIRED )
+  ENDIF(APPLE)
+
+
+  INCLUDE_DIRECTORIES( ${GLUT_INCLUDE_DIR} )
+
+ENDIF(CED_SERVER)
 
 # include directories
 INCLUDE_DIRECTORIES( . )
-INCLUDE_DIRECTORIES( ${GLUT_INCLUDE_DIR} )
 
 # add definitions
 ADD_DEFINITIONS( "-Wall" )
 
-# LIBRARY
-#ADD_LIBRARY( lib_${PROJECT_NAME} ced_srv.c ced.c glut_socks.c )
+# CLIENT LIBRARY
 ADD_LIBRARY( lib_${PROJECT_NAME} ced_cli.c ced.c glut_socks.c )
 
 ADD_CUSTOM_TARGET( lib DEPENDS lib_${PROJECT_NAME} )
@@ -109,11 +115,12 @@ SET_TARGET_PROPERTIES( lib_${PROJECT_NAME} PROPERTIES
     # avoid conflicts between library and binary target names
     OUTPUT_NAME ${PROJECT_NAME} )
 
-TARGET_LINK_LIBRARIES( lib_${PROJECT_NAME} ${GLUT_glut_LIBRARY} )
+
+#TARGET_LINK_LIBRARIES( lib_${PROJECT_NAME} ${GLUT_glut_LIBRARY} )
 #MAC ONLY
-IF(APPLE)
-TARGET_LINK_LIBRARIES( lib_${PROJECT_NAME} ${OPENGL_LIBRARIES} )
-ENDIF(APPLE)
+#IF(APPLE)
+#TARGET_LINK_LIBRARIES( lib_${PROJECT_NAME} ${OPENGL_LIBRARIES} )
+#ENDIF(APPLE)
 
 # install library
 INSTALL( TARGETS lib_${PROJECT_NAME} DESTINATION lib PERMISSIONS
@@ -121,16 +128,26 @@ INSTALL( TARGETS lib_${PROJECT_NAME} DESTINATION lib PERMISSIONS
         GROUP_READ GROUP_EXECUTE
         WORLD_READ WORLD_EXECUTE )
 
-# BINARY
-ADD_EXECUTABLE( bin glced.c ced_srv.c)
-SET_TARGET_PROPERTIES( bin PROPERTIES OUTPUT_NAME glced )
-TARGET_LINK_LIBRARIES( bin lib_${PROJECT_NAME} )
-INSTALL( TARGETS bin DESTINATION . )
-INSTALL( TARGETS bin DESTINATION bin )
+# CED SERVER BINARY --------------------------
+IF( CED_SERVER )
+  ADD_EXECUTABLE( bin glced.c ced_srv.c)
+  SET_TARGET_PROPERTIES( bin PROPERTIES OUTPUT_NAME glced )
+
+  IF(APPLE)
+    TARGET_LINK_LIBRARIES( bin lib_${PROJECT_NAME} ${OPENGL_LIBRARIES} )
+  ELSE(APPLE)
+    TARGET_LINK_LIBRARIES( bin lib_${PROJECT_NAME} ${GLUT_glut_LIBRARY} )
+  ENDIF(APPLE)
+
+  INSTALL( TARGETS bin DESTINATION bin )
+
+ENDIF( CED_SERVER )
 
 
 ADD_EXECUTABLE( test_ced test_ced.c ced_cli.c ced.c)
+
 INSTALL( TARGETS test_ced DESTINATION bin )
+
 #TARGET_LINK_LIBRARIES( test_ced lib_${PROJECT_NAME} )
 
 
@@ -141,6 +158,7 @@ INSTALL( TARGETS test_ced DESTINATION bin )
 MESSAGE( STATUS )
 MESSAGE( STATUS "-------------------------------------------------------------------------------" )
 MESSAGE( STATUS "BUILD_SHARED_LIBS = ${BUILD_SHARED_LIBS}" )
+MESSAGE( STATUS "CED_SERVER = ${CED_SERVER}" )
 MESSAGE( STATUS "CMAKE_INSTALL_PREFIX = ${CMAKE_INSTALL_PREFIX}" )
 MESSAGE( STATUS "Change a value with: cmake -D<Variable>=<Value>" )
 MESSAGE( STATUS "-------------------------------------------------------------------------------" )
@@ -150,6 +168,8 @@ MESSAGE( STATUS )
 # to be written to cache
 SET( BUILD_SHARED_LIBS "${BUILD_SHARED_LIBS}" CACHE BOOL
     "Set to OFF to build static libraries" FORCE )
+SET( CED_SERVER "${CED_SERVER}" CACHE BOOL
+    "Set to ON to build CED server: glced" FORCE )
 SET( CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}" CACHE PATH
     "Where to install ${PROJECT_NAME}" FORCE )
 
