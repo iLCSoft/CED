@@ -23,7 +23,7 @@ OPTION( CED_SERVER "Set to ON to build the glced server" OFF )
 
 # project version
 SET( ${PROJECT_NAME}_MAJOR_VERSION 0 )
-SET( ${PROJECT_NAME}_MINOR_VERSION 4 )
+SET( ${PROJECT_NAME}_MINOR_VERSION 5 )
 SET( ${PROJECT_NAME}_PATCH_LEVEL 0 )
 
 # set default install prefix to project root directory

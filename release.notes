@@ -5,6 +5,16 @@
 #   original author A.Zhelezov, DESY
 ##################################################
 
+ --------
+| v00-05 |
+ --------
+      * restructered build process: 
+        default is to build true client library libCED.so 
+        - optionally also build CED server glced (needs glut/OpenGL)
+          with cmake switch -D CED_SERVER=ON 
+
+      * install only ced_cli.h 
+
  -----------
 | v00-04-01 |
  -----------
