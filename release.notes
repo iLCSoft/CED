@@ -5,6 +5,13 @@
 #   original author A.Zhelezov, DESY
 ##################################################
 
+ -----------
+| v00-05-01 |
+ -----------
+      * bug fix for building ced server on mac
+      * added CED_LIBRARY_DIRS
+      * cmake 2.6 compatible
+
  --------
 | v00-05 |
  --------
