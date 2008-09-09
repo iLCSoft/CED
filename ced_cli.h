@@ -121,7 +121,28 @@ typedef struct {
 
 void ced_geocylinder(float d,unsigned sides,float rotate,float z,float shift,
 		     unsigned color);
+
 void ced_geocylinders(unsigned n,CED_GeoCylinder *all);
+		   
+/*
+ * GeoCylinder rotatable
+ * @author: S.Daraszewicz (UoE)
+ * @date: 01.09.09
+ */
+typedef struct {
+  float d;       	// radius
+  unsigned sides; 	// poligon order
+  float center[3];  // cylinder centre z,y,z
+  float rotate[3];  // rotation angles wrt x,y,z axis
+  float z;       	// length
+  unsigned color;	// colour
+  unsigned layer; 	// layer the Cylinder to be displayed onto
+} CED_GeoCylinderR;
+		   
+		     
+void ced_geocylinder_r(float d, double z, double * center, double * rotate, unsigned sides, 
+		     unsigned int color, int layer);
+		     
 
   /** GeoBox structure
    */
@@ -155,12 +176,69 @@ void ced_geocylinders(unsigned n,CED_GeoCylinder *all);
     /** box color */
     unsigned int color;
     /** rotation angle in degrees */
-    double rotate;
+    double rotate[3];
     /** layer for toggling display */
     unsigned int layer;
   } CED_GeoBoxR;
 
-void ced_geobox_r(double * sizes, double * center, double rotate, unsigned int color, unsigned int layer );
+void ced_geobox_r(double * sizes, double * center, double * rotate, unsigned int color, unsigned int layer);
+
+/*
+ * Energy spectrum colour map legend.
+ * @author: S.Daraszewicz (UoE)
+ * @date: 01.09.09
+ */
+  typedef struct {  
+  	/** min energy on the legend */	
+  	float ene_max;
+  	/** max energy on the legend */
+  	float ene_min;
+  	/** number of ticks on the legend */
+  	unsigned int ticks;
+  	/** spectrum colour steps */
+  	unsigned int color_steps; 
+  	/** spectrum colour matrix */
+  	unsigned int rgb_matrix[512][3]; //FIX ME: 512 size not changed with color_steps
+  	/** LOG or LIN */
+  	char scale;
+  } CED_Legend;
+
+
+void ced_legend(float ene_min, float ene_max, unsigned int color_steps, unsigned int ** rgb_matrix, unsigned int ticks, char scale);
+
+  typedef struct {  
+  	/** position of the centre of the base */	
+  	double center[3];
+  	/** rotation matrix */
+  	double rotate[3];
+    /** layer for toggling display */
+    unsigned int layer;
+    /** base radius */
+    float base;
+    /** height */
+    float height;
+    /** RGBA color */
+    float RGBAcolor[4];
+  } CED_ConeR;
+
+
+void ced_cone_r(float base, float height, double *center, double *rotate, unsigned int layer, float *RGBAcolor);
+
+//  typedef struct {  
+//  	/** position of the centre of the base */	
+//  	double center[3];
+//  	/** rotation matrix */
+//  	double rotate[3];
+//    /** layer for toggling display */
+//    unsigned int layer;
+//    /** xyz size */
+//	double size[3];
+//    /** RGBA color */
+//    float RGBAcolor[4];
+//  } CED_EllipsoidR;
+//
+//
+//void ced_draw_ellipsoid_r(double *size, double *center, double *rotate, unsigned int layer, float *RGBAcolor);
 
 #ifdef __cplusplus
  }

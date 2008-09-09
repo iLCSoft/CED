@@ -1,52 +1,78 @@
-
-
 #include <ced_cli.h>
 #include <math.h>
 
-double length = 100. ;
+double length = 100;
 
-/** Simpl client test/example program. 
- *  Draw a white box with edge lengths 100 mm centered at the origin
- *  and two boxes with 50 mm lengths with lower left (pink) and upper right corner (blue)
- *  respectively at the origin.
- *  And finally an enclosing octagonal barrel.
+/** Simple test programme (C)
  * 
- *  @author gaede
+ *  Check the ced_geobox and ced_geobox_r
+ * 
+ *  @author SD
+ * 	@date 22.08.08
  */
 
 int main(){
 
-  ced_client_init("localhost",7286); // FIXME: this should be a parameter
-
-  ced_register_elements();
+	/*
+	 * Initialisation */
+  	ced_client_init("localhost",7286);
+  	ced_register_elements();
   
-  // ----- white box -------
-  // geocylinder actually draws a 'polygonal cylinder' along z axis
-  // with outer(!) radius, n-edges, rotation in degrees, half-z, z-offset, color 
-  ced_geocylinder( M_SQRT2*length , 4, 45. , length , -length , 0xffffff ) ;
+  	/*
+  	 * White cylinder
+   	 * outer(!) radius, n-edges, rotation in degrees, half-z, z-offset, color */
+  	ced_geocylinder(M_SQRT2*length, 100, 45, length, -length, 0xffffff);
     
 
-  //  ----- pink box -------
-  double sizes[3] = { length , length ,  length } ;
-  double center[3] = { length/2. , length/2. ,  length/2. } ;
-  //   size: lengths along x,y,z (not half lengths !) , center: shift vector
-  ced_geobox( sizes,  center,  0xff00ff );
+  	/*
+   	 * Pink box
+   	 * size: lengths along x,y,z (not half lengths !) , center: shift vector */
+  	double sizes[3] = {length, length, length};
+  	double center[3] = {0.0, 0.0, 0.0} ;
+  	ced_geobox( sizes,  center,  0xff00ff );
+  	
+  	/*
+   	 * Red rotated box
+   	 * size: lengths along x,y,z (not half lengths !) , center: shift vector */
+  	double sizes_r[3] = {2*length, 2*length, 2*length};
+  	double center_r[3] = {0.0, 0.0, 0.0};
+  	double theta_r1 = 20;
+  	double theta_r2 = 20;
+  	double theta_r3 = 20;
+  	double rotation_r[3] = {theta_r1, theta_r2, theta_r3};
+  	
+  	float RGBAcolor[4] = {1, 0.3, 0.4, 0.2} ;
+  	
+  	ced_geobox_r( sizes_r,  center_r,  rotation_r, 0x990000, 7);
+  	
+  	/*
+   	 * Another, yet white, rotated box
+   	 * size: lengths along x,y,z (not half lengths !) , center: shift vector */
+//   	unsigned int i = 0;
+//   	for (i; i<360; i = i+4){
+//  		double sizes_w[3] = {2*length, 2*length, 2*length};
+//  		double center_w[3] = {0.0, 0.0, 0.0};
+//  		double theta_w1 = 0+i;
+//  		double theta_w2 = 0+i;
+//  		double theta_w3 = 0+i;
+//  		double rotation_w[3] = {theta_w1, theta_w2, theta_w3};
+//  		int color = 0x000000;
+//  		//int color = 0x660000 + 100*i;
+//	  	ced_geobox_r( sizes_w,  center_w,  rotation_w, color);
+//   	 }
 
-  //  ----- blue box -------
-  double center_1[3] = { -length/2. , -length/2. ,  -length/2. } ;
-  ced_geobox( sizes,  center_1 ,  0x00ffff );
+
+  	/*
+  	 * Yellow octagonal barrel */
+  	ced_geocylinder( M_SQRT2*length , 8 , 45. , 2.*length , -2.*length , 0xffff00 ) ;
+  	/** cone */
+  	double center_c[3] = {10, 10, 10};
+  	double rotation_c[3] = {0,0,0};
+  	ced_cone_r(10.0, 100, center_c, rotation_c, 1, RGBAcolor);
 
 
-  //  ----- yellow octagonal barrel -------
-  ced_geocylinder( M_SQRT2*length , 8 , 45. , 2.*length , -2.*length , 0xffff00 ) ;
+  	ced_send_event();    // Does not clean up screen
+  	ced_draw_event();    // Make clean up screen before drawing
 
-
-
-  //--------------------------------------------------------------------
-
-  ced_send_event();    // Does not clean up screen
-  
-  ced_draw_event();    // Make clean up screen before drawing
-
- return 0 ;
+ return 0;
 }
