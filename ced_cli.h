@@ -224,21 +224,39 @@ void ced_legend(float ene_min, float ene_max, unsigned int color_steps, unsigned
 
 void ced_cone_r(float base, float height, double *center, double *rotate, unsigned int layer, float *RGBAcolor);
 
-//  typedef struct {  
-//  	/** position of the centre of the base */	
-//  	double center[3];
-//  	/** rotation matrix */
-//  	double rotate[3];
-//    /** layer for toggling display */
-//    unsigned int layer;
-//    /** xyz size */
-//	double size[3];
-//    /** RGBA color */
-//    float RGBAcolor[4];
-//  } CED_EllipsoidR;
-//
-//
-//void ced_draw_ellipsoid_r(double *size, double *center, double *rotate, unsigned int layer, float *RGBAcolor);
+  typedef struct {  
+  	/** position of the centre of the base */	
+  	double center[3];
+  	/** rotation matrix */
+  	double rotate[3];
+    /** layer for toggling display */
+    unsigned int layer;
+    /** xyz size */
+	double size[3];
+    /** RGBA color */
+   	int color;
+  } CED_EllipsoidR;
+
+
+void ced_ellipsoid_r(double *size, double *center, double *rotate, unsigned int layer, int color);
+
+  typedef struct {  
+  	/** position of the centre of the base */	
+  	double center[3];
+  	/** rotation matrix */
+  	double rotate[3];
+    /** layer for toggling display */
+    unsigned int layer;
+    /** base radius */
+	float radius;
+	/** half height */
+	float height;
+    /** RGBA color */
+    int color;
+  } CED_CluEllipseR;
+
+
+void ced_cluellipse_r(float radius, float height, float *center, double *rotate, unsigned int layer, int color);
 
 #ifdef __cplusplus
  }

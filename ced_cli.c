@@ -186,36 +186,54 @@ void ced_cone_r(float base, float height, double *center, double *rotate, unsign
 	}
 }
 
-// static unsigned ELLIPSOID_ID=0;
+static unsigned ELLIPSOID_ID=0;
 
-//void ced_ellipsoid_r(double *size, double *center, double *rotate, unsigned int layer, float *RGBAcolor) {
-//	
-//	CED_EllipsoidR * eli = (CED_EllipsoidR*) ced_add(ELLIPSOID_ID);
-//	if ( ! eli ) return;	
-// 	
-//  	const unsigned int dim = 3;
-//  	const unsigned int channel = 4;
-//  	int i, j;
-//  	for (i = 0; i < dim; i ++ ) {
-//		eli->center[i] = center[i];
-//		eli->rotate[i] = rotate[i];
-//	}
-//	for (j = 0; j < channel; j ++ ) {
-//		eli->RGBAcolor[j] = RGBAcolor[j];
-//	}
-//	
-//	eli->layer = layer;
-//}
+void ced_ellipsoid_r(double *size, double *center, double *rotate, unsigned int layer, int color) {
+	
+	CED_EllipsoidR * eli = (CED_EllipsoidR*) ced_add(ELLIPSOID_ID);
+	if ( ! eli ) return;	
+ 	
+  	const unsigned int dim = 3;
+  	int i;
+  	for (i = 0; i < dim; i ++ ) {
+		eli->center[i] = center[i];
+		eli->rotate[i] = rotate[i];
+		eli->size[i] = size[i];
+	}
+	eli->color = color;
+	eli->layer = layer;
+}
+
+static unsigned CLUELLIPSE_ID=0;
+
+void ced_cluellipse_r(float radius, float height, float *center, double *rotate, unsigned int layer, int color) {
+	
+	CED_CluEllipseR * eli = (CED_CluEllipseR*) ced_add(CLUELLIPSE_ID);
+	if ( ! eli ) return;	
+ 	
+  	const unsigned int dim = 3;
+  	int i;
+  	for (i = 0; i < dim; i ++ ) {
+		eli->center[i] = center[i];
+		eli->rotate[i] = rotate[i];
+	}
+	eli->radius = radius;
+	eli->height = height;
+	eli->layer = layer;
+	eli->color = color;
+}
+
 
 void ced_register_elements(void){
-  GEOC_ID  =ced_register_element(sizeof(CED_GeoCylinder),0);
-  GEOCR_ID  =ced_register_element(sizeof(CED_GeoCylinderR), 0);
-  LINE_ID  =ced_register_element(sizeof(CED_Line),0);
-  HIT_ID   =ced_register_element(sizeof(CED_Hit),0);
-  GEOB_ID  =ced_register_element(sizeof(CED_GeoBox), 0);
-  GEOBR_ID  =ced_register_element(sizeof(CED_GeoBoxR), 0);
-  CONER_ID  =ced_register_element(sizeof(CED_ConeR), 0);
-  //ELLIPSOID_ID = ced_register_element(sizeof(CED_EllipsoidR), 0);
-  LEGEND_ID  =ced_register_element(sizeof(CED_Legend), 0);
+  GEOC_ID  		=ced_register_element(sizeof(CED_GeoCylinder),0);
+  GEOCR_ID  	=ced_register_element(sizeof(CED_GeoCylinderR), 0);
+  LINE_ID 		=ced_register_element(sizeof(CED_Line),0);
+  HIT_ID   		=ced_register_element(sizeof(CED_Hit),0);
+  GEOB_ID  		=ced_register_element(sizeof(CED_GeoBox), 0);
+  GEOBR_ID  	=ced_register_element(sizeof(CED_GeoBoxR), 0);
+  CONER_ID  	=ced_register_element(sizeof(CED_ConeR), 0);
+  ELLIPSOID_ID 	=ced_register_element(sizeof(CED_EllipsoidR), 0);
+  CLUELLIPSE_ID =ced_register_element(sizeof(CED_CluEllipseR), 0);
+  LEGEND_ID  	=ced_register_element(sizeof(CED_Legend), 0);
 }
 

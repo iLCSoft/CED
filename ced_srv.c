@@ -273,56 +273,195 @@ static void ced_draw_geocylinder_r(CED_GeoCylinderR *c){
 /** Draws an ellipsoid 
  * Code based on http://www.opengl.org/discussion_boards/ubbthreads.php?ubb=showflat&Number=242991
  * */
-//static unsigned ELLIPSOID_ID = 0;
-//
-//static void ced_draw_ellipsoid_r(CED_EllipsoidR * eli )  {
-//
-//	if(!IS_VISIBLE(eli->layer))
-//      return;
-//
-//	/** ellipsoid 'resolution' */
-//	int slices = 12;
-//	int stacks = 12;
-//
-//  	glPushMatrix();
-//
-//	/** Ellipsoid centre */
-//  	glTranslated(eli->center[0],eli->center[1],eli->center[2]);
-//  	
-//  	/** Rotate the ellipsoid */
-//	glRotated(eli->rotate[2], 0.0, 0.0, 1.0);
-//  	glRotated(eli->rotate[1], 0.0, 1.0, 0.0);
-//  	glRotated(eli->rotate[0], 1.0, 0.0, 0.0);
-//  	
-//   /** Quadric object */
-//   	glEnable(GL_BLEND);
-//	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-//  	GLUquadricObj *Sphere;
-//  	
-//  	/** Obtain a new quadric */
-//	Sphere = gluNewQuadric();
-//  	gluQuadricNormals(Sphere, GLU_SMOOTH);
-//  	gluQuadricTexture(Sphere, GL_TRUE);
-//
-//    /** Set polygon's filling */
-//    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-//
-//	/** Set the colour */
-//	glColor4f(eli->RGBAcolor[0], eli->RGBAcolor[1], eli->RGBAcolor[2], eli->RGBAcolor[3]);
-//
-//	/** Draw the cone */
-//	glEnable(GL_BLEND);
-//
-//	 /** Alter scale factors so as to obtain an ellipsoid from a sphere */
-//	glScaled(eli->size[0], eli->size[1], eli->size[2]);
-//
-//  	/**Draw the sphere */
-//	gluSphere(Sphere, 1.0, slices, stacks);
-//
-//    glDisable(GL_BLEND);
-//    glPopMatrix();
-//  	glEndList();	
-//}
+static unsigned ELLIPSOID_ID = 0;
+
+static void ced_draw_ellipsoid_r(CED_EllipsoidR * eli )  {
+
+	if(!IS_VISIBLE(eli->layer))
+      return;
+
+	/** ellipsoid 'resolution' */
+	int slices = 10;
+	int stacks = 10;
+
+  	glPushMatrix();
+
+	/** Ellipsoid centre */
+  	glTranslated(eli->center[0],eli->center[1],eli->center[2]);
+  	
+  	/** Rotate the ellipsoid */
+	glRotated(eli->rotate[2], 0.0, 0.0, 1.0);
+  	glRotated(eli->rotate[1], 0.0, 1.0, 0.0);
+  	glRotated(eli->rotate[0], 1.0, 0.0, 0.0);
+  	
+   /** Quadric object */
+   	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  	GLUquadricObj *Sphere;
+  	
+  	/** Obtain a new quadric */
+	Sphere = gluNewQuadric();
+  	gluQuadricNormals(Sphere, GLU_SMOOTH);
+  	gluQuadricTexture(Sphere, GL_TRUE);
+
+    /** Set polygon's filling */
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+	/** Set the colour */
+	ced_color(eli->color);
+
+	/** Draw the cone */
+	glEnable(GL_BLEND);
+
+	 /** Alter scale factors so as to obtain an ellipsoid from a sphere */
+	glScaled(eli->size[0]/2, eli->size[1]/2, eli->size[2]/2);
+
+  	/**Draw the sphere */
+	gluSphere(Sphere, 1.0, slices, stacks);
+
+    glDisable(GL_BLEND);
+    glPopMatrix();
+  	glEndList();	
+}
+
+static unsigned CLUELLIPSE_ID = 0;
+
+/** 
+ * Draws 3 orthogonal elipses as wireframes
+ */
+static void ced_draw_cluellipse_r(CED_CluEllipseR * eli )  {
+
+	if(!IS_VISIBLE(eli->layer))
+      return;
+
+  	glPushMatrix();
+  	
+	/** 1. Ellipsoid centre */
+  	glTranslated(eli->center[0],eli->center[1],eli->center[2]);
+  	
+  	/** 1. Rotate the ellipsoid */
+	glRotated(eli->rotate[2], 0.0, 0.0, 1.0);
+  	glRotated(eli->rotate[1], 0.0, 1.0, 0.0);
+	glRotated(eli->rotate[0], 1.0, 0.0, 0.0);
+  	
+	/** 1. Set the colour */
+	ced_color(eli->color);
+	
+	/** 1. Case: filled */
+	float x,y,z;
+	/** ellipsoid 'resolution' */
+	float n = 20;
+	float t;
+	
+	/** openGL alpha blending */
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	
+	
+	glBegin(GL_POLYGON);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	for(t = 0; t < 2*M_PI; t +=2*M_PI/(n) ){
+		x = eli->radius/2*cos(t);
+		y = eli->radius/2*sin(t);
+		z = 0;
+		glVertex3f(x, y, z);
+	}		
+	glEnd();
+	
+	/** 2. Case: unfilled */
+	
+	//glColor4f(eli->RGBAcolor[0], eli->RGBAcolor[1], eli->RGBAcolor[2], 1.0);
+	
+	glLineWidth(2.);
+	glBegin(GL_LINE_LOOP);
+	for(t = 0; t < 2*M_PI; t +=2*M_PI/(n) ){
+		x = eli->radius/2*cos(t);
+		y = eli->radius/2*sin(t);
+		z = 0;
+		glVertex3f(x, y, z);
+	}		
+	glEnd();
+	
+	/**
+	 * 
+	 * 
+	 * 
+	 */
+	 
+	glRotated(90.0, 0.0, 1.0, 0.0);
+	
+	/** 1. Set the colour */
+	//glColor4f(eli->RGBAcolor[0], eli->RGBAcolor[1], eli->RGBAcolor[2], eli->RGBAcolor[3]);
+	
+	glBegin(GL_POLYGON);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	for(t = 0; t < 2*M_PI; t +=2*M_PI/(n) ){
+		x = eli->height/2*cos(t);
+		y = eli->radius/2*sin(t);
+		z = 0;
+		glVertex3f(x, y, z);
+	}		
+	glEnd();
+	
+	/** 2. Case: unfilled */
+	
+	//glColor4f(eli->RGBAcolor[0], eli->RGBAcolor[1], eli->RGBAcolor[2], 1.0);
+	
+	glLineWidth(2.);
+	glBegin(GL_LINE_LOOP);
+	for(t = 0; t < 2*M_PI; t +=2*M_PI/(n) ){
+		x = eli->height/2*cos(t);
+		y = eli->radius/2*sin(t);
+		z = 0;
+		glVertex3f(x, y, z);
+	}		
+	glEnd();
+	
+	
+	/**
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 */
+	 
+ 	glRotated(90.0, 1.0, 0.0, 0.0);
+	
+	/** 1. Set the colour */
+	//glColor4f(eli->RGBAcolor[0], eli->RGBAcolor[1], eli->RGBAcolor[2], eli->RGBAcolor[3]);
+	
+	glBegin(GL_POLYGON);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	for(t = 0; t < 2*M_PI; t +=2*M_PI/(n) ){
+		x = eli->height/2*cos(t);
+		y = eli->radius/2*sin(t);
+		z = 0;
+		glVertex3f(x, y, z);
+	}		
+	glEnd();
+	
+	/** 2. Case: unfilled */
+	
+	//glColor4f(eli->RGBAcolor[0], eli->RGBAcolor[1], eli->RGBAcolor[2], 1.0);
+	
+	glLineWidth(2.);
+	glBegin(GL_LINE_LOOP);
+	for(t = 0; t < 2*M_PI; t +=2*M_PI/(n) ){
+		x = eli->height/2*cos(t);
+		y = eli->radius/2*sin(t);
+		z = 0;
+		glVertex3f(x, y, z);
+	}		
+	glEnd();
+	 
+	 
+
+	/** End commands */
+    glDisable(GL_BLEND);
+    glPopMatrix();
+  	glEndList();	
+}
 
 
 /**
@@ -756,7 +895,8 @@ void ced_register_elements(void){
   GEOB_ID  =ced_register_element(sizeof(CED_GeoBox),(ced_draw_cb)ced_draw_geobox);
   GEOBR_ID  =ced_register_element(sizeof(CED_GeoBoxR),(ced_draw_cb)ced_draw_geobox_r);
   CONER_ID  =ced_register_element(sizeof(CED_ConeR),(ced_draw_cb)ced_draw_cone_r);
-  //ELLIPSOID_ID = ced_register_element(sizeof(CED_EllipsoidR),(ced_draw_cb)ced_draw_ellipsoid_r);
+  ELLIPSOID_ID = ced_register_element(sizeof(CED_EllipsoidR),(ced_draw_cb)ced_draw_ellipsoid_r);
+  CLUELLIPSE_ID = ced_register_element(sizeof(CED_CluEllipseR),(ced_draw_cb)ced_draw_cluellipse_r);
   /** due to an issue w/ drawing the legend (in 2D) this has to come last ! */
   LEGEND_ID  =ced_register_element(sizeof(CED_Legend),(ced_draw_cb)ced_draw_legend);
 }

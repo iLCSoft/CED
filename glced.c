@@ -404,6 +404,27 @@ static void keypressed(unsigned char key,int x,int y){
     show_all_layers();
     glutPostRedisplay();
   }
+  
+  // SD: added layers
+  
+  else if(key=='t'){ // t - momentum at ip layer 2
+    toggle_layer(20);
+    glutPostRedisplay();
+  } else if(key=='y'){ // y - momentum at ip layer = 3
+    toggle_layer(21);
+    glutPostRedisplay();
+  } else if(key=='u'){ // u - momentum at ip layer = 4
+    toggle_layer(22);
+    glutPostRedisplay();
+  } else if(key=='i'){ // i - momentum at ip layer = 5
+    toggle_layer(23);
+    glutPostRedisplay();
+  } else if(key=='o'){ // o - momentum at ip layer = 6
+    toggle_layer(24);
+    glutPostRedisplay();
+  } 
+  
+  
 }
 
 static void SpecialKey( int key, int x, int y ){
