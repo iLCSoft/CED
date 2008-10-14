@@ -18,6 +18,7 @@ PROJECT( CED C )
 
 # project options
 OPTION( BUILD_SHARED_LIBS "Set to OFF to build static libraries" ON )
+OPTION( BUILD_32BIT_COMPATIBLE "Set to ON to build in 32 bit compatibility mode" ON )
 OPTION( CED_SERVER "Set to ON to build the glced server" OFF )
 
 # project version
@@ -29,6 +30,33 @@ SET( CED_PATCH_LEVEL 0 )
 IF( CMAKE_INSTALL_PREFIX STREQUAL "/usr/local" )
     SET( CMAKE_INSTALL_PREFIX "${PROJECT_SOURCE_DIR}" )
 ENDIF()
+
+#---------------- 32/64 bit issues ---------------------------------------
+#INCLUDE( CheckTypeSize )
+#CHECK_TYPE_SIZE( "void*" SIZE_OF_VOID_P )
+
+IF( CMAKE_SIZEOF_VOID_P EQUAL 4 )
+    MESSAGE( STATUS "32 bit architecture detected" )
+ENDIF()
+
+IF( CMAKE_SIZEOF_VOID_P EQUAL 8 )
+    MESSAGE( STATUS "64 bit architecture detected" )
+
+    IF( BUILD_32BIT_COMPATIBLE )
+        IF( COMMAND SET_PROPERTY )
+            SET_PROPERTY(GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS 0)
+            SET( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m32" )
+        ELSE()
+            MESSAGE( FATAL_ERROR "to build in 32 bit compatibility mode you need cmake >= 2.6" )
+        ENDIF()
+        MESSAGE( STATUS "Build in 32 bit compatibility mode" )
+    ELSE()
+        MESSAGE( STATUS "Build in native 64 bit mode" )
+    ENDIF()
+ENDIF()
+
+#-------------------------------------------------------------------------
+
 
 # library *nix style versioning
 SET( CED_SOVERSION "${CED_MAJOR_VERSION}.${CED_MINOR_VERSION}" )
@@ -143,6 +171,9 @@ MESSAGE( STATUS )
 MESSAGE( STATUS "-------------------------------------------------------------------------------" )
 MESSAGE( STATUS "BUILD_SHARED_LIBS = ${BUILD_SHARED_LIBS}" )
 MESSAGE( STATUS "CMAKE_INSTALL_PREFIX = ${CMAKE_INSTALL_PREFIX}" )
+IF( CMAKE_SIZEOF_VOID_P EQUAL 8 )
+    MESSAGE( STATUS "BUILD_32BIT_COMPATIBLE = ${BUILD_32BIT_COMPATIBLE}" )
+ENDIF()
 MESSAGE( STATUS "CED_SERVER = ${CED_SERVER}" )
 MESSAGE( STATUS "Change a value with: cmake -D<Variable>=<Value>" )
 MESSAGE( STATUS "-------------------------------------------------------------------------------" )
@@ -165,3 +196,4 @@ INSTALL( FILES "${PROJECT_BINARY_DIR}/CEDBuildSettings.cmake" DESTINATION lib/cm
 # export library dependencies (keep this as the last line in the file)
 EXPORT_LIBRARY_DEPENDENCIES( "CEDLibDeps.cmake" )
 INSTALL( FILES "${PROJECT_BINARY_DIR}/CEDLibDeps.cmake" DESTINATION lib/cmake )
+
