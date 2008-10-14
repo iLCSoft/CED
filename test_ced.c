@@ -41,7 +41,7 @@ int main(){
   	double theta_r3 = 20;
   	double rotation_r[3] = {theta_r1, theta_r2, theta_r3};
   	
-  	float RGBAcolor[4] = {1, 0.3, 0.4, 0.4} ;
+    //float RGBAcolor[4] = {1, 0.3, 0.4, 0.4} ;
   	
   	ced_geobox_r( sizes_r,  center_r,  rotation_r, 0x990000, 7);
   	
@@ -71,9 +71,9 @@ int main(){
   	//ced_cone_r(10.0, 100, center_c, rotation_c, 1, RGBAcolor);
 
 
-	float sizes_eli[3] = {50, 50, 150};
-	float center_eli[3] = {0, 0, 0};
-	float rotation_eli[3] = {0, 0, 0};
+	double sizes_eli[3] = {50, 50, 150};
+	double center_eli[3] = {0, 0, 0};
+	double rotation_eli[3] = {0, 0, 0};
 	//ced_cluellipse_r(sizes_eli[0], sizes_eli[2], center_eli,  rotation_eli, 1, RGBAcolor);
 	ced_ellipsoid_r(sizes_eli, center_eli,  rotation_eli, 1, 0x99999999);
   	ced_send_event();    // Does not clean up screen
