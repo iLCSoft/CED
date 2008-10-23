@@ -8,9 +8,16 @@
  -----------
 | v00-05-01 |
  -----------
-      * bug fix for building ced server on mac
-      * added CED_LIBRARY_DIRS
-      * cmake 2.6 compatible
+    * added new functionality to draw (S. Darasz):
+        - rotated and translated geo_cylinders
+        - transparent and wireframe ellipsoids
+        - cones and boxes
+        - code to display a color map legend
+    * cmake improvements:
+        - added CED_LIBRARY_DIRS
+        - added 32 bit compatibility build option
+        - made cmake 2.6 compatible
+        - bug fix for building ced server on mac
 
  --------
 | v00-05 |
