@@ -112,7 +112,7 @@ static void tcp_server_accept(struct __glutSocketList *list){
   nl->list.read_func=tcp_server_read;
   nl->user_func=((tcp_srv_sock *)list)->user_func;
   add_socket(&nl->list);
-  fprintf(stderr,"INFO: new client\n");
+  fprintf(stderr,"INFO: new client - socketID: %d\n", nl->list.fd  );
   (*(((tcp_srv_sock *)list)->user_func))(0);
 }  
 

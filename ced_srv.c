@@ -18,13 +18,21 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
-
+#include <errno.h>
 #include <ced_cli.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <unistd.h>
+
 #include <ced.h>
+#define PORT        0x1234
 
 /** This defines what is visible */
 unsigned ced_visible_layers=0x00000FFF;
-
+int SELECTED_ID = -1;
+extern double fisheye_alpha;
 #define IS_VISIBLE(x) ((1<<((x>>8)&0xff))&ced_visible_layers)
 
 /*
@@ -46,6 +54,38 @@ typedef struct {
 static CED_ObjMap *omap=0;
 static unsigned omap_count=0;
 static unsigned omap_alloced=0;
+
+//SM-H: Takes a given point, and returns the fisheye transformed version. Based on transform given in
+//'Event display: Can We See What We Want to See', 
+//H. Drevermann, D. Kuhn, B.S. Nilsson, 1995
+//TODO: More elegant (and eficient) implementation possible. 
+//See http://www.opengl.org/discussion_boards/ubbthreads.php?ubb=showflat&Number=262910
+CED_Point fisheye_transform(const float x, const float y, const float z, const double scale_factor) {
+  CED_Point p_final;
+  if(scale_factor < 1e-10) {
+    //If fisheye_alpha < observable value, do nothing
+    p_final.x = x;
+    p_final.y = y;
+    p_final.z = z;
+  }
+  else {
+    float rho = sqrt(x*x + y*y);
+    rho = rho/(1.0+scale_factor*rho);
+    float r = sqrt(rho*rho+z*z);
+    float cos_theta = z/r;
+    float theta = acos(cos_theta);
+    float phi = atan2(y,x); 
+    p_final.x = r*cos(phi)*sin(theta);
+    p_final.y = r*sin(phi)*sin(theta);
+    p_final.z = z/(1.0 + fisheye_alpha*abs(z));
+  }
+  return p_final;
+}
+//SM-H: The same as above, but just applied to r or z rather than a whole cartesian co-ordinate system
+//CED co-ordinates only defined up to float precision
+inline float single_fisheye_transform(float c, const double scale_factor) {
+  return c/(1.0+scale_factor*fabs(c)); 
+}
 
 /*
  * Fill matrixes with current world coordinates
@@ -70,7 +110,7 @@ int ced_get_selected(int x,int y,GLfloat *wx,GLfloat *wy,GLfloat *wz){
   unsigned i;
   int dx,dy;
   int d,dist=0; // calculate dist as |x-x'|+|y-y'|
-
+  
   y=viewport[3]-y-1; // to get correct direction
   for(i=0,p=omap,best=0;i<omap_count;i++,p++){
     //    printf("%d %d -- %d %d\n",x,y,p->x,p->y);
@@ -91,8 +131,16 @@ int ced_get_selected(int x,int y,GLfloat *wx,GLfloat *wy,GLfloat *wz){
   *wy=best->p.y;
   *wz=best->p.z;
   printf("Will center in: %.1f %.1f %.1f for HIT %d\n",*wx,*wy,*wz,best->ID);
+
+
+  SELECTED_ID = best->ID;
   return 0;
 }
+
+inline int ced_selected() {
+    return SELECTED_ID;
+}
+
 
 /*
  * To be called from drawing functions
@@ -134,6 +182,10 @@ static unsigned HIT_ID=0;
 
 static void ced_draw_hit(CED_Hit *h){
     GLfloat d;
+    CED_Point p_new = fisheye_transform(h->p.x, h->p.y, h->p.z, fisheye_alpha);
+    float x = p_new.x;
+    float y = p_new.y;
+    float z = p_new.z;
 
 
     if(!IS_VISIBLE(h->type))
@@ -150,33 +202,33 @@ static void ced_draw_hit(CED_Hit *h){
 	    if((h->type & CED_HIT_CROSS)==CED_HIT_CROSS){
 	      //	      printf("cross type == %d \n",(h->type & CED_HIT_CROSS));
 	      d=h->size/2;
-	      glVertex3f(h->p.x-d,h->p.y-d,h->p.z+d);
-	      glVertex3f(h->p.x+d,h->p.y+d,h->p.z-d);
+	      glVertex3f(x-d,y-d,z+d);
+	      glVertex3f(x+d,y+d,z-d);
 
-	      glVertex3f(h->p.x+d,h->p.y-d,h->p.z+d);
-	      glVertex3f(h->p.x-d,h->p.y+d,h->p.z-d);
+	      glVertex3f(x+d,y-d,z+d);
+	      glVertex3f(x-d,y+d,z-d);
 
-	      glVertex3f(h->p.x+d,h->p.y+d,h->p.z+d);
-	      glVertex3f(h->p.x-d,h->p.y-d,h->p.z-d);
+	      glVertex3f(x+d,y+d,z+d);
+	      glVertex3f(x-d,y-d,z-d);
 
-	      glVertex3f(h->p.x-d,h->p.y+d,h->p.z+d);
-	      glVertex3f(h->p.x+d,h->p.y-d,h->p.z-d);
+	      glVertex3f(x-d,y+d,z+d);
+	      glVertex3f(x+d,y-d,z-d);
 
 	    } else {
 	      //	      printf("star type == %d \n",(h->type & CED_HIT_STAR));
 	      d=h->size/2.;
-	      glVertex3f(h->p.x-d,h->p.y,h->p.z);
-	      glVertex3f(h->p.x+d,h->p.y,h->p.z);
-	      glVertex3f(h->p.x,h->p.y-d,h->p.z);
-	      glVertex3f(h->p.x,h->p.y+d,h->p.z);
-	      glVertex3f(h->p.x,h->p.y,h->p.z-d);
-	      glVertex3f(h->p.x,h->p.y,h->p.z+d);
+	      glVertex3f(x-d,y,z);
+	      glVertex3f(x+d,y,z);
+	      glVertex3f(x,y-d,z);
+	      glVertex3f(x,y+d,z);
+	      glVertex3f(x,y,z-d);
+	      glVertex3f(x,y,z+d);
 	    }
 	    break;
 	default:
 	    glPointSize((GLfloat)h->size);
 	    glBegin(GL_POINTS);
-	    glVertex3fv(&h->p.x);
+	    glVertex3fv(&p_new.x);
     }
     glEnd();
     ced_add_objmap(&h->p,5,h->lcioID);
@@ -193,15 +245,25 @@ static void ced_draw_line(CED_Line *h){
   if(!IS_VISIBLE(h->type))
     return;
    	
+    CED_Point fisheye_point0;
+    CED_Point fisheye_point1;
+    fisheye_point0 = fisheye_transform(h->p0.x, h->p0.y, h->p0.z, fisheye_alpha);
+    fisheye_point1 = fisheye_transform(h->p1.x, h->p1.y, h->p1.z, fisheye_alpha);    	
+
    	//glEnable(GL_BLEND);
   	ced_color(h->color);
   	glLineWidth(h->width);
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   	glBegin(GL_LINES);
-  	glVertex3fv(&h->p0.x);
-  	glVertex3fv(&h->p1.x);
+  	//glVertex3fv(&h->p0.x);
+  	//glVertex3fv(&h->p1.x);
+    glVertex3fv(&fisheye_point0.x); 
+    glVertex3fv(&fisheye_point1.x); 
+
   	//glDisable(GL_BLEND);
   	glEnd();
+    ced_add_objmap(&h->p0,5,h->lcioID);
+
 }
 
 /*
@@ -217,12 +279,20 @@ static void ced_draw_geocylinder(CED_GeoCylinder *c){
   ced_color(c->color);
   glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);    
 
-  glTranslatef(0.0, 0.0, c->shift);
+  double transformed_shift = single_fisheye_transform(c->shift, fisheye_alpha);
+  glTranslatef(0.0, 0.0, transformed_shift);
   if(c->rotate > 0.01 )
-      glRotatef(c->rotate, 0, 0, 1);
+    glRotatef(c->rotate, 0, 0, 1);
   gluQuadricNormals(q1, GL_SMOOTH);
   gluQuadricTexture(q1, GL_TRUE);
-  gluCylinder(q1, c->d, c->d, c->z*2, c->sides, 1);
+  //SM-H: Fisheye code
+  double d = single_fisheye_transform(c->d, fisheye_alpha);
+
+  double z0 = transformed_shift;
+  double z1 = single_fisheye_transform(c->z+c->shift, fisheye_alpha);
+  double z = z1-z0;
+  gluCylinder(q1, d, d, z*2, c->sides, 1);
+
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   gluDeleteQuadric(q1);
 
@@ -233,8 +303,9 @@ static void ced_draw_geocylinder(CED_GeoCylinder *c){
  * GeoCylinder
  */
 static unsigned GEOCR_ID=0;
-
 static void ced_draw_geocylinder_r(CED_GeoCylinderR *c){
+//FIXME: implement fisheye here as well
+//Non trivial due to possible rotations...
   GLUquadricObj *q1 = gluNewQuadric();
 
     if(!IS_VISIBLE(c->layer))
@@ -641,6 +712,7 @@ static void ced_draw_geobox(CED_GeoBox * box )  {
   const unsigned int nFace  = 2;
   double face[nFace][nPoint][nDim];
   //  unsigned int iDim, iPoint, iFace;
+  unsigned int i, j;
 
 
   ced_color(box->color);
@@ -682,49 +754,120 @@ static void ced_draw_geobox(CED_GeoBox * box )  {
 
 
   glBegin(GL_LINES);
-  //  drawing the first face
-  glVertex3f( (float) face[0][0][0], (float) face[0][0][1],  (float) face[0][0][2] );
-  glVertex3f( (float) face[0][1][0], (float) face[0][1][1],  (float) face[0][1][2] );
-
-  glVertex3f( (float) face[0][1][0], (float) face[0][1][1],  (float) face[0][1][2] );
-  glVertex3f( (float) face[0][2][0], (float) face[0][2][1],  (float) face[0][2][2] );
-
-  glVertex3f( (float) face[0][2][0], (float) face[0][2][1],  (float) face[0][2][2] );
-  glVertex3f( (float) face[0][3][0], (float) face[0][3][1],  (float) face[0][3][2] );
-
-  glVertex3f( (float) face[0][3][0], (float) face[0][3][1],  (float) face[0][3][2] );
-  glVertex3f( (float) face[0][0][0], (float) face[0][0][1],  (float) face[0][0][2] );
-
-
-  // drawing the sencod face
-  glVertex3f( (float) face[1][0][0], (float) face[1][0][1],  (float) face[1][0][2] );
-  glVertex3f( (float) face[1][1][0], (float) face[1][1][1],  (float) face[1][1][2] );
-
-  glVertex3f( (float) face[1][1][0], (float) face[1][1][1],  (float) face[1][1][2] );
-  glVertex3f( (float) face[1][2][0], (float) face[1][2][1],  (float) face[1][2][2] );
-
-  glVertex3f( (float) face[1][2][0], (float) face[1][2][1],  (float) face[1][2][2] );
-  glVertex3f( (float) face[1][3][0], (float) face[1][3][1],  (float) face[1][3][2] );
-
-  glVertex3f( (float) face[1][3][0], (float) face[1][3][1],  (float) face[1][3][2] );
-  glVertex3f( (float) face[1][0][0], (float) face[1][0][1],  (float) face[1][0][2] );
-  
+  // drawing the first (i=0) and second (i=1) faces
+  for(i = 0; i < 2; i++){
+    glVertex3f( (float) face[i][0][0], (float) face[i][0][1],  (float) face[i][0][2] );
+    for(j = 1; j < 4; j++){
+      glVertex3f((float) face[i][j][0],(float) face[i][j][1],(float) face[i][j][2]);
+      glVertex3f((float) face[i][j][0],(float) face[i][j][1],(float) face[i][j][2]);
+    }      
+    glVertex3f( (float) face[i][0][0], (float) face[i][0][1],  (float) face[i][0][2] );
+  }
 
   // drawing the connections
-  glVertex3f( (float) face[0][0][0], (float) face[0][0][1],  (float) face[0][0][2] );
-  glVertex3f( (float) face[1][0][0], (float) face[1][0][1],  (float) face[1][0][2] );
-
-  glVertex3f( (float) face[0][1][0], (float) face[0][1][1],  (float) face[0][1][2] );
-  glVertex3f( (float) face[1][1][0], (float) face[1][1][1],  (float) face[1][1][2] );
-
-  glVertex3f( (float) face[0][2][0], (float) face[0][2][1],  (float) face[0][2][2] );
-  glVertex3f( (float) face[1][2][0], (float) face[1][2][1],  (float) face[1][2][2] );
-
-  glVertex3f( (float) face[0][3][0], (float) face[0][3][1],  (float) face[0][3][2] );
-  glVertex3f( (float) face[1][3][0], (float) face[1][3][1],  (float) face[1][3][2] );
+  for(j = 0; j < 4; j++){
+    glVertex3f( (float) face[0][j][0], (float) face[0][j][1],  (float) face[0][j][2] );
+    glVertex3f( (float) face[1][j][0], (float) face[1][j][1],  (float) face[1][j][2] );
+  }
 
   glEnd();
 
+}
+
+
+
+
+/*
+ * GeoBoxR 
+ */
+static unsigned GEOBR_ID = 0;
+
+static void ced_draw_geobox_r(CED_GeoBoxR * box )  {
+	
+	if(!IS_VISIBLE(box->layer))
+      return;
+
+  // a box has 8 vertices, four belonging to the first surface facing
+  // the beam, the other four from the second surface
+  const unsigned int nPoint = 4;
+  const unsigned int nDim   = 3;
+  const unsigned int nFace  = 2;
+  double face[nFace][nPoint][nDim];
+  //  unsigned int iDim, iPoint, iFace;
+  unsigned int i, j;
+
+
+  ced_color(box->color);
+  glLineWidth(2);
+
+  glPushMatrix(); // push the matrix onto the matrix stack and pop it off (preserving the original matrix)
+  //SM-H: Fisheye transform the radial vector to the centre of the box
+  //FIXME: Seems to break the test_ced, but works with sample events??!!
+  //Technically also incorrect, in that it only moves the centre of the box, and does not transform the whole thing
+  CED_Point center_transformed = fisheye_transform(box->center[0], box->center[1], box->center[2], fisheye_alpha);
+  glTranslated(center_transformed.x,center_transformed.y,center_transformed.z);
+  
+  glRotated(box->rotate[2], 0.0, 0.0, 1.0);
+  glRotated(box->rotate[1], 0.0, 1.0, 0.0);
+  glRotated(box->rotate[0], 1.0, 0.0, 0.0);
+ 
+  //Deal with z-axis as well, this is given by box-sizes[2]
+  //Need half the box size, and also the distance from the axis 
+  //since this determines how much the geobox is distorted by
+  double z0 = center_transformed.z;
+  double z1 = single_fisheye_transform(box->center[2]+box->sizes[2], fisheye_alpha);
+  double box_z = z1-z0; 
+  face[0][0][0] =  + (0.5 * box->sizes[0]);
+  face[0][0][1] =  + (0.5 * box->sizes[1]);
+  face[0][0][2] =  - (0.5 * box_z);
+
+  face[0][1][0] =  + (0.5 * box->sizes[0]);
+  face[0][1][1] =  - (0.5 * box->sizes[1]);
+  face[0][1][2] =  - (0.5 * box_z);
+
+  face[0][2][0] =  - (0.5 * box->sizes[0]);
+  face[0][2][1] =  - (0.5 * box->sizes[1]);
+  face[0][2][2] =  - (0.5 * box_z);
+
+  face[0][3][0] =  - (0.5 * box->sizes[0]);
+  face[0][3][1] =  + (0.5 * box->sizes[1]);
+  face[0][3][2] =  - (0.5 * box_z);
+
+  face[1][0][0] =  + (0.5 * box->sizes[0]);
+  face[1][0][1] =  + (0.5 * box->sizes[1]);
+  face[1][0][2] =  + (0.5 * box_z);
+
+  face[1][1][0] =  + (0.5 * box->sizes[0]);
+  face[1][1][1] =  - (0.5 * box->sizes[1]);
+  face[1][1][2] =  + (0.5 * box_z);
+
+  face[1][2][0] =  - (0.5 * box->sizes[0]);
+  face[1][2][1] =  - (0.5 * box->sizes[1]);
+  face[1][2][2] =  + (0.5 * box_z);
+
+  face[1][3][0] =  - (0.5 * box->sizes[0]);
+  face[1][3][1] =  + (0.5 * box->sizes[1]);
+  face[1][3][2] =  + (0.5 * box_z);
+
+  glBegin(GL_LINES);
+  // drawing the first (i=0) and second (i=1) faces
+  for(i = 0; i < 2; i++){
+    glVertex3f( (float) face[i][0][0], (float) face[i][0][1],  (float) face[i][0][2] );
+    for(j = 1; j < 4; j++){
+      glVertex3f((float) face[i][j][0],(float) face[i][j][1],(float) face[i][j][2]);
+      glVertex3f((float) face[i][j][0],(float) face[i][j][1],(float) face[i][j][2]);
+    }      
+    glVertex3f( (float) face[i][0][0], (float) face[i][0][1],  (float) face[i][0][2] );
+  }
+
+  // drawing the connections
+  for(j = 0; j < 4; j++){
+    glVertex3f( (float) face[0][j][0], (float) face[0][j][1],  (float) face[0][j][2] );
+    glVertex3f( (float) face[1][j][0], (float) face[1][j][1],  (float) face[1][j][2] );
+  }
+  glEnd();
+
+  glPopMatrix();
 }
 
 /**
@@ -775,118 +918,6 @@ static void ced_draw_cone_r(CED_ConeR * cone )  {
   	
 }
 
-
-/*
- * GeoBoxR 
- */
-static unsigned GEOBR_ID = 0;
-
-static void ced_draw_geobox_r(CED_GeoBoxR * box )  {
-	
-	if(!IS_VISIBLE(box->layer))
-      return;
-
-  // a box has 8 vertices, four belonging to the first surface facing
-  // the beam, the other four from the second surface
-  const unsigned int nPoint = 4;
-  const unsigned int nDim   = 3;
-  const unsigned int nFace  = 2;
-  double face[nFace][nPoint][nDim];
-  //  unsigned int iDim, iPoint, iFace;
-
-
-  ced_color(box->color);
-  glLineWidth(2);
-
-  glPushMatrix(); // push the matrix onto the matrix stack and pop it off (preserving the original matrix)
-
-  glTranslated(box->center[0],box->center[1],box->center[2]);
-  
-  glRotated(box->rotate[2], 0.0, 0.0, 1.0);
-  glRotated(box->rotate[1], 0.0, 1.0, 0.0);
-  glRotated(box->rotate[0], 1.0, 0.0, 0.0);
-
-  face[0][0][0] =  + (0.5 * box->sizes[0]);
-  face[0][0][1] =  + (0.5 * box->sizes[1]);
-  face[0][0][2] =  - (0.5 * box->sizes[2]);
-
-  face[0][1][0] =  + (0.5 * box->sizes[0]);
-  face[0][1][1] =  - (0.5 * box->sizes[1]);
-  face[0][1][2] =  - (0.5 * box->sizes[2]);
-
-  face[0][2][0] =  - (0.5 * box->sizes[0]);
-  face[0][2][1] =  - (0.5 * box->sizes[1]);
-  face[0][2][2] =  - (0.5 * box->sizes[2]);
-
-  face[0][3][0] =  - (0.5 * box->sizes[0]);
-  face[0][3][1] =  + (0.5 * box->sizes[1]);
-  face[0][3][2] =  - (0.5 * box->sizes[2]);    
-
-  face[1][0][0] =  + (0.5 * box->sizes[0]);
-  face[1][0][1] =  + (0.5 * box->sizes[1]);
-  face[1][0][2] =  + (0.5 * box->sizes[2]);
-
-  face[1][1][0] =  + (0.5 * box->sizes[0]);
-  face[1][1][1] =  - (0.5 * box->sizes[1]);
-  face[1][1][2] =  + (0.5 * box->sizes[2]);
-
-  face[1][2][0] =  - (0.5 * box->sizes[0]);
-  face[1][2][1] =  - (0.5 * box->sizes[1]);
-  face[1][2][2] =  + (0.5 * box->sizes[2]);
-
-  face[1][3][0] =  - (0.5 * box->sizes[0]);
-  face[1][3][1] =  + (0.5 * box->sizes[1]);
-  face[1][3][2] =  + (0.5 * box->sizes[2]);
-
-  glBegin(GL_LINES);
-  //  drawing the first face
-  glVertex3f( (float) face[0][0][0], (float) face[0][0][1],  (float) face[0][0][2] );
-  glVertex3f( (float) face[0][1][0], (float) face[0][1][1],  (float) face[0][1][2] );
-
-  glVertex3f( (float) face[0][1][0], (float) face[0][1][1],  (float) face[0][1][2] );
-  glVertex3f( (float) face[0][2][0], (float) face[0][2][1],  (float) face[0][2][2] );
-
-  glVertex3f( (float) face[0][2][0], (float) face[0][2][1],  (float) face[0][2][2] );
-  glVertex3f( (float) face[0][3][0], (float) face[0][3][1],  (float) face[0][3][2] );
-
-  glVertex3f( (float) face[0][3][0], (float) face[0][3][1],  (float) face[0][3][2] );
-  glVertex3f( (float) face[0][0][0], (float) face[0][0][1],  (float) face[0][0][2] );
-
-
-  // drawing the sencod face
-  glVertex3f( (float) face[1][0][0], (float) face[1][0][1],  (float) face[1][0][2] );
-  glVertex3f( (float) face[1][1][0], (float) face[1][1][1],  (float) face[1][1][2] );
-
-  glVertex3f( (float) face[1][1][0], (float) face[1][1][1],  (float) face[1][1][2] );
-  glVertex3f( (float) face[1][2][0], (float) face[1][2][1],  (float) face[1][2][2] );
-
-  glVertex3f( (float) face[1][2][0], (float) face[1][2][1],  (float) face[1][2][2] );
-  glVertex3f( (float) face[1][3][0], (float) face[1][3][1],  (float) face[1][3][2] );
-
-  glVertex3f( (float) face[1][3][0], (float) face[1][3][1],  (float) face[1][3][2] );
-  glVertex3f( (float) face[1][0][0], (float) face[1][0][1],  (float) face[1][0][2] );
-  
-
-  // drawing the connections
-  glVertex3f( (float) face[0][0][0], (float) face[0][0][1],  (float) face[0][0][2] );
-  glVertex3f( (float) face[1][0][0], (float) face[1][0][1],  (float) face[1][0][2] );
-
-  glVertex3f( (float) face[0][1][0], (float) face[0][1][1],  (float) face[0][1][2] );
-  glVertex3f( (float) face[1][1][0], (float) face[1][1][1],  (float) face[1][1][2] );
-
-  glVertex3f( (float) face[0][2][0], (float) face[0][2][1],  (float) face[0][2][2] );
-  glVertex3f( (float) face[1][2][0], (float) face[1][2][1],  (float) face[1][2][2] );
-
-  glVertex3f( (float) face[0][3][0], (float) face[0][3][1],  (float) face[0][3][2] );
-  glVertex3f( (float) face[1][3][0], (float) face[1][3][1],  (float) face[1][3][2] );
- 
-  glEnd();
-
-  glPopMatrix();
-
-}
-
-
 void ced_register_elements(void){
   GEOC_ID  =ced_register_element(sizeof(CED_GeoCylinder),(ced_draw_cb)ced_draw_geocylinder);
   GEOCR_ID  =ced_register_element(sizeof(CED_GeoCylinderR),(ced_draw_cb)ced_draw_geocylinder_r);
@@ -900,6 +931,4 @@ void ced_register_elements(void){
   /** due to an issue w/ drawing the legend (in 2D) this has to come last ! */
   LEGEND_ID  =ced_register_element(sizeof(CED_Legend),(ced_draw_cb)ced_draw_legend);
 }
-
-
 

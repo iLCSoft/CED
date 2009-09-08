@@ -24,6 +24,10 @@
 #endif
 
 
+#include <sys/types.h>
+#include <sys/socket.h>
+
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -38,7 +42,11 @@
 
 #define DEFAULT_WORLD_SIZE 1000.  //SJA:FIXED Reduce world size to give better scale
 
-static float WORLD_SIZE ;
+static float WORLD_SIZE;
+static float FISHEYE_WORLD_SIZE;
+double fisheye_alpha = 0.0;
+
+extern int SELECTED_ID ;
 
 //fg - make axe a global to be able to rescale the world volume
 static GLfloat axe[][3]={
@@ -72,6 +80,7 @@ void ced_prepare_objmap(void);
 int ced_get_selected(int x,int y,GLfloat *wx,GLfloat *wy,GLfloat *wz);
 //SJA:FIXED set this to extern as it is a global from ced_srv.c
 extern unsigned ced_visible_layers; 
+
 
 // The size of initialy visible world (+-)
 //#define WORLD_SIZE 6000.
@@ -129,7 +138,11 @@ static void makeGeometry(void) {
 
 static void init(void){
 
-  glClearColor(0.0,0.2,0.4,0.0);
+  //Set background color
+  //FIXME: make this a parameter (probably in MarlinCED?)
+  //glClearColor(0.0,0.2,0.4,0.0);//Dark blue
+  //glClearColor(1.0,1.0,1.0,0.0);//White
+  glClearColor(0.0,0.0,0.0,0.0);//Black
   glShadeModel(GL_FLAT);
 
   glEnableClientState(GL_VERTEX_ARRAY);
@@ -230,7 +243,7 @@ static void display_world(void){
   glColor3f(0.5,0.5,0.8);
   glPushMatrix();
   glTranslatef(WORLD_SIZE/2.-WORLD_SIZE/100.,0.,0.);
-  glRotatef(90.,.0,1.0,0.0);
+  glRotatef(90.,0.0,1.0,0.0);
   axe_arrow();
   glPopMatrix();
 
@@ -282,7 +295,6 @@ static void display(void){
   glRotatef(mm.ha,0.,1.0,0.);
   glScalef(mm.sf,mm.sf,mm.sf);
   glTranslatef(-mm.mv.x,-mm.mv.y,-mm.mv.z);
-
   // draw static objects
   display_world();
 
@@ -349,6 +361,10 @@ static void show_all_layers(void){
 }
 
 static void keypressed(unsigned char key,int x,int y){
+
+  //SM-H: TODO: socket list for communicating with client
+  //struct __glutSocketList *sock;
+
   printf("Key at %dx%d: %u('%c')\n",x,y,key,key);
   if(key=='r' || key=='R'){
       mm=mm_reset;
@@ -362,11 +378,35 @@ static void keypressed(unsigned char key,int x,int y){
       mm.ha=90.;
       mm.va=0.;
       glutPostRedisplay();
-  } else if(key==27)
+  } else if(key==27) {
+      
       exit(0);
+  }
   else if(key=='c' || key=='C'){
     if(!ced_get_selected(x,y,&mm.mv.x,&mm.mv.y,&mm.mv.z))
-      glutPostRedisplay();
+         glutPostRedisplay();
+     //SM-H
+     //TODO: Picking code: needs to work well with corresponding code in MarlinCED
+     //sock=__glutSockets ;
+     //
+     //int id = SELECTED_ID;
+     //printf(" ced_get_selected : socket connected: %d", sock->fd );	
+     //
+     //send( sock->fd , &id , sizeof(int) , 0 ) ;
+  } 
+  else if(key=='v' || key=='V'){
+    if(fisheye_alpha==0.0){
+        fisheye_alpha = 1e-3;
+        FISHEYE_WORLD_SIZE = WORLD_SIZE/(1.0+WORLD_SIZE*fisheye_alpha);
+        set_world_size(WORLD_SIZE);
+        printf("Fisheye view on\n");
+    }
+    else{
+        fisheye_alpha = 0.0;
+        set_world_size(FISHEYE_WORLD_SIZE);
+        printf("Fisheye view off\n");
+    }
+    glutPostRedisplay();
   } else if((key>='0') && (key<='9')){
     toggle_layer(key-'0');
     glutPostRedisplay();
@@ -493,7 +533,7 @@ static void timer (int val)
       if(sock->fd>max_fd)
 	max_fd=sock->fd;
     }
-  /* Fixme? Is this the correct way for a non blocking select call? */
+  /* FIXME? Is this the correct way for a non blocking select call? */
   rc = select(max_fd + 1, &fds, NULL, NULL, &timeout);
   if (rc < 0) 
     {

@@ -20,7 +20,7 @@ static int ced_fd=-1; // CED connection socket
 static unsigned short ced_port=7927; // port No of CED (assume localhost)
 
 // Return 0 if can be connected, -1 otherwise.
-static int ced_connect(void){
+/*static*/ int ced_connect(void){
   static time_t last_attempt=0;
   time_t ct;
   struct sockaddr_in addr;
@@ -34,7 +34,7 @@ static int ced_connect(void){
   addr.sin_port=htons(ced_port);
   addr.sin_addr.s_addr=htonl(0x7f000001); // 127.0.0.1
   ced_fd=socket(PF_INET,SOCK_STREAM,0);
-  if(connect(ced_fd,(struct sockaddr *)&addr,sizeof(addr))){
+  if(connect(ced_fd,(struct sockaddr *)&addr,sizeof(addr)) != 0){
     if(!last_attempt)
       perror("WARNING:CED: can't connect to CED");
     time(&last_attempt);
@@ -230,6 +230,13 @@ void ced_send_event(void){
   }
 }
 
+int ced_selected_id() {
+  int id=-1 ;
+  if(recv(ced_fd, &id, sizeof(int) , 0 ) > 0)
+    return id;
+  else
+    return -1;
+}
 #include <signal.h>
 // API
 void ced_client_init(const char *host,unsigned short port){

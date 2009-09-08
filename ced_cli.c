@@ -24,6 +24,20 @@ void ced_hit(float x,float y,float z,unsigned type,unsigned size,unsigned color)
   h->type=type;
   h->size=size;
   h->color=color;
+  h->lcioID=0;
+}
+
+void ced_hit_ID(float x,float y,float z,unsigned type,unsigned size,unsigned color, unsigned lcioID){
+ CED_Hit *h=(CED_Hit *)ced_add(HIT_ID);
+ if(!h)
+   return;
+ h->p.x=x;
+ h->p.y=y;
+ h->p.z=z;
+ h->type=type;
+ h->size=size;
+ h->color=color;
+ h->lcioID=lcioID;
 }
 
 /*
@@ -47,8 +61,26 @@ void ced_line(float x0,float y0,float z0,
   l->type=type;
   l->width=width;
   l->color=color;
+  l->lcioID=0;
 }
 
+void ced_line_ID(float x0,float y0,float z0,
+	      float x1,float y1,float z1,
+	      unsigned type, unsigned width,unsigned color, unsigned lcioID){
+  CED_Line *l=(CED_Line *)ced_add(LINE_ID);
+  if(!l)
+    return;
+  l->p0.x=x0;
+  l->p0.y=y0;
+  l->p0.z=z0;
+  l->p1.x=x1;
+  l->p1.y=y1;
+  l->p1.z=z1;
+  l->type=type;
+  l->width=width;
+  l->color=color;
+  l->lcioID=lcioID;
+}
 /*
  * GeoCylinder
  */

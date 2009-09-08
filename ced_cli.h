@@ -9,7 +9,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-		
 
 /*
  * This is the first function to call (before any other).
@@ -50,6 +49,7 @@ void ced_draw_event(void);
  */
 void ced_send_event(void);
 
+int ced_selected_id(void);
 
 /*********************************************
  *
@@ -101,11 +101,16 @@ typedef struct {
   unsigned type;  // not yet defined...
   unsigned width; // not yet defined...
   unsigned color; // in ARGB form (so, 0xff0000 is RED)
+  unsigned lcioID; // unique id of LICO object
+
 } CED_Line;
 
 void ced_line(float x0,float y0,float z0,
 	      float x1,float y1,float z1,
 	      unsigned type,unsigned width,unsigned color);
+void ced_line_ID(float x0,float y0,float z0,
+	      float x1,float y1,float z1,
+	      unsigned type,unsigned width,unsigned color, unsigned lcioID);
 
 /*
  * GeoCylinder

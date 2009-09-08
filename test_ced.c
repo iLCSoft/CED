@@ -11,6 +11,8 @@ double length = 100;
  * 	@date 22.08.08
  */
 
+//SM-H: Declare ced_do_draw_event as extern to avoid warning
+//extern void ced_do_draw_event();
 int main(){
 
 	/*
@@ -77,6 +79,7 @@ int main(){
 	//ced_cluellipse_r(sizes_eli[0], sizes_eli[2], center_eli,  rotation_eli, 1, RGBAcolor);
 	ced_ellipsoid_r(sizes_eli, center_eli,  rotation_eli, 1, 0x99999999);
   	ced_send_event();    // Does not clean up screen
+  	//ced_do_draw_event();    // Make clean up screen before drawing
   	ced_draw_event();    // Make clean up screen before drawing
 
  return 0;
