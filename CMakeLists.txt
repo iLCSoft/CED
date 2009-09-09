@@ -103,26 +103,14 @@ INSTALL( FILES  "${PROJECT_SOURCE_DIR}/ced_cli.h" DESTINATION include )
 
 ###################################################################################
 
-IF( CED_SERVER )
-  # GLUT is required for building CED server
-  FIND_PACKAGE( GLUT REQUIRED )
-
-  # MAC ONLY
-  IF(APPLE)
-    FIND_PACKAGE( OpenGL REQUIRED )
-  ENDIF(APPLE)
-
-  INCLUDE_DIRECTORIES( ${GLUT_INCLUDE_DIR} )
-
-ENDIF(CED_SERVER)
-
 # include directories
 INCLUDE_DIRECTORIES( . )
 
 # add definitions
 ADD_DEFINITIONS( "-Wall" )
 
-# CLIENT LIBRARY
+
+# -------------- CLIENT LIBRARY -------------------
 ADD_LIBRARY( lib_CED ced_cli.c ced.c glut_socks.c )
 
 ADD_CUSTOM_TARGET( lib DEPENDS lib_CED )
@@ -136,32 +124,41 @@ SET_TARGET_PROPERTIES( lib_CED PROPERTIES
     # avoid conflicts between library and binary target names
     OUTPUT_NAME CED )
 
-
 # install library
 INSTALL( TARGETS lib_CED DESTINATION lib PERMISSIONS
         OWNER_READ OWNER_WRITE OWNER_EXECUTE
         GROUP_READ GROUP_EXECUTE
         WORLD_READ WORLD_EXECUTE )
 
-# CED SERVER BINARY --------------------------
+
+# ------------------ GLCED --------------------------
 IF( CED_SERVER )
-  ADD_EXECUTABLE( glced glced.c ced_srv.c )
 
-  TARGET_LINK_LIBRARIES( glced lib_CED ${GLUT_glut_LIBRARY} )
+    # GLUT is required for building glced
+    FIND_PACKAGE( GLUT REQUIRED )
+    INCLUDE_DIRECTORIES( ${GLUT_INCLUDE_DIR} )
 
-  IF(APPLE)
-    TARGET_LINK_LIBRARIES( glced ${OPENGL_LIBRARIES} )
-  ENDIF(APPLE)
+    ADD_EXECUTABLE( glced glced.c ced_srv.c )
+    TARGET_LINK_LIBRARIES( glced lib_CED ${GLUT_glut_LIBRARY} )
 
-  INSTALL( TARGETS glced DESTINATION bin )
+    # MAC ONLY
+    IF(APPLE)
+        FIND_PACKAGE( OpenGL REQUIRED )
+        TARGET_LINK_LIBRARIES( glced ${OPENGL_LIBRARIES} )
+    ENDIF(APPLE)
+
+    INSTALL( TARGETS glced DESTINATION bin )
 
 ENDIF( CED_SERVER )
 
 
+
+# ------------------ CED TESTS ------------------
 ADD_EXECUTABLE( test_ced test_ced.c )
 TARGET_LINK_LIBRARIES( test_ced lib_CED )
 
 INSTALL( TARGETS test_ced DESTINATION bin )
+
 
 
 ###################################################################################
