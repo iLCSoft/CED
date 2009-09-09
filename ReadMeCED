@@ -1,57 +1,61 @@
-++++++++++++++++++++++++++++++++++++++++++++++++++++
-+ NEW: building with CMake
-+ -------------------------
-+ CED can (and should ) be build with cmake:
-+   http://www.cmake.org/
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
++ CED build instructions
++ ----------------------------------------------------------------------------
++
++ For building CED from source you need to have cmake installed in your system.
++ ( cmake homepage: www.cmake.org )
++
++ once cmake is in your $PATH, follow this steps:
 +
 + mkdir build
 + cd build
-+ cmake path_to_CED_source_dir
++ cmake [-DCED_SERVER=ON] <path_to_CED>
 + make install
 +
-+++++++++++++++++++++++++++++++++++++++++++++++++++++
++ NOTE: Only the CED client library is built per default!!
++
++       If you also need the display server (glced), you have to
++       explicitly set the cmake option CED_SERVER to ON and you
++       need GLUT installed on your system ( http://freeglut.sourceforge.net )
++
++       If cmake cannot find GLUT you can use the variables
++       CMAKE_LIBRARY_PATH and CMAKE_INCLUDE_PATH to find libraries
++       and header files in non-standard paths, e.g.:
++       $ export CMAKE_LIBRARY_PATH=/path/to/my/glut/lib
++       $ export CMAKE_INCLUDE_PATH=/path/to/my/glut/include
++       cmake -DCED_SERVER=1 <path_to_CED>
++       make install
++
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-First try to run glced
-
-If it will not work try 
-make
-
-then it should work on any computer
 
 
-1) How to link with CED?
 
-#----- add libraries needed --------
-ifdef CED
-USERLIBS +=  $(CED)/ced.o $(CED)/ced_cli.o
-endif
-
-and include
-   ced_cli.h
-
-2)  Start as separate task executable:
-    glced          
-
-  CED window should be occured:
+Controls for CED display server (glced window):
 ------------------------------------------------------------------
-Control will work if mouse is at the CED window:
+(window has to be active and the mouse placed inside it)
 
-       Keyboard:
-ESC - stop task glced and remove it from memory
 
-key r:     redispaly in some initial projection
-key f:     front projection
-key s:     side projection
+Keyboard shortcuts:
+-------------------
+ESC .......... quit
+keys [0-9] ... toggle visibility layers
+key 'r' ...... redispaly in some initial projection
+key 'f' ...... front projection
+key 's' ...... side projection
+key 'c' ...... move center of rotation to the nearest hit within current mouse position
 
-key c:     move center of rotation at the neares hit to the mouse position
 
-key 0,1,2,3 ... 0, SHIFT 1, SHIFT 2, ... SHIFT 0 -- visibility layer toggles
+Mouse interaction:
+------------------
+L button + drag:    rotate
+R button + drag:    zoom
+M button + drag:    shift
 
-    Mouse:
-left:   rotation
-middle: shift
-right:  zoom
 
+
+
+Using the CED client library:
 ------------------------------------------------------------------
 //  Somewhere at the beginning of file ******Processor.cc
 
