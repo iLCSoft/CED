@@ -6,7 +6,15 @@
 ##################################################
 
  -----------
-| v00-06 |
+| v00-07   |
+ -----------
+    * added new Fisheye view functionality 
+    * added server client communication 
+    * started to add picking functionality
+    (S. Martin-Haugh)        
+
+ -----------
+| v00-06   |
  -----------
     * added new functionality to draw (S. Darasz):
         - rotated and translated geo_cylinders
