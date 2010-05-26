@@ -66,7 +66,8 @@ static void tcp_server_read(struct __glutSocketList *list){
   }
   if((size=read(list->fd,buf,8))){
     need_size=*((unsigned *)buf);
-    if((need_size >=8) && (need_size<10000000)){
+    //if((need_size >=8) && (need_size<10000000)){
+    if((need_size >=8)) { //&& (need_size<1000000000)){
       if(need_size>8){
 	if((unsigned)need_size>buf_size){
 	  buf=realloc(buf,need_size);
