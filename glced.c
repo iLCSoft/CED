@@ -18,7 +18,7 @@
 #include <OpenGL/glu.h>
 #include <GLUT/glut.h>
 #else
-#include <GL/gl.h>
+#include "GL/gl.h"
 #include <GL/glu.h>
 #include <GL/glut.h>
 #endif
@@ -40,11 +40,20 @@
 #include <errno.h>
 #include <sys/select.h>
 
+//hauke
+#include <sys/time.h>
+#include <time.h>
+
+
 #define DEFAULT_WORLD_SIZE 1000.  //SJA:FIXED Reduce world size to give better scale
 
 static float WORLD_SIZE;
 static float FISHEYE_WORLD_SIZE;
 double fisheye_alpha = 0.0;
+
+//hauke
+long int doubleClickTime=0;
+static float BG_COLOR[4];
 
 extern int SELECTED_ID ;
 
@@ -62,9 +71,29 @@ static void set_world_size( float length) {
   axe[1][0] = WORLD_SIZE / 2. ;
   axe[2][1] = WORLD_SIZE / 2. ;
   axe[3][2] = WORLD_SIZE / 2. ;
+};
+
+//hauke
+static void set_bg_color(float one, float two, float three, float four){
+    BG_COLOR[0]=one;
+    BG_COLOR[1]=two;
+    BG_COLOR[2]=three;
+    BG_COLOR[3]=four;
 }
 
+typedef GLfloat color_t[4];
 
+static color_t bgColors[] = {
+  { 0.0, 0.2, 0.4, 0.0 }, //light blue
+  { 0.0, 0.0, 0.0, 0.0 }, //black
+  { 0.2, 0.2, 0.2, 0.0 }, //gray shades
+  { 0.4, 0.4, 0.4, 0.0 },
+  { 0.6, 0.6, 0.6, 0.0 },
+  { 0.8, 0.8, 0.8, 0.0 },
+  { 1.0, 1.0, 1.0, 0.0 }  //white
+};
+
+static unsigned int iBGcolor = 0;
 
 /* AZ I check for TCP sockets as well,
  * function will return 0 when such "event" happenes */
@@ -142,8 +171,21 @@ static void init(void){
   //FIXME: make this a parameter (probably in MarlinCED?)
   //glClearColor(0.0,0.2,0.4,0.0);//Dark blue
   //glClearColor(1.0,1.0,1.0,0.0);//White
-  glClearColor(0.0,0.0,0.0,0.0);//Black
+  //glClearColor(0.0,0.0,0.0,0.0);//Black
+
+  glClearColor(BG_COLOR[0],BG_COLOR[1], BG_COLOR[2], BG_COLOR[3]);
+
+  // calice
+  //glClearColor(bgColors[0][0],bgColors[0][1],bgColors[0][2],bgColors[0][3]); //original setting (light blue)
+
   glShadeModel(GL_FLAT);
+
+  glClearDepth(1);
+
+  glEnable(GL_DEPTH_TEST); //activate 'depth-test'
+  glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //clear buffers
+
+  glDepthFunc(GL_LESS);
 
   glEnableClientState(GL_VERTEX_ARRAY);
   // GL_NORMAL_ARRAY GL_COLOR_ARRAY GL_TEXTURE_COORD_ARRAY,GL_EDGE_FLAG_ARRAY
@@ -177,8 +219,8 @@ static struct {
     GLfloat sf_start;
     Point mv_start;
 } mm = {
-  -20.,
-  20.,
+  30.,
+  150.,
   0.2, //SJA:FIXED set redraw scale a lot smaller
   { 0., 0., 0. },
   0.,
@@ -234,8 +276,12 @@ static void display_world(void){
   glBegin(GL_LINES);
   glVertex3fv(axe[0]);
   glVertex3fv(axe[1]);
+  glEnd();
+  glBegin(GL_LINES);
   glVertex3fv(axe[0]);
   glVertex3fv(axe[2]);
+  glEnd();
+  glBegin(GL_LINES);
   glVertex3fv(axe[0]);
   glVertex3fv(axe[3]);
   glEnd();
@@ -249,7 +295,7 @@ static void display_world(void){
 
   glPushMatrix();
   glTranslatef(0.,WORLD_SIZE/2.-WORLD_SIZE/100.,0.);
-  glRotatef(180.,.0,1.0,1.0);
+  glRotatef(-90.,1.0,0.,0.);
   axe_arrow();
   glPopMatrix();
 
@@ -260,7 +306,8 @@ static void display_world(void){
   glPopMatrix();
 
   // Draw X,Y,Z ...
-  glColor3f(1.,1.,1.);
+  //glColor3f(1.,1.,1.); //white labels
+  glColor3f(0.,0.,0.); //black labels
   glRasterPos3f(WORLD_SIZE/2.+WORLD_SIZE/8,0.,0.);
   glBitmap(8,12,4,6,0,0,x_bm);
   glRasterPos3f(0.,WORLD_SIZE/2.+WORLD_SIZE/8,0.);
@@ -287,7 +334,7 @@ static void display_world(void){
 
 static void display(void){
 
-  glClear(GL_COLOR_BUFFER_BIT);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   glPushMatrix();
 
@@ -307,6 +354,19 @@ static void display(void){
   glutSwapBuffers();
 }
 
+/***************************************
+* hauke hoelbe 08.02.2010              *
+* Zoom by mousewheel                   *
+* deprecated
+***************************************/
+static void mouseWheel(int wheel, int direction, int x, int y){
+  //printf("mousewheel: direction %i, wheel %i, direction %i, x %i, y %i\n", direction, wheel, x, y);
+  mm.sf+=(20.*direction)/window_height;
+  glutPostRedisplay();
+  if(mm.sf<0.2){ mm.sf=0.2; }
+  else if(mm.sf>20.){ mm.sf=20.; }
+}
+
 
 static void reshape(int w,int h){
   // printf("Reshaped: %dx%d\n",w,h);
@@ -324,6 +384,27 @@ static void reshape(int w,int h){
 }
 
 static void mouse(int btn,int state,int x,int y){
+  //hauke
+  struct timeval tv;
+
+  struct __glutSocketList *sock;
+//hauke
+  int mouseWheelDown=9999;
+  int mouseWheelUp=9999;
+  if(glutDeviceGet(GLUT_HAS_MOUSE)){
+    //printf("Your mouse have %i buttons\n", glutDeviceGet(GLUT_NUM_MOUSE_BUTTONS)); 
+    mouseWheelDown= glutDeviceGet(GLUT_NUM_MOUSE_BUTTONS)+1;
+    mouseWheelUp=glutDeviceGet(GLUT_NUM_MOUSE_BUTTONS);
+  }
+//end hauke
+
+//#ifndef GLUT_WHEEL_UP
+//#define GLUT_WHEEL_UP   3
+//#define GLUT_WHEEL_DOWN 4
+//#endif
+
+
+
 
   if(state!=GLUT_DOWN){
     move_mode=NO_MOVE;
@@ -337,7 +418,21 @@ static void mouse(int btn,int state,int x,int y){
   mm.mv_start=mm.mv;
   switch(btn){
   case GLUT_LEFT_BUTTON:
-    move_mode=TURN_XY;
+  //hauke
+    gettimeofday(&tv, 0); 
+    //FIX IT: get the system double click time
+    if( (tv.tv_sec*1000000+tv.tv_usec-doubleClickTime) < 300000 && (tv.tv_sec*1000000+tv.tv_usec-doubleClickTime) > 5){ //1000000=1sec
+      //printf("Double Click %f\n", tv.tv_sec*1000000+tv.tv_usec-doubleClickTime);
+      if(!ced_picking(x,y,&mm.mv.x,&mm.mv.y,&mm.mv.z));
+      sock=__glutSockets ;
+      int id = SELECTED_ID;
+      //printf(" ced_get_selected : socket connected: %d", sock->fd );	
+      send( sock->fd , &id , sizeof(int) , 0 ) ;
+    }else{
+      //printf("Single Click\n");
+      move_mode=TURN_XY;
+    }
+    doubleClickTime=tv.tv_sec*1000000+tv.tv_usec;
     return;
   case GLUT_RIGHT_BUTTON:
     move_mode=ZOOM;
@@ -345,9 +440,41 @@ static void mouse(int btn,int state,int x,int y){
   case GLUT_MIDDLE_BUTTON:
     move_mode=ORIGIN;
     return;
+  //case GLUT_WHEEL_UP:
+  //  mm.mv.z+=150./mm.sf;
+  //  glutPostRedisplay();
+  //  return;
+  //case GLUT_WHEEL_DOWN:
+  //  mm.mv.z-=150./mm.sf;
+  //  glutPostRedisplay();
+  //  return;
   default:
     break;
   }
+//hauke
+  if(btn== mouseWheelUp){
+    //calice
+    //mm.mv.z+=150./mm.sf;
+    
+    //hauke
+    mm.sf+=(100.)/window_height;
+    if(mm.sf<0.2){ mm.sf=0.2; }
+    else if(mm.sf>20.){ mm.sf=20.; }
+    glutPostRedisplay();
+    return;
+  }
+  if(btn== mouseWheelDown){
+    //calice
+    //mm.mv.z-=150./mm.sf;
+
+    // hauke
+    mm.sf+=(-100.)/window_height;
+    if(mm.sf<0.2){ mm.sf=0.2; }
+    else if(mm.sf>20.){ mm.sf=20.; }
+    glutPostRedisplay();
+    return;
+  }
+//end hauke
 }
 
 static void toggle_layer(unsigned l){
@@ -362,8 +489,9 @@ static void show_all_layers(void){
 
 static void keypressed(unsigned char key,int x,int y){
 
+  //hauke
   //SM-H: TODO: socket list for communicating with client
-  //struct __glutSocketList *sock;
+  struct __glutSocketList *sock;
 
   printf("Key at %dx%d: %u('%c')\n",x,y,key,key);
   if(key=='r' || key=='R'){
@@ -385,15 +513,22 @@ static void keypressed(unsigned char key,int x,int y){
   else if(key=='c' || key=='C'){
     if(!ced_get_selected(x,y,&mm.mv.x,&mm.mv.y,&mm.mv.z))
          glutPostRedisplay();
-     //SM-H
-     //TODO: Picking code: needs to work well with corresponding code in MarlinCED
-     //sock=__glutSockets ;
-     //
-     //int id = SELECTED_ID;
-     //printf(" ced_get_selected : socket connected: %d", sock->fd );	
-     //
-     //send( sock->fd , &id , sizeof(int) , 0 ) ;
+
   } 
+  //hauke hoelbe: 08.02.2010
+  else if(key=='p' || key=='P'){
+    if(!ced_picking(x,y,&mm.mv.x,&mm.mv.y,&mm.mv.z))
+      //hauke hoelbe: 08.02.2010
+      //SM-H
+      //TODO: Picking code: needs to work well with corresponding code in MarlinCED
+      sock=__glutSockets ;
+      //
+      int id = SELECTED_ID;
+      //printf(" ced_get_selected : socket connected: %d", sock->fd );	
+     
+      send( sock->fd , &id , sizeof(int) , 0 ) ;
+
+  }
   else if(key=='v' || key=='V'){
     if(fisheye_alpha==0.0){
         fisheye_alpha = 1e-3;
@@ -462,9 +597,17 @@ static void keypressed(unsigned char key,int x,int y){
   } else if(key=='o'){ // o - momentum at ip layer = 6
     toggle_layer(24);
     glutPostRedisplay();
-  } 
-  
-  
+  }
+
+
+  else if(key=='b'){ // toggle background color
+    ++iBGcolor;
+    if (iBGcolor >= sizeof(bgColors)/sizeof(color_t)) iBGcolor = 0;
+    glClearColor(bgColors[iBGcolor][0],bgColors[iBGcolor][1],bgColors[iBGcolor][2],bgColors[iBGcolor][3]);
+    glutPostRedisplay();
+    printf("using color %u\n",iBGcolor);
+  }
+
 }
 
 static void SpecialKey( int key, int x, int y ){
@@ -556,7 +699,8 @@ static void timer (int val)
 	  if(FD_ISSET(sock->fd,&fds))
 	    {
 	      (*(sock->read_func))(sock);
-	      glutTimerFunc(100,timer,01);
+          //printf("reading...\n");
+	      glutTimerFunc(500,timer,01);
 	      return ; /* to avoid complexity with removed sockets */
 	    }
 	}
@@ -579,11 +723,16 @@ static void input_data(void *data){
 }
 
 
-int main(int argc,char *argv[]){
+ int main(int argc,char *argv[]){
 
   WORLD_SIZE = DEFAULT_WORLD_SIZE ;
+  //set_bg_color(0.0,0.0,0.0,0.0); //set to default (black)
+  set_bg_color(bgColors[0][0],bgColors[0][1],bgColors[0][2],bgColors[0][3]); //set to default (light blue [0.0, 0.2, 0.4, 0.0])
 
-  int i ;
+  char hex[]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
+  int tmp[6];
+
+  int i;
   for(i=0;i<argc ; i++){
 
     if(!strcmp( argv[i] , "-world_size" ) ) {
@@ -592,18 +741,60 @@ int main(int argc,char *argv[]){
       set_world_size( w_size ) ;
     }
 
+    if(!strcmp(argv[i], "-bgcolor") && i < argc-1){
+      if (!strcmp(argv[i+1],"Black") || !strcmp(argv[i+1],"black")){
+        printf("Set background color to black.\n");
+        set_bg_color(0.0,0.0,0.0,0.0); //Black
+      } else if (!strcmp(argv[i+1],"Blue") || !strcmp(argv[i+1],"blue")){
+        printf("Set background color to blue.\n");
+        set_bg_color(0.0,0.2,0.4,0.0); //Dark blue
+      }else if (!strcmp(argv[i+1],"White") || !strcmp(argv[i+1],"white")){
+        printf("Set background color to white.\n");
+        set_bg_color(1.0,1.0,1.0,0.0); //White
+      }else if((strlen(argv[i+1]) == 8 && argv[i+1][0] == '0' && toupper(argv[i+1][1]) == 'X') || strlen(argv[i+1]) == 6){
+        printf("Set background to user defined color.\n");
+        int n=0;
+        if(strlen(argv[i+1]) == 8){
+            n=2;
+        }
+        int k;
+        for(k=0;k<6;k++){
+            int j;
+            tmp[k]=999;
+            for(j=0;j<16;j++){
+                if(toupper(argv[i+1][k+n]) == hex[j]){
+                    tmp[k]=j;
+                }
+
+            }
+            if(tmp[k]==999){
+                printf("Unknown digit '%c'!\nSet background color to default value.\n",argv[i+1][k+n]);
+                break;
+            }
+            if(k==5){
+                printf("set color to: %f/%f/%f\n",(tmp[0]*16 + tmp[1])/255.0, (tmp[2]*16 + tmp[3])/255.0, (tmp[4]*16 + tmp[5])/255.0); 
+                set_bg_color((tmp[0]*16 + tmp[1])/255.0,(tmp[2]*16 + tmp[3])/255.0,(tmp[4]*16 + tmp[5])/255.0,0.0);
+            }
+        }
+      } else {
+        printf("Unknown background color.\nPlease choose black/blue/white or a hexadecimal number with 6 digits!\nSet background color to default value.\n");
+      }
+    
+    }
+
     if(!strcmp( argv[i] , "-h" ) || 
        !strcmp( argv[i] , "-help" )|| 
        !strcmp( argv[i] , "-?" )
        ) {
       printf( "\n  CED event display server: \n\n" 
-	      "   Usage:  glced [-world_size length] [-geometry x_geometry] \n" 
+	      "   Usage:  glced [-bgcolor color] [-world_size length] [-geometry x_geometry] \n" 
 	      "        where:  \n"
+          "              - color is the background color (values: black, white, blue or hexadecimal number)\n"
 	      "              - length is the visible world-cube size in mm (default: 6000) \n" 
 	      "              - x_geometry is the window position and size in the form WxH+X+Y \n" 
 	      "                (W:width, H: height, X: x-offset, Y: y-offset) \n"
 	      "   Example: \n\n"
-	      "     ./bin/glced -world_size 1000. -geometry 600x600+500+0  > /tmp/glced.log 2>&1 & \n\n"  
+	      "     ./bin/glced -bgcolor 4C4C66 -world_size 1000. -geometry 600x600+500+0  > /tmp/glced.log 2>&1 & \n\n"  
 	      ) ;      
       exit(0) ;
     }    
@@ -614,7 +805,7 @@ int main(int argc,char *argv[]){
   glut_tcp_server(7286,input_data);
 
   glutInit(&argc,argv);
-  glutInitDisplayMode(GLUT_DOUBLE|GLUT_RGB);
+  glutInitDisplayMode(GLUT_DOUBLE|GLUT_RGB|GLUT_DEPTH);
 /*   glutInitWindowSize(600,600); // change to smaller window size */
 /*   glutInitWindowPosition(500,0); */
   glutCreateWindow("C Event Display (CED)");
@@ -629,10 +820,14 @@ int main(int argc,char *argv[]){
   glutSpecialFunc(SpecialKey);
   glutMotionFunc(motion);
 
+  //hauke 08.02.2010 
+//  glutMouseWheelFunc(mouseWheel);
+
+
   //    glutTimerFunc(2000,time,23);
   glutTimerFunc(500,timer,23);
 
   glutMainLoop();
 
-  return 0;
-}
+   return 0;
+ }

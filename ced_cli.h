@@ -51,6 +51,10 @@ void ced_send_event(void);
 
 int ced_selected_id(void);
 
+//hauke
+int ced_selected_id_noblock(void);
+
+
 /*********************************************
  *
  * The following is elements API.
@@ -187,6 +191,18 @@ void ced_geocylinder_r(float d, double z, double * center, double * rotate, unsi
   } CED_GeoBoxR;
 
 void ced_geobox_r(double * sizes, double * center, double * rotate, unsigned int color, unsigned int layer);
+void ced_geobox_r_solid(double * sizes, double * center, double * rotate, unsigned int color, unsigned int layer);
+
+//hauke
+  typedef struct{
+    char text[200];
+//    int x;
+//    int y;
+  } CED_TEXT; 
+
+void ced_writeText(char *); //, int, int);
+//end hauke
+
 
 /*
  * Energy spectrum colour map legend.
@@ -208,7 +224,6 @@ void ced_geobox_r(double * sizes, double * center, double * rotate, unsigned int
   	char scale;
   } CED_Legend;
 
-
 void ced_legend(float ene_min, float ene_max, unsigned int color_steps, unsigned int ** rgb_matrix, unsigned int ticks, char scale);
 
   typedef struct {  
@@ -224,10 +239,13 @@ void ced_legend(float ene_min, float ene_max, unsigned int color_steps, unsigned
     float height;
     /** RGBA color */
     float RGBAcolor[4];
+    unsigned lcioid; //hauke
   } CED_ConeR;
 
 
 void ced_cone_r(float base, float height, double *center, double *rotate, unsigned int layer, float *RGBAcolor);
+void ced_cone_r_ID(float base, float height, double *center, double *rotate, unsigned int layer, float *RGBAcolor, int lcioid); //hauke
+
 
   typedef struct {  
   	/** position of the centre of the base */	
@@ -240,10 +258,13 @@ void ced_cone_r(float base, float height, double *center, double *rotate, unsign
 	double size[3];
     /** RGBA color */
    	int color;
+    unsigned lcioid; //hauke
   } CED_EllipsoidR;
 
 
 void ced_ellipsoid_r(double *size, double *center, double *rotate, unsigned int layer, int color);
+void ced_ellipsoid_r_ID(double *size, double *center, double *rotate, unsigned int layer, int color, int lcioid); //hauke
+
 
   typedef struct {  
   	/** position of the centre of the base */	
@@ -258,10 +279,13 @@ void ced_ellipsoid_r(double *size, double *center, double *rotate, unsigned int 
 	float height;
     /** RGBA color */
     int color;
+    unsigned lcioid; //hauke
   } CED_CluEllipseR;
 
 
 void ced_cluellipse_r(float radius, float height, float *center, double *rotate, unsigned int layer, int color);
+void ced_cluellipse_r_ID(float radius, float height, float *center, double *rotate, unsigned int layer, int color, int lcioid); //hauke
+
 
 #ifdef __cplusplus
  }

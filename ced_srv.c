@@ -32,6 +32,11 @@
 /** This defines what is visible */
 unsigned ced_visible_layers=0x00000FFF;
 int SELECTED_ID = -1;
+
+//hauke
+int SELECTED_X=0;
+int SELECTED_Y=0;
+
 extern double fisheye_alpha;
 #define IS_VISIBLE(x) ((1<<((x>>8)&0xff))&ced_visible_layers)
 
@@ -136,6 +141,45 @@ int ced_get_selected(int x,int y,GLfloat *wx,GLfloat *wy,GLfloat *wz){
   SELECTED_ID = best->ID;
   return 0;
 }
+
+/*************************************************************** 
+* hauke hoelbe 08.02.2010                                      *
+* A extra picking function, do the same as ced_get_selected,   *
+* without center the selected object                           *
+***************************************************************/
+int ced_picking(int x,int y,GLfloat *wx,GLfloat *wy,GLfloat *wz){
+  CED_ObjMap *p,*best;
+  unsigned i;
+  int dx,dy;
+  int d,dist=0; // calculate dist as |x-x'|+|y-y'|
+
+  y=viewport[3]-y-1; // to get correct direction
+  for(i=0,p=omap,best=0;i<omap_count;i++,p++){
+    //    printf("%d %d -- %d %d\n",x,y,p->x,p->y);
+    dx=abs(p->x-x);
+    dy=abs(p->y-y);
+    if((dx>p->max_dxy) || (dy>p->max_dxy))
+      continue;
+    d=dx+dy;
+    if(!best || (d<dist)){
+      best=p;
+      dist=d;
+    }
+  }
+  if(!best){
+    SELECTED_ID =0; //hauke
+    return 1;
+  }
+  printf("Picking: HIT %d\n",best->ID);
+
+  SELECTED_ID = best->ID;
+  //printf("select x = %d\n",best->x);
+  //SELECTED_X  = best->x;
+  //SELECTED_Y =  viewport[3]-best->y-1;
+  return 0;
+}
+
+
 
 inline int ced_selected() {
     return SELECTED_ID;
@@ -552,6 +596,38 @@ static void renderBitmapString(
   }
 }
 
+
+
+//hauke
+static unsigned TEXT_ID=0;
+static void ced_draw_text(CED_TEXT *text){
+    int startY=-700;
+    char message[200];
+	int font=(int)GLUT_BITMAP_TIMES_ROMAN_10; //default font
+    //renderBitmapString(SELECTED_X*10,SELECTED_Y*10,(void *)font,text->text);
+    glLoadIdentity();
+    int i,j;
+    int k=0;
+    for(i=0, j=0;i<strlen(text->text);i++){
+        if(text->text[i] == '\n' || text->text[i] == 0){
+            //printf("found newline\n");
+            strncpy(message,text->text+k,i-k);
+            message[i-k]=0;
+            k=i+1;
+
+            renderBitmapString(600,-700-70*j,(void *)font,"                     ");
+            renderBitmapString(600,-700-70*j,(void *)font,message);
+            j++;
+        }
+    }
+
+    glEnd();
+
+    //printf("render text\n");
+}
+
+//end hauke
+
 static unsigned LEGEND_ID=0;
 
 
@@ -918,6 +994,136 @@ static void ced_draw_cone_r(CED_ConeR * cone )  {
   	
 }
 
+
+
+/*
+ * GeoBoxRSolid
+ */
+static unsigned GEOBRS_ID = 0;
+
+static void ced_draw_geobox_r_solid(CED_GeoBoxR * box )  {
+	
+	if(!IS_VISIBLE(box->layer))
+		return;
+	
+	// a box has 8 vertices, four belonging to the first surface facing
+	// the beam, the other four from the second surface
+	const unsigned int nPoint = 4;
+	const unsigned int nDim   = 3;
+	const unsigned int nFace  = 2;
+	double face[nFace][nPoint][nDim];
+	//  unsigned int iDim, iPoint, iFace;
+	
+	
+	ced_color(box->color);
+	glLineWidth(2);
+	
+	glPushMatrix(); // push the matrix onto the matrix stack and pop it off (preserving the original matrix)
+	
+	glTranslated(box->center[0],box->center[1],box->center[2]);
+	
+	glRotated(box->rotate[2], 0.0, 0.0, 1.0);
+	glRotated(box->rotate[1], 0.0, 1.0, 0.0);
+	glRotated(box->rotate[0], 1.0, 0.0, 0.0);
+	
+	face[0][0][0] =  + (0.5 * box->sizes[0]);
+	face[0][0][1] =  + (0.5 * box->sizes[1]);
+	face[0][0][2] =  - (0.5 * box->sizes[2]);
+	
+	face[0][1][0] =  + (0.5 * box->sizes[0]);
+	face[0][1][1] =  - (0.5 * box->sizes[1]);
+	face[0][1][2] =  - (0.5 * box->sizes[2]);
+	
+	face[0][2][0] =  - (0.5 * box->sizes[0]);
+	face[0][2][1] =  - (0.5 * box->sizes[1]);
+	face[0][2][2] =  - (0.5 * box->sizes[2]);
+	
+	face[0][3][0] =  - (0.5 * box->sizes[0]);
+	face[0][3][1] =  + (0.5 * box->sizes[1]);
+	face[0][3][2] =  - (0.5 * box->sizes[2]);
+	
+	face[1][0][0] =  + (0.5 * box->sizes[0]);
+	face[1][0][1] =  + (0.5 * box->sizes[1]);
+	face[1][0][2] =  + (0.5 * box->sizes[2]);
+	
+	face[1][1][0] =  + (0.5 * box->sizes[0]);
+	face[1][1][1] =  - (0.5 * box->sizes[1]);
+	face[1][1][2] =  + (0.5 * box->sizes[2]);
+	
+	face[1][2][0] =  - (0.5 * box->sizes[0]);
+	face[1][2][1] =  - (0.5 * box->sizes[1]);
+	face[1][2][2] =  + (0.5 * box->sizes[2]);
+	
+	face[1][3][0] =  - (0.5 * box->sizes[0]);
+	face[1][3][1] =  + (0.5 * box->sizes[1]);
+	face[1][3][2] =  + (0.5 * box->sizes[2]);
+	
+	
+	//  drawing the first face
+	glBegin(GL_POLYGON);
+	
+	glVertex3f( (float) face[0][0][0], (float) face[0][0][1],  (float) face[0][0][2] );
+	glVertex3f( (float) face[0][1][0], (float) face[0][1][1],  (float) face[0][1][2] );
+	glVertex3f( (float) face[0][2][0], (float) face[0][2][1],  (float) face[0][2][2] );
+	glVertex3f( (float) face[0][3][0], (float) face[0][3][1],  (float) face[0][3][2] );
+	
+	glEnd();
+	
+	
+	
+	// drawing the second face
+	glBegin(GL_POLYGON);
+	
+	glVertex3f( (float) face[1][0][0], (float) face[1][0][1],  (float) face[1][0][2] );
+	glVertex3f( (float) face[1][1][0], (float) face[1][1][1],  (float) face[1][1][2] );
+	glVertex3f( (float) face[1][2][0], (float) face[1][2][1],  (float) face[1][2][2] );
+	glVertex3f( (float) face[1][3][0], (float) face[1][3][1],  (float) face[1][3][2] );
+	
+	glEnd();
+	
+	
+	// drawing the sides
+	glBegin(GL_POLYGON);
+	
+	glVertex3f( (float) face[0][0][0], (float) face[0][0][1],  (float) face[0][0][2] );
+	glVertex3f( (float) face[0][1][0], (float) face[0][1][1],  (float) face[0][1][2] );
+	glVertex3f( (float) face[1][1][0], (float) face[1][1][1],  (float) face[1][1][2] );
+	glVertex3f( (float) face[1][0][0], (float) face[1][0][1],  (float) face[1][0][2] );
+	
+	glEnd();
+	
+	glBegin(GL_POLYGON);
+	
+	glVertex3f( (float) face[0][1][0], (float) face[0][1][1],  (float) face[0][1][2] );
+	glVertex3f( (float) face[0][2][0], (float) face[0][2][1],  (float) face[0][2][2] );
+	glVertex3f( (float) face[1][2][0], (float) face[1][2][1],  (float) face[1][2][2] );
+	glVertex3f( (float) face[1][1][0], (float) face[1][1][1],  (float) face[1][1][2] );
+	
+	glEnd();
+	
+	glBegin(GL_POLYGON);
+	
+	glVertex3f( (float) face[0][2][0], (float) face[0][2][1],  (float) face[0][2][2] );
+	glVertex3f( (float) face[0][3][0], (float) face[0][3][1],  (float) face[0][3][2] );
+	glVertex3f( (float) face[1][3][0], (float) face[1][3][1],  (float) face[1][3][2] );
+	glVertex3f( (float) face[1][2][0], (float) face[1][2][1],  (float) face[1][2][2] );
+	
+	glEnd();
+	
+	glBegin(GL_POLYGON);
+	
+	glVertex3f( (float) face[0][3][0], (float) face[0][3][1],  (float) face[0][3][2] );
+	glVertex3f( (float) face[0][0][0], (float) face[0][0][1],  (float) face[0][0][2] );
+	glVertex3f( (float) face[1][0][0], (float) face[1][0][1],  (float) face[1][0][2] );
+	glVertex3f( (float) face[1][3][0], (float) face[1][3][1],  (float) face[1][3][2] );
+	
+	glEnd();
+	
+	glPopMatrix();
+	
+}
+
+
 void ced_register_elements(void){
   GEOC_ID  =ced_register_element(sizeof(CED_GeoCylinder),(ced_draw_cb)ced_draw_geocylinder);
   GEOCR_ID  =ced_register_element(sizeof(CED_GeoCylinderR),(ced_draw_cb)ced_draw_geocylinder_r);
@@ -925,10 +1131,13 @@ void ced_register_elements(void){
   HIT_ID   =ced_register_element(sizeof(CED_Hit),(ced_draw_cb)ced_draw_hit);
   GEOB_ID  =ced_register_element(sizeof(CED_GeoBox),(ced_draw_cb)ced_draw_geobox);
   GEOBR_ID  =ced_register_element(sizeof(CED_GeoBoxR),(ced_draw_cb)ced_draw_geobox_r);
+  GEOBRS_ID  =ced_register_element(sizeof(CED_GeoBoxR),(ced_draw_cb)ced_draw_geobox_r_solid);
   CONER_ID  =ced_register_element(sizeof(CED_ConeR),(ced_draw_cb)ced_draw_cone_r);
   ELLIPSOID_ID = ced_register_element(sizeof(CED_EllipsoidR),(ced_draw_cb)ced_draw_ellipsoid_r);
   CLUELLIPSE_ID = ced_register_element(sizeof(CED_CluEllipseR),(ced_draw_cb)ced_draw_cluellipse_r);
   /** due to an issue w/ drawing the legend (in 2D) this has to come last ! */
   LEGEND_ID  =ced_register_element(sizeof(CED_Legend),(ced_draw_cb)ced_draw_legend);
+  TEXT_ID   =ced_register_element(sizeof(CED_TEXT),(ced_draw_cb)ced_draw_text); //hauke
+
 }
 

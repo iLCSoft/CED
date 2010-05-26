@@ -175,6 +175,21 @@ void ced_geobox_r(double * sizes, double * center, double * rotate, unsigned int
   box->layer = layer;
 }
 
+static unsigned GEOBRS_ID=0;
+
+void ced_geobox_r_solid(double * sizes, double * center, double * rotate, unsigned int color, unsigned int layer) {
+  int iDim;
+  CED_GeoBoxR * box = (CED_GeoBoxR*) ced_add(GEOBRS_ID);
+  if ( ! box ) return;
+  for ( iDim = 0; iDim < 3; iDim ++ ) {
+    box->sizes[iDim]   = sizes[iDim];
+    box->center[iDim]  = center[iDim];
+    box->rotate[iDim] = rotate[iDim];
+  }
+  box->color = color;
+  box->layer = layer;
+}
+
 static unsigned LEGEND_ID=0;
 
 void ced_legend(float ene_min, float ene_max, unsigned int color_steps, unsigned int ** rgb_matrix, unsigned int ticks, char scale) {
@@ -195,6 +210,17 @@ void ced_legend(float ene_min, float ene_max, unsigned int color_steps, unsigned
   		}
 	}
 }
+//hauke 
+static unsigned TEXT_ID=0;
+
+void ced_writeText(char *message) {
+	CED_TEXT *text = (CED_TEXT*) ced_add(TEXT_ID);
+	if ( !text ) return;
+    strncpy(text->text,message,199);
+    //text->x=xCordinate;
+    //text->y=yCordinate;
+}
+//end hauke
 
 static unsigned CONER_ID=0;
 
@@ -205,6 +231,7 @@ void ced_cone_r(float base, float height, double *center, double *rotate, unsign
 	cone->base = base;
   	cone->height = height;
  	cone->layer = layer;
+    cone->lcioid = 0;
  	
   	const unsigned int dim = 3;
   	const unsigned int channel = 4;
@@ -218,6 +245,26 @@ void ced_cone_r(float base, float height, double *center, double *rotate, unsign
 	}
 }
 
+void ced_cone_r_ID(float base, float height, double *center, double *rotate, unsigned int layer, float *RGBAcolor, int lcioid) {
+	CED_ConeR * cone = (CED_ConeR*) ced_add(CONER_ID);
+	if ( ! cone ) return;
+	
+	cone->base = base;
+  	cone->height = height;
+ 	cone->layer = layer;
+    cone->lcioid = lcioid;
+ 	
+  	const unsigned int dim = 3;
+  	const unsigned int channel = 4;
+  	int i, j;
+  	for (i = 0; i < dim; i ++ ) {
+		cone->center[i] = center[i];
+		cone->rotate[i] = rotate[i];
+	}
+	for (j = 0; j < channel; j ++ ) {
+		cone->RGBAcolor[j] = RGBAcolor[j];
+	}
+}
 static unsigned ELLIPSOID_ID=0;
 
 void ced_ellipsoid_r(double *size, double *center, double *rotate, unsigned int layer, int color) {
@@ -234,6 +281,24 @@ void ced_ellipsoid_r(double *size, double *center, double *rotate, unsigned int 
 	}
 	eli->color = color;
 	eli->layer = layer;
+    eli->lcioid = 0;
+}
+
+void ced_ellipsoid_r_ID(double *size, double *center, double *rotate, unsigned int layer, int color, int lcioID) {
+	
+	CED_EllipsoidR * eli = (CED_EllipsoidR*) ced_add(ELLIPSOID_ID);
+	if ( ! eli ) return;	
+ 	
+  	const unsigned int dim = 3;
+  	int i;
+  	for (i = 0; i < dim; i ++ ) {
+		eli->center[i] = center[i];
+		eli->rotate[i] = rotate[i];
+		eli->size[i] = size[i];
+	}
+	eli->color = color;
+	eli->layer = layer;
+    eli->lcioid = lcioID;
 }
 
 static unsigned CLUELLIPSE_ID=0;
@@ -253,19 +318,39 @@ void ced_cluellipse_r(float radius, float height, float *center, double *rotate,
 	eli->height = height;
 	eli->layer = layer;
 	eli->color = color;
+    eli->lcioid=0; //hauke
+}
+
+void ced_cluellipse_r_ID(float radius, float height, float *center, double *rotate, unsigned int layer, int color, int lcioid) { //hauke
+	
+	CED_CluEllipseR * eli = (CED_CluEllipseR*) ced_add(CLUELLIPSE_ID);
+	if ( ! eli ) return;	
+ 	
+  	const unsigned int dim = 3;
+  	int i;
+  	for (i = 0; i < dim; i ++ ) {
+		eli->center[i] = center[i];
+		eli->rotate[i] = rotate[i];
+	}
+	eli->radius = radius;
+	eli->height = height;
+	eli->layer = layer;
+	eli->color = color;
+    eli->lcioid=lcioid;
 }
 
 
 void ced_register_elements(void){
-  GEOC_ID  		=ced_register_element(sizeof(CED_GeoCylinder),0);
-  GEOCR_ID  	=ced_register_element(sizeof(CED_GeoCylinderR), 0);
-  LINE_ID 		=ced_register_element(sizeof(CED_Line),0);
-  HIT_ID   		=ced_register_element(sizeof(CED_Hit),0);
-  GEOB_ID  		=ced_register_element(sizeof(CED_GeoBox), 0);
-  GEOBR_ID  	=ced_register_element(sizeof(CED_GeoBoxR), 0);
-  CONER_ID  	=ced_register_element(sizeof(CED_ConeR), 0);
-  ELLIPSOID_ID 	=ced_register_element(sizeof(CED_EllipsoidR), 0);
+  GEOC_ID		=ced_register_element(sizeof(CED_GeoCylinder),0);
+  GEOCR_ID	=ced_register_element(sizeof(CED_GeoCylinderR), 0);
+  LINE_ID		=ced_register_element(sizeof(CED_Line),0);
+  HIT_ID		=ced_register_element(sizeof(CED_Hit),0);
+  GEOB_ID		=ced_register_element(sizeof(CED_GeoBox), 0);
+  GEOBR_ID	=ced_register_element(sizeof(CED_GeoBoxR), 0);
+  GEOBRS_ID	=ced_register_element(sizeof(CED_GeoBoxR), 0);
+  CONER_ID	=ced_register_element(sizeof(CED_ConeR), 0);
+  ELLIPSOID_ID	=ced_register_element(sizeof(CED_EllipsoidR), 0);
   CLUELLIPSE_ID =ced_register_element(sizeof(CED_CluEllipseR), 0);
-  LEGEND_ID  	=ced_register_element(sizeof(CED_Legend), 0);
+  LEGEND_ID	=ced_register_element(sizeof(CED_Legend), 0);
+  TEXT_ID       =ced_register_element(sizeof(CED_TEXT),0); //hauke
 }
-
