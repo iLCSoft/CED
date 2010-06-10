@@ -6,6 +6,22 @@
 ##################################################
 
  -----------
+| HEAD     |
+ -----------
+new features: (H. Hoelbe)
+      enabled picking (double-click hit)
+      zoom (mouse-wheel)
+      backgroud color option (e.g. glced -bgcolor black)
+      new ced_write_text function
+
+merged calice branch:
+      filled boxes
+      fixed perspective
+      b-key toggles background color (light-blue, black, gray shades, white)
+
+bug fix: CED crashed when drawing more than ~350.000 hits (H. Hoelbe)
+
+ -----------
 | v00-07   |
  -----------
     * added new Fisheye view functionality 
