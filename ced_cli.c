@@ -15,16 +15,7 @@
 static unsigned HIT_ID=0;
 
 void ced_hit(float x,float y,float z,unsigned type,unsigned size,unsigned color){
-  CED_Hit *h=(CED_Hit *)ced_add(HIT_ID);
-  if(!h)
-    return;
-  h->p.x=x;
-  h->p.y=y;
-  h->p.z=z;
-  h->type=type;
-  h->size=size;
-  h->color=color;
-  h->lcioID=0;
+    ced_hit_ID(x,y,z,type,size,color, 0);
 }
 
 void ced_hit_ID(float x,float y,float z,unsigned type,unsigned size,unsigned color, unsigned lcioID){
@@ -49,19 +40,7 @@ static unsigned LINE_ID=0;
 void ced_line(float x0,float y0,float z0,
 	      float x1,float y1,float z1,
 	      unsigned type, unsigned width,unsigned color){
-  CED_Line *l=(CED_Line *)ced_add(LINE_ID);
-  if(!l)
-    return;
-  l->p0.x=x0;
-  l->p0.y=y0;
-  l->p0.z=z0;
-  l->p1.x=x1;
-  l->p1.y=y1;
-  l->p1.z=z1;
-  l->type=type;
-  l->width=width;
-  l->color=color;
-  l->lcioID=0;
+    ced_line_ID(x0,y0,z0,x1,y1,z1, type, width, color, 0);
 }
 
 void ced_line_ID(float x0,float y0,float z0,
@@ -225,24 +204,7 @@ void ced_writeText(char *message) {
 static unsigned CONER_ID=0;
 
 void ced_cone_r(float base, float height, double *center, double *rotate, unsigned int layer, float *RGBAcolor) {
-	CED_ConeR * cone = (CED_ConeR*) ced_add(CONER_ID);
-	if ( ! cone ) return;
-	
-	cone->base = base;
-  	cone->height = height;
- 	cone->layer = layer;
-    cone->lcioid = 0;
- 	
-  	const unsigned int dim = 3;
-  	const unsigned int channel = 4;
-  	int i, j;
-  	for (i = 0; i < dim; i ++ ) {
-		cone->center[i] = center[i];
-		cone->rotate[i] = rotate[i];
-	}
-	for (j = 0; j < channel; j ++ ) {
-		cone->RGBAcolor[j] = RGBAcolor[j];
-	}
+    ced_cone_r_ID(base,height,center,rotate,layer, RGBAcolor, 0);
 }
 
 void ced_cone_r_ID(float base, float height, double *center, double *rotate, unsigned int layer, float *RGBAcolor, int lcioid) {
@@ -265,23 +227,11 @@ void ced_cone_r_ID(float base, float height, double *center, double *rotate, uns
 		cone->RGBAcolor[j] = RGBAcolor[j];
 	}
 }
+
 static unsigned ELLIPSOID_ID=0;
 
 void ced_ellipsoid_r(double *size, double *center, double *rotate, unsigned int layer, int color) {
-	
-	CED_EllipsoidR * eli = (CED_EllipsoidR*) ced_add(ELLIPSOID_ID);
-	if ( ! eli ) return;	
- 	
-  	const unsigned int dim = 3;
-  	int i;
-  	for (i = 0; i < dim; i ++ ) {
-		eli->center[i] = center[i];
-		eli->rotate[i] = rotate[i];
-		eli->size[i] = size[i];
-	}
-	eli->color = color;
-	eli->layer = layer;
-    eli->lcioid = 0;
+    ced_ellipsoid_r_ID(size, center, rotate, layer, color, 0);
 }
 
 void ced_ellipsoid_r_ID(double *size, double *center, double *rotate, unsigned int layer, int color, int lcioID) {
@@ -304,21 +254,7 @@ void ced_ellipsoid_r_ID(double *size, double *center, double *rotate, unsigned i
 static unsigned CLUELLIPSE_ID=0;
 
 void ced_cluellipse_r(float radius, float height, float *center, double *rotate, unsigned int layer, int color) {
-	
-	CED_CluEllipseR * eli = (CED_CluEllipseR*) ced_add(CLUELLIPSE_ID);
-	if ( ! eli ) return;	
- 	
-  	const unsigned int dim = 3;
-  	int i;
-  	for (i = 0; i < dim; i ++ ) {
-		eli->center[i] = center[i];
-		eli->rotate[i] = rotate[i];
-	}
-	eli->radius = radius;
-	eli->height = height;
-	eli->layer = layer;
-	eli->color = color;
-    eli->lcioid=0; //hauke
+    ced_cluellipse_r_ID(radius, height, center, rotate, layer, color, 0);
 }
 
 void ced_cluellipse_r_ID(float radius, float height, float *center, double *rotate, unsigned int layer, int color, int lcioid) { //hauke
