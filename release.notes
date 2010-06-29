@@ -5,21 +5,24 @@
 #   original author A.Zhelezov, DESY
 ##################################################
 
- -----------
-| HEAD     |
- -----------
-new features: (H. Hoelbe)
-      enabled picking (double-click hit)
-      zoom (mouse-wheel)
-      backgroud color option (e.g. glced -bgcolor black)
-      new ced_write_text function
+ --------
+| v01-00  |
+ ---------
+     new features: (H. Hoelbe, DESY)
+     -  enabled picking (double-click on objects)
+     -  zoom (mouse-wheel)
+     -  backgroud color option (e.g. glced -bgcolor black)
+     -  new ced_write_text function
 
-merged calice branch:
-      filled boxes
-      fixed perspective
-      b-key toggles background color (light-blue, black, gray shades, white)
-
-bug fix: CED crashed when drawing more than ~350.000 hits (H. Hoelbe)
+      merged from calice branch:
+       - filled boxes
+       - fixed perspective
+       - b-key toggles background color 
+         (light-blue, black, gray shades, white)
+	
+     bug fix: 
+        -  CED no longer crashes when drawing more 
+           than ~350.000 hits (H. Hoelbe)
 
  -----------
 | v00-07   |
