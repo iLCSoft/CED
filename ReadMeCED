@@ -30,6 +30,11 @@
 
 
 
+glced command line options
+------------------------------------------------------------------
+glced -h  # show help
+glced     # run event display server
+
 
 Controls for CED display server (glced window):
 ------------------------------------------------------------------
@@ -44,6 +49,9 @@ key 'r' ...... redispaly in some initial projection
 key 'f' ...... front projection
 key 's' ...... side projection
 key 'c' ...... move center of rotation to the nearest hit within current mouse position
+key 'v' ...... fish-eye view
+key 'b' ...... toggle background color
+
 
 
 Mouse interaction:
@@ -51,6 +59,8 @@ Mouse interaction:
 L button + drag:    rotate
 R button + drag:    zoom
 M button + drag:    shift
+M wheel  + up  :    zoom-in
+M wheel  + down:    zoom-out
 
 
 
