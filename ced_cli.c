@@ -6,6 +6,7 @@
 
 #include <ced_cli.h>
 #include <ced.h>
+#include <stdio.h>
 
 
 /*
@@ -192,12 +193,38 @@ void ced_legend(float ene_min, float ene_max, unsigned int color_steps, unsigned
 //hauke 
 static unsigned TEXT_ID=0;
 
-void ced_writeText(char *message) {
+void ced_describe_layer(char *message, int id) {
+    //printf("ced_describe layer id=%i text: %s\n", id, message);
+
+    if(id >= 25){
+        printf("WARNING: ced_describe_layer: Index out of range!\n");
+        return;
+    }
+
 	CED_TEXT *text = (CED_TEXT*) ced_add(TEXT_ID);
-	if ( !text ) return;
+	if(!text){
+        printf("WARNING: ced_describe_layer: cant register CED_TEXT");  
+        return;
+    }
+
     strncpy(text->text,message,199);
+    text->id=id;
     //text->x=xCordinate;
     //text->y=yCordinate;
+}
+
+
+static unsigned LAYER_TEXT_ID=0;
+
+void ced_layer_text(char *message, int id) {
+	LAYER_TEXT *obj = (LAYER_TEXT*) ced_add(LAYER_TEXT_ID);
+	if (!obj){ 
+        printf("ced_layer_text FAILED\n"); 
+        return;
+    }
+    strncpy(obj->str,message,199);
+    obj->id=id;
+    //printf("ced_layer_text\n");
 }
 //end hauke
 
@@ -219,6 +246,10 @@ void ced_cone_r_ID(float base, float height, double *center, double *rotate, uns
   	const unsigned int dim = 3;
   	const unsigned int channel = 4;
   	int i, j;
+
+    //
+    //ced_line_ID(0,0,0, center[0], center[1], center[2], type, width, color, 0);
+
   	for (i = 0; i < dim; i ++ ) {
 		cone->center[i] = center[i];
 		cone->rotate[i] = rotate[i];
@@ -287,6 +318,6 @@ void ced_register_elements(void){
   CONER_ID	=ced_register_element(sizeof(CED_ConeR), 0);
   ELLIPSOID_ID	=ced_register_element(sizeof(CED_EllipsoidR), 0);
   CLUELLIPSE_ID =ced_register_element(sizeof(CED_CluEllipseR), 0);
+  TEXT_ID       =ced_register_element(sizeof(CED_TEXT),0); //hauke: the order of this items is important
   LEGEND_ID	=ced_register_element(sizeof(CED_Legend), 0);
-  TEXT_ID       =ced_register_element(sizeof(CED_TEXT),0); //hauke
 }

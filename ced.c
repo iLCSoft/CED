@@ -77,8 +77,7 @@ static ced_event eve = {0,0};
 static ced_event ceve = {0,0}; // current event on screen
 
 // we reserve this size just before ced_element.b data
-//#define HDR_SIZE 8
-#define HDR_SIZE 8 //hauke 
+#define HDR_SIZE 8 
 
 unsigned ced_register_element(unsigned item_size,ced_draw_cb draw_func){
   ced_element *pe;
@@ -157,7 +156,7 @@ static void ced_event_copy(ced_event *trg){
 void ced_do_draw_event(void){
   unsigned i,j;
   ced_element *pe;
-  char *pdata;
+  unsigned char *pdata;
   for(i=0;i<ceve.e_count;i++){
     pe=ceve.e+i;
     if(!pe->draw)
@@ -243,19 +242,6 @@ void ced_send_event(void){
         //printf("sent_sum = %i, hdr->size=%i\n",sent_sum,hdr->size);
 	    sent=write(ced_fd,buf+sent_sum,hdr->size-sent_sum);
         
-        /*
-        //hauke start
-        if(hdr->size-sent_sum > 10000000){
-            printf("try to send %i bytes\n", 10000000);
-            sent=write(ced_fd,buf+sent_sum,10000000);
-            //sleep(1);
-        }else{
-            printf("try to send %i bytes\n", hdr->size-sent_sum);
-            sent=write(ced_fd,buf+sent_sum,hdr->size-sent_sum);
-        }
-        //hauke end
-        */
-
         //printf("byte: %u\n", buf[sent_sum]);
 	    if(sent<0){
             printf("send < 0\n");

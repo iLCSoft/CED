@@ -196,11 +196,18 @@ void ced_geobox_r_solid(double * sizes, double * center, double * rotate, unsign
 //hauke
   typedef struct{
     char text[200];
-//    int x;
-//    int y;
+    int id;
   } CED_TEXT; 
 
-void ced_writeText(char *); //, int, int);
+void ced_describe_layer(char *, int); //, int, int);
+
+
+  typedef struct{
+    char str[200];
+    unsigned int id;
+  } LAYER_TEXT; 
+
+void ced_layer_text(char *, int);
 //end hauke
 
 

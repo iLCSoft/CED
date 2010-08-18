@@ -26,6 +26,9 @@
 #include <netdb.h>
 #include <unistd.h>
 
+//hauke
+//#include "glced.h"
+
 #include <ced.h>
 #define PORT        0x1234
 
@@ -598,12 +601,17 @@ static void renderBitmapString(
 
 
 
+/*
 //hauke
-static unsigned TEXT_ID=0;
+//static unsigned TEXT_ID=0;
 static void ced_draw_text(CED_TEXT *text){
-    int startY=-700;
+    //int startY=-700;
     char message[200];
 	int font=(int)GLUT_BITMAP_TIMES_ROMAN_10; //default font
+
+
+    printf("ced_draw_text: %i text: %s\n", text->id, text->text);
+
     //renderBitmapString(SELECTED_X*10,SELECTED_Y*10,(void *)font,text->text);
     glLoadIdentity();
     int i,j;
@@ -623,7 +631,18 @@ static void ced_draw_text(CED_TEXT *text){
 
     glEnd();
 
-    //printf("render text\n");
+}
+*/
+
+
+static unsigned TEXT_ID=0;
+static void print_layer_text(CED_TEXT *obj){
+    //printf("HELLO WORLD\n\n");
+    //strcpy(foobar,"hallo welt blabla"); 
+    //foobar=23;
+    //registerLayer(obj->id, obj->str);
+    //printf("layer %i text: %s\n", obj->id, obj->text);
+    addLayerDescriptionToMenu(obj->id, obj->text);
 }
 
 //end hauke
@@ -1125,6 +1144,8 @@ static void ced_draw_geobox_r_solid(CED_GeoBoxR * box )  {
 
 
 void ced_register_elements(void){
+
+
   GEOC_ID  =ced_register_element(sizeof(CED_GeoCylinder),(ced_draw_cb)ced_draw_geocylinder);
   GEOCR_ID  =ced_register_element(sizeof(CED_GeoCylinderR),(ced_draw_cb)ced_draw_geocylinder_r);
   LINE_ID  =ced_register_element(sizeof(CED_Line),(ced_draw_cb)ced_draw_line);
@@ -1135,9 +1156,11 @@ void ced_register_elements(void){
   CONER_ID  =ced_register_element(sizeof(CED_ConeR),(ced_draw_cb)ced_draw_cone_r);
   ELLIPSOID_ID = ced_register_element(sizeof(CED_EllipsoidR),(ced_draw_cb)ced_draw_ellipsoid_r);
   CLUELLIPSE_ID = ced_register_element(sizeof(CED_CluEllipseR),(ced_draw_cb)ced_draw_cluellipse_r);
+  TEXT_ID   =ced_register_element(sizeof(CED_TEXT),(ced_draw_cb)print_layer_text); //hauke
+
   /** due to an issue w/ drawing the legend (in 2D) this has to come last ! */
   LEGEND_ID  =ced_register_element(sizeof(CED_Legend),(ced_draw_cb)ced_draw_legend);
-  TEXT_ID   =ced_register_element(sizeof(CED_TEXT),(ced_draw_cb)ced_draw_text); //hauke
-
+  //TEXT_ID   =ced_register_element(sizeof(CED_TEXT),(ced_draw_cb)ced_draw_text); //hauke
+  //LAYER_TEXT_ID   =ced_register_element(sizeof(LAYER_TEXT),(ced_draw_cb)print_layer_text); //hauke
 }
 

@@ -8,7 +8,6 @@
  * included into enduser application.
  */
 
-
 #ifndef __CED_H
 #define __CED_H
 
@@ -71,6 +70,12 @@ void ced_do_draw_event(void);
  *          <do redraw>
  */
 int ced_process_input(void *data);
+
+//------------
+void addLayerDescriptionToMenu(int,char *);//glced.c
+void selectFromMenu(int id);//glced.c
+void toggleHelpWindow(void);//glced.c
+//-------------
 
 #ifdef __cplusplus
  }
