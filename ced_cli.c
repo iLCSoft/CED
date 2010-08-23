@@ -193,7 +193,7 @@ void ced_legend(float ene_min, float ene_max, unsigned int color_steps, unsigned
 //hauke 
 static unsigned TEXT_ID=0;
 
-void ced_describe_layer(char *message, int id) {
+void ced_describe_layer(const char *message, int id) {
     //printf("ced_describe layer id=%i text: %s\n", id, message);
 
     if(id >= 25){
