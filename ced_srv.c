@@ -606,7 +606,7 @@ static void renderBitmapString(
 //static unsigned TEXT_ID=0;
 static void ced_draw_text(CED_TEXT *text){
     //int startY=-700;
-    char message[200];
+    char message[400];
 	int font=(int)GLUT_BITMAP_TIMES_ROMAN_10; //default font
 
 

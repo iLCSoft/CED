@@ -2,7 +2,6 @@
  * Enduser accessable API.
  *
  * Alexey Zhelezov, DESY/ITEP, 2005 */
-
 #ifndef __CED_CLI_H
 #define __CED_CLI_H
 
@@ -195,15 +194,15 @@ void ced_geobox_r_solid(double * sizes, double * center, double * rotate, unsign
 
 //hauke
   typedef struct{
-    char text[200];
+    char text[400];
     int id;
   } CED_TEXT; 
 
-void ced_describe_layer( const char *, int); //, int, int);
+void ced_describe_layer(const char *, int); //, int, int);
 
 
   typedef struct{
-    char str[200];
+    char str[400];
     unsigned int id;
   } LAYER_TEXT; 
 

@@ -75,6 +75,13 @@ int ced_process_input(void *data);
 void addLayerDescriptionToMenu(int,char *);//glced.c
 void selectFromMenu(int id);//glced.c
 void toggleHelpWindow(void);//glced.c
+void updateLayerEntryInPopupMenu(int); //glced.c
+int buildMenuPopup(void);//glced.c
+
+#define MAX_LAYER       25
+#define MAX_LAYER_POPUP 20
+#define MAX_LAYER_CHAR  400
+
 //-------------
 
 #ifdef __cplusplus

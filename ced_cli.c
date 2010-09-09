@@ -8,6 +8,8 @@
 #include <ced.h>
 #include <stdio.h>
 
+#include <math.h>
+
 
 /*
  * Hit element
@@ -47,6 +49,23 @@ void ced_line(float x0,float y0,float z0,
 void ced_line_ID(float x0,float y0,float z0,
 	      float x1,float y1,float z1,
 	      unsigned type, unsigned width,unsigned color, unsigned lcioID){
+  //test for picking
+  float length=(x1-x0)*(x1-x0) + (y1-y0)*(y1-y0) + (z1-z0)*(z1-z0);
+  //printf("CEDLINE length: %f\n x0 %f y0 %f z0 %f, x1 %f, y1 %f z1 %f", length, x0, y0, z0, x1, y1, z1);
+
+  if(length > 200.0){
+      ced_line_ID(x0,y0,z0,
+          (x1-x0)/2.0+x0,(y1-y0)/2.0+y0,(z1-z0)/2.0+z0,
+          type, width, color, lcioID);
+              ced_line_ID(
+          (x1-x0)/2.0+x0,(y1-y0)/2.0+y0,(z1-z0)/2.0+z0,
+
+          x1,y1,z1,
+          type, width, color, lcioID);
+      return;
+
+  }
+
   CED_Line *l=(CED_Line *)ced_add(LINE_ID);
   if(!l)
     return;
@@ -207,7 +226,8 @@ void ced_describe_layer(const char *message, int id) {
         return;
     }
 
-    strncpy(text->text,message,199);
+    strncpy(text->text,message,MAX_LAYER_CHAR-1);
+    text->text[MAX_LAYER_CHAR-1] = 0;
     text->id=id;
     //text->x=xCordinate;
     //text->y=yCordinate;
@@ -222,7 +242,7 @@ void ced_layer_text(char *message, int id) {
         printf("ced_layer_text FAILED\n"); 
         return;
     }
-    strncpy(obj->str,message,199);
+    strncpy(obj->str,message,MAX_LAYER_CHAR-1);
     obj->id=id;
     //printf("ced_layer_text\n");
 }
@@ -247,8 +267,10 @@ void ced_cone_r_ID(float base, float height, double *center, double *rotate, uns
   	const unsigned int channel = 4;
   	int i, j;
 
-    //
-    //ced_line_ID(0,0,0, center[0], center[1], center[2], type, width, color, 0);
+    // ced_line_ID(0,0,0, center[0], center[1], center[2], type, width, RGBAcolor, lcioid);
+
+    //ced_line_ID(center[0], center[1], center[2], rotate[0], rotate[1], rotate[2], layer, 1, RGBAcolor, lcioid);
+    //printf("CONE: from %f %f %f to %f %f %f\n", center[0], center[1], center[2], rotate[0], rotate[1], rotate[2]);
 
   	for (i = 0; i < dim; i ++ ) {
 		cone->center[i] = center[i];

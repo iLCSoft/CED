@@ -23,10 +23,8 @@
 #include <GL/glut.h>
 #endif
 
-
 #include <sys/types.h>
 #include <sys/socket.h>
-
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -98,17 +96,10 @@
 
 #define HELP            100
 
-#define count_layer
-
-//void selectFromMenu(int id);
-//void toggleHelpWindow(void);
 int ced_picking(int x,int y,GLfloat *wx,GLfloat *wy,GLfloat *wz); //from ced_srv.c, need header files!
 
-
- 
-static char layerDescription[26][200]; // = {"test", "test", "test", "test", "test", "test", "test", "test", "test", "test", "test", "test", "test", "test", "test", "test", "test", "test", "test", "test", "test","test", "test", "test", "test", "test" };
+static char layerDescription[MAX_LAYER][MAX_LAYER_CHAR]; 
 const char layer_keys[] = {'0','1', '2','3','4','5','6','7','8','9',')', '!', '@', '#', '$', '%', '^', '&', '*', '(', 't', 'y', 'u', 'i', 'o'};
-
 
 static int mainWindow=-1;
 static int subWindow=-1;
@@ -154,8 +145,6 @@ static void set_bg_color(float one, float two, float three, float four){
     BG_COLOR[2]=three;
     BG_COLOR[3]=four;
 }
-
-
 
 typedef GLfloat color_t[4];
 
@@ -435,25 +424,6 @@ static void display(void){
   glutSwapBuffers();
 }
 
-/***************************************
-* hauke hoelbe 08.02.2010              *
-* Zoom by mousewheel                   *
-* deprecated
-***************************************/
-/*
-static void mouseWheel(int wheel, int direction, int x, int y){
-  //printf("mousewheel: direction %i, wheel %i, direction %i, x %i, y %i\n", direction, wheel, x, y);
-  //mm.sf+=(20.*direction)/window_height;
-  mm.sf += mm.sf*10*direction/window_height;
-
-
-  glutPostRedisplay();
-  //if(mm.sf<0.2){ mm.sf=0.2; }
-  //else if(mm.sf>20.){ mm.sf=20.; }
-}
-*/
-
-
 static void reshape(int w,int h){
   // printf("Reshaped: %dx%d\n",w,h);
   window_width=w;
@@ -605,10 +575,10 @@ static void show_all_layers(void){
 */
 
 static void keypressed(unsigned char key,int x,int y){
-
-  //hauke
   //SM-H: TODO: socket list for communicating with client
   //struct __glutSocketList *sock;
+
+  glutSetWindow(mainWindow); //hauke
 
   printf("Key at %dx%d: %u('%c')\n",x,y,key,key);
   if(key=='r' || key=='R'){ 
@@ -924,16 +894,18 @@ void drawHelpString (char *string, float x,float y){ //format help strings strin
 
 
 void subDisplay(void){
-    char label[200];
+    char label[MAX_LAYER_CHAR];
     int i;
 
     glutSetWindow(subWindow);
     glClearColor(0.5, 0.5, 0.5, 100);
     glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    float line = 60/window_height;
-    float column = 200/window_width;
-    const int ITEMS_PER_COLUMN=window_height/90;
+    float line = 45/window_height; //height of one line
+    //float column = 200/window_width;
+    float column = 200/window_width; //width of one line
+
+    const int ITEMS_PER_COLUMN=window_height/60; //how many lines per column?
     //const int MAX_COLUMN= window_width/100;
     //border
     glColor3f(0,0.9,.9);
@@ -957,9 +929,16 @@ void subDisplay(void){
             "[+] Zoom in",
             "[-] Zoom out",
             "[c] Center",
-            "[z] Move in z-axe direction",
+            "[Z] Move in z-axe direction",
+            "[z] Move in -z-axe direction",
+            "[`] Toggle all layers",
             "[Esc] Quit CED"
             };
+
+    glColor3f(1.0, 1.0, 1.0);
+    sprintf (label, "Control keys");
+    glRasterPos2f(((int)(0/ITEMS_PER_COLUMN))*column+0.02, 0.80F);
+    drawStringBig(label);
 
     for(i=0;i<sizeof(shortcuts)/sizeof(char *);i++){
        //if((i/ITEMS_PER_COLUMN) > MAX_COLUMN) break;
@@ -971,21 +950,72 @@ void subDisplay(void){
     }
 
     int actual_column=(int)((i-1)/ITEMS_PER_COLUMN)+1;
-    for(i=0;i<25;i++){
+
+    int aline=0;
+    int j=0;
+    char tmp[MAX_LAYER_CHAR];
+    int jj=0;
+
+    glColor3f(1.0, 1.0, 1.0);
+    sprintf (label, "Layers");
+    glRasterPos2f(((int)(aline/ITEMS_PER_COLUMN)+actual_column)*column, 0.80F);
+    drawStringBig(label);
+
+    for(i=0;i<MAX_LAYER;i++){
+/*        if(i==0){
+            drawHelpString("Layers:", ((int)(aline/ITEMS_PER_COLUMN)+actual_column)*column,(ITEMS_PER_COLUMN-(aline%ITEMS_PER_COLUMN))*line);
+            aline++;
+            continue;
+        }     
+*/
        //if(((i/ITEMS_PER_COLUMN)+1) > MAX_COLUMN) break;
-       sprintf(label,"[%c] Layer %i: %s", layer_keys[i], i, layerDescription[i]);
-       //glRasterPos2f(((int)(i/ITEMS_PER_COLUMN)+actual_column)*column,(ITEMS_PER_COLUMN-(i%ITEMS_PER_COLUMN))*line);
-       //drawString(label);
-        drawHelpString(label, ((int)(i/ITEMS_PER_COLUMN)+actual_column)*column,(ITEMS_PER_COLUMN-(i%ITEMS_PER_COLUMN))*line);
+        
+        for(j=0;j<MAX_LAYER_CHAR-1;j++){
+            if(layerDescription[i][j] != ','){
+                tmp[j]=layerDescription[i][j];
+            }else{
+                tmp[j]=0;
+                j+=2;
+                break;
+            }
+        }
+        
+       //sprintf(label,"[%c] %s%i: %s", layer_keys[i], (i<10)?"0":"", i, layerDescription[i]);
+        sprintf(label,"[%c] %s%i: %s", layer_keys[i], (i<10)?"0":"", i, tmp);
+        drawHelpString(label, ((int)(aline/ITEMS_PER_COLUMN)+actual_column)*column,(ITEMS_PER_COLUMN-(aline%ITEMS_PER_COLUMN))*line);
+        aline++;
+
+        jj=j;
+
+        for(;j<MAX_LAYER_CHAR-1;j++){
+            if(layerDescription[i][j] == ',' || layerDescription[i][j] == 0){
+                tmp[j-jj]=0;
+                j++; //scrip ", "
+                jj=j+1;
+                //drawHelpString(tmp, ((int)(aline/ITEMS_PER_COLUMN)+actual_column+.18)*column,(ITEMS_PER_COLUMN-(aline%ITEMS_PER_COLUMN))*line);
+                sprintf(label,"[%c] %s%i: %s", layer_keys[i], (i<10)?"0":"", i, tmp);
+                drawHelpString(label, ((int)(aline/ITEMS_PER_COLUMN)+actual_column)*column,(ITEMS_PER_COLUMN-(aline%ITEMS_PER_COLUMN))*line);
+
+                aline++;
+                if(layerDescription[i][j] == 0){ break; }
+            }else{
+                tmp[j-jj]=layerDescription[i][j];
+            }
+        }
+
+
+
     }
 
 
+/*
     //write topic
     glColor3f(1.0, 1.0, 1.0);
     sprintf (label, "Shortcuts");
     glRasterPos2f(0.40F, 0.80F);
     drawStringBig(label);
 
+*/
     glutSwapBuffers ();
 }
 void subReshape (int w, int h)
@@ -1029,19 +1059,27 @@ void toggleHelpWindow(void){ //hauke
     }else if(showHelp == 0){
         //helpWindow = glutCreateWindow("Help",);
         //printf("create help subwindow\n");
-        subWindow=glutCreateSubWindow(mainWindow,5,5,window_width-10,window_height/5);
+        subWindow=glutCreateSubWindow(mainWindow,5,5,window_width-10,window_height/4);
         glutDisplayFunc(subDisplay);
         glutReshapeFunc(subReshape);
 
 
         //glutMotionFunc(motion);
         //glutSetWindow(subWindow);
-        //writeString("hello world0",255,255);
-        //writeString("hello world0",0,255);
-        //writeString("hello world0",255,0);
-        //writeString("hello world0",0,0);
             
+        glutKeyboardFunc(keypressed);
+        glutSpecialFunc(SpecialKey);
+
+        //buildMenuPopup(); //hauke
+        //glutAttachMenu(GLUT_RIGHT_BUTTON); 
+        //int i;
+        //for(i=0;i<20;i++){ //fill the layer section
+        //    updateLayerEntryInPopupMenu(i);
+        //}
+
+
         glutPostRedisplay();
+
         glutSetWindow(mainWindow);
         showHelp=1;
     } /*else if(showHelp == 0) {
@@ -1068,6 +1106,20 @@ void toggleHelpWindow(void){ //hauke
 
 }
 
+void updateLayerEntryInPopupMenu(int id){ //id is layer id, not menu id!
+    char string[200];
+    char tmp[50];
+    if(id < 0 || id > MAX_LAYER_POPUP-1){
+        return;
+    }
+    sprintf(tmp, layerDescription[id],40); 
+    tmp[40]=0;
+    
+    sprintf(string,"[%s] Layer %s%i [%c]: %s%s",isLayerVisible(id)?"X":"   ", (id < 10)?"0":"" ,id, layer_keys[id], tmp, (strlen(layerDescription[id]) > 40)?"...":"");
+    glutSetMenu(layerMenu);
+    glutChangeToMenuEntry(id+2,string, id+LAYER_0);                     
+}
+
 //static void print_layer_text(LAYER_TEXT *obj){
 //    printf("HELLO WORLD\n");
 //    //strcpy(foobar,"hallo welt blabla");
@@ -1076,35 +1128,36 @@ void toggleHelpWindow(void){ //hauke
 //}
 
 void addLayerDescriptionToMenu(int id, char * str){
-    char string[200];
-    if(id == -1){ //reset all
-        
-        int i=0;
-        for(i=0;i<25;i++){
-            strcpy(layerDescription[i], "");
-            sprintf(string,"[%s] Layer %s%i [%c]: %s",isLayerVisible(id)?"X":"   ", (i < 10)?"0":"" ,i, layer_keys[i], layerDescription[i]);
-            glutSetMenu(layerMenu);
-            glutChangeToMenuEntry(i+2,string, i+LAYER_0);                     
-        }
-        return;
-    }
+    //char string[200];
+    //if(id == -1){ //reset all
+    //    int i=0;
+    //    for(i=0;i<25;i++){
+    //        strcpy(layerDescription[i], "");
+    //        sprintf(string,"[%s] Layer %s%i [%c]: %s",isLayerVisible(id)?"X":"   ", (i < 10)?"0":"" ,i, layer_keys[i], layerDescription[i]);
+    //        glutSetMenu(layerMenu);
+    //        glutChangeToMenuEntry(i+2,string, i+LAYER_0);                     
+    //    }
+    //    return;
+    //}
 
-    if(id < 0 || id >= 25){
+    if(id < 0 || id >= MAX_LAYER){
         printf("Warning: Layer id out of range\n");
         return;
     }
-    strncpy(layerDescription[id], str,199);
+    strncpy(layerDescription[id], str,MAX_LAYER_CHAR-1);
 //--------
-    sprintf(string,"[%s] Layer %s%i [%c]: %s",isLayerVisible(id)?"X":"   ", (id < 10)?"0":"" ,id, layer_keys[id], layerDescription[id]);
-    glutSetMenu(layerMenu);
-    glutChangeToMenuEntry(id+2,string, id+LAYER_0);                     
+    //sprintf(string,"[%s] Layer %s%i [%c]: %s",isLayerVisible(id)?"X":"   ", (id < 10)?"0":"" ,id, layer_keys[id], layerDescription[id]);
+    //glutSetMenu(layerMenu);
+    //glutChangeToMenuEntry(id+2,string, id+LAYER_0);                     
+    updateLayerEntryInPopupMenu(id);
  
     //printf("layerDescription: layer %i text: %s\n", id, layerDescription[id]);
 }
 void selectFromMenu(int id){ //hauke
-    char string[250];
+    //char string[250];
     int i;
     int anz;
+    glutSetWindow(mainWindow); //hauke
 
 
     switch(id){
@@ -1208,21 +1261,21 @@ void selectFromMenu(int id){ //hauke
         case LAYER_ALL:
             glutSetMenu(layerMenu);
             anz=0;
-            for(i=0;i<20;i++){ //try to turn all layers on
+            for(i=0;i<MAX_LAYER_POPUP;i++){ //try to turn all layers on
                 if(!isLayerVisible(i)){
-                   //sprintf(string, "[X] Layer %i [%c]: %s", i, layer_keys[i], layerDescription[i]);
-                   sprintf(string,"[X] Layer %s%i [%c]: %s", (i < 10)?"0":"" ,i, layer_keys[i], layerDescription[i]);
-
-                   glutChangeToMenuEntry(i+2,string, LAYER_0+i);                     
+                   //sprintf(string,"[X] Layer %s%i [%c]: %s", (i < 10)?"0":"" ,i, layer_keys[i], layerDescription[i]);
+                   //glutChangeToMenuEntry(i+2,string, LAYER_0+i);                     
                    toggle_layer(i);
+                   updateLayerEntryInPopupMenu(i);
                    anz++;
                 }
             }
             if(anz == 0){ //turn all layers off
-                for(i=0;i<20;i++){
-                   sprintf(string,"[   ] Layer %s%i [%c]: %s",(i < 10)?"0":"" ,i, layer_keys[i], layerDescription[i]);
-                   glutChangeToMenuEntry(i+2,string, LAYER_0+i);                     
+                for(i=0;i<MAX_LAYER_POPUP;i++){
+                   //sprintf(string,"[   ] Layer %s%i [%c]: %s",(i < 10)?"0":"" ,i, layer_keys[i], layerDescription[i]);
+                   //glutChangeToMenuEntry(i+2,string, LAYER_0+i);                     
                    toggle_layer(i);
+                   updateLayerEntryInPopupMenu(id);
                 }
             }
             break;
@@ -1248,17 +1301,13 @@ void selectFromMenu(int id){ //hauke
         case LAYER_19:
                 glutSetMenu(layerMenu);
                 toggle_layer(id-LAYER_0);
-                printf("Toggle layer: %i\n", id-LAYER_0);
-                sprintf(string,"[%s] Layer %s%i [%c]: %s",isLayerVisible(id-LAYER_0)?"X":"   ", (id-LAYER_0 < 10)?"0":"" ,id-LAYER_0, layer_keys[id-LAYER_0], layerDescription[id-LAYER_0]);
-/*
-                if(isLayerVisible(id-LAYER_0)){
+                //printf("Toggle layer: %i\n", id-LAYER_0);
+                //sprintf(string,"[%s] Layer %s%i [%c]: %s",isLayerVisible(id-LAYER_0)?"X":"   ", (id-LAYER_0 < 10)?"0":"" ,id-LAYER_0, layer_keys[id-LAYER_0], layerDescription[id-LAYER_0]);
 
-                    sprintf(string, "[X] Layer %i [%c]: %s", id-LAYER_0, keys[id-LAYER_0], layerDescription[id-LAYER_0]);
-                }else{
-                    sprintf(string, "[  ] Layer %i [%c]: %s", id-LAYER_0, keys[id-LAYER_0], layerDescription[id-LAYER_0]);
-                }
-*/
-                glutChangeToMenuEntry(id-LAYER_0+2,string, id);                     
+
+                //glutChangeToMenuEntry(id-LAYER_0+2,string, id);                     
+                updateLayerEntryInPopupMenu(id-LAYER_0);
+
                 //int i;
                 //for(i=0;i<20;i++){
                 //    printf("layer %i description: %s\n", i, layerDescription[i]);
@@ -1329,11 +1378,12 @@ int buildMenuPopup(void){ //hauke
     glutAddMenuEntry("Show all Layers [`]", LAYER_ALL);
 
     int i;
-    char string[100];
+    //char string[100];
 
-    for(i=0;i<20;i++){
-        sprintf(string,"[%s] Layer %s%i [%c]: %s",isLayerVisible(i)?"X":"   ", (i < 10)?"0":"" ,i, layer_keys[i], layerDescription[i]);
-        glutAddMenuEntry(string,LAYER_0+i);
+    for(i=0;i<MAX_LAYER_POPUP;i++){
+        //sprintf(string,"[%s] Layer %s%i [%c]: %s",isLayerVisible(i)?"X":"   ", (i < 10)?"0":"" ,i, layer_keys[i], layerDescription[i]);
+        glutAddMenuEntry(" ",LAYER_0+i);
+        //updateLayerEntryInPopupMenu(LAYER_0+i);
     }
 
     menu=glutCreateMenu(selectFromMenu);
@@ -1448,12 +1498,18 @@ int buildMenuPopup(void){ //hauke
   glutMotionFunc(motion);
 
   buildMenuPopup(); //hauke
+
   glutAttachMenu(GLUT_RIGHT_BUTTON); 
 //  glutMouseWheelFunc(mouseWheel);
 
 
   //    glutTimerFunc(2000,time,23);
   glutTimerFunc(500,timer,23);
+
+  for(i=0;i<MAX_LAYER_POPUP;i++){ //fill the layer section
+    updateLayerEntryInPopupMenu(i);
+  }
+
 
   glutMainLoop();
 
