@@ -137,18 +137,14 @@ INSTALL( TARGETS lib_CED DESTINATION lib PERMISSIONS
 # ------------------ GLCED --------------------------
 IF( CED_SERVER )
 
-    # GLUT is required for building glced
+    # GLUT and OpenGL are required by glced
     FIND_PACKAGE( GLUT REQUIRED )
+    FIND_PACKAGE( OpenGL REQUIRED )
+
     INCLUDE_DIRECTORIES( ${GLUT_INCLUDE_DIR} )
 
     ADD_EXECUTABLE( glced glced.c ced_srv.c )
-    TARGET_LINK_LIBRARIES( glced lib_CED ${GLUT_glut_LIBRARY} )
-
-    # MAC ONLY
-    IF(APPLE)
-        FIND_PACKAGE( OpenGL REQUIRED )
-        TARGET_LINK_LIBRARIES( glced ${OPENGL_LIBRARIES} )
-    ENDIF(APPLE)
+    TARGET_LINK_LIBRARIES( glced lib_CED ${GLUT_glut_LIBRARY} ${OPENGL_LIBRARIES} )
 
     INSTALL( TARGETS glced DESTINATION bin )
 
