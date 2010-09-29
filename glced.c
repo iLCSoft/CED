@@ -428,6 +428,7 @@ static void reshape(int w,int h){
   // printf("Reshaped: %dx%d\n",w,h);
   window_width=w;
   window_height=h;
+
   glViewport(0,0,w,h);
 
   glMatrixMode(GL_PROJECTION);
@@ -437,6 +438,12 @@ static void reshape(int w,int h){
   glMatrixMode(GL_MODELVIEW);
   // glMatrixMode(GL_PROJECTION);
   glLoadIdentity(); 
+
+  //hauke
+  if(showHelp == 1){
+    glutSetWindow (subWindow);
+    glutReshapeWindow (window_width-10,window_height/4);
+  }
 }
 
 static void mouse(int btn,int state,int x,int y){
@@ -580,7 +587,7 @@ static void keypressed(unsigned char key,int x,int y){
 
   glutSetWindow(mainWindow); //hauke
 
-  printf("Key at %dx%d: %u('%c')\n",x,y,key,key);
+  //printf("Key at %dx%d: %u('%c')\n",x,y,key,key);
   if(key=='r' || key=='R'){ 
       selectFromMenu(VIEW_RESET);
       //mm=mm_reset;

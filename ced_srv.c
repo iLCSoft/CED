@@ -643,6 +643,16 @@ static void print_layer_text(CED_TEXT *obj){
     //registerLayer(obj->id, obj->str);
     //printf("layer %i text: %s\n", obj->id, obj->text);
     addLayerDescriptionToMenu(obj->id, obj->text);
+   
+
+    //this
+/*
+    if(obj->id == -1){
+        printf("Print picking\n");
+        fflush(stdout);
+        exit(1);
+    }
+*/
 }
 
 //end hauke

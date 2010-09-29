@@ -215,7 +215,7 @@ static unsigned TEXT_ID=0;
 void ced_describe_layer(const char *message, int id) {
     //printf("ced_describe layer id=%i text: %s\n", id, message);
 
-    if(id >= 25){
+    if(id >= MAX_LAYER){
         printf("WARNING: ced_describe_layer: Index out of range!\n");
         return;
     }
