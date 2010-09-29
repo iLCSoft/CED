@@ -821,7 +821,8 @@ static void timer (int val)
     {
       if (errno == EINTR) 
 	{
-	  glutTimerFunc(500,timer,01);
+	  //glutTimerFunc(500,timer,01);
+      glutTimerFunc(50,timer,1);
 	  return;
 	} 
       else 
@@ -839,14 +840,16 @@ static void timer (int val)
 	    {
 	      (*(sock->read_func))(sock);
           //printf("reading...\n");
-	      glutTimerFunc(500,timer,01);
+	      //glutTimerFunc(500,timer,01);
+          glutTimerFunc(50,timer,01);
+
 	      return ; /* to avoid complexity with removed sockets */
 	    }
 	}
     }
 
 
-  glutTimerFunc(500,timer,01);
+  glutTimerFunc(100,timer,01);
   return;
 
 }
@@ -1507,11 +1510,13 @@ int buildMenuPopup(void){ //hauke
   buildMenuPopup(); //hauke
 
   glutAttachMenu(GLUT_RIGHT_BUTTON); 
-//  glutMouseWheelFunc(mouseWheel);
+  //  glutMouseWheelFunc(mouseWheel);
 
 
-  //    glutTimerFunc(2000,time,23);
-  glutTimerFunc(500,timer,23);
+      //glutTimerFunc(2000,time,23);
+  //glutTimerFunc(500,timer,23);
+    glutTimerFunc(50,timer,1);
+
 
   for(i=0;i<MAX_LAYER_POPUP;i++){ //fill the layer section
     updateLayerEntryInPopupMenu(i);
