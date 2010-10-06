@@ -6,6 +6,27 @@
 ##################################################
 
  --------
+| head   |
+ --------
+    new features: (H. Hoelbe, DESY)
+    - Add popup menu, to change background color, toggle layer visibly etc.
+      Rightclick to open/close the menu
+    - Add help frame, press 'h' to open/close this frame.
+      This frame show shortcuts and the layer descriptions.
+    - Viewers are able to add their layer descriptions to CED. This 
+      descriptions are shown in the popup menu and the help frame. To 
+      add layer descriptions use MarlinCED:set_layer_description or
+      MarlinCED:add_layer_description. 
+
+    changes/bug fixes: (H. Hoelbe, DESY)
+    -  Make CED faster by adapt the frequence when the socket get read.
+    -  Removed compiler warnings
+    -  Zoom in/out are additional added to +/-
+    -  More possible background colors
+    -  User defined background color are now also accessible by pressing 'b' 
+       or using the popup menu
+
+ --------
 | v01-00  |
  ---------
      new features: (H. Hoelbe, DESY)
