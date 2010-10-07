@@ -6,8 +6,9 @@
 ##################################################
 
  --------
-| head   |
+| v01-01 |
  --------
+
     new features: (H. Hoelbe, DESY)
     - Add popup menu, to change background color, toggle layer visibly etc.
       Rightclick to open/close the menu
