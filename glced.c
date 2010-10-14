@@ -820,7 +820,7 @@ static void timer (int val)
   if (rc < 0) 
     {
       if (errno == EINTR) 
-	{
+       {
 	  //glutTimerFunc(500,timer,01);
       glutTimerFunc(50,timer,1);
 	  return;
@@ -848,8 +848,11 @@ static void timer (int val)
 	}
     }
 
+  //fix for old glut version
+  glutSetWindow(mainWindow); 
 
-  glutTimerFunc(100,timer,01);
+  glutTimerFunc(200,timer,01);
+
   return;
 
 }
@@ -1495,10 +1498,21 @@ int buildMenuPopup(void){ //hauke
   glutInitDisplayMode(GLUT_DOUBLE|GLUT_RGB|GLUT_DEPTH);
 /*   glutInitWindowSize(600,600); // change to smaller window size */
 /*   glutInitWindowPosition(500,0); */
+
+
+
+
   mainWindow=glutCreateWindow("C Event Display (CED)");
+
 
   init();
   mm_reset=mm;
+
+  
+
+
+
+
 
   glutMouseFunc(mouse);
   glutDisplayFunc(display);
@@ -1507,20 +1521,23 @@ int buildMenuPopup(void){ //hauke
   glutSpecialFunc(SpecialKey);
   glutMotionFunc(motion);
 
-  buildMenuPopup(); //hauke
-
-  glutAttachMenu(GLUT_RIGHT_BUTTON); 
   //  glutMouseWheelFunc(mouseWheel);
 
 
       //glutTimerFunc(2000,time,23);
   //glutTimerFunc(500,timer,23);
-    glutTimerFunc(50,timer,1);
 
+  buildMenuPopup(); //hauke
+  glutAttachMenu(GLUT_RIGHT_BUTTON); 
 
   for(i=0;i<MAX_LAYER_POPUP;i++){ //fill the layer section
     updateLayerEntryInPopupMenu(i);
   }
+
+
+  glutTimerFunc(500,timer,1);
+
+
 
 
   glutMainLoop();
