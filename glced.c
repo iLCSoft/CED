@@ -1133,13 +1133,6 @@ void updateLayerEntryInPopupMenu(int id){ //id is layer id, not menu id!
     glutChangeToMenuEntry(id+2,string, id+LAYER_0);                     
 }
 
-//static void print_layer_text(LAYER_TEXT *obj){
-//    printf("HELLO WORLD\n");
-//    //strcpy(foobar,"hallo welt blabla");
-//    //foobar=23;
-//    printf("layer %i text: %s\n", obj->id, obj->str);
-//}
-
 void addLayerDescriptionToMenu(int id, char * str){
     //char string[200];
     //if(id == -1){ //reset all
