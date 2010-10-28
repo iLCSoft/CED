@@ -1121,24 +1121,17 @@ void toggleHelpWindow(void){ //hauke
 
 void updateLayerEntryInPopupMenu(int id){ //id is layer id, not menu id!
     char string[200];
-    char tmp[50];
+    char tmp[41];
     if(id < 0 || id > MAX_LAYER_POPUP-1){
         return;
     }
-    sprintf(tmp, layerDescription[id],40); 
+    strncpy(tmp, layerDescription[id], 40); 
     tmp[40]=0;
     
     sprintf(string,"[%s] Layer %s%i [%c]: %s%s",isLayerVisible(id)?"X":"   ", (id < 10)?"0":"" ,id, layer_keys[id], tmp, (strlen(layerDescription[id]) > 40)?"...":"");
     glutSetMenu(layerMenu);
     glutChangeToMenuEntry(id+2,string, id+LAYER_0);                     
 }
-
-//static void print_layer_text(LAYER_TEXT *obj){
-//    printf("HELLO WORLD\n");
-//    //strcpy(foobar,"hallo welt blabla");
-//    //foobar=23;
-//    printf("layer %i text: %s\n", obj->id, obj->str);
-//}
 
 void addLayerDescriptionToMenu(int id, char * str){
     //char string[200];
