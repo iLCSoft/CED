@@ -523,11 +523,13 @@ if (btn == mouseWheelUp){
     
     //hauke
     //mm.sf+=(100.)/window_height;
-    mm.sf += mm.sf*50./window_height;
+    selectFromMenu(VIEW_ZOOM_IN);
+
+    //mm.sf += mm.sf*50./window_height;
 
 /*    if(mm.sf<0.2){ mm.sf=0.2; }
     else if(mm.sf>20.){ mm.sf=20.; } */
-    glutPostRedisplay();
+    //glutPostRedisplay();
     return;
 }
 
@@ -536,11 +538,13 @@ if (btn ==  mouseWheelDown){
     //mm.mv.z-=150./mm.sf;
 
     // hauke
+    selectFromMenu(VIEW_ZOOM_OUT);
+
     //mm.sf+=(-100.)/window_height;
-    mm.sf -= mm.sf*50.0/window_height;
+    //mm.sf -= mm.sf*50.0/window_height;
 /*    if(mm.sf<0.2){ mm.sf=0.2; }
     else if(mm.sf>20.){ mm.sf=20.; } */
-    glutPostRedisplay();
+    //glutPostRedisplay();
     return;
 }
 //end hauke
@@ -1256,10 +1260,12 @@ void selectFromMenu(int id){ //hauke
             mm.va=0.;
             break;
         case VIEW_ZOOM_IN:
-            mm.sf += mm.sf*200.0/window_height;
+            mm.sf += mm.sf*50.0/window_height;
+            if(mm.sf>50){ mm.sf=50; }
             break;
         case VIEW_ZOOM_OUT:
-            mm.sf -= mm.sf*200.0/window_height;
+            mm.sf -= mm.sf*50.0/window_height;
+            if(mm.sf<0.01){ mm.sf=0.01; }
             break;
         case VIEW_CENTER:
             //ced_get_selected(x,y,&mm.mv.x,&mm.mv.y,&mm.mv.z);
