@@ -681,7 +681,7 @@ static void ced_draw_legend(CED_Legend *legend){
 	int i;
 	
 	/** ticks */
-	char string[3];
+	char string[6];
 	int x_offset = 34;
 	int y_offset = 5;
 	float num;
@@ -748,12 +748,12 @@ static void ced_draw_legend(CED_Legend *legend){
 			glColor3f(1.0f,1.0f,1.0f);
 			
 			if (i==0){
-				snprintf(string, 3,  "%.1f", ene_min);
+				snprintf(string, 6,  "%.1f", ene_min);
 				renderBitmapString(x_min+x_offset,y_min+y_offset, (void*)font, string);
 			}
 			else if (i==(color_steps-1)){
 				//printf("top\n");
-				snprintf(string, 3, "%.1f", ene_max);
+				snprintf(string, 6, "%.1f", ene_max);
 				renderBitmapString(x_min+x_offset,y_min+stripeThickness*i+y_offset, (void*)font, string);
 			}
 		}
@@ -787,7 +787,7 @@ static void ced_draw_legend(CED_Legend *legend){
 				break;
 			}
 			
-			snprintf(string, 3, "%.1f", num);
+			snprintf(string, 6, "%.1f", num);
 			renderBitmapString(x_min+x_offset,y_min+stripeThickness*pos+y_offset, (void*)font, string);
 
 			++tickNumber;
