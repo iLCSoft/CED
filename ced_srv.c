@@ -637,13 +637,7 @@ static void ced_draw_text(CED_TEXT *text){
 
 static unsigned TEXT_ID=0;
 static void print_layer_text(CED_TEXT *obj){
-    //printf("HELLO WORLD\n\n");
-    //strcpy(foobar,"hallo welt blabla"); 
-    //foobar=23;
-    //registerLayer(obj->id, obj->str);
-    //printf("layer %i text: %s\n", obj->id, obj->text);
     addLayerDescriptionToMenu(obj->id, obj->text);
-   
 
     //this
 /*
@@ -754,12 +748,12 @@ static void ced_draw_legend(CED_Legend *legend){
 			glColor3f(1.0f,1.0f,1.0f);
 			
 			if (i==0){
-				sprintf(string, "%.1f", ene_min);
+				snprintf(string, 3,  "%.1f", ene_min);
 				renderBitmapString(x_min+x_offset,y_min+y_offset, (void*)font, string);
 			}
 			else if (i==(color_steps-1)){
 				//printf("top\n");
-				sprintf(string, "%.1f", ene_max);
+				snprintf(string, 3, "%.1f", ene_max);
 				renderBitmapString(x_min+x_offset,y_min+stripeThickness*i+y_offset, (void*)font, string);
 			}
 		}
@@ -793,7 +787,7 @@ static void ced_draw_legend(CED_Legend *legend){
 				break;
 			}
 			
-			sprintf(string, "%.1f", num);
+			snprintf(string, 3, "%.1f", num);
 			renderBitmapString(x_min+x_offset,y_min+stripeThickness*pos+y_offset, (void*)font, string);
 
 			++tickNumber;
