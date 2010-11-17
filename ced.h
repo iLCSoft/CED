@@ -15,6 +15,8 @@
  extern "C" {
 #endif
 		
+
+char trusted_hosts[50];
 typedef void (*ced_draw_cb)(void *data);
 
 

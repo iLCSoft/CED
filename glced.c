@@ -42,6 +42,8 @@
 #include <ctype.h> //toupper
 #include <sys/time.h>
 #include <time.h>
+#include <netdb.h>
+
 //#include "glced.h"
 //#include "ced_srv.h"
 
@@ -1486,7 +1488,20 @@ int buildMenuPopup(void){ //hauke
 	      "     ./bin/glced -bgcolor 4C4C66 -world_size 1000. -geometry 600x600+500+0  > /tmp/glced.log 2>&1 & \n\n"  
 	      ) ;      
       exit(0) ;
-    }    
+    } if(!strcmp(argv[i], "--trust")){
+        if(i+1 >= argc){
+            printf("wrong syntax!\n");
+            exit(0);
+        }
+        struct hostent *host = gethostbyname(argv[i+1]);
+        if (host != NULL){
+            snprintf(trusted_hosts, 50, "%u.%u.%u.%u",(unsigned char)host->h_addr[0] ,(unsigned char)host->h_addr[1] ,(unsigned char)host->h_addr[2] ,(unsigned char)host->h_addr[3]);
+
+           //printf("trust ip %s\n", trusted_hosts);
+        } else{
+            printf("ERROR: Host %s is unknown!\n", argv[i+1]);  
+        }
+    }
   }
 
   ced_register_elements();

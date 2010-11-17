@@ -306,7 +306,7 @@ void ced_client_init(const char *hostname,unsigned short port){
   snprintf(ced_host, 30, "%u.%u.%u.%u\n",(unsigned char)host->h_addr[0] ,(unsigned char)host->h_addr[1] ,(unsigned char)host->h_addr[2] ,(unsigned char)host->h_addr[3]); 
 
 
-  printf("ip: %s\n",  ced_host);
+  //printf("ip: %s\n",  ced_host);
   //ced_host=host->h_addr;
   ced_port=port;
   signal(SIGPIPE,SIG_IGN);

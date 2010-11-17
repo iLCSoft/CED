@@ -7,6 +7,7 @@
  *            is temporary not available
  */
 
+#include "ced.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -101,10 +102,24 @@ static void tcp_server_read(struct __glutSocketList *list){
 static void tcp_server_accept(struct __glutSocketList *list){
   int fd;
   tcp_srv_sock *nl;
+  struct sockaddr_in myclient;  
+  int size;
+  
 
-  fd=accept(list->fd,0,0);
+  //fd=accept(list->fd,0,0);
+  fd=accept(list->fd,(struct sockaddr *)&myclient, size);
+  //printf("New connection from: %s\n", inet_ntoa(myclient.sin_addr));
+
+  //printf("trusted hosts: %s\n",trusted_hosts); 
+  if(strcmp(inet_ntoa(myclient.sin_addr), "127.0.0.1")){ //not an connection from localhost
+    if(strcmp(inet_ntoa(myclient.sin_addr), trusted_hosts)){
+        printf("CED: Unknown remote connection, ip-address: %s.\n", inet_ntoa(myclient.sin_addr)); 
+        return;
+    }
+  }
+
   if(fd<0){
-    perror("WARNING: can't accept connection");
+    perror("WARNING: h can't accept connection");
     return;
   }
 
