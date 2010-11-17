@@ -19,6 +19,11 @@
 //hauke
 //#include <stropts.h>
 #include <poll.h>
+
+#include <netdb.h>
+#include <sys/socket.h> /* for AF_INET */
+
+
 //http://www.rhyolite.com/pipermail/dcc/2004/001986.html
 # define POLLRDNORM     0x040           /* Normal data may be read.  */
 # define POLLRDBAND     0x080           /* Priority data may be read.  */
@@ -29,6 +34,7 @@
 static int ced_fd=-1; // CED connection socket
 
 static unsigned short ced_port=7927; // port No of CED (assume localhost)
+static char ced_host[30];
 
 // Return 0 if can be connected, -1 otherwise.
 /*static*/ int ced_connect(void){
@@ -43,7 +49,10 @@ static unsigned short ced_port=7927; // port No of CED (assume localhost)
     return -1; // don't try reconnect all the time
   addr.sin_family=AF_INET;
   addr.sin_port=htons(ced_port);
-  addr.sin_addr.s_addr=htonl(0x7f000001); // 127.0.0.1
+  //addr.sin_addr.s_addr=inet_addr("127.0.0.1"); 
+  addr.sin_addr.s_addr=inet_addr(ced_host); 
+
+  //addr.sin_addr.s_addr=htonl(0x7f000001); // 127.0.0.1
   ced_fd=socket(PF_INET,SOCK_STREAM,0);
   if(connect(ced_fd,(struct sockaddr *)&addr,sizeof(addr)) != 0){
     if(!last_attempt)
@@ -292,7 +301,13 @@ int ced_selected_id() {
 }
 #include <signal.h>
 // API
-void ced_client_init(const char *host,unsigned short port){
+void ced_client_init(const char *hostname,unsigned short port){
+  struct hostent *host = gethostbyname(hostname);
+  snprintf(ced_host, 30, "%u.%u.%u.%u\n",(unsigned char)host->h_addr[0] ,(unsigned char)host->h_addr[1] ,(unsigned char)host->h_addr[2] ,(unsigned char)host->h_addr[3]); 
+
+
+  printf("ip: %s\n",  ced_host);
+  //ced_host=host->h_addr;
   ced_port=port;
   signal(SIGPIPE,SIG_IGN);
 }

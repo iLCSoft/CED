@@ -1491,7 +1491,16 @@ int buildMenuPopup(void){ //hauke
 
   ced_register_elements();
 
-  glut_tcp_server(7286,input_data);
+  char *p;
+  p = getenv ( "CED_PORT" );
+  if(p != NULL){
+    printf("Try to use user defined port %s.\n", p);
+    glut_tcp_server(atoi(p),input_data);
+  }else{
+    int i = glut_tcp_server(7286,input_data);
+  }
+
+
 
   glutInit(&argc,argv);
   glutInitDisplayMode(GLUT_DOUBLE|GLUT_RGB|GLUT_DEPTH);
