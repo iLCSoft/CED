@@ -87,7 +87,7 @@ SET( LIBRARY_OUTPUT_PATH "${PROJECT_BINARY_DIR}/lib" CACHE PATH
 MARK_AS_ADVANCED( EXECUTABLE_OUTPUT_PATH LIBRARY_OUTPUT_PATH )
 
 # create uninstall configuration file
-CONFIGURE_FILE( "${PROJECT_SOURCE_DIR}/cmake_uninstall.cmake.in"
+CONFIGURE_FILE( "${PROJECT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
                 "${PROJECT_BINARY_DIR}/cmake_uninstall.cmake"
                 IMMEDIATE @ONLY )
 
@@ -95,40 +95,41 @@ CONFIGURE_FILE( "${PROJECT_SOURCE_DIR}/cmake_uninstall.cmake.in"
 ADD_CUSTOM_TARGET( uninstall "${CMAKE_COMMAND}" -P "${PROJECT_BINARY_DIR}/cmake_uninstall.cmake" )
 
 # create configuration file from .in file
-CONFIGURE_FILE( "${PROJECT_SOURCE_DIR}/CEDConfig.cmake.in"
+CONFIGURE_FILE( "${PROJECT_SOURCE_DIR}/cmake/CEDConfig.cmake.in"
                 "${PROJECT_BINARY_DIR}/CEDConfig.cmake" @ONLY )
 
 # install configuration file
 INSTALL( FILES "${PROJECT_BINARY_DIR}/CEDConfig.cmake" DESTINATION . )
 
 # install header files
-INSTALL( FILES  "${PROJECT_SOURCE_DIR}/ced_cli.h" DESTINATION include )
+INSTALL( FILES  "${PROJECT_SOURCE_DIR}/include/ced_cli.h" DESTINATION include )
 
 ###################################################################################
 
 # include directories
-INCLUDE_DIRECTORIES( . )
+INCLUDE_DIRECTORIES( include )
+INCLUDE_DIRECTORIES( src )
 
 # add definitions
 ADD_DEFINITIONS( "-Wall" )
 
 
 # -------------- CLIENT LIBRARY -------------------
-ADD_LIBRARY( lib_CED ced_cli.c ced.c glut_socks.c )
+AUX_SOURCE_DIRECTORY( ./src/client client_sources )
+ADD_LIBRARY( CED ${client_sources} )
 
-ADD_CUSTOM_TARGET( lib DEPENDS lib_CED )
+ADD_CUSTOM_TARGET( lib DEPENDS CED )
 
-SET_TARGET_PROPERTIES( lib_CED PROPERTIES
+SET_TARGET_PROPERTIES( CED PROPERTIES
     # create *nix style library versions + symbolic links
     VERSION ${CED_VERSION}
     SOVERSION ${CED_SOVERSION}
     # allow creating static and shared libs without conflicts
     CLEAN_DIRECT_OUTPUT 1
-    # avoid conflicts between library and binary target names
-    OUTPUT_NAME CED )
+)
 
 # install library
-INSTALL( TARGETS lib_CED DESTINATION lib PERMISSIONS
+INSTALL( TARGETS CED DESTINATION lib PERMISSIONS
         OWNER_READ OWNER_WRITE OWNER_EXECUTE
         GROUP_READ GROUP_EXECUTE
         WORLD_READ WORLD_EXECUTE )
@@ -143,8 +144,9 @@ IF( CED_SERVER )
 
     INCLUDE_DIRECTORIES( ${GLUT_INCLUDE_DIR} )
 
-    ADD_EXECUTABLE( glced glced.c ced_srv.c )
-    TARGET_LINK_LIBRARIES( glced lib_CED ${GLUT_glut_LIBRARY} ${OPENGL_LIBRARIES} )
+    AUX_SOURCE_DIRECTORY( ./src/server server_sources )
+    ADD_EXECUTABLE( glced ${server_sources} )
+    TARGET_LINK_LIBRARIES( glced CED ${GLUT_glut_LIBRARY} ${OPENGL_LIBRARIES} )
 
     INSTALL( TARGETS glced DESTINATION bin )
 
@@ -153,10 +155,12 @@ ENDIF( CED_SERVER )
 
 
 # ------------------ CED TESTS ------------------
-ADD_EXECUTABLE( test_ced test_ced.c )
-TARGET_LINK_LIBRARIES( test_ced lib_CED )
+FOREACH( _testname test_ced test_ced_mhits )
+    ADD_EXECUTABLE( ${_testname} ./src/tests/${_testname}.c )
+    TARGET_LINK_LIBRARIES( ${_testname} CED )
 
-INSTALL( TARGETS test_ced DESTINATION bin )
+    INSTALL( TARGETS ${_testname} DESTINATION bin )
+ENDFOREACH()
 
 
 
@@ -167,9 +171,9 @@ MESSAGE( STATUS )
 MESSAGE( STATUS "-------------------------------------------------------------------------------" )
 MESSAGE( STATUS "BUILD_SHARED_LIBS = ${BUILD_SHARED_LIBS}" )
 MESSAGE( STATUS "CMAKE_INSTALL_PREFIX = ${CMAKE_INSTALL_PREFIX}" )
-IF( CMAKE_SIZEOF_VOID_P EQUAL 8 )
-    MESSAGE( STATUS "BUILD_32BIT_COMPATIBLE = ${BUILD_32BIT_COMPATIBLE}" )
-ENDIF()
+#IF( CMAKE_SIZEOF_VOID_P EQUAL 8 )
+#    MESSAGE( STATUS "BUILD_32BIT_COMPATIBLE = ${BUILD_32BIT_COMPATIBLE}" )
+#ENDIF()
 MESSAGE( STATUS "CED_SERVER = ${CED_SERVER}" )
 MESSAGE( STATUS "Change a value with: cmake -D<Variable>=<Value>" )
 MESSAGE( STATUS "-------------------------------------------------------------------------------" )
@@ -183,11 +187,6 @@ SET( CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}" CACHE PATH
     "Where to install CED" FORCE )
 SET( CED_SERVER "${CED_SERVER}" CACHE BOOL
     "Set to ON to build the glced server" FORCE )
-
-# export build settings
-INCLUDE( CMakeExportBuildSettings )
-CMAKE_EXPORT_BUILD_SETTINGS( "CEDBuildSettings.cmake" )
-INSTALL( FILES "${PROJECT_BINARY_DIR}/CEDBuildSettings.cmake" DESTINATION lib/cmake )
 
 # export library dependencies (keep this as the last line in the file)
 EXPORT_LIBRARY_DEPENDENCIES( "CEDLibDeps.cmake" )
