@@ -153,10 +153,11 @@ ENDIF( CED_SERVER )
 
 
 # ------------------ CED TESTS ------------------
-ADD_EXECUTABLE( test_ced test_ced.c )
-TARGET_LINK_LIBRARIES( test_ced lib_CED )
-
-INSTALL( TARGETS test_ced DESTINATION bin )
+FOREACH( _testname test_ced test_ced_mhits )
+    ADD_EXECUTABLE( ${_testname} ${_testname}.c )
+    TARGET_LINK_LIBRARIES( ${_testname} lib_CED )
+    INSTALL( TARGETS ${_testname} DESTINATION bin )
+ENDFOREACH()
 
 
 
