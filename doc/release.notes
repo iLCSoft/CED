@@ -18,6 +18,7 @@
       descriptions are shown in the popup menu and the help frame. To 
       add layer descriptions use MarlinCED:set_layer_description or
       MarlinCED:add_layer_description. 
+    - Added test_ced_mhits (draws 1.000.000 random hits)
 
     changes/bug fixes: (H. Hoelbe, DESY)
     -  Make CED faster by adapt the frequence when the socket get read.
@@ -26,6 +27,7 @@
     -  More possible background colors
     -  User defined background color are now also accessible by pressing 'b' 
        or using the popup menu
+    -  removed old makefiles
 
  --------
 | v01-00  |
