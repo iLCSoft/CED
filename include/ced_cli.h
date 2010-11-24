@@ -169,9 +169,13 @@ void ced_geocylinder_r(float d, double z, double * center, double * rotate, unsi
    * @author A.Bulgheroni, INFN
    */
   void ced_geobox(double * sizes, double * center, unsigned int color );
+  void ced_geobox_ID(double *size, double *position, unsigned int layer, unsigned int color, unsigned int lcio_id);
+  void ced_geobox_r_ID(double *size, double *position, double *rotate, unsigned int layer, unsigned int color, unsigned int lcio_id);
+  void rotate3d(double *vektor, double *rotate);
 
-    /** Send/Draw several boxes.
-   * 
+
+
+   /* 
    * @author A.Bulgheroni, INFN
    */
   void ced_geoboxes( unsigned int nBox, CED_GeoBox * allBoxes);

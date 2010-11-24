@@ -20,6 +20,12 @@
 
 #include <errno.h>
 
+
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
+
 struct __glutSocketList {
   struct __glutSocketList *next;
   int fd;
@@ -107,7 +113,7 @@ static void tcp_server_accept(struct __glutSocketList *list){
   
 
   //fd=accept(list->fd,0,0);
-  fd=accept(list->fd,(struct sockaddr *)&myclient, size);
+  fd=accept(list->fd,(struct sockaddr *)&myclient, &size);
   //printf("New connection from: %s\n", inet_ntoa(myclient.sin_addr));
 
   //printf("trusted hosts: %s\n",trusted_hosts); 

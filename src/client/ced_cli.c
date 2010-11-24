@@ -66,6 +66,24 @@ void ced_line_ID(float x0,float y0,float z0,
 
   }
 
+/*
+//test
+  if( random()%100000 > 99990){
+    double size[]={10,100,50};
+    double position[]={x0,y0,z0};
+    double rotate[] = {20,50,70};
+    int color=1;
+    int lcio_id=5;
+    int layer=5;
+    //ced_geobox(size, position, color ); 
+    ced_geobox_ID(size, position, layer, 0xff00ff, 5); 
+    ced_geobox(size, position, color);
+
+  }
+
+//end test
+*/
+
   CED_Line *l=(CED_Line *)ced_add(LINE_ID);
   if(!l)
     return;
@@ -133,7 +151,6 @@ void ced_geocylinders(unsigned n,CED_GeoCylinder *all){
   }
 }
 
-
 static unsigned GEOB_ID=0;
 
 void ced_geobox(double * sizes, double * center, unsigned int color ) {
@@ -147,6 +164,65 @@ void ced_geobox(double * sizes, double * center, unsigned int color ) {
   box->color   = color;
 
 }
+
+void rotate3d(double *vektor, double *rotate){
+    double cords2[3]; 
+    double r_rad[3]={rotate[0]/360*2*3.14159265358979323846, rotate[1]/360*2*3.14159265358979323846, rotate[2]/360*2*3.14159265358979323846};
+    double cords1[3] = {vektor[0], vektor[1], vektor[2]};
+
+    vektor[0] = ( cos(r_rad[1])*cos(r_rad[2]) )*cords1[0] + 
+                (-cos(r_rad[0])*sin(r_rad[2]) + sin(r_rad[0])*sin(r_rad[1])*cos(r_rad[2]) )*cords1[1] + 
+                ( sin(r_rad[0])*sin(r_rad[2]) + cos(r_rad[0])*sin(r_rad[1])*cos(r_rad[2]) )*cords1[2];
+    vektor[1] = ( cos(r_rad[1])*sin(r_rad[2]) ) * cords1[0] + 
+                ( cos(r_rad[0])*cos(r_rad[2]) + sin(r_rad[0])*sin(r_rad[1])*sin(r_rad[2])) * cords1[1] + 
+                ( -sin(r_rad[0])*cos(r_rad[2]) + cos(r_rad[0])*sin(r_rad[1])*sin(r_rad[2]) ) * cords1[2];
+    vektor[2] = (-sin(r_rad[1])) * cords1[0] + 
+                ( sin(r_rad[0])*cos(r_rad[1])) * cords1[1] + 
+                ( cos(r_rad[0])*cos(r_rad[1]))  * cords1[2];
+ 
+}
+
+void ced_geobox_r_ID(double *size, double *position, double *rotate, unsigned int layer, unsigned int color, unsigned int lcio_id) {
+
+    int i;
+    double vektor1[3], vektor2[3];
+    unsigned int type = layer << CED_LAYER_SHIFT;
+    double cubematrix[12][6] ={ {-1,-1,-1, +1,-1,-1},
+                                {-1,-1,-1, -1,+1,-1},
+                                {-1,-1,-1, -1,-1,+1},
+                                {+1,-1,-1, +1,+1,-1},
+                                {+1,-1,-1, +1,-1,+1},
+                                {+1,+1,-1, +1,+1,+1},
+                                {+1,+1,-1, -1,+1,-1},
+                                {+1,+1,+1, -1,+1,+1},
+                                {+1,+1,+1, +1,-1,+1},
+                                {-1,+1,+1, -1,-1,+1},
+                                {-1,+1,+1, -1,+1,-1},
+                                {-1,-1,+1, +1,-1,+1} };
+
+    for(i=0;i<12;i++){
+        vektor1[0] = cubematrix[i][0]*size[0]/2; 
+        vektor1[1] = cubematrix[i][1]*size[1]/2; 
+        vektor1[2] = cubematrix[i][2]*size[2]/2;
+ 
+        vektor2[0] = cubematrix[i][3]*size[0]/2;
+        vektor2[1] = cubematrix[i][4]*size[1]/2;
+        vektor2[2] = cubematrix[i][5]*size[2]/2;
+
+        rotate3d(vektor1,rotate);
+        rotate3d(vektor2,rotate);
+
+        ced_line_ID(position[0]+vektor1[0], position[1]+vektor1[1], position[2]+vektor1[2],
+                    position[0]+vektor2[0], position[1]+vektor2[1], position[2]+vektor2[2],
+                    type, 1,color, lcio_id);
+    }
+}
+
+void ced_geobox_ID(double *size, double *position, unsigned int layer, unsigned int color, unsigned int lcio_id) {
+    double rotate[3]={0.0, 0.0, 0.0};
+    ced_geobox_r_ID(size, position, rotate, layer,  color, lcio_id);
+}
+
 
 void ced_geoboxes(unsigned int nBox, CED_GeoBox * allBoxes ) {
   

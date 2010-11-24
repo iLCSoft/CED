@@ -1512,7 +1512,7 @@ int buildMenuPopup(void){ //hauke
     printf("Try to use user defined port %s.\n", p);
     glut_tcp_server(atoi(p),input_data);
   }else{
-    int i = glut_tcp_server(7286,input_data);
+    glut_tcp_server(7286,input_data);
   }
 
 
