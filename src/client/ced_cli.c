@@ -166,7 +166,7 @@ void ced_geobox(double * sizes, double * center, unsigned int color ) {
 }
 
 void rotate3d(double *vektor, double *rotate){
-    double cords2[3]; 
+    //double cords2[3]; 
     double r_rad[3]={rotate[0]/360*2*3.14159265358979323846, rotate[1]/360*2*3.14159265358979323846, rotate[2]/360*2*3.14159265358979323846};
     double cords1[3] = {vektor[0], vektor[1], vektor[2]};
 
