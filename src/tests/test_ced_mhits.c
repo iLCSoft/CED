@@ -1,5 +1,6 @@
 #include <ced_cli.h>
 #include <time.h>
+#include <stdlib.h>
 
 /** Simple test program to draw a million hits
  *  @author Jan Engels - Desy - IT
