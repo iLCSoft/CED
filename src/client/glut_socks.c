@@ -109,11 +109,14 @@ static void tcp_server_accept(struct __glutSocketList *list){
   int fd;
   tcp_srv_sock *nl;
   struct sockaddr_in myclient;  
-  int size;
+  unsigned int size=sizeof(myclient);
+;
   
 
   //fd=accept(list->fd,0,0);
   fd=accept(list->fd,(struct sockaddr *)&myclient, &size);
+  //fd=accept(list->fd, &myclient, &size);
+
   //printf("New connection from: %s\n", inet_ntoa(myclient.sin_addr));
 
   //printf("trusted hosts: %s\n",trusted_hosts); 
