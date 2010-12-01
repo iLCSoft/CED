@@ -607,12 +607,12 @@ static void renderBitmapString(
 static void ced_draw_text(CED_TEXT *text){
     //int startY=-700;
     char message[400];
-	int font=(int)GLUT_BITMAP_TIMES_ROMAN_10; //default font
+	void *font=GLUT_BITMAP_TIMES_ROMAN_10; //default font
 
 
     printf("ced_draw_text: %i text: %s\n", text->id, text->text);
 
-    //renderBitmapString(SELECTED_X*10,SELECTED_Y*10,(void *)font,text->text);
+    //renderBitmapString(SELECTED_X*10,SELECTED_Y*10,font,text->text);
     glLoadIdentity();
     int i,j;
     int k=0;
@@ -623,8 +623,8 @@ static void ced_draw_text(CED_TEXT *text){
             message[i-k]=0;
             k=i+1;
 
-            renderBitmapString(600,-700-70*j,(void *)font,"                     ");
-            renderBitmapString(600,-700-70*j,(void *)font,message);
+            renderBitmapString(600,-700-70*j,font,"                     ");
+            renderBitmapString(600,-700-70*j,font,message);
             j++;
         }
     }
@@ -692,14 +692,14 @@ static void ced_draw_legend(CED_Legend *legend){
 	int x_offset_legend = 60;
 	int y_offset_legend = 20;
 	
-	int font=(int)GLUT_BITMAP_TIMES_ROMAN_10; //default font                           //draw into back right buffer
+	void* font=GLUT_BITMAP_TIMES_ROMAN_10; //default font                           //draw into back right buffer
   	glLoadIdentity(); //load an 'identity projection' matrix
   	int tick_size = 10;
 	
 	/**
 	 *  Legend header: GeV */
 	glColor3f(1.0,1.0,1.0);
-	renderBitmapString(x_min-x_offset_legend,y_min+stripeThickness*color_steps-y_offset_legend, (void*)font, header);
+	renderBitmapString(x_min-x_offset_legend,y_min+stripeThickness*color_steps-y_offset_legend, font, header);
 	glEnd();
 	//glPopMatrix();
 	
@@ -707,13 +707,13 @@ static void ced_draw_legend(CED_Legend *legend){
 	 *  Legend footer: LOG or LIN */
 	switch(scale){
 		case 'a': default:
-			renderBitmapString(x_min-x_offset_legend,y_min-y_offset_legend, (void*)font, footer);
+			renderBitmapString(x_min-x_offset_legend,y_min-y_offset_legend, font, footer);
 			glEnd();
 		break;
 		/** LIN */
 		case 'b':
 			footer = "LIN";	
-			renderBitmapString(x_min-x_offset_legend,y_min-y_offset_legend, (void*)font, footer);
+			renderBitmapString(x_min-x_offset_legend,y_min-y_offset_legend, font, footer);
 			glEnd();
 		break;
 	}
@@ -749,12 +749,12 @@ static void ced_draw_legend(CED_Legend *legend){
 			
 			if (i==0){
 				snprintf(string, 6,  "%.1f", ene_min);
-				renderBitmapString(x_min+x_offset,y_min+y_offset, (void*)font, string);
+				renderBitmapString(x_min+x_offset,y_min+y_offset, font, string);
 			}
 			else if (i==(color_steps-1)){
 				//printf("top\n");
 				snprintf(string, 6, "%.1f", ene_max);
-				renderBitmapString(x_min+x_offset,y_min+stripeThickness*i+y_offset, (void*)font, string);
+				renderBitmapString(x_min+x_offset,y_min+stripeThickness*i+y_offset, font, string);
 			}
 		}
 		
@@ -788,7 +788,7 @@ static void ced_draw_legend(CED_Legend *legend){
 			}
 			
 			snprintf(string, 6, "%.1f", num);
-			renderBitmapString(x_min+x_offset,y_min+stripeThickness*pos+y_offset, (void*)font, string);
+			renderBitmapString(x_min+x_offset,y_min+stripeThickness*pos+y_offset, font, string);
 
 			++tickNumber;
 		}
