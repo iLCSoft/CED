@@ -24,6 +24,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <netdb.h>
 
 
 struct __glutSocketList {
@@ -122,13 +123,23 @@ static void tcp_server_accept(struct __glutSocketList *list){
   //printf("trusted hosts: %s\n",trusted_hosts); 
   if(strcmp(inet_ntoa(myclient.sin_addr), "127.0.0.1")){ //not an connection from localhost
     if(strcmp(inet_ntoa(myclient.sin_addr), trusted_hosts)){
-        printf("CED: Unknown remote connection, ip-address: %s.\n", inet_ntoa(myclient.sin_addr)); 
+        struct hostent *hp;
+        in_addr_t data=inet_addr(inet_ntoa(myclient.sin_addr));
+        hp = gethostbyaddr(&data, 4, AF_INET);
+        if(hp == NULL){ 
+            printf("CED: Unknown remote connection from: UnknownHost (%s)\n", inet_ntoa(myclient.sin_addr)); 
+        }
+        else{ 
+            printf("CED: Unknown remote connection from: %s (%s)\n", hp->h_name, inet_ntoa(myclient.sin_addr));
+        }
+
+        close(fd);
         return;
     }
   }
 
   if(fd<0){
-    perror("WARNING: h can't accept connection");
+    perror("WARNING: can't accept connection");
     return;
   }
 
