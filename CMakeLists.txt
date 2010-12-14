@@ -1,156 +1,94 @@
-####################################
+########################################################
 # cmake file for building CED
-# @author Jan Engels, DESY
-####################################
-
-
+# @author Jan Engels, Desy IT
+CMAKE_MINIMUM_REQUIRED(VERSION 2.6 FATAL_ERROR)
 ########################################################
-# CMake compatibility issues: don't modify this, please!
-CMAKE_MINIMUM_REQUIRED( VERSION 2.4.6 )
-#SET( CMAKE_BACKWARDS_COMPATIBILITY 2.4.6 )
-MARK_AS_ADVANCED(CMAKE_BACKWARDS_COMPATIBILITY)
-# allow more human readable "if then else" constructs
-SET( CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS TRUE )
-########################################################
+
 
 # project name
 PROJECT( CED C )
 
-ENABLE_TESTING()
-INCLUDE(CTest)
-
-# project options
-OPTION( BUILD_SHARED_LIBS "Set to OFF to build static libraries" ON )
-OPTION( BUILD_32BIT_COMPATIBLE "Set to ON to build in 32 bit compatibility mode" OFF )
-OPTION( CED_SERVER "Set to ON to build the glced server" OFF )
-
 # project version
-SET( CED_MAJOR_VERSION 1 )
-SET( CED_MINOR_VERSION 1 )
-SET( CED_PATCH_LEVEL 0 )
-
-# set default install prefix to project root directory
-IF( CMAKE_INSTALL_PREFIX STREQUAL "/usr/local" )
-    SET( CMAKE_INSTALL_PREFIX "${PROJECT_SOURCE_DIR}" )
-ENDIF()
-
-#---------------- 32/64 bit issues ---------------------------------------
-#INCLUDE( CheckTypeSize )
-#CHECK_TYPE_SIZE( "void*" SIZE_OF_VOID_P )
-
-IF( CMAKE_SIZEOF_VOID_P EQUAL 4 )
-    MESSAGE( STATUS "32 bit architecture detected" )
-ENDIF()
-
-IF( CMAKE_SIZEOF_VOID_P EQUAL 8 )
-    MESSAGE( STATUS "64 bit architecture detected" )
-
-    IF( BUILD_32BIT_COMPATIBLE )
-        IF( COMMAND SET_PROPERTY )
-            SET_PROPERTY(GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS 0)
-            SET( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m32" )
-        ELSE()
-            MESSAGE( FATAL_ERROR "to build in 32 bit compatibility mode you need cmake >= 2.6" )
-        ENDIF()
-        MESSAGE( STATUS "Build in 32 bit compatibility mode" )
-    ELSE()
-        MESSAGE( STATUS "Build in native 64 bit mode" )
-    ENDIF()
-ENDIF()
-
-#-------------------------------------------------------------------------
+SET( ${PROJECT_NAME}_VERSION_MAJOR 1 )
+SET( ${PROJECT_NAME}_VERSION_MINOR 1 )
+SET( ${PROJECT_NAME}_VERSION_PATCH 0 )
 
 
-# library *nix style versioning
-SET( CED_SOVERSION "${CED_MAJOR_VERSION}.${CED_MINOR_VERSION}" )
-SET( CED_VERSION "${CED_SOVERSION}.${CED_PATCH_LEVEL}" )
 
-# add install path to the rpath list
-SET( CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib" )
-MARK_AS_ADVANCED( CMAKE_INSTALL_RPATH )
+### SETTINGS ################################################################
 
-# add install path to the rpath list (apple)
-IF( APPLE )
-    SET( CMAKE_INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/lib" )
-    MARK_AS_ADVANCED( CMAKE_INSTALL_NAME_DIR )
-ENDIF()
+# additionally search for cmake macros/moules defined by this project
+LIST( APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake )
 
-# append link pathes to rpath list
-SET( CMAKE_INSTALL_RPATH_USE_LINK_PATH 1 )
-MARK_AS_ADVANCED( CMAKE_INSTALL_RPATH_USE_LINK_PATH )
+# ilcsoft cmake macros / default settings
+INCLUDE( ilcsoft_default_settings )
+INCLUDE( MacroAddSharedLibrary )
 
-# cmake output directories
-SET( EXECUTABLE_OUTPUT_PATH "${PROJECT_BINARY_DIR}/bin" CACHE PATH
-    "EXECUTABLE_OUTPUT_PATH" FORCE )
-SET( LIBRARY_OUTPUT_PATH "${PROJECT_BINARY_DIR}/lib" CACHE PATH
-    "LIBRARY_OUTPUT_PATH" FORCE )
-MARK_AS_ADVANCED( EXECUTABLE_OUTPUT_PATH LIBRARY_OUTPUT_PATH )
 
-# create uninstall configuration file
-CONFIGURE_FILE( "${PROJECT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
-                "${PROJECT_BINARY_DIR}/cmake_uninstall.cmake"
-                IMMEDIATE @ONLY )
 
-# create uninstall target
-ADD_CUSTOM_TARGET( uninstall "${CMAKE_COMMAND}" -P "${PROJECT_BINARY_DIR}/cmake_uninstall.cmake" )
+### DEPENDENCIES ############################################################
 
-# create configuration file from .in file
-CONFIGURE_FILE( "${PROJECT_SOURCE_DIR}/cmake/CEDConfig.cmake.in"
-                "${PROJECT_BINARY_DIR}/CEDConfig.cmake" @ONLY )
+# GLUT and OpenGL are required by glced
+FIND_PACKAGE( GLUT QUIET )
+FIND_PACKAGE( OpenGL QUIET )
 
-# install configuration file
-INSTALL( FILES "${PROJECT_BINARY_DIR}/CEDConfig.cmake" DESTINATION . )
 
-# install header files
-INSTALL( FILES  "${PROJECT_SOURCE_DIR}/include/ced_cli.h" DESTINATION include )
 
-###################################################################################
+### DOCUMENTATION ###########################################################
+
+#OPTION( INSTALL_DOC "Set to OFF to skip build/install Documentation" ON )
+#
+#IF( INSTALL_DOC AND EXISTS "${PROJECT_SOURCE_DIR}/doc/CMakeLists.txt" )
+#    ADD_SUBDIRECTORY( doc )
+#ELSE()
+#    MESSAGE( STATUS "Documentation not found. INSTALL_DOC set to OFF" )
+#    SET( INSTALL_DOC OFF )
+#ENDIF()
+
+
+
+### LIBRARY AND TOOLS #######################################################
 
 # include directories
-INCLUDE_DIRECTORIES( include )
+INCLUDE_DIRECTORIES( "include" )
 INCLUDE_DIRECTORIES( src )
+INSTALL( DIRECTORY include DESTINATION . FILES_MATCHING PATTERN "*.h" )
 
-# add definitions
+
+# definitions to pass to the compiler
+#ADD_DEFINITIONS( "-Wall -ansi -pedantic" )
 ADD_DEFINITIONS( "-Wall" )
 
 
-# -------------- CLIENT LIBRARY -------------------
+
+# --------- CED CLIENT LIBRARY ----------------------
 AUX_SOURCE_DIRECTORY( ./src/client client_sources )
-ADD_LIBRARY( CED ${client_sources} )
+ADD_SHARED_LIBRARY( CED ${client_sources} )
 
-ADD_CUSTOM_TARGET( lib DEPENDS CED )
-
-SET_TARGET_PROPERTIES( CED PROPERTIES
-    # create *nix style library versions + symbolic links
-    VERSION ${CED_VERSION}
-    SOVERSION ${CED_SOVERSION}
-    # allow creating static and shared libs without conflicts
-    CLEAN_DIRECT_OUTPUT 1
-)
-
-# link to the math library
+# link CED client library to the math library
 FIND_LIBRARY( c_math_lib NAMES m )
 TARGET_LINK_LIBRARIES( CED ${c_math_lib} )
-
-# install library
-INSTALL( TARGETS CED DESTINATION lib PERMISSIONS
-        OWNER_READ OWNER_WRITE OWNER_EXECUTE
-        GROUP_READ GROUP_EXECUTE
-        WORLD_READ WORLD_EXECUTE )
+MARK_AS_ADVANCED( c_math_lib )
 
 
-# ------------------ GLCED --------------------------
+
+# --------- CED SERVER (GLCED) ----------------------
+OPTION( CED_SERVER "Set to ON to build the glced server" OFF )
 IF( CED_SERVER )
 
-    # GLUT and OpenGL are required by glced
-    FIND_PACKAGE( GLUT REQUIRED )
-    FIND_PACKAGE( OpenGL REQUIRED )
+    IF( NOT GLUT_FOUND OR NOT OPENGL_FOUND )
+        MESSAGE( FATAL_ERROR "could not find packages glut + opengl required to build glced" )
+    ENDIF()
 
     INCLUDE_DIRECTORIES( ${GLUT_INCLUDE_DIR} )
 
     AUX_SOURCE_DIRECTORY( ./src/server server_sources )
     ADD_EXECUTABLE( glced ${server_sources} )
-    TARGET_LINK_LIBRARIES( glced CED ${GLUT_glut_LIBRARY} ${OPENGL_LIBRARIES} )
+
+    TARGET_LINK_LIBRARIES( glced CED 
+        ${GLUT_glut_LIBRARY}
+        ${OPENGL_LIBRARIES}
+    )
 
     INSTALL( TARGETS glced DESTINATION bin )
 
@@ -168,31 +106,15 @@ ENDFOREACH()
 
 
 
-###################################################################################
-
-# display status message for important variables
+# display some variables and write them to cache
+DISPLAY_STD_VARIABLES()
 MESSAGE( STATUS )
-MESSAGE( STATUS "-------------------------------------------------------------------------------" )
-MESSAGE( STATUS "BUILD_SHARED_LIBS = ${BUILD_SHARED_LIBS}" )
-MESSAGE( STATUS "CMAKE_INSTALL_PREFIX = ${CMAKE_INSTALL_PREFIX}" )
-#IF( CMAKE_SIZEOF_VOID_P EQUAL 8 )
-#    MESSAGE( STATUS "BUILD_32BIT_COMPATIBLE = ${BUILD_32BIT_COMPATIBLE}" )
-#ENDIF()
 MESSAGE( STATUS "CED_SERVER = ${CED_SERVER}" )
-MESSAGE( STATUS "Change a value with: cmake -D<Variable>=<Value>" )
-MESSAGE( STATUS "-------------------------------------------------------------------------------" )
 MESSAGE( STATUS )
 
-# force some variables that could be defined in the command line
-# to be written to cache
-SET( BUILD_SHARED_LIBS "${BUILD_SHARED_LIBS}" CACHE BOOL
-    "Set to OFF to build static libraries" FORCE )
-SET( CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}" CACHE PATH
-    "Where to install CED" FORCE )
-SET( CED_SERVER "${CED_SERVER}" CACHE BOOL
-    "Set to ON to build the glced server" FORCE )
 
-# export library dependencies (keep this as the last line in the file)
+
+# export library dependencies (keep this as the last lines in this file)
 EXPORT_LIBRARY_DEPENDENCIES( "CEDLibDeps.cmake" )
 INSTALL( FILES "${PROJECT_BINARY_DIR}/CEDLibDeps.cmake" DESTINATION lib/cmake )
 

@@ -1,57 +1,76 @@
-##############################################
+##############################################################################
 # cmake configuration file for CED
-# @author Jan Engels, DESY
-##############################################
+#
+# requires:
+#   MacroCheckPackageLibs.cmake for checking package libraries
+#
+# returns following variables:
+#
+#   CED_FOUND      : set to TRUE if CED found
+#       if FIND_PACKAGE called with REQUIRED and COMPONENTS arguments
+#       CED_FOUND is only set to TRUE if ALL components are also found
+#       if REQUIRED is NOT set components may or may not be available
+#
+#   CED_ROOT       : path to this CED installation
+#   CED_LIBRARIES  : list of CED libraries (NOT including COMPONENTS)
+#   CED_INCLUDE_DIRS  : list of paths to be used with INCLUDE_DIRECTORIES
+#   CED_LIBRARY_DIRS  : list of paths to be used with LINK_DIRECTORIES
+#   CED_COMPONENT_LIBRARIES      : list of CED component libraries
+#   CED_${COMPONENT}_FOUND       : set to TRUE or FALSE for each library
+#   CED_${COMPONENT}_LIBRARY     : path to individual libraries
+#   CED_${COMPONENT}_LIB_DEPENDS : individual library dependencies
+#
+# @author Jan Engels, Desy
+##############################################################################
 
-SET( CED_FOUND FALSE )
-MARK_AS_ADVANCED( CED_FOUND )
+SET( CED_ROOT "@CMAKE_INSTALL_PREFIX@" )
 
+
+# ---------- include dirs -----------------------------------------------------
 # do not store find results in cache
-SET( CED_INCLUDE_DIR CED_INCLUDE_DIR-NOTFOUND )
+SET( CED_INCLUDE_DIRS CED_INCLUDE_DIRS-NOTFOUND )
+MARK_AS_ADVANCED( CED_INCLUDE_DIRS )
 
-FIND_PATH( CED_INCLUDE_DIR
-	NAMES ced_cli.h
-	PATHS @CMAKE_INSTALL_PREFIX@/include
+FIND_PATH( CED_INCLUDE_DIRS
+	NAMES ced_cli.h 
+	PATHS ${CED_ROOT}/include
 	NO_DEFAULT_PATH
 )
-IF( NOT CED_INCLUDE_DIR )
-    MESSAGE( STATUS "Check for CED: ${CED_HOME}"
-					" -- failed to find CED include directory!!" )
-ELSE( NOT CED_INCLUDE_DIR )
-    MARK_AS_ADVANCED( CED_INCLUDE_DIR )
-ENDIF( NOT CED_INCLUDE_DIR )
 
 
-# do not store find results in cache
-SET( CED_LIB CED_LIB-NOTFOUND )
 
-FIND_LIBRARY( CED_LIB
-	NAMES CED
-	PATHS @CMAKE_INSTALL_PREFIX@
-	PATH_SUFFIXES lib
-	NO_DEFAULT_PATH
-)
-IF( NOT CED_LIB )
-    MESSAGE( STATUS "Check for CED: ${CED_HOME}"
-					" -- failed to find CED library!!" )
-ELSE( NOT CED_LIB )
-    MARK_AS_ADVANCED( CED_LIB )
-ENDIF( NOT CED_LIB )
+# ---------- libraries --------------------------------------------------------
+INCLUDE( ${CED_ROOT}/cmake/MacroCheckPackageLibs.cmake ) # FIXME full path ?!
+
+# only standard libraries should be passed as arguments to CHECK_PACKAGE_LIBS
+# additional components are set by cmake in variable PKG_FIND_COMPONENTS
+# first argument should be the package name
+CHECK_PACKAGE_LIBS( CED CED )
 
 
-# set variables and display results
-IF( CED_INCLUDE_DIR AND CED_LIB )
-    SET( CED_FOUND TRUE )
-	SET( CED_INCLUDE_DIRS ${CED_INCLUDE_DIR} )
-    SET( CED_LIBRARY_DIRS "@CMAKE_INSTALL_PREFIX@/lib" )
-	SET( CED_LIBRARIES ${CED_LIB} )
-    MARK_AS_ADVANCED( CED_INCLUDE_DIRS CED_LIBRARY_DIRS CED_LIBRARIES )
-	MESSAGE( STATUS "Check for CED: ${CED_HOME} -- works" )
-ELSE( CED_INCLUDE_DIR AND CED_LIB )
-	IF( CED_FIND_REQUIRED )
-		MESSAGE( FATAL_ERROR "Check for CED: ${CED_HOME} -- failed!!" )
-    ELSE( CED_FIND_REQUIRED )
-        MESSAGE( STATUS "Check for CED: ${CED_HOME}"
-						" -- failed!! will skip this package..." )
-    ENDIF( CED_FIND_REQUIRED )
-ENDIF( CED_INCLUDE_DIR AND CED_LIB )
+
+
+# ---------- libraries dependencies -------------------------------------------
+# this sets CED_${COMPONENT}_LIB_DEPENDS variables
+INCLUDE( "${CED_ROOT}/lib/cmake/CEDLibDeps.cmake" )
+ 
+
+
+
+# ---------- final checking ---------------------------------------------------
+INCLUDE( FindPackageHandleStandardArgs )
+# set CED_FOUND to TRUE if all listed variables are TRUE and not empty
+# CED_COMPONENT_VARIABLES will be set if FIND_PACKAGE is called with REQUIRED argument
+FIND_PACKAGE_HANDLE_STANDARD_ARGS( CED DEFAULT_MSG CED_ROOT CED_INCLUDE_DIRS CED_LIBRARIES ${CED_COMPONENT_VARIABLES} )
+
+
+
+# ---------- bug fix for cmake versions < 2.8 ---------------------------------
+# CED_FIND_REQUIRED is not reset between FIND_PACKAGE calls, i.e. the following
+# code fails when geartgeo component not available: (fixed in cmake 2.8)
+# FIND_PACKAGE( CED REQUIRED )
+# FIND_PACKAGE( CED COMPONENTS geartgeo QUIET )
+IF( "${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" LESS 2.8 )
+    SET( CED_FIND_REQUIRED )
+ENDIF()
+
