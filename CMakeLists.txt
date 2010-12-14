@@ -41,7 +41,7 @@ FIND_PACKAGE( OpenGL QUIET )
 #IF( INSTALL_DOC AND EXISTS "${PROJECT_SOURCE_DIR}/doc/CMakeLists.txt" )
 #    ADD_SUBDIRECTORY( doc )
 #ELSE()
-#    MESSAGE( STATUS "Documentation not found. INSTALL_DOC set to OFF" )
+#    MESSAGE( STATUS "INSTALL_DOC set to OFF" )
 #    SET( INSTALL_DOC OFF )
 #ENDIF()
 
