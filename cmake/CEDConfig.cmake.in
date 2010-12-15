@@ -66,10 +66,8 @@ FIND_PACKAGE_HANDLE_STANDARD_ARGS( CED DEFAULT_MSG CED_ROOT CED_INCLUDE_DIRS CED
 
 
 # ---------- bug fix for cmake versions < 2.8 ---------------------------------
-# CED_FIND_REQUIRED is not reset between FIND_PACKAGE calls, i.e. the following
-# code fails when geartgeo component not available: (fixed in cmake 2.8)
 # FIND_PACKAGE( CED REQUIRED )
-# FIND_PACKAGE( CED COMPONENTS geartgeo QUIET )
+# FIND_PACKAGE( CED COMPONENTS XXX QUIET ) # gives FATAL_ERROR
 IF( "${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" LESS 2.8 )
     SET( CED_FIND_REQUIRED )
 ENDIF()
