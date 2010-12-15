@@ -22,6 +22,7 @@ LIST( APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake )
 
 # ilcsoft cmake macros / default settings
 INCLUDE( ilcsoft_default_settings )
+#INCLUDE( build_32bit_compatible )
 INCLUDE( MacroAddSharedLibrary )
 
 
