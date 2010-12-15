@@ -51,14 +51,13 @@ FIND_PACKAGE( OpenGL QUIET )
 ### LIBRARY AND TOOLS #######################################################
 
 # include directories
-INCLUDE_DIRECTORIES( "include" )
-INCLUDE_DIRECTORIES( src )
-INSTALL( DIRECTORY include DESTINATION . FILES_MATCHING PATTERN "*.h" )
+INCLUDE_DIRECTORIES( ./include )
+INCLUDE_DIRECTORIES( ./src )
+INSTALL( DIRECTORY ./include DESTINATION . FILES_MATCHING PATTERN "*.h" )
 
 
 # definitions to pass to the compiler
-#ADD_DEFINITIONS( "-Wall -ansi -pedantic" )
-ADD_DEFINITIONS( "-Wall" )
+ADD_DEFINITIONS( "-Wall" ) # -ansi -pedantic
 
 
 
