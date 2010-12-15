@@ -448,20 +448,32 @@ static void reshape(int w,int h){
   }
 }
 
+
+void mouseWheel(int button, int dir, int x, int y){ //hauke
+    if(dir > 0){
+        selectFromMenu(VIEW_ZOOM_IN);
+    }else{
+        selectFromMenu(VIEW_ZOOM_OUT);
+    }
+}
 static void mouse(int btn,int state,int x,int y){
   //hauke
   struct timeval tv;
 
   struct __glutSocketList *sock;
+/*
 //hauke
   int mouseWheelDown=9999;
   int mouseWheelUp=9999;
   if(glutDeviceGet(GLUT_HAS_MOUSE)){
     //printf("Your mouse have %i buttons\n", glutDeviceGet(GLUT_NUM_MOUSE_BUTTONS)); 
+    
     mouseWheelDown= glutDeviceGet(GLUT_NUM_MOUSE_BUTTONS)+1;
     mouseWheelUp=glutDeviceGet(GLUT_NUM_MOUSE_BUTTONS);
+    
   }
 //end hauke
+*/
 
 //#ifndef GLUT_WHEEL_UP
 //#define GLUT_WHEEL_UP   3
@@ -519,6 +531,7 @@ static void mouse(int btn,int state,int x,int y){
 
 
 //hauke
+/*
 if (btn == mouseWheelUp){
     //calice
     //mm.mv.z+=150./mm.sf;
@@ -529,8 +542,8 @@ if (btn == mouseWheelUp){
 
     //mm.sf += mm.sf*50./window_height;
 
-/*    if(mm.sf<0.2){ mm.sf=0.2; }
-    else if(mm.sf>20.){ mm.sf=20.; } */
+    //if(mm.sf<0.2){ mm.sf=0.2; }
+    //else if(mm.sf>20.){ mm.sf=20.; } 
     //glutPostRedisplay();
     return;
 }
@@ -544,12 +557,14 @@ if (btn ==  mouseWheelDown){
 
     //mm.sf+=(-100.)/window_height;
     //mm.sf -= mm.sf*50.0/window_height;
-/*    if(mm.sf<0.2){ mm.sf=0.2; }
-    else if(mm.sf>20.){ mm.sf=20.; } */
+    //if(mm.sf<0.2){ mm.sf=0.2; }
+    //else if(mm.sf>20.){ mm.sf=20.; } 
     //glutPostRedisplay();
     return;
 }
+*/
 //end hauke
+
 }
 
 void printBinaer(int x){
@@ -793,8 +808,35 @@ static void motion(int x,int y){
       else if(mm.sf>20.)
 	  mm.sf=20.;
   } else if (move_mode == ORIGIN){
-      mm.mv.x=mm.mv_start.x-(x-mouse_x)*WORLD_SIZE/window_width;
-      mm.mv.y=mm.mv_start.y+(y-mouse_y)*WORLD_SIZE/window_height;
+      /* 
+      //old code: do not work with rotate 
+      mm.mv.x=mm.mv_start.x-(x-mouse_x)*WORLD_SIZE/window_width
+      mm.mv.y=mm.mv_start.y+(y-mouse_y)*WORLD_SIZE/window_height
+      */
+
+      float grad2rad=3.141*2/360;
+      float x_factor_x =  cos(mm.ha*grad2rad);
+      float x_factor_y =  cos((mm.va-90)*grad2rad)*cos((mm.ha+90)*grad2rad);
+      float y_factor_x =  0; 
+      float y_factor_y = -cos(mm.va*grad2rad);
+      float z_factor_x =  cos((mm.ha-90)*grad2rad);
+      float z_factor_y = -cos(mm.ha*grad2rad)*cos((mm.va+90)*grad2rad);
+
+      //float scale_factor=2200/mm.sf/exp(log(window_width*window_height)/2) ;
+      float scale_factor=580/mm.sf/exp(log(window_width*window_height)/2.5) ;
+
+
+      //mm.mv.x=mm.mv_start.x- (x-mouse_x)*WORLD_SIZE/window_width*10*x_factor_x - (y-mouse_y)*WORLD_SIZE/window_width*10*x_factor_y;
+      //mm.mv.y=mm.mv_start.y- (x-mouse_x)*WORLD_SIZE/window_width*10*y_factor_x - (y-mouse_y)*WORLD_SIZE/window_width*10*y_factor_y;
+      //mm.mv.z=mm.mv_start.z - (x-mouse_x)*WORLD_SIZE/window_width*10*z_factor_x - (y-mouse_y)*WORLD_SIZE/window_width*10*z_factor_y;
+
+      mm.mv.x=mm.mv_start.x- scale_factor*(x-mouse_x)*x_factor_x - scale_factor*(y-mouse_y)*x_factor_y;
+      mm.mv.y=mm.mv_start.y- scale_factor*(x-mouse_x)*y_factor_x - scale_factor*(y-mouse_y)*y_factor_y;
+      mm.mv.z=mm.mv_start.z -scale_factor*(x-mouse_x)*z_factor_x - scale_factor*(y-mouse_y)*z_factor_y;
+
+
+      //printf("y_factor_x = %f, y_factor_y=%f\n", y_factor_x, y_factor_y);
+      //printf("mm.ha = %f, mm.va = %f\n",mm.ha, mm.va);
   }   
   glutPostRedisplay();
 }
@@ -1537,6 +1579,8 @@ int buildMenuPopup(void){ //hauke
 
 
 
+  glutMouseWheelFunc(mouseWheel); //test
+
 
   glutMouseFunc(mouse);
   glutDisplayFunc(display);
@@ -1545,7 +1589,6 @@ int buildMenuPopup(void){ //hauke
   glutSpecialFunc(SpecialKey);
   glutMotionFunc(motion);
 
-  //  glutMouseWheelFunc(mouseWheel);
 
 
       //glutTimerFunc(2000,time,23);
