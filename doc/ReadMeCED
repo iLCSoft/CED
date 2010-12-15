@@ -51,13 +51,14 @@ key 's' ...... side projection
 key 'c' ...... move center of rotation to the nearest hit within current mouse position
 key 'v' ...... fish-eye view
 key 'b' ...... toggle background color
+key 'h' ...... display help menu
 
 
 
 Mouse interaction:
 ------------------
 L button + drag:    rotate
-R button + drag:    zoom
+R button + drag:    pop-up menu
 M button + drag:    shift
 M wheel  + up  :    zoom-in
 M wheel  + down:    zoom-out
@@ -164,3 +165,4 @@ to define colors is better use gimp - it gives that crasy numbers easily
 // at the end of event 
   ced_draw_event();    // Make clean up screen before drawing
 ---------------------------------------------------------------------------------------------
+
