@@ -109,7 +109,6 @@ ENDFOREACH()
 
 # display some variables and write them to cache
 DISPLAY_STD_VARIABLES()
-MESSAGE( STATUS )
 MESSAGE( STATUS "CED_SERVER = ${CED_SERVER}" )
 MESSAGE( STATUS )
 
