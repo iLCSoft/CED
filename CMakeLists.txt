@@ -23,7 +23,6 @@ LIST( APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake )
 # ilcsoft cmake macros / default settings
 INCLUDE( ilcsoft_default_settings )
 #INCLUDE( build_32bit_compatible )
-INCLUDE( MacroAddSharedLibrary )
 
 
 
@@ -53,7 +52,7 @@ FIND_PACKAGE( OpenGL QUIET )
 # include directories
 INCLUDE_DIRECTORIES( ./include )
 INCLUDE_DIRECTORIES( ./src )
-INSTALL( DIRECTORY ./include DESTINATION . FILES_MATCHING PATTERN "*.h" )
+INSTALL_DIRECTORY( ./include DESTINATION . FILES_MATCHING PATTERN "*.h" )
 
 
 # definitions to pass to the compiler
@@ -64,6 +63,7 @@ ADD_DEFINITIONS( "-Wall" ) # -ansi -pedantic
 # --------- CED CLIENT LIBRARY ----------------------
 AUX_SOURCE_DIRECTORY( ./src/client client_sources )
 ADD_SHARED_LIBRARY( CED ${client_sources} )
+INSTALL_SHARED_LIBRARY( CED DESTINATION lib )
 
 # link CED client library to the math library
 FIND_LIBRARY( c_math_lib NAMES m )

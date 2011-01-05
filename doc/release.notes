@@ -6,6 +6,12 @@
 ##################################################
 
  --------
+|  HEAD  |
+ --------
+
+ - moved cmake macros to CMakeModules (CED now depends on CMakeModules)
+
+ --------
 | v01-01 |
  --------
 

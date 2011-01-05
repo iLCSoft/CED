@@ -2,14 +2,14 @@
 + CED build instructions
 + ----------------------------------------------------------------------------
 +
-+ For building CED from source you need to have cmake installed in your system.
-+ ( cmake homepage: www.cmake.org )
++ For building CED from source you need to have CMake and CMakeModules for
++ ilcsoft installed in your system. ( cmake homepage: www.cmake.org )
 +
 + once cmake is in your $PATH, follow this steps:
 +
 + mkdir build
 + cd build
-+ cmake [-DCED_SERVER=ON] <path_to_CED>
++ cmake -DCMAKE_MODULE_PATH=/path/to/ilcsoft_CMakeModules [-DCED_SERVER=ON] ..
 + make install
 +
 + NOTE: Only the CED client library is built per default!!
@@ -21,9 +21,9 @@
 +       If cmake cannot find GLUT you can use the variables
 +       CMAKE_LIBRARY_PATH and CMAKE_INCLUDE_PATH to find libraries
 +       and header files in non-standard paths, e.g.:
-+       $ export CMAKE_LIBRARY_PATH=/path/to/my/glut/lib
-+       $ export CMAKE_INCLUDE_PATH=/path/to/my/glut/include
-+       cmake -DCED_SERVER=1 <path_to_CED>
++       export CMAKE_LIBRARY_PATH=/path/to/glut/lib
++       export CMAKE_INCLUDE_PATH=/path/to/glut/include
++       cmake ..
 +       make install
 +
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
