@@ -17,12 +17,8 @@ SET( ${PROJECT_NAME}_VERSION_PATCH 0 )
 
 ### SETTINGS ################################################################
 
-# additionally search for cmake macros/moules defined by this project
-LIST( APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake )
-
-# ilcsoft cmake macros / default settings
+# ilcsoft_default_settings.cmake needs to be in CMAKE_MODULE_PATH
 INCLUDE( ilcsoft_default_settings )
-#INCLUDE( build_32bit_compatible )
 
 
 
