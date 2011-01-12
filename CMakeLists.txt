@@ -22,7 +22,7 @@ INCLUDE( ilcsoft_cmake_modules )
 IF( NOT ILCSOFT_CMAKE_MODULES_FOUND )
     MESSAGE( FATAL_ERROR "Could not find ilcsoft CMakeModules in CMAKE_MODULE_PATH" )
 ENDIF( NOT ILCSOFT_CMAKE_MODULES_FOUND )
-ILCSOFT_CMAKE_MODULES_MINIMUM_REQUIRED( 0.10.1.1 )
+ILCSOFT_CMAKE_MODULES_MINIMUM_REQUIRED( 0.11 )
 INCLUDE( ilcsoft_default_settings )
 
 
@@ -113,8 +113,6 @@ MESSAGE( STATUS "CED_SERVER = ${CED_SERVER}" )
 MESSAGE( STATUS )
 
 
-
-# export library dependencies (keep this as the last lines in this file)
-EXPORT_LIBRARY_DEPENDENCIES( "CEDLibDeps.cmake" )
-INSTALL( FILES "${PROJECT_BINARY_DIR}/CEDLibDeps.cmake" DESTINATION lib/cmake )
+# generate and install following configuration files
+GENERATE_PACKAGE_CONFIGURATION_FILES( CEDConfig.cmake CEDConfigVersion.cmake CEDLibDeps.cmake )
 
