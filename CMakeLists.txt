@@ -15,23 +15,17 @@ SET( ${PROJECT_NAME}_VERSION_PATCH 0 )
 
 
 
-### SETTINGS ################################################################
-
-# try to load ilcsoft CMakeModules from CMAKE_MODULE_PATH
-INCLUDE( ilcsoft_cmake_modules )
-IF( NOT ILCSOFT_CMAKE_MODULES_FOUND )
-    MESSAGE( FATAL_ERROR "Could not find ilcsoft CMakeModules in CMAKE_MODULE_PATH" )
-ENDIF( NOT ILCSOFT_CMAKE_MODULES_FOUND )
-ILCSOFT_CMAKE_MODULES_MINIMUM_REQUIRED( 0.11 )
-INCLUDE( ilcsoft_default_settings )
-
-
-
 ### DEPENDENCIES ############################################################
+
+# FindILCSOFT_CMAKE_MODULES.cmake needs to be in CMAKE_MODULE_PATH
+FIND_PACKAGE( ILCSOFT_CMAKE_MODULES 0.11 REQUIRED )
 
 # GLUT and OpenGL are required by glced
 FIND_PACKAGE( GLUT QUIET )
 FIND_PACKAGE( OpenGL QUIET )
+
+# load default settings from ILCSOFT_CMAKE_MODULES
+INCLUDE( ilcsoft_default_settings )
 
 
 
