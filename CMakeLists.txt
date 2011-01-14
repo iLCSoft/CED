@@ -18,7 +18,7 @@ SET( ${PROJECT_NAME}_VERSION_PATCH 0 )
 ### DEPENDENCIES ############################################################
 
 # FindILCSOFT_CMAKE_MODULES.cmake needs to be in CMAKE_MODULE_PATH
-FIND_PACKAGE( ILCSOFT_CMAKE_MODULES 0.11 REQUIRED )
+FIND_PACKAGE( ILCSOFT_CMAKE_MODULES 1.11 REQUIRED )
 
 # GLUT and OpenGL are required by glced
 FIND_PACKAGE( GLUT QUIET )
