@@ -58,7 +58,7 @@ ADD_DEFINITIONS( "-Wall" ) # -ansi -pedantic
 # --------- CED CLIENT LIBRARY ----------------------
 AUX_SOURCE_DIRECTORY( ./src/client client_sources )
 ADD_SHARED_LIBRARY( CED ${client_sources} )
-INSTALL_SHARED_LIBRARY( CED DESTINATION lib )
+INSTALL( TARGETS CED DESTINATION lib )
 
 # link CED client library to the math library
 FIND_LIBRARY( c_math_lib NAMES m )
