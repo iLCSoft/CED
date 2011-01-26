@@ -145,6 +145,24 @@ int ced_get_selected(int x,int y,GLfloat *wx,GLfloat *wy,GLfloat *wz){
   return 0;
 }
 
+/**
+ * Enables to print string as 2D bitmaps in OpenGL 
+ * @author: SD
+ * @date: 02.09.09
+ * */
+static void renderBitmapString(
+		float x, 
+		float y, 
+		void *font, 
+		char* string) {
+  char *c;
+  glRasterPos2f(x,y);
+  for (c=string; *c != '\0'; c++) {
+    glutBitmapCharacter(font, *c);
+  }
+}
+
+
 /*************************************************************** 
 * hauke hoelbe 08.02.2010                                      *
 * A extra picking function, do the same as ced_get_selected,   *
@@ -179,6 +197,66 @@ int ced_picking(int x,int y,GLfloat *wx,GLfloat *wy,GLfloat *wz){
   //printf("select x = %d\n",best->x);
   //SELECTED_X  = best->x;
   //SELECTED_Y =  viewport[3]-best->y-1;
+
+//test 
+/*
+  CED_Point point = best->p;
+ // float center1[] = {point.x, point.y, point.z};
+ // float center2[] = {0,0,0};
+
+ // float size1[]={50.0,50.0,50.0};
+ // float size2[]={5000.0,5000.0,5000.0};
+
+//  ced_geobox(size1,  center1,  0xff00ff);
+//  ced_geobox(size2,  center1,  0xff00ff);
+//  ced_geobox(size1,  center2,  0xff00ff);
+//  ced_hit(0, 0, 0, 1, 3, 0xffff00);
+
+
+   CED_Point fisheye_point0;
+   fisheye_point0 = fisheye_transform(point.x,point.y, point.z, fisheye_alpha);
+
+  glLineWidth(2.);
+  glBegin(GL_LINES);
+  //glVertex3f(point.x-100,point.y-100,point.z-100);
+  //glVertex3f(point.x+100,point.y-100, point.z-100);
+  //glVertex3f(point.x+100,point.y+100, point.z-100);
+  //glVertex3f(point.x+100,point.y+100, point.z+100);
+glVertex3f(point.x/10,point.y/10, point.z/10);
+glVertex3f(555555,55555,55555);
+
+
+
+
+  glEnd();
+
+//  glBegin(GL_LINES);
+//  glVertex2i(0,0);
+//  glVertex2i(50000,50000);
+//  glEnd(); 
+//glFlush(); 
+glutSwapBuffers();
+  //glutPostRedisplay();
+
+  printf("selected cords: %f %f %f\n", point.x, point.y, point.z);
+
+*/
+/*
+    void* font=GLUT_BITMAP_TIMES_ROMAN_10;
+    char foo[100]; 
+    sprintf(foo,"Picking Hit: %i", SELECTED_ID);
+    
+	glColor3f(1.0,1.0,1.0);
+	renderBitmapString(800,-800, font, foo);
+
+	glEnd();
+glFlush();
+glutSwapBuffers();
+
+*/
+
+//test end
+  
   return 0;
 }
 
@@ -194,13 +272,24 @@ inline int ced_selected() {
  */
 static void ced_add_objmap(CED_Point *p,int max_dxy, unsigned int ID){
   GLdouble winx,winy,winz;
+
+/*
+  for(i=0;i<omap_count;i++){
+     if(omap[i].ID == ID){
+        printf("ID %u is already in omap!!! pos = %i\n", ID, i);
+        return;
+     } 
+  }
+
+*/
   if(omap_count==omap_alloced){
     omap_alloced+=256;
+    //omap_alloced+=10000;
     omap=realloc(omap,omap_alloced*sizeof(CED_ObjMap));
   }
-  if(gluProject((GLdouble)p->x,(GLdouble)p->y,(GLdouble)p->z,
-		modelM,projM,viewport,&winx,&winy,&winz)!=GL_TRUE)
+  if(gluProject((GLdouble)p->x,(GLdouble)p->y,(GLdouble)p->z, modelM,projM,viewport,&winx,&winy,&winz)!=GL_TRUE){
     return;
+  }
   omap[omap_count].ID=ID;
   omap[omap_count].x=winx;
   omap[omap_count].y=winy;
@@ -241,6 +330,7 @@ static void ced_draw_hit(CED_Hit *h){
     //    printf("Draw hit at : %f %f %f type = %d and ced_visible_layers = %d \n",h->p.x,h->p.y,h->p.z,h->type,ced_visible_layers);
 
     ced_color(h->color);
+
     switch((h->type&0xf)){
 	case CED_HIT_CROSS:
 	case CED_HIT_STAR:
@@ -249,6 +339,7 @@ static void ced_draw_hit(CED_Hit *h){
 	    if((h->type & CED_HIT_CROSS)==CED_HIT_CROSS){
 	      //	      printf("cross type == %d \n",(h->type & CED_HIT_CROSS));
 	      d=h->size/2;
+
 	      glVertex3f(x-d,y-d,z+d);
 	      glVertex3f(x+d,y+d,z-d);
 
@@ -269,7 +360,7 @@ static void ced_draw_hit(CED_Hit *h){
 	      glVertex3f(x,y-d,z);
 	      glVertex3f(x,y+d,z);
 	      glVertex3f(x,y,z-d);
-	      glVertex3f(x,y,z+d);
+	      glVertex3f(x,y,z+d); 
 	    }
 	    break;
 	default:
@@ -289,9 +380,62 @@ static unsigned LINE_ID=0;
 
 static void ced_draw_line(CED_Line *h){
   //  printf("Draw line\n");
+
+/*
+  static int anz;
+  cout << "draw line " << anz++ << endl;
+*/
+
   if(!IS_VISIBLE(h->type))
     return;
    	
+
+/*
+    float pos[3];
+    float length=(int)( pow(pow(h->p1.x - h->p0.x,2) + pow(h->p1.y - h->p0.y,2) + pow(h->p1.z - h->p0.z,2),0.5) ) ;
+    
+    int i=0;
+    ced_add_objmap(&h->p0,5,h->lcioID);
+    ced_add_objmap(&h->p1,5,h->lcioID);
+    
+    
+
+    pos[0] = h->p0.x;
+    pos[1] = h->p0.y; 
+    pos[2] = h->p0.z; 
+    while(pos[0] < h->p1.x && pos[1] < h->p1.y && pos[2] < h->p1.z){
+        pos[0]+=(h->p1.x - h->p0.x)/length*1.10; 
+        pos[1]+=(h->p1.y - h->p0.y)/length*1.10;
+        pos[2]+=(h->p1.z - h->p0.z)/length*1.10;
+
+        //printf("start: (%f, %f, %f)\n", h->p0.x, h->p0.y, h->p0.z);
+        //printf("pos: (%f, %f, %f) + (%f, %f, %f)\n", pos[0], pos[1], pos[2], (h->p1.x - h->p0.x)/length*300.0, (h->p1.y - h->p0.y)/length*300.0, (h->p1.z - h->p0.z)/length*300.0);
+        //printf("end: (%f, %f, %f)\n", h->p1.x, h->p1.y, h->p1.z);
+
+
+        i++;
+//        printf("==> length: %f,  seperated line in %i parts\n",length,  i);
+ //       printf("test: abs(h->p1.x - h->p0.x)/length*300 = %f = %f / %f\n", (h->p1.x - h->p0.x)/length*300, h->p1.x - h->p0.x, length);
+
+        CED_Hit *h;
+        h->p.x = pos[0];
+        h->p.y=pos[1];
+        h->p.z=pos[2];
+        h->size=2;
+        h->type = CED_HIT_STAR;
+        //ced_draw_hit(h);
+
+        ced_add_objmap(&pos,5,h->lcioID);
+
+    }
+
+        //printf("start: (%f, %f, %f)\n", h->p0.x, h->p0.y, h->p0.z);
+        //printf("pos: (%f, %f, %f) + (%f, %f, %f)\n", pos[0], pos[1], pos[2], (h->p1.x - h->p0.x)/length*300.0, (h->p1.y - h->p0.y)/length*300.0, (h->p1.z - h->p0.z)/length*300.0);
+        //printf("end: (%f, %f, %f)\n", h->p1.x, h->p1.y, h->p1.z);
+
+*/
+
+
     CED_Point fisheye_point0;
     CED_Point fisheye_point1;
     fisheye_point0 = fisheye_transform(h->p0.x, h->p0.y, h->p0.z, fisheye_alpha);
@@ -582,22 +726,6 @@ static void ced_draw_cluellipse_r(CED_CluEllipseR * eli )  {
 }
 
 
-/**
- * Enables to print string as 2D bitmaps in OpenGL 
- * @author: SD
- * @date: 02.09.09
- * */
-static void renderBitmapString(
-		float x, 
-		float y, 
-		void *font, 
-		char* string) {
-  char *c;
-  glRasterPos2f(x,y);
-  for (c=string; *c != '\0'; c++) {
-    glutBitmapCharacter(font, *c);
-  }
-}
 
 
 

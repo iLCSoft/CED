@@ -500,11 +500,12 @@ static void mouse(int btn,int state,int x,int y){
     //FIX IT: get the system double click time
     if( (tv.tv_sec*1000000+tv.tv_usec-doubleClickTime) < 300000 && (tv.tv_sec*1000000+tv.tv_usec-doubleClickTime) > 5){ //1000000=1sec
       //printf("Double Click %f\n", tv.tv_sec*1000000+tv.tv_usec-doubleClickTime);
-      if(!ced_picking(x,y,&mm.mv.x,&mm.mv.y,&mm.mv.z));
-      sock=__glutSockets ;
-      int id = SELECTED_ID;
-      //printf(" ced_get_selected : socket connected: %d", sock->fd );	
-      send( sock->fd , &id , sizeof(int) , 0 ) ;
+      if(!ced_picking(x,y,&mm.mv.x,&mm.mv.y,&mm.mv.z)){
+        sock=__glutSockets;
+        int id = SELECTED_ID;
+        //printf(" ced_get_selected : socket connected: %d", sock->fd );	
+        send( sock->fd , &id , sizeof(int) , 0 );
+      }
     }else{
       //printf("Single Click\n");
       move_mode=TURN_XY;
@@ -801,6 +802,8 @@ static void motion(int x,int y){
     //           (y-mouse_y)*M_PI/window_width);
     mm.ha=mm.ha_start+(x-mouse_x)*180./window_width;
     mm.va=mm.va_start+(y-mouse_y)*180./window_height;
+    
+    //todo
   } else if (move_mode == ZOOM){
       mm.sf=mm.sf_start+(y-mouse_y)*10./window_height;
       if(mm.sf<0.2)
@@ -838,7 +841,10 @@ static void motion(int x,int y){
       //printf("y_factor_x = %f, y_factor_y=%f\n", y_factor_x, y_factor_y);
       //printf("mm.ha = %f, mm.va = %f\n",mm.ha, mm.va);
   }   
-  glutPostRedisplay();
+
+
+glutPostRedisplay();
+
 }
 
 
