@@ -441,8 +441,28 @@ static void ced_draw_line(CED_Line *h){
     fisheye_point0 = fisheye_transform(h->p0.x, h->p0.y, h->p0.z, fisheye_alpha);
     fisheye_point1 = fisheye_transform(h->p1.x, h->p1.y, h->p1.z, fisheye_alpha);    	
 
-   	//glEnable(GL_BLEND);
+   	glEnable(GL_BLEND);
+
+
   	ced_color(h->color);
+
+//--- new
+ GLUquadricObj *Sphere;
+  Sphere = gluNewQuadric();
+  gluQuadricNormals(Sphere, GLU_SMOOTH);
+  gluQuadricTexture(Sphere, GL_TRUE);
+  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  glMatrixMode(GL_MODELVIEW);
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glColor4f((h->color>>16)&0xff,(h->color>>8)&0xff,(h->color)&0xff, 0.1);
+  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+
+//-- end new
+
+
+
   	glLineWidth(h->width);
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   	glBegin(GL_LINES);
@@ -468,6 +488,7 @@ static void ced_draw_geocylinder(CED_GeoCylinder *c){
   glPushMatrix();
   glLineWidth(1.);
   ced_color(c->color);
+  
   glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);    
 
   double transformed_shift = single_fisheye_transform(c->shift, fisheye_alpha);
@@ -482,9 +503,33 @@ static void ced_draw_geocylinder(CED_GeoCylinder *c){
   double z0 = transformed_shift;
   double z1 = single_fisheye_transform(c->z+c->shift, fisheye_alpha);
   double z = z1-z0;
-  gluCylinder(q1, d, d, z*2, c->sides, 1);
+
+//new
+  //GLUquadricObj *Sphere;
+  //Sphere = gluNewQuadric();
+  gluQuadricNormals(q1, GLU_SMOOTH);
+  gluQuadricTexture(q1, GL_TRUE);
+  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  glMatrixMode(GL_MODELVIEW);
+  glEnable(GL_BLEND);
+  //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+  //glBlendFunc(GL_ONE_MINUS_DST_ALPHA,GL_DST_ALPHA);
+    glEnable (GL_BLEND);
+    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+  glDisable(GL_DEPTH_TEST);
+  glColor4f((c->color>>16)&0xff,(c->color>>8)&0xff,(c->color)&0xff, 0.06);
+//end new
+
 
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  gluCylinder(q1, d, d, z*2, c->sides, 1);
+
+
+  gluDisk( q1, 0, d, c->sides, 1); //new
+
+
   gluDeleteQuadric(q1);
 
   glPopMatrix();
@@ -516,12 +561,14 @@ static void ced_draw_geocylinder_r(CED_GeoCylinderR *c){
   // center!
   glTranslated(0.0,0.0,-(c->z)/2);
 
-	//glEnable(GL_BLEND);
+	glEnable(GL_BLEND);
   glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);  
       
   gluQuadricNormals(q1, GL_SMOOTH);
   gluQuadricTexture(q1, GL_TRUE);
   gluCylinder(q1, c->d, c->d, c->z, c->sides, 1);
+  //gluCylinder(q1, c->d, c->d, c->z, 1000, 1000);
+
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   gluDeleteQuadric(q1);
 
@@ -616,7 +663,7 @@ static void ced_draw_cluellipse_r(CED_CluEllipseR * eli )  {
 	float t;
 	
 	/** openGL alpha blending */
-	glEnable(GL_BLEND);
+	//glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	
 	
