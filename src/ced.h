@@ -16,7 +16,9 @@
 #endif
 		
 
-char trusted_hosts[50];
+//char trusted_hosts[50];
+//extern static char testchar;
+
 typedef void (*ced_draw_cb)(void *data);
 
 

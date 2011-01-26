@@ -13,6 +13,7 @@
  *                     
  */
 
+
 #ifdef __APPLE__
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
@@ -461,7 +462,8 @@ static void mouse(int btn,int state,int x,int y){
   struct timeval tv;
 
   struct __glutSocketList *sock;
-/*
+
+#ifdef __APPLE__
 //hauke
   int mouseWheelDown=9999;
   int mouseWheelUp=9999;
@@ -473,7 +475,7 @@ static void mouse(int btn,int state,int x,int y){
     
   }
 //end hauke
-*/
+#endif
 
 //#ifndef GLUT_WHEEL_UP
 //#define GLUT_WHEEL_UP   3
@@ -1535,6 +1537,9 @@ int buildMenuPopup(void){ //hauke
           "              - trusted_host: Ip or name of the host who is allowed to connect to CED\n"  
 	      "   Example: \n\n"
 	      "     ./bin/glced -bgcolor 4C4C66 -world_size 1000. -geometry 600x600+500+0  --trust 192.168.11.22 > /tmp/glced.log 2>&1 & \n\n"  
+	      "    "
+	      "   Change port (before starting glced):"
+              "         export CED_PORT=<portnumber>"
 	      ) ;      
       exit(0) ;
     } if(!strcmp(argv[i], "--trust")){
@@ -1544,6 +1549,7 @@ int buildMenuPopup(void){ //hauke
         }
         struct hostent *host = gethostbyname(argv[i+1]);
         if (host != NULL){
+	    extern char trusted_hosts[50];
             snprintf(trusted_hosts, 50, "%u.%u.%u.%u",(unsigned char)host->h_addr[0] ,(unsigned char)host->h_addr[1] ,(unsigned char)host->h_addr[2] ,(unsigned char)host->h_addr[3]);
 
            //printf("trust ip %s\n", trusted_hosts);
@@ -1584,8 +1590,9 @@ int buildMenuPopup(void){ //hauke
 
 
 
-
-  glutMouseWheelFunc(mouseWheel); //test
+#ifndef __APPLE__
+  glutMouseWheelFunc(mouseWheel); //dont works under mac os!
+#endif
 
 
   glutMouseFunc(mouse);

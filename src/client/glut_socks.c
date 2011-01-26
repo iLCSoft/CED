@@ -7,6 +7,8 @@
  *            is temporary not available
  */
 
+char trusted_hosts[50]; 
+
 #include "ced.h"
 #include <stdlib.h>
 #include <stdio.h>
@@ -127,15 +129,19 @@ static void tcp_server_accept(struct __glutSocketList *list){
         in_addr_t data=inet_addr(inet_ntoa(myclient.sin_addr));
         hp = gethostbyaddr(&data, 4, AF_INET);
         if(hp == NULL){ 
-            printf("CED: Unknown remote connection from: UnknownHost (%s)\n", inet_ntoa(myclient.sin_addr)); 
+            printf("CED: Reject remote connection from: UnknownHost (%s)\n", inet_ntoa(myclient.sin_addr)); 
         }
         else{ 
-            printf("CED: Unknown remote connection from: %s (%s)\n", hp->h_name, inet_ntoa(myclient.sin_addr));
+            printf("CED: Reject remote connection from: %s (%s)\n", hp->h_name, inet_ntoa(myclient.sin_addr));
         }
 
         close(fd);
         return;
     }
+    printf("CED: Accepted trusted connection from ip %s\n", inet_ntoa(myclient.sin_addr));
+
+  }else{
+      printf("CED: Accepted connection from localhost\n");
   }
 
   if(fd<0){
