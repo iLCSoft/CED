@@ -57,7 +57,8 @@ ADD_DEFINITIONS( "-Wall" ) # -ansi -pedantic
 # --------- CED CLIENT LIBRARY ----------------------
 AUX_SOURCE_DIRECTORY( ./src/client client_sources )
 ADD_SHARED_LIBRARY( CED ${client_sources} )
-INSTALL( TARGETS CED DESTINATION lib )
+INSTALL_SHARED_LIBRARY( CED DESTINATION lib )
+
 
 # link CED client library to the math library
 FIND_LIBRARY( c_math_lib NAMES m )
@@ -68,6 +69,7 @@ MARK_AS_ADVANCED( c_math_lib )
 
 # --------- CED SERVER (GLCED) ----------------------
 OPTION( CED_SERVER "Set to ON to build the glced server" OFF )
+MESSAGE( STATUS "CED_SERVER = ${CED_SERVER}" )
 IF( CED_SERVER )
 
     IF( NOT GLUT_FOUND OR NOT OPENGL_FOUND )
@@ -89,7 +91,6 @@ IF( CED_SERVER )
 ENDIF( CED_SERVER )
 
 
-
 # ------------------ CED TESTS ------------------
 FOREACH( _testname test_ced test_ced_mhits )
     ADD_EXECUTABLE( ${_testname} ./src/tests/${_testname}.c )
@@ -102,8 +103,6 @@ ENDFOREACH()
 
 # display some variables and write them to cache
 DISPLAY_STD_VARIABLES()
-MESSAGE( STATUS "CED_SERVER = ${CED_SERVER}" )
-MESSAGE( STATUS )
 
 
 # generate and install following configuration files
