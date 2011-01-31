@@ -40,16 +40,13 @@ FIND_PATH( CED_INCLUDE_DIRS
 
 
 # ---------- libraries --------------------------------------------------------
-# do not store find results in cache
-SET( CED_LIBRARY_DIRS ${CED_ROOT}/lib )
-SET( CED_LIBRARIES CED_LIBRARIES-NOTFOUND )
-MARK_AS_ADVANCED( CED_LIBRARY_DIRS CED_LIBRARIES )
+INCLUDE( "@ILCSOFT_CMAKE_MODULES_ROOT@/MacroCheckPackageLibs.cmake" )
 
-FIND_LIBRARY( CED_LIBRARIES
-    NAMES CED
-    PATHS ${CED_LIBRARY_DIRS}
-    NO_DEFAULT_PATH
-)
+# only standard libraries should be passed as arguments to CHECK_PACKAGE_LIBS
+# additional components are set by cmake in variable PKG_FIND_COMPONENTS
+# first argument should be the package name
+CHECK_PACKAGE_LIBS( CED CED )
+
 
 
 
