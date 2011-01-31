@@ -9,7 +9,9 @@
 |  HEAD  |
  --------
 
- - moved cmake macros to CMakeModules (CED now depends on CMakeModules)
+ - simplified CMakeLists ( added dependency to ILCUTIL package )
+
+    !!!!!!!!! TODO !!!!!!!!!!!!!!
 
  --------
 | v01-01 |
