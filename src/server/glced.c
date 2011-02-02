@@ -1536,7 +1536,7 @@ int buildMenuPopup(void){ //hauke
 	      "                              (W:width, H: height, X: x-offset, Y: y-offset) \n"
           "              - trusted_host: Ip or name of the host who is allowed to connect to CED\n"  
 	      "   Example: \n\n"
-	      "     ./bin/glced -bgcolor 4C4C66 -world_size 1000. -geometry 600x600+500+0  --trust 192.168.11.22 > /tmp/glced.log 2>&1 & \n\n"  
+	      "     ./bin/glced -bgcolor 4C4C66 -world_size 1000. -geometry 600x600+500+0  -trust 192.168.11.22 > /tmp/glced.log 2>&1 & \n\n"  
 	      "    "
 	      "   Change port (before starting glced):"
               "         export CED_PORT=<portnumber>"
