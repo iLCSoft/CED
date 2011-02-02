@@ -28,6 +28,7 @@
 
 //hauke
 //#include "glced.h"
+int graphic[3];
 
 #include <ced.h>
 #define PORT        0x1234
@@ -483,6 +484,7 @@ static void ced_draw_line(CED_Line *h){
 static unsigned GEOC_ID=0;
 
 static void ced_draw_geocylinder(CED_GeoCylinder *c){
+
   GLUquadricObj *q1 = gluNewQuadric();
 
   glPushMatrix();
@@ -504,31 +506,41 @@ static void ced_draw_geocylinder(CED_GeoCylinder *c){
   double z1 = single_fisheye_transform(c->z+c->shift, fisheye_alpha);
   double z = z1-z0;
 
+
 //new
-  //GLUquadricObj *Sphere;
-  //Sphere = gluNewQuadric();
-  gluQuadricNormals(q1, GLU_SMOOTH);
-  gluQuadricTexture(q1, GL_TRUE);
+  if(graphic[1] == 1){
+ //     printf("transparent!\n");
+    
+      //GLUquadricObj *Sphere;
+      //Sphere = gluNewQuadric();
+      gluQuadricNormals(q1, GLU_SMOOTH);
+      gluQuadricTexture(q1, GL_TRUE);
+      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+      glMatrixMode(GL_MODELVIEW);
+      glEnable(GL_BLEND);
+      //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    
+      //glBlendFunc(GL_ONE_MINUS_DST_ALPHA,GL_DST_ALPHA);
+//        glEnable (GL_BLEND);
+        glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    
+      glDisable(GL_DEPTH_TEST);
+      glColor4f((c->color>>16)&0xff,(c->color>>8)&0xff,(c->color)&0xff, 0.06);
+    //end new
+    
+    
+    
+
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-  glMatrixMode(GL_MODELVIEW);
-  glEnable(GL_BLEND);
-  //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    
+      gluDisk( q1, 0, d, c->sides, 1); //new
+      //gluDisk( q1, 0, d, c->sides, 1); //new
 
-  //glBlendFunc(GL_ONE_MINUS_DST_ALPHA,GL_DST_ALPHA);
-    glEnable (GL_BLEND);
-    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-  glDisable(GL_DEPTH_TEST);
-  glColor4f((c->color>>16)&0xff,(c->color>>8)&0xff,(c->color)&0xff, 0.06);
-//end new
+  } //else{ }
 
 
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
   gluCylinder(q1, d, d, z*2, c->sides, 1);
-
-
-  gluDisk( q1, 0, d, c->sides, 1); //new
-
 
   gluDeleteQuadric(q1);
 

@@ -48,6 +48,14 @@
 //#include "glced.h"
 //#include "ced_srv.h"
 
+#define GRAFIC_HIGH             2000            
+#define GRAFIC_LOW              2001
+#define GRAFIC_PERSP            2002
+#define GRAFIC_BUFFER           2003
+#define GRAFIC_TRANS            2004
+#define GRAFIC_LIGHT            2005
+
+
 #define BGCOLOR_WHITE           1000
 #define BGCOLOR_SILVER          1001
 #define BGCOLOR_DIMGRAY         1002
@@ -66,6 +74,7 @@
 #define BGCOLOR_GRAY            1014
 
 #define BGCOLOR_USER            1100
+
 
 #define VIEW_FISHEYE    20
 #define VIEW_FRONT      21
@@ -98,6 +107,8 @@
 #define LAYER_ALL       60
 
 #define HELP            100
+
+extern int graphic[];  //= {0,0,0}; //light, transparence, perspective
 
 int ced_picking(int x,int y,GLfloat *wx,GLfloat *wy,GLfloat *wz); //from ced_srv.c, need header files!
 
@@ -1378,7 +1389,139 @@ void selectFromMenu(int id){ //hauke
                 //}
                 break;
 
+        case GRAFIC_HIGH:
+            graphic[0] = 0; //todo: little bit dirty, make it better
+            graphic[1] = 0;
+            graphic[2] = 0;
+            selectFromMenu(GRAFIC_TRANS);
+            selectFromMenu(GRAFIC_LIGHT);
+            selectFromMenu(GRAFIC_PERSP);
+            break;
+            
+        case GRAFIC_LOW:
+            graphic[0] = 1; //todo: little bit dirty, make it better
+            graphic[1] = 1;
+            graphic[2] = 1;
+            selectFromMenu(GRAFIC_TRANS);
+            selectFromMenu(GRAFIC_LIGHT);
+            selectFromMenu(GRAFIC_PERSP);
+            break;
+
+        case GRAFIC_TRANS:
+            if(graphic[1] == 1){
+                printf("Transparency  is now off\n");
+                graphic[1] = 0;
+            }else{
+                printf("Transparency  is now on\n");
+                graphic[1] = 1;
+
+            }
+
+            break;
+            
+        case GRAFIC_LIGHT:
+            if(graphic[0] == 1){
+                printf("Light  is now on\n");
+                graphic[0] = 0;
+                glDisable(GL_LIGHTING); 
+            }else{
+                printf("Light is now on\n");
+                 graphic[0] = 1;
+                 //TODO: CHANGE IT
+                 GLfloat mat_specular[] = {1.0, 1.0, 1.0, 1.0};
+                 GLfloat mat_shininess[] = {50.0};
+                 GLfloat light_position[] = {1000, 1000, 0, 0};
+
+                 GLfloat lightAmbient[]= {0.5, 0.5, 0.5, 1};     
+                 //glLightfv(GL_LIGHT0, GL_DIFFUSE, lightAmbient);
+                 glLightfv(GL_LIGHT0, GL_AMBIENT, lightAmbient);
+
+                 glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+                 //glClearColor (0.0, 0.0, 0.0, 0.0);
+                 glShadeModel (GL_SMOOTH);
+
+                 //glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
+                 //glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
+
+                 //   glColorMaterial ( GL_FRONT_AND_BACK, GL_EMISSION ) ;
+                 glColorMaterial (GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE) ;
+                 glEnable (GL_COLOR_MATERIAL) ;
+
+                 glEnable(GL_LIGHTING); 
+
+                 glEnable(GL_LIGHT0);
+                 glMatrixMode(GL_MODELVIEW);
+                 //glEnable(GL_DEPTH_TEST);
+            }
+            break;
+
+        case GRAFIC_PERSP:
+            if(graphic[2] == 1){
+                printf("Perspective is now flat\n");
+                //dont work yet...
+                graphic[2] = 0;
+                reshape(window_width, window_height);
+/*
+                //gluLookAt(0,0,2000,    0,0,0,    0,1,0);
+
+
+                //gluLookAt(0,0,100,    0,0,0,    0,1,0);
+                //glLoadIdentity ();
+  glViewport(0,0,window_width, window_height);
+
+                //gluOrtho2D (0.0F, 1.0F, 0.0F, 1.0F);
+                //glMatrixMode( GL_MODELVIEW );
+                //glDisable(GL_DEPTH_TEST);
+
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+
+
+//glMatrixMode(GL_PROJECTION);
+                glOrtho(-WORLD_SIZE* window_width/window_height,WORLD_SIZE* window_width/window_height,-WORLD_SIZE,WORLD_SIZE, -15*WORLD_SIZE,15*WORLD_SIZE);
+//glOrtho(0.0f, windowWidth, windowHeight, 0.0f, 0.0f, 1.0f);
+
+                      //glOrtho(0,WORLD_SIZE* window_width/window_height,-WORLD_SIZE,WORLD_SIZE, -15*WORLD_SIZE,15*WORLD_SIZE);
+
+
+*/
+            }else{
+                printf("Perspective is now 3d\n");
+                graphic[2] = 1;
+
+
+                //printf("Change Perspective\n");
     
+                //gluPerspective(fovy, aspect, zNear, zFar : glDouble);
+                //gluPerspective(0.5, 1, 0.1, 5);
+                //glClearColor( 0.0, 0.0, 0.0, 0.0 );
+    
+                //glViewport( 0, 0, 600, 600 );
+    /*
+                 gluLookAt(kameraX, kameraY, kameraZ, // hier stehe ich 
+                  szeneX,  szeneY,  szeneZ,  // hier schaue ich hin
+                  obenX,   obenY,   obenZ);  // dieser Vektor zeigt senkrecht nach oben
+    */
+                //gluLookAt(0,0,1000,  0,0,100,    0,1,0);
+    
+    
+                glMatrixMode( GL_PROJECTION );
+                glLoadIdentity();
+    
+                gluPerspective(60,1,1,100000);
+    
+    
+                glMatrixMode( GL_MODELVIEW );
+                glLoadIdentity();
+    
+                //glClearDepth(1.0);                  // Depth Buffer Setup
+                //glEnable(GL_DEPTH_TEST);            // Enables Depth Testing
+                //glDepthFunc(GL_LEQUAL);             // The Type Of Depth Test To Do
+    
+    
+               gluLookAt(0,0,2000,    0,0,0,    0,1,0);
+            }
+            break;
         case HELP:
             toggleHelpWindow();
             break;
@@ -1393,6 +1536,9 @@ int buildMenuPopup(void){ //hauke
     int subMenu1;
     int subMenu2;
     int subMenu3;
+    int subMenu4;
+    int subsubMenu1;
+
 
     subMenu1 = glutCreateMenu(selectFromMenu);
     glutAddMenuEntry("White",BGCOLOR_WHITE);
@@ -1450,10 +1596,26 @@ int buildMenuPopup(void){ //hauke
         //updateLayerEntryInPopupMenu(LAYER_0+i);
     }
 
+
+    subsubMenu1 = glutCreateMenu(selectFromMenu);
+    glutAddMenuEntry("Perspective",GRAFIC_PERSP);
+    glutAddMenuEntry("Deepbuffer", GRAFIC_BUFFER);
+    glutAddMenuEntry("Transparency", GRAFIC_TRANS);
+    glutAddMenuEntry("Light", GRAFIC_LIGHT);
+
+
+    subMenu4 = glutCreateMenu(selectFromMenu);
+    glutAddMenuEntry("Performance",GRAFIC_LOW);
+    glutAddMenuEntry("Quality", GRAFIC_HIGH);
+    glutAddSubMenu("Details", subsubMenu1);
+
+
+
     menu=glutCreateMenu(selectFromMenu);
     glutAddSubMenu("View", subMenu2);
     glutAddSubMenu("Layers", subMenu3);
     glutAddSubMenu("Background Color", subMenu1);
+    glutAddSubMenu("Graphics options", subMenu4);
     glutAddMenuEntry("Toggle help [h]",HELP);
 
     return menu;
@@ -1574,6 +1736,7 @@ int buildMenuPopup(void){ //hauke
 
   glutInit(&argc,argv);
   glutInitDisplayMode(GLUT_DOUBLE|GLUT_RGB|GLUT_DEPTH|GLUT_ALPHA);
+ //glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
 /*   glutInitWindowSize(600,600); // change to smaller window size */
 /*   glutInitWindowPosition(500,0); */
 
