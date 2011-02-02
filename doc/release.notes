@@ -28,6 +28,24 @@
             * Hint: To connect on this CED with Marlin you must set
               the enviroment variable CED_PORT (and for remote access 
               also CED_HOST) before starting Marlin.
+
+    Fixes/Intern stuff
+        - Move (Middle mouse button): 
+               * Now works correct with rotate
+               * Adjusted the move speed, to get the same speed for
+                 each zoom level and window size.
+
+        - rotate3d:
+              * Helper function: rotates a vector in the 3d room
+
+        - ced_geobox_r_ID:
+              * do the same as ced_geobox_r (plus lcio_id) but use
+                ced_line_ID, this ensure working picking, fisheye view and
+                layerdescription. All other geobox functions ced_geobox_r,
+                ced_geobox_ID, ced_geobox, now can use this new function
+                instead of having own code.
+
+
  --------
 |  HEAD  |
  --------
