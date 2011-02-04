@@ -4,9 +4,13 @@
 #
 #   original author A.Zhelezov, DESY
 ##################################################
+
+
  --------
-|  HEAD  |
+| v01-02 |
  --------
+
+
     New features (H. Hoelbe, DESY): 
         - Remote access to CED: 
             * Per default CED rejects connects from remote hosts, to
@@ -45,14 +49,8 @@
                 ced_geobox_ID, ced_geobox, now can use this new function
                 instead of having own code.
 
+    Simplified CMakeLists ( added dependency to ILCUTIL package )
 
- --------
-|  HEAD  |
- --------
-
- - simplified CMakeLists ( added dependency to ILCUTIL package )
-
-    !!!!!!!!! TODO !!!!!!!!!!!!!!
 
  --------
 | v01-01 |
