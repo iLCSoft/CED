@@ -12,6 +12,7 @@
 #       if REQUIRED is NOT set components may or may not be available
 #
 #   CED_ROOT       : path to this CED installation
+#   CED_VERSION    : package version
 #   CED_LIBRARIES  : list of CED libraries (NOT including COMPONENTS)
 #   CED_INCLUDE_DIRS  : list of paths to be used with INCLUDE_DIRECTORIES
 #   CED_LIBRARY_DIRS  : list of paths to be used with LINK_DIRECTORIES
@@ -24,6 +25,7 @@
 ##############################################################################
 
 SET( CED_ROOT "@CMAKE_INSTALL_PREFIX@" )
+SET( CED_VERSION "@CED_VERSION@" )
 
 
 # ---------- include dirs -----------------------------------------------------
