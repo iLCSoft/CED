@@ -1528,18 +1528,21 @@ int buildMenuPopup(void){ //hauke
        !strcmp( argv[i] , "-?" )
        ) {
       printf( "\n  CED event display server: \n\n" 
-	      "   Usage:  glced [-bgcolor color] [-world_size length] [-geometry x_geometry] [--trust trusted_host]\n" 
-	      "        where:  \n"
-          "              - color:        Background color (values: black, white, blue or hexadecimal number)\n"
-	      "              - length:       Visible world-cube size in mm (default: 6000) \n" 
-	      "              - x_geometry:   Window position and size in the form WxH+X+Y \n" 
+	      "   Usage:  glced [-bgcolor COLOR] [-world_size LENGTH] [-geometry X_GEOMETRY] [--trust TRUSTED_HOST]\n\n" 
+	      "        options:  \n"
+          "              COLOR:        Background color (values: black, white, blue or hexadecimal number)\n"
+	      "              LENGTH:       Visible world-cube size in mm (default: 6000) \n" 
+	      "              X_GEOMETRY:   Window position and size in the form WxH+X+Y \n" 
 	      "                              (W:width, H: height, X: x-offset, Y: y-offset) \n"
-          "              - trusted_host: Ip or name of the host who is allowed to connect to CED\n"  
+          "              TRUSTED_HOST: Ip or name of the host who is allowed to connect to CED\n\n"
 	      "   Example: \n\n"
-	      "     ./bin/glced -bgcolor 4C4C66 -world_size 1000. -geometry 600x600+500+0  -trust 192.168.11.22 > /tmp/glced.log 2>&1 & \n\n"  
+	      "     ./bin/glced -bgcolor 4C4C66 -world_size 1000. -geometry 600x600+500+0  --trust 192.168.11.22 > /tmp/glced.log 2>&1 & \n\n"  
 	      "    "
 	      "   Change port (before starting glced):"
-              "         export CED_PORT=<portnumber>"
+              "         export CED_PORT=<portnumber>\n\n\n"
+          "   To connect Marlin from a remote machine set variables CED_HOST=<this_host> and CED_PORT=<this_CED_PORT> on the machine where Marlin is started from\n\n"
+          "   On this machine start glced with option: --trust <host_where_Marlin_is_started_from> to accept the connection from the remote host"
+          "\n\n"
 	      ) ;      
       exit(0) ;
     } if(!strcmp(argv[i], "--trust")){
