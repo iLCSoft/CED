@@ -14,10 +14,10 @@
     New features (H. Hoelbe, DESY): 
         - Remote access to CED: 
             * Per default CED rejects connects from remote hosts, to
-              enable remote access, start CED with option -trust <hostname>. 
+              enable remote access, start CED with option --trust <hostname>. 
 
             * Example: To allow remote access from host xyz: 
-                   glced -trust xyz
+                   glced --trust xyz
 
         - Use user defined port:
             * To start ced several times on the same host, it is necessary 
