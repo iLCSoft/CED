@@ -93,7 +93,7 @@ static ced_event ceve = {0,0}; // current event on screen
 unsigned ced_register_element(unsigned item_size,ced_draw_cb draw_func){
   ced_element *pe;
   if(!(eve.e_count&0xf))
-    eve.e=realloc(eve.e,(eve.e_count+0x10)*sizeof(ced_element));
+    eve.e=(ced_element *) realloc(eve.e,(eve.e_count+0x10)*sizeof(ced_element));
   pe=eve.e+eve.e_count;
   memset(pe,0,sizeof(*pe));
   pe->size=item_size;
@@ -110,14 +110,14 @@ static void ced_reset(void){
 static void ced_buf_alloc(ced_element *pe,unsigned count){
   //if(!pe->b){
   if(!pe->b){
-    pe->b=malloc(count*pe->size+HDR_SIZE);
+    pe->b=(unsigned char *) malloc(count*pe->size+HDR_SIZE);
     //printf("malloc: ask for NEW %lu bytes pointer: %p\n ", count*pe->size+HDR_SIZE, pe->b); //hauke
     if(pe->b==NULL){ //hauke
         printf("ERROR: malloc failed!\n");
         exit(1);
     }
   }else{
-    pe->b=realloc(pe->b-HDR_SIZE,count*pe->size+HDR_SIZE);
+    pe->b=(unsigned char *) realloc(pe->b-HDR_SIZE,count*pe->size+HDR_SIZE);
     //printf("malloc: ask for %lu bytes, pointer: %p\n", count*pe->size+HDR_SIZE,pe->b);//hauke
     if(pe->b==NULL){ //hauke
         printf("ERROR: malloc failed!\n");
@@ -144,7 +144,7 @@ static void ced_event_copy(ced_event *trg){
   unsigned i;
   ced_element *pe;
   if(trg->e_count<eve.e_count)
-    trg->e=realloc(trg->e,eve.e_count*sizeof(ced_element));
+    trg->e=(ced_element*) realloc(trg->e,eve.e_count*sizeof(ced_element));
   for(i=0;i<eve.e_count;i++){
     pe=trg->e+i;
     if(i<trg->e_count){
@@ -186,7 +186,7 @@ int ced_process_input(void *data){
     unsigned size;
     unsigned type;
     unsigned char b[4];
-  } *hdr = data;
+  } *hdr = (_phdr*) data;
   unsigned count;
   ced_element *pe;
   

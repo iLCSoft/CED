@@ -1754,7 +1754,7 @@ int buildMenuPopup(void){ //hauke
 
 
 #ifndef __APPLE__
-  glutMouseWheelFunc(mouseWheel); //dont works under mac os!
+  //glutMouseWheelFunc(mouseWheel); //dont works under mac os!
 #endif
 
 

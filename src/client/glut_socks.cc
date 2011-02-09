@@ -71,7 +71,7 @@ static void tcp_server_read(struct __glutSocketList *list){
   int size,need_size=0;
 
   if(buf_size<8){
-    buf=realloc(buf,8);
+    buf=(unsigned char *)(realloc(buf,8));
     buf_size=8;
   }
   if((size=read(list->fd,buf,8))){
@@ -80,7 +80,7 @@ static void tcp_server_read(struct __glutSocketList *list){
     if((need_size >=8)) { //&& (need_size<1000000000)){
       if(need_size>8){
 	if((unsigned)need_size>buf_size){
-	  buf=realloc(buf,need_size);
+	  buf=(unsigned char *) realloc(buf,need_size);
 	  buf_size=need_size;
 	}
 	got_sum=8;
@@ -149,7 +149,7 @@ static void tcp_server_accept(struct __glutSocketList *list){
     return;
   }
 
-  nl=malloc(sizeof(*nl));
+  nl=(tcp_srv_sock *) malloc(sizeof(*nl));
   nl->list.fd=fd;
   nl->list.read_func=tcp_server_read;
   nl->user_func=((tcp_srv_sock *)list)->user_func;
@@ -191,7 +191,7 @@ int glut_tcp_server(unsigned short port,
     close(fd);
     return -1;
   }
-  list=malloc(sizeof(*list));
+  list=(tcp_srv_sock*) malloc(sizeof(*list));
   list->list.fd=fd;
   list->list.read_func=tcp_server_accept;
   list->user_func=user_func;

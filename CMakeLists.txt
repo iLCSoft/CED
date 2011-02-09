@@ -6,7 +6,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6 FATAL_ERROR)
 
 
 # project name
-PROJECT( CED C )
+PROJECT( CED )
 
 # project version
 SET( ${PROJECT_NAME}_VERSION_MAJOR 1 )
@@ -68,7 +68,7 @@ MARK_AS_ADVANCED( c_math_lib )
 
 
 # --------- CED SERVER (GLCED) ----------------------
-OPTION( CED_SERVER "Set to ON to build the glced server" OFF )
+OPTION( CED_SERVER "Set to ON to build the glced server" ON )
 IF( CED_SERVER )
 
     IF( NOT GLUT_FOUND OR NOT OPENGL_FOUND )
@@ -92,12 +92,12 @@ ENDIF( CED_SERVER )
 
 
 # ------------------ CED TESTS ------------------
-FOREACH( _testname test_ced test_ced_mhits )
-    ADD_EXECUTABLE( ${_testname} ./src/tests/${_testname}.c )
-    TARGET_LINK_LIBRARIES( ${_testname} CED )
-
-    INSTALL( TARGETS ${_testname} DESTINATION bin )
-ENDFOREACH()
+#FOREACH( _testname test_ced test_ced_mhits )
+#    ADD_EXECUTABLE( ${_testname} ./src/tests/${_testname}.cc )
+#    TARGET_LINK_LIBRARIES( ${_testname} CED )
+#
+#    INSTALL( TARGETS ${_testname} DESTINATION bin )
+#ENDFOREACH()
 
 
 
