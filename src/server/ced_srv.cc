@@ -2,6 +2,7 @@
  * Server side elements definitions.
  *
  * Alexey Zhelezov, DESY/ITEP, 2005 */
+#include<iostream>
 
 #ifdef __APPLE__
 #include <OpenGL/gl.h>
@@ -29,6 +30,7 @@
 //hauke
 //#include "glced.h"
 int graphic[3];
+double cut_angle;
 
 #include <ced.h>
 #define PORT        0x1234
@@ -99,10 +101,14 @@ inline float single_fisheye_transform(float c, const double scale_factor) {
 /* Draw a Cylinder
 */
 void drawPartialCylinder(double length, double R /*radius*/, double iR /*inner radius*/, int edges, double angle_cut_off){
-#define PI 3.141
+#define PI 3.14159265358979323846f 
     double phi=360.0/edges;
     int i,j;
     double x;
+
+    //if(edges == 16){
+    //    printf("phi (%f) *edges: %f cut_off %f \n", phi, phi*edges, angle_cut_off );
+    //}
     glPushMatrix();
 
     
@@ -118,8 +124,8 @@ void drawPartialCylinder(double length, double R /*radius*/, double iR /*inner r
         glVertex2d(0,iR);
 
         for(i=0;i<edges+1;i++){
-            phi=360/edges*i;
-            if(360-phi <= angle_cut_off){
+            phi=360.0/edges*i;
+            if(360.0-phi <= angle_cut_off){
                 x = cos(2*PI/edges/2)/cos((360- (phi-360/edges/2)-angle_cut_off)*2*PI/360);
                 glVertex2d(R*x*sin((360-angle_cut_off)*2*PI/360), R*x*cos((360-angle_cut_off)*2*PI/360));
 
@@ -140,7 +146,7 @@ void drawPartialCylinder(double length, double R /*radius*/, double iR /*inner r
     }
    glTranslatef(0, 0, -length/2);
     //close 2 to cuts, if cutting
-    if(angle_cut_off > 0){
+    if(angle_cut_off > 0.0){
         glBegin(GL_QUADS);
         glVertex3d(R*x*sin((360-angle_cut_off)*2*PI/360), R*x*cos((360-angle_cut_off)*2*PI/360), -length/2);
         glVertex3d(R*x*sin((360-angle_cut_off)*2*PI/360), R*x*cos((360-angle_cut_off)*2*PI/360), length/2);
@@ -149,7 +155,7 @@ void drawPartialCylinder(double length, double R /*radius*/, double iR /*inner r
         glEnd();
 
         glBegin(GL_QUADS);
-        phi=0;
+        phi=0.0;
         glVertex3d(R*sin(phi*2*PI/360), R*cos(phi*2*PI/360), -length/2);
         glVertex3d(R*sin(phi*2*PI/360), R*cos(phi*2*PI/360), length/2);
         glVertex3d(iR*sin(phi*2*PI/360), iR*cos(phi*2*PI/360), length/2);
@@ -158,10 +164,10 @@ void drawPartialCylinder(double length, double R /*radius*/, double iR /*inner r
     }
     //draw the cylinder
     for(i=1;i<edges+1;i++){
-        phi=360/edges*i;
-        double phi2=360/edges*(i-1);
+        phi=360.0/edges*i;
+        double phi2=360.0/edges*(i-1);
 
-        if(360-phi <= angle_cut_off){
+        if(360.0-phi <= angle_cut_off){
             double x = cos(2*PI/edges/2)/cos((360- (phi-360/edges/2)-angle_cut_off)*2*PI/360);
 
             //outer
@@ -628,23 +634,36 @@ static void ced_draw_geocylinder(CED_GeoCylinder *c){
     
       //gluQuadricNormals(q1, GLU_SMOOTH);
       //gluQuadricTexture(q1, GL_TRUE);
-      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+      //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
       glMatrixMode(GL_MODELVIEW);
-      glEnable(GL_BLEND);
-      glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+      //glEnable(GL_BLEND);
+      //glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
       //glDisable(GL_DEPTH_TEST);
       glColor4f((c->color>>16)&0xff,(c->color>>8)&0xff,(c->color)&0xff, 0.5);
-    //end new
-      //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+//const GLfloat color[]={(c->color>>16)&0xff,(c->color>>8)&0xff,(c->color)&0xff, 0.2};
+      //glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, color);
+
+      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     
 
     //drawPartialCylinder(double length, double R /*radius*/, double iR /*inner radius*/, int edges, double angle_cut_off){
 
-      drawPartialCylinder(z*2,d,d/5,c->sides,90);
+     //glTranslatef(0.0, 0.0, transformed_shift);
+
+      if(cut_angle < 360){
+            drawPartialCylinder(z*2, d, d-100, c->sides, cut_angle);
+      }
+
+
+      //drawPartialCylinder(z*2,d,d/5,c->sides,90);
+
+      //std::cout << "drawPartialCylinder: offset: " << transformed_shift  << "outer radius: " << d << " inner radius: " << d-(d/20) << " (sides: " << c->sides << " length: " << z*2 << "  )" << std::endl;
+
       //gluCylinder(q1, d, d, z*2, c->sides, 1);
   }else{ 
-    if(c->rotate > 0.01 )  //not working...
+    if(c->rotate > 0.01 )  //???
         glRotatef(c->rotate, 0, 0, 1);
 
     gluCylinder(q1, d, d, z*2, c->sides, 1);
@@ -748,7 +767,7 @@ static void ced_draw_ellipsoid_r(CED_EllipsoidR * eli )  {
   	/**Draw the sphere */
 	gluSphere(Sphere, 1.0, slices, stacks);
 
-    glDisable(GL_BLEND);
+    //glDisable(GL_BLEND); //hauke test
     glPopMatrix();
   	glEndList();	
 }
@@ -887,7 +906,7 @@ static void ced_draw_cluellipse_r(CED_CluEllipseR * eli )  {
 	 
 
 	/** End commands */
-    glDisable(GL_BLEND);
+    //glDisable(GL_BLEND); //hauke test
     glPopMatrix();
   	glEndList();	
 }
@@ -1305,7 +1324,7 @@ static void ced_draw_cone_r(CED_ConeR * cone )  {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glColor4f(cone->RGBAcolor[0], cone->RGBAcolor[1], cone->RGBAcolor[2], cone->RGBAcolor[3]);
 	glutSolidCone(base, height, slices, stacks);
-	glDisable(GL_BLEND);
+	//glDisable(GL_BLEND); //hauke test
 	
 	glEnd();
 	glPopMatrix();

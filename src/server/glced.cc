@@ -55,6 +55,13 @@
 #define GRAFIC_TRANS            2004
 #define GRAFIC_LIGHT            2005
 
+#define CUT_ANGLE0              2100
+#define CUT_ANGLE30             2101
+#define CUT_ANGLE90             2102
+#define CUT_ANGLE180            2103
+#define CUT_ANGLE270            2104
+#define CUT_ANGLE360            2105
+
 
 #define BGCOLOR_WHITE           1000
 #define BGCOLOR_SILVER          1001
@@ -109,6 +116,7 @@
 #define HELP            100
 
 extern int graphic[];  //= {0,0,0}; //light, transparence, perspective
+extern double cut_angle;
 
 int ced_picking(int x,int y,GLfloat *wx,GLfloat *wy,GLfloat *wz); //from ced_srv.c, need header files!
 
@@ -198,6 +206,7 @@ extern unsigned ced_visible_layers;
 static struct _geoCylinder {
   GLuint obj;
   GLfloat d;       // radius
+  GLfloat ir;      // inner radius
   GLuint  sides;   // poligon order
   GLfloat rotate;  // angle degree
   GLfloat z;       // 1/2 length
@@ -205,7 +214,19 @@ static struct _geoCylinder {
   GLfloat r;       // R 
   GLfloat g;       // G  color
   GLfloat b;       // B
-} geoCylinder[] = {
+} /*geoCylinder[] = { //hauke test, with inner radius (NOT THE REAL INNER RADIUS!!!)
+  { 0,   50.0,  49.0,   6,  0.0, 5658.5, -5658.5, 0.0, 0.0, 1.0 }, // beam tube
+  { 0,  380.0,  51.0,  24,  0.0, 2658.5, -2658.5, 0.0, 0.0, 1.0 }, // inner TPC
+  { 0, 1840.0, 381.0,   8, 22.5, 2700.0, -2700.0, 0.5, 0.5, 0.1 }, // inner ECAL
+  { 0, 3000.0, 2046.0, 16,  0.0, 2658.5, -2658.5, 0.0, 0.8, 0.0 }, // outer HCAL
+  { 0, 2045.7,1841.0,   8, 22.5, 2700.0, -2700.0, 0.5, 0.5, 0.1 }, // outer ECAL
+  { 0, 3000.0,  51,     8, 22.5, 702.25,  2826.0, 0.0, 0.8, 0.0 }, // endcap HCAL
+  { 0, 2045.7,  51,     8, 22.5, 101.00,  2820.0, 0.5, 0.5, 0.1 }, // endcap ECAL
+  { 0, 3000.0,  51,     8, 22.5, 702.25, -4230.5, 0.0, 0.8, 0.0 }, // endcap HCAL
+  { 0, 2045.7,  51,     8, 22.5, 101.00, -3022.0, 0.5, 0.5, 0.1 }, // endcap ECAL
+
+*/
+geoCylinder[] = {
   { 0,   50.0,  6,  0.0, 5658.5, -5658.5, 0.0, 0.0, 1.0 }, // beam tube
   { 0,  380.0, 24,  0.0, 2658.5, -2658.5, 0.0, 0.0, 1.0 }, // inner TPC
   { 0, 1840.0,  8, 22.5, 2700.0, -2700.0, 0.5, 0.5, 0.1 }, // inner ECAL
@@ -215,7 +236,7 @@ static struct _geoCylinder {
   { 0, 2045.7,  8, 22.5, 101.00,  2820.0, 0.5, 0.5, 0.1 }, // endcap ECAL
   { 0, 3000.0,  8, 22.5, 702.25, -4230.5, 0.0, 0.8, 0.0 }, // endcap HCAL
   { 0, 2045.7,  8, 22.5, 101.00, -3022.0, 0.5, 0.5, 0.1 }, // endcap ECAL
-
+ //original detector
 };
 
 static GLuint makeCylinder(struct _geoCylinder *c){
@@ -248,40 +269,35 @@ static void makeGeometry(void) {
 
 static void init(void){
 
-  //Set background color
-  //FIXME: make this a parameter (probably in MarlinCED?)
-  //glClearColor(0.0,0.2,0.4,0.0);//Dark blue
-  //glClearColor(1.0,1.0,1.0,0.0);//White
-  //glClearColor(0.0,0.0,0.0,0.0);//Black
+    //Set background color
+    glClearColor(BG_COLOR[0],BG_COLOR[1], BG_COLOR[2], BG_COLOR[3]);
 
-  glClearColor(BG_COLOR[0],BG_COLOR[1], BG_COLOR[2], BG_COLOR[3]);
+    //glShadeModel(GL_FLAT);
+    glShadeModel(GL_SMOOTH);
 
-  // calice
-  //glClearColor(bgColors[0][0],bgColors[0][1],bgColors[0][2],bgColors[0][3]); //original setting (light blue)
+    glClearDepth(1);
 
-  glShadeModel(GL_FLAT);
+    glEnable(GL_DEPTH_TEST); //activate 'depth-test'
+    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //clear buffers
 
-  glClearDepth(1);
+    //glDepthFunc(GL_LESS);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-  glEnable(GL_DEPTH_TEST); //activate 'depth-test'
-  glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //clear buffers
 
-  glDepthFunc(GL_LESS);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    // GL_NORMAL_ARRAY GL_COLOR_ARRAY GL_TEXTURE_COORD_ARRAY,GL_EDGE_FLAG_ARRAY
 
-  glEnableClientState(GL_VERTEX_ARRAY);
-  // GL_NORMAL_ARRAY GL_COLOR_ARRAY GL_TEXTURE_COORD_ARRAY,GL_EDGE_FLAG_ARRAY
+    // to make round points
+    //glEnable(GL_POINT_SMOOTH);
 
-  // to make round points
-  glEnable(GL_POINT_SMOOTH);
+    // to put text
+    glPixelStorei(GL_UNPACK_ALIGNMENT,1);
 
-  // to put text
-  glPixelStorei(GL_UNPACK_ALIGNMENT,1);
+    // To enable Alpha channel (expensive !!!)
+    //glEnable(GL_BLEND);
+    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-  // To enable Alpha channel (expensive !!!)
-  //glEnable(GL_BLEND);
-  //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-  makeGeometry();
+    makeGeometry();
 }
 
 typedef struct {
@@ -422,14 +438,18 @@ static void display(void){
 
   glPushMatrix();
 
+
   glRotatef(mm.va,1.,0.,0.);
   glRotatef(mm.ha,0.,1.0,0.);
   glScalef(mm.sf,mm.sf,mm.sf);
   glTranslatef(-mm.mv.x,-mm.mv.y,-mm.mv.z);
-  // draw static objects
-  display_world();
 
-  // draw elements
+    //glMatrixMode(GL_MODELVIEW); //
+
+  // draw static objects
+  display_world(); //only axes?
+
+  // draw elements (hits + detector)
   ced_prepare_objmap();
   ced_do_draw_event();
 
@@ -443,15 +463,49 @@ static void reshape(int w,int h){
   window_width=w;
   window_height=h;
 
+
+  if(graphic[2] == 0){
+
   glViewport(0,0,w,h);
+ 
 
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
+
+
   glOrtho(-WORLD_SIZE*w/h,WORLD_SIZE*w/h,-WORLD_SIZE,WORLD_SIZE,
 	  -15*WORLD_SIZE,15*WORLD_SIZE);
+
   glMatrixMode(GL_MODELVIEW);
-  // glMatrixMode(GL_PROJECTION);
   glLoadIdentity(); 
+  } else{
+  glViewport(0,0,w,h);
+
+                glMatrixMode( GL_PROJECTION );
+                glLoadIdentity();
+                gluPerspective(60,window_width/window_height,100,10000);
+                glMatrixMode( GL_MODELVIEW );
+
+                glLoadIdentity();
+    
+                //glClearDepth(1.0);                  
+                //glEnable(GL_DEPTH_TEST);            
+                //glDepthFunc(GL_LEQUAL);             
+                //glDepthFunc(GL_LESS);             
+
+  
+                //glDepthMask(GL_TRUE);
+
+               // //glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); 
+               // //glBlendFunc(GL_DST_COLOR, GL_SRC_COLOR);
+  //glBlendFunc(GL_ONE, GL_ZERO);
+  //glEnable(GL_BLEND);
+    
+  
+               gluLookAt  (0,0,2000,    0,0,0,    0,1,0);
+
+  }
+
 
   //hauke
   if(showHelp == 1){
@@ -474,10 +528,16 @@ static void mouse(int btn,int state,int x,int y){
 
   struct __glutSocketList *sock;
 
-#ifdef __APPLE__
+//#ifdef __APPLE__
 //hauke
   int mouseWheelDown=9999;
   int mouseWheelUp=9999;
+
+#ifdef GLUT_WHEEL_UP
+mouseWheelDown = GLUT_WHEEL_DOWN;
+mouseWheelUp = GLUT_WHEEL_UP;
+#else
+
   if(glutDeviceGet(GLUT_HAS_MOUSE)){
     //printf("Your mouse have %i buttons\n", glutDeviceGet(GLUT_NUM_MOUSE_BUTTONS)); 
     
@@ -485,16 +545,7 @@ static void mouse(int btn,int state,int x,int y){
     mouseWheelUp=glutDeviceGet(GLUT_NUM_MOUSE_BUTTONS);
     
   }
-//end hauke
 #endif
-
-//#ifndef GLUT_WHEEL_UP
-//#define GLUT_WHEEL_UP   3
-//#define GLUT_WHEEL_DOWN 4
-//#endif
-
-
-
 
   if(state!=GLUT_DOWN){
     move_mode=NO_MOVE;
@@ -531,20 +582,27 @@ static void mouse(int btn,int state,int x,int y){
   case GLUT_MIDDLE_BUTTON:
     move_mode=ORIGIN;
     return;
-  //case GLUT_WHEEL_UP:
-  //  mm.mv.z+=150./mm.sf;
-  //  glutPostRedisplay();
-  //  return;
-  //case GLUT_WHEEL_DOWN:
-  //  mm.mv.z-=150./mm.sf;
-  //  glutPostRedisplay();
-  //  return;
   default:
     break;
   }
 
 
 //hauke
+if (btn == mouseWheelUp){
+
+    selectFromMenu(VIEW_ZOOM_IN);
+  //  mm.mv.z+=150./mm.sf;
+  //  glutPostRedisplay();
+    return;
+}
+if (btn == mouseWheelDown){
+    selectFromMenu(VIEW_ZOOM_OUT);
+    return;
+
+  //  mm.mv.z-=150./mm.sf;
+  //  glutPostRedisplay();
+}
+
 /*
 if (btn == mouseWheelUp){
     //calice
@@ -979,6 +1037,7 @@ void subDisplay(void){
 
     glutSetWindow(subWindow);
     glClearColor(0.5, 0.5, 0.5, 100);
+
     glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     float line = 45/window_height; //height of one line
@@ -1139,7 +1198,14 @@ void toggleHelpWindow(void){ //hauke
     }else if(showHelp == 0){
         //helpWindow = glutCreateWindow("Help",);
         //printf("create help subwindow\n");
+
+        //double height=window_height/4>150?150:window_height/4;
+        //if(height<100) height=window_height;
+        //printf("height = %f\n", height);
+        //subWindow=glutCreateSubWindow(mainWindow,5,5,window_width-10,height);
+
         subWindow=glutCreateSubWindow(mainWindow,5,5,window_width-10,window_height/4);
+
         glutDisplayFunc(subDisplay);
         glutReshapeFunc(subReshape);
 
@@ -1388,6 +1454,29 @@ void selectFromMenu(int id){ //hauke
                 //    printf("layer %i description: %s\n", i, layerDescription[i]);
                 //}
                 break;
+        case CUT_ANGLE0:
+            cut_angle=0; 
+            break;
+
+        case CUT_ANGLE30:
+            cut_angle=30; 
+            break;
+        case CUT_ANGLE90:
+             cut_angle=90;
+             break;
+
+        case CUT_ANGLE180:
+             cut_angle=180;
+             break;
+
+        case CUT_ANGLE270:
+             cut_angle=270;
+             break;
+
+        case CUT_ANGLE360:
+             cut_angle=360;
+             break;
+
 
         case GRAFIC_HIGH:
             graphic[0] = 0; //todo: little bit dirty, make it better
@@ -1443,7 +1532,7 @@ void selectFromMenu(int id){ //hauke
                  //glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
                  //glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
 
-                 //   glColorMaterial ( GL_FRONT_AND_BACK, GL_EMISSION ) ;
+                 glColorMaterial ( GL_FRONT_AND_BACK, GL_EMISSION ) ;
                  glColorMaterial (GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE) ;
                  glEnable (GL_COLOR_MATERIAL) ;
 
@@ -1458,9 +1547,8 @@ void selectFromMenu(int id){ //hauke
         case GRAFIC_PERSP:
             if(graphic[2] == 1){
                 printf("Perspective is now flat\n");
-                //dont work yet...
                 graphic[2] = 0;
-                reshape(window_width, window_height);
+                reshape(window_width, window_height); //hack, call resize function to overwrite perspectivic settings
 /*
                 //gluLookAt(0,0,2000,    0,0,0,    0,1,0);
 
@@ -1504,22 +1592,33 @@ void selectFromMenu(int id){ //hauke
     */
                 //gluLookAt(0,0,1000,  0,0,100,    0,1,0);
     
-    
+               
+
+
+       //glDepthMask(GL_FALSE); 
+
                 glMatrixMode( GL_PROJECTION );
                 glLoadIdentity();
-    
-                gluPerspective(60,1,1,100000);
-    
-    
+                gluPerspective(60,window_width/window_height,100,10000);
                 glMatrixMode( GL_MODELVIEW );
-                glLoadIdentity();
+
+                //glLoadIdentity();
     
-                //glClearDepth(1.0);                  // Depth Buffer Setup
-                //glEnable(GL_DEPTH_TEST);            // Enables Depth Testing
-                //glDepthFunc(GL_LEQUAL);             // The Type Of Depth Test To Do
+                glClearDepth(1.0);                  
+                glEnable(GL_DEPTH_TEST);            
+                //glDepthFunc(GL_LEQUAL);             
+glDepthFunc(GL_LESS);             
+
+  
+       //glDepthMask(GL_TRUE);
+
+  //glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); 
+  //glBlendFunc(GL_DST_COLOR, GL_SRC_COLOR);
+  glBlendFunc(GL_ONE, GL_ZERO);
+  glEnable(GL_BLEND);
     
-    
-               gluLookAt(0,0,2000,    0,0,0,    0,1,0);
+  
+               gluLookAt  (0,0,2000,    0,0,0,    0,1,0);
             }
             break;
         case HELP:
@@ -1538,6 +1637,8 @@ int buildMenuPopup(void){ //hauke
     int subMenu3;
     int subMenu4;
     int subsubMenu1;
+    int subsubMenu2;
+
 
 
     subMenu1 = glutCreateMenu(selectFromMenu);
@@ -1599,15 +1700,29 @@ int buildMenuPopup(void){ //hauke
 
     subsubMenu1 = glutCreateMenu(selectFromMenu);
     glutAddMenuEntry("Perspective",GRAFIC_PERSP);
-    glutAddMenuEntry("Deepbuffer", GRAFIC_BUFFER);
+    //glutAddMenuEntry("Deepbuffer", GRAFIC_BUFFER);
     glutAddMenuEntry("Transparency", GRAFIC_TRANS);
     glutAddMenuEntry("Light", GRAFIC_LIGHT);
 
+    subsubMenu2 = glutCreateMenu(selectFromMenu);
+    glutAddMenuEntry("0",  CUT_ANGLE0);
+    glutAddMenuEntry("30", CUT_ANGLE30);
+    glutAddMenuEntry("90", CUT_ANGLE90);
+    glutAddMenuEntry("180", CUT_ANGLE180);
+    glutAddMenuEntry("270", CUT_ANGLE270);
+    glutAddMenuEntry("360", CUT_ANGLE360);
+
+
+
+
+
 
     subMenu4 = glutCreateMenu(selectFromMenu);
-    glutAddMenuEntry("Performance",GRAFIC_LOW);
-    glutAddMenuEntry("Quality", GRAFIC_HIGH);
-    glutAddSubMenu("Details", subsubMenu1);
+    glutAddMenuEntry("Classic View",GRAFIC_LOW);
+    glutAddMenuEntry("New View", GRAFIC_HIGH);
+    glutAddSubMenu("Graphic details", subsubMenu1);
+    glutAddSubMenu("Cut angle", subsubMenu2);
+
 
 
 
@@ -1626,6 +1741,11 @@ int buildMenuPopup(void){ //hauke
   WORLD_SIZE = DEFAULT_WORLD_SIZE ;
   //set_bg_color(0.0,0.0,0.0,0.0); //set to default (black)
   set_bg_color(bgColors[0][0],bgColors[0][1],bgColors[0][2],bgColors[0][3]); //set to default (light blue [0.0, 0.2, 0.4, 0.0])
+
+  graphic[1]=1; //transp
+  graphic[2]=1; //persp
+  cut_angle=0;
+
 
   char hex[]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
   int tmp[6];
@@ -1736,6 +1856,19 @@ int buildMenuPopup(void){ //hauke
 
   glutInit(&argc,argv);
   glutInitDisplayMode(GLUT_DOUBLE|GLUT_RGB|GLUT_DEPTH|GLUT_ALPHA);
+       //glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+
+  glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glHint (GL_LINE_SMOOTH_HINT, GL_DONT_CARE);
+
+      glEnable (GL_LINE_SMOOTH);
+
+
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+   glShadeModel(GL_SMOOTH);
+
  //glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
 /*   glutInitWindowSize(600,600); // change to smaller window size */
 /*   glutInitWindowPosition(500,0); */

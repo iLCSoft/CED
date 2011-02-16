@@ -125,6 +125,9 @@ typedef struct {
   float z;       // 1/2 length
   float shift;   // in z
   unsigned color;
+  
+
+  //float ir;     //inner radius (hauke)
 } CED_GeoCylinder;
 
 void ced_geocylinder(float d,unsigned sides,float rotate,float z,float shift,

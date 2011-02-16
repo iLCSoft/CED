@@ -165,10 +165,14 @@ static void ced_event_copy(ced_event *trg){
 }
 
 void ced_do_draw_event(void){
-  unsigned i,j;
+  int i,j;
   ced_element *pe;
   unsigned char *pdata;
-  for(i=0;i<ceve.e_count;i++){
+  //for(i=0;i<ceve.e_count;i++){
+    //printf("ceve.e_count: %i\n", ceve.e_count);
+    for(i=ceve.e_count-1; i >=0;i--){ //quick hack, change order so that the detector is drawn at last
+    //printf("i = %i\n", i);
+
     pe=ceve.e+i;
     if(!pe->draw)
       continue;
