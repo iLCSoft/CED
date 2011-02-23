@@ -154,6 +154,20 @@ void ced_geocylinders(unsigned n,CED_GeoCylinder *all){
   }
 }
 
+static unsigned GEOT_ID=0;
+
+void ced_geotubes(unsigned n,CED_GeoTube *all){
+  CED_GeoTube *c;
+  unsigned i;
+  for(i=0;i<n;i++){
+    c=(CED_GeoTube *)ced_add(GEOT_ID);
+    if(!c)
+      return;
+    memcpy(c,all+i,sizeof(CED_GeoTube));
+  }
+}
+
+
 static unsigned GEOB_ID=0;
 
 void ced_geobox(double * sizes, double * center, unsigned int color ) {
@@ -410,15 +424,16 @@ void ced_cluellipse_r_ID(float radius, float height, float *center, double *rota
 
 void ced_register_elements(void){
   GEOC_ID		=ced_register_element(sizeof(CED_GeoCylinder),0);
-  GEOCR_ID	=ced_register_element(sizeof(CED_GeoCylinderR), 0);
+  GEOT_ID       =ced_register_element(sizeof(CED_GeoTube),0);
+  GEOCR_ID	    =ced_register_element(sizeof(CED_GeoCylinderR), 0);
   LINE_ID		=ced_register_element(sizeof(CED_Line),0);
   HIT_ID		=ced_register_element(sizeof(CED_Hit),0);
   GEOB_ID		=ced_register_element(sizeof(CED_GeoBox), 0);
-  GEOBR_ID	=ced_register_element(sizeof(CED_GeoBoxR), 0);
-  GEOBRS_ID	=ced_register_element(sizeof(CED_GeoBoxR), 0);
-  CONER_ID	=ced_register_element(sizeof(CED_ConeR), 0);
+  GEOBR_ID	    =ced_register_element(sizeof(CED_GeoBoxR), 0);
+  GEOBRS_ID	    =ced_register_element(sizeof(CED_GeoBoxR), 0);
+  CONER_ID	    =ced_register_element(sizeof(CED_ConeR), 0);
   ELLIPSOID_ID	=ced_register_element(sizeof(CED_EllipsoidR), 0);
   CLUELLIPSE_ID =ced_register_element(sizeof(CED_CluEllipseR), 0);
   TEXT_ID       =ced_register_element(sizeof(CED_TEXT),0); //hauke: the order of this items is important
-  LEGEND_ID	=ced_register_element(sizeof(CED_Legend), 0);
+  LEGEND_ID	    =ced_register_element(sizeof(CED_Legend), 0);
 }

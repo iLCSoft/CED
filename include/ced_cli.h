@@ -5,9 +5,9 @@
 #ifndef __CED_CLI_H
 #define __CED_CLI_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+//#ifdef __cplusplus
+//extern "C" {
+//#endif
 
 /*
  * This is the first function to call (before any other).
@@ -125,10 +125,24 @@ typedef struct {
   float z;       // 1/2 length
   float shift;   // in z
   unsigned color;
-  
-
-  //float ir;     //inner radius (hauke)
 } CED_GeoCylinder;
+
+/*
+ * GeoTube
+ */
+typedef struct {
+  float r_o;           // outer radius
+  float r_i;           // inner radius
+  unsigned  edges_o;   // edges outer
+  unsigned  edges_i;   // edges inner
+  float rotate;        // angle degree
+  float z;             // 1/2 length
+  float shift;         // shift in z
+  unsigned color;      // color
+} CED_GeoTube;
+
+void ced_geotubes(unsigned n,CED_GeoTube *all);
+
 
 void ced_geocylinder(float d,unsigned sides,float rotate,float z,float shift,
 		     unsigned color);
@@ -300,9 +314,9 @@ void ced_cluellipse_r(float radius, float height, float *center, double *rotate,
 void ced_cluellipse_r_ID(float radius, float height, float *center, double *rotate, unsigned int layer, int color, int lcioid); //hauke
 
 
-#ifdef __cplusplus
- }
-#endif
+//#ifdef __cplusplus
+// }
+//#endif
 	
 
 #endif /* __CED_CLI_H */

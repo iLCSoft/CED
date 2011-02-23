@@ -11,9 +11,9 @@
 #ifndef __CED_H
 #define __CED_H
 
-#ifdef __cplusplus
- extern "C" {
-#endif
+//#ifdef __cplusplus
+// extern "C" {
+//#endif
 		
 
 //char trusted_hosts[50];
@@ -88,9 +88,9 @@ int buildMenuPopup(void);//glced.c
 
 //-------------
 
-#ifdef __cplusplus
- }
-#endif
+//#ifdef __cplusplus
+// }
+//#endif
 
 	 
 

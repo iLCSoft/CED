@@ -596,9 +596,18 @@ static void ced_draw_line(CED_Line *h){
 
 }
 
+
+
+static unsigned GEOT_ID=0;
+
+static void ced_draw_geotube(CED_GeoCylinder *c){
+    printf("ced_draw_geotube\n");
+}
+
 /*
  * GeoCylinder
  */
+
 static unsigned GEOC_ID=0;
 
 static void ced_draw_geocylinder(CED_GeoCylinder *c){
@@ -1464,17 +1473,19 @@ static void ced_draw_geobox_r_solid(CED_GeoBoxR * box )  {
 void ced_register_elements(void){
 
 
-  GEOC_ID  =ced_register_element(sizeof(CED_GeoCylinder),(ced_draw_cb)ced_draw_geocylinder);
-  GEOCR_ID  =ced_register_element(sizeof(CED_GeoCylinderR),(ced_draw_cb)ced_draw_geocylinder_r);
-  LINE_ID  =ced_register_element(sizeof(CED_Line),(ced_draw_cb)ced_draw_line);
-  HIT_ID   =ced_register_element(sizeof(CED_Hit),(ced_draw_cb)ced_draw_hit);
-  GEOB_ID  =ced_register_element(sizeof(CED_GeoBox),(ced_draw_cb)ced_draw_geobox);
-  GEOBR_ID  =ced_register_element(sizeof(CED_GeoBoxR),(ced_draw_cb)ced_draw_geobox_r);
-  GEOBRS_ID  =ced_register_element(sizeof(CED_GeoBoxR),(ced_draw_cb)ced_draw_geobox_r_solid);
-  CONER_ID  =ced_register_element(sizeof(CED_ConeR),(ced_draw_cb)ced_draw_cone_r);
-  ELLIPSOID_ID = ced_register_element(sizeof(CED_EllipsoidR),(ced_draw_cb)ced_draw_ellipsoid_r);
-  CLUELLIPSE_ID = ced_register_element(sizeof(CED_CluEllipseR),(ced_draw_cb)ced_draw_cluellipse_r);
-  TEXT_ID   =ced_register_element(sizeof(CED_TEXT),(ced_draw_cb)print_layer_text); //hauke
+  GEOC_ID       =ced_register_element(sizeof(CED_GeoCylinder),(ced_draw_cb)ced_draw_geocylinder);
+  GEOT_ID       =ced_register_element(sizeof(CED_GeoTube),(ced_draw_cb)ced_draw_geotube);
+
+  GEOCR_ID      =ced_register_element(sizeof(CED_GeoCylinderR),(ced_draw_cb)ced_draw_geocylinder_r);
+  LINE_ID       =ced_register_element(sizeof(CED_Line),(ced_draw_cb)ced_draw_line);
+  HIT_ID        =ced_register_element(sizeof(CED_Hit),(ced_draw_cb)ced_draw_hit);
+  GEOB_ID       =ced_register_element(sizeof(CED_GeoBox),(ced_draw_cb)ced_draw_geobox);
+  GEOBR_ID      =ced_register_element(sizeof(CED_GeoBoxR),(ced_draw_cb)ced_draw_geobox_r);
+  GEOBRS_ID     =ced_register_element(sizeof(CED_GeoBoxR),(ced_draw_cb)ced_draw_geobox_r_solid);
+  CONER_ID      =ced_register_element(sizeof(CED_ConeR),(ced_draw_cb)ced_draw_cone_r);
+  ELLIPSOID_ID  =ced_register_element(sizeof(CED_EllipsoidR),(ced_draw_cb)ced_draw_ellipsoid_r);
+  CLUELLIPSE_ID =ced_register_element(sizeof(CED_CluEllipseR),(ced_draw_cb)ced_draw_cluellipse_r);
+  TEXT_ID       =ced_register_element(sizeof(CED_TEXT),(ced_draw_cb)print_layer_text); //hauke
 
   /** due to an issue w/ drawing the legend (in 2D) this has to come last ! */
   LEGEND_ID  =ced_register_element(sizeof(CED_Legend),(ced_draw_cb)ced_draw_legend);
