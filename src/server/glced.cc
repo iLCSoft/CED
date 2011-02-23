@@ -281,7 +281,14 @@ static void init(void){
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //clear buffers
 
     //glDepthFunc(GL_LESS);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //default
+    //glBlendFunc(GL_DST_COLOR, GL_SRC_COLOR); //glass
+    //glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA); //locks nice, but lines diapear
+
+            //glBlendFunc(GL_ONE, GL_ZERO);
+            //glBlendFunc(GL_ONE, GL_ONE);
+           //glClearColor(0,0,0,0);
+
 
 
     glEnableClientState(GL_VERTEX_ARRAY);
@@ -466,44 +473,42 @@ static void reshape(int w,int h){
 
   if(graphic[2] == 0){
 
-  glViewport(0,0,w,h);
+        glViewport(0,0,w,h);
  
 
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
 
 
-  glOrtho(-WORLD_SIZE*w/h,WORLD_SIZE*w/h,-WORLD_SIZE,WORLD_SIZE,
-	  -15*WORLD_SIZE,15*WORLD_SIZE);
+        glOrtho(-WORLD_SIZE*w/h,WORLD_SIZE*w/h,-WORLD_SIZE,WORLD_SIZE,
+	        -15*WORLD_SIZE,15*WORLD_SIZE);
 
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity(); 
-  } else{
-  glViewport(0,0,w,h);
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity(); 
+  }else{
+        glViewport(0,0,w,h);
 
-                glMatrixMode( GL_PROJECTION );
-                glLoadIdentity();
-                gluPerspective(60,window_width/window_height,100,10000);
-                glMatrixMode( GL_MODELVIEW );
+        glMatrixMode( GL_PROJECTION );
+        glLoadIdentity();
+        gluPerspective(60,window_width/window_height,100,10000);
+        glMatrixMode( GL_MODELVIEW );
 
-                glLoadIdentity();
+        glLoadIdentity();
     
-                //glClearDepth(1.0);                  
-                //glEnable(GL_DEPTH_TEST);            
-                //glDepthFunc(GL_LEQUAL);             
-                //glDepthFunc(GL_LESS);             
+        //glClearDepth(1.0);                  
+        //glEnable(GL_DEPTH_TEST);            
+        //glDepthFunc(GL_LEQUAL);             
+        //glDepthFunc(GL_LESS);             
 
   
-                //glDepthMask(GL_TRUE);
+        //glDepthMask(GL_TRUE);
 
-               // //glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); 
-               // //glBlendFunc(GL_DST_COLOR, GL_SRC_COLOR);
-  //glBlendFunc(GL_ONE, GL_ZERO);
-  //glEnable(GL_BLEND);
+        // //glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); 
+        // //glBlendFunc(GL_DST_COLOR, GL_SRC_COLOR);
+        //glBlendFunc(GL_ONE, GL_ZERO);
+        //glEnable(GL_BLEND);
     
-  
-               gluLookAt  (0,0,2000,    0,0,0,    0,1,0);
-
+        gluLookAt  (0,0,2000,    0,0,0,    0,1,0);
   }
 
 
@@ -1517,15 +1522,17 @@ void selectFromMenu(int id){ //hauke
                 printf("Light is now on\n");
                  graphic[0] = 1;
                  //TODO: CHANGE IT
-                 GLfloat mat_specular[] = {1.0, 1.0, 1.0, 1.0};
-                 GLfloat mat_shininess[] = {50.0};
-                 GLfloat light_position[] = {1000, 1000, 0, 0};
+                 GLfloat light0_spec[] = {1, 1, 1, 1};
+                 GLfloat light0_pos[] = {0, 0, 5000};
+                 GLfloat light0_ambi[]= {0.5, 0.5, 0.5, 1};     
 
-                 GLfloat lightAmbient[]= {0.5, 0.5, 0.5, 1};     
-                 //glLightfv(GL_LIGHT0, GL_DIFFUSE, lightAmbient);
-                 glLightfv(GL_LIGHT0, GL_AMBIENT, lightAmbient);
+                 glLightfv(GL_LIGHT0, GL_DIFFUSE, light0_ambi);
+                 glLightfv(GL_LIGHT0, GL_AMBIENT, light0_ambi);
+                 glLightfv(GL_LIGHT0, GL_SPECULAR, light0_spec);
 
-                 glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+
+                 glLightfv(GL_LIGHT0, GL_POSITION, light0_pos);
+                 
                  //glClearColor (0.0, 0.0, 0.0, 0.0);
                  glShadeModel (GL_SMOOTH);
 
@@ -1576,6 +1583,8 @@ void selectFromMenu(int id){ //hauke
             }else{
                 printf("Perspective is now 3d\n");
                 graphic[2] = 1;
+                reshape(window_width, window_height); //hack, call resize function to overwrite perspectivic settings
+
 
 
                 //printf("Change Perspective\n");
@@ -1596,7 +1605,7 @@ void selectFromMenu(int id){ //hauke
 
 
        //glDepthMask(GL_FALSE); 
-
+/*
                 glMatrixMode( GL_PROJECTION );
                 glLoadIdentity();
                 gluPerspective(60,window_width/window_height,100,10000);
@@ -1607,18 +1616,19 @@ void selectFromMenu(int id){ //hauke
                 glClearDepth(1.0);                  
                 glEnable(GL_DEPTH_TEST);            
                 //glDepthFunc(GL_LEQUAL);             
-glDepthFunc(GL_LESS);             
+                glDepthFunc(GL_LESS);             
 
   
-       //glDepthMask(GL_TRUE);
+            //glDepthMask(GL_TRUE);
 
-  //glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); 
-  //glBlendFunc(GL_DST_COLOR, GL_SRC_COLOR);
-  glBlendFunc(GL_ONE, GL_ZERO);
-  glEnable(GL_BLEND);
+            //glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); 
+            //glBlendFunc(GL_DST_COLOR, GL_SRC_COLOR);
+            glBlendFunc(GL_ONE, GL_ZERO);
+            glEnable(GL_BLEND);
     
   
                gluLookAt  (0,0,2000,    0,0,0,    0,1,0);
+*/
             }
             break;
         case HELP:
@@ -1858,16 +1868,16 @@ int buildMenuPopup(void){ //hauke
   glutInitDisplayMode(GLUT_DOUBLE|GLUT_RGB|GLUT_DEPTH|GLUT_ALPHA);
        //glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 
-  glEnable(GL_DEPTH_TEST);
+    glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
+
     glHint (GL_LINE_SMOOTH_HINT, GL_DONT_CARE);
 
-      glEnable (GL_LINE_SMOOTH);
+    glEnable (GL_LINE_SMOOTH);
 
 
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-   glShadeModel(GL_SMOOTH);
+    glShadeModel(GL_SMOOTH);
 
  //glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
 /*   glutInitWindowSize(600,600); // change to smaller window size */

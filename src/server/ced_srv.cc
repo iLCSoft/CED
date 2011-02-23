@@ -105,14 +105,12 @@ void drawPartialCylinder(double length, double R /*radius*/, double iR /*inner r
     double phi=360.0/edges;
     int i,j;
     double x;
+    
 
-    //if(edges == 16){
-    //    printf("phi (%f) *edges: %f cut_off %f \n", phi, phi*edges, angle_cut_off );
-    //}
     glPushMatrix();
 
-    
     glTranslatef(0, 0, length/2);
+
     //draw the two ends
     for(j=0;j<2;j++){
         if(j==0){glTranslatef(0, 0, -length/2);}
@@ -572,8 +570,9 @@ static void ced_draw_line(CED_Line *h){
   gluQuadricTexture(Sphere, GL_TRUE);
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   glMatrixMode(GL_MODELVIEW);
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  //TODO
+  //glEnable(GL_BLEND);
+  //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glColor4f((h->color>>16)&0xff,(h->color>>8)&0xff,(h->color)&0xff, 0.1);
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
@@ -600,8 +599,58 @@ static void ced_draw_line(CED_Line *h){
 
 static unsigned GEOT_ID=0;
 
-static void ced_draw_geotube(CED_GeoCylinder *c){
-    printf("ced_draw_geotube\n");
+static void ced_draw_geotube(CED_GeoTube *c){
+    glPushMatrix();
+
+    double transformed_shift = single_fisheye_transform(c->shift, fisheye_alpha);
+
+    //SM-H: Fisheye code
+    double d_o = single_fisheye_transform(c->r_o, fisheye_alpha);
+    double d_i = single_fisheye_transform(c->r_i, fisheye_alpha);
+
+    double z0 = transformed_shift;
+    double z1 = single_fisheye_transform(c->z+c->shift, fisheye_alpha);
+    double z = z1-z0;
+
+    if(graphic[1] == 1){
+    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //default
+    //glBlendFunc(GL_DST_COLOR, GL_SRC_COLOR); //glass
+    glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA); //locks nice, but lines diapear, so switch it off after drawing
+
+        glMatrixMode(GL_MODELVIEW);
+        glColor4f((c->color>>16)&0xff,(c->color>>8)&0xff,(c->color)&0xff, 0.7);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+        if(cut_angle < 360){
+            glTranslatef(0.0, 0.0, transformed_shift);
+            if(c->rotate > 0.01 ) glRotatef(c->rotate, 0, 0, 1);
+            drawPartialCylinder(z*2, d_o, d_i, c->edges_o, cut_angle);
+        }
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //default
+
+    }else{
+        glLineWidth(1.);
+        GLUquadricObj *q1 = gluNewQuadric();
+        ced_color(c->color);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);    
+      
+        glTranslatef(0.0, 0.0, transformed_shift);
+        if(c->rotate > 0.01 ) glRotatef(c->rotate, 0, 0, 1);
+        gluQuadricNormals(q1, GL_SMOOTH);
+        gluQuadricTexture(q1, GL_TRUE);
+
+        gluCylinder(q1, d_o, d_o, z*2, c->edges_o, 1);
+        if(d_i > 0){gluCylinder(q1, d_i, d_i, z*2, c->edges_i, 1); }
+
+
+        gluDeleteQuadric(q1);
+
+
+    }
+
+
+
+    glPopMatrix();
 }
 
 /*
@@ -752,8 +801,9 @@ static void ced_draw_ellipsoid_r(CED_EllipsoidR * eli )  {
   	glRotated(eli->rotate[0], 1.0, 0.0, 0.0);
   	
    /** Quadric object */
-   	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    //TODO
+   	//glEnable(GL_BLEND);
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   	GLUquadricObj *Sphere;
   	
   	/** Obtain a new quadric */
@@ -812,7 +862,8 @@ static void ced_draw_cluellipse_r(CED_CluEllipseR * eli )  {
 	
 	/** openGL alpha blending */
 	//glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    //TODO
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	
 	
 	glBegin(GL_POLYGON);
@@ -1329,8 +1380,9 @@ static void ced_draw_cone_r(CED_ConeR * cone )  {
   	glTranslated(0.0, 0.0, -(cone->height));
 
 	/** Draw the cone */
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    //TODO
+	//glEnable(GL_BLEND);
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glColor4f(cone->RGBAcolor[0], cone->RGBAcolor[1], cone->RGBAcolor[2], cone->RGBAcolor[3]);
 	glutSolidCone(base, height, slices, stacks);
 	//glDisable(GL_BLEND); //hauke test
