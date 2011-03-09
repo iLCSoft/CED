@@ -54,10 +54,13 @@
 #define GRAFIC_BUFFER           2003
 #define GRAFIC_TRANS            2004
 #define GRAFIC_LIGHT            2005
+#define GRAFIC_ALIAS            2006
+
 
 #define CUT_ANGLE0              2100
 #define CUT_ANGLE30             2101
 #define CUT_ANGLE90             2102
+#define CUT_ANGLE135            2112
 #define CUT_ANGLE180            2103
 #define CUT_ANGLE270            2104
 #define CUT_ANGLE360            2105
@@ -115,7 +118,7 @@
 
 #define HELP            100
 
-extern int graphic[];  //= {0,0,0}; //light, transparence, perspective
+extern int graphic[];  //= {0,0,0,0}; //light, transparence, perspective, anti aliasing
 extern double cut_angle;
 
 int ced_picking(int x,int y,GLfloat *wx,GLfloat *wy,GLfloat *wz); //from ced_srv.c, need header files!
@@ -214,19 +217,7 @@ static struct _geoCylinder {
   GLfloat r;       // R 
   GLfloat g;       // G  color
   GLfloat b;       // B
-} /*geoCylinder[] = { //hauke test, with inner radius (NOT THE REAL INNER RADIUS!!!)
-  { 0,   50.0,  49.0,   6,  0.0, 5658.5, -5658.5, 0.0, 0.0, 1.0 }, // beam tube
-  { 0,  380.0,  51.0,  24,  0.0, 2658.5, -2658.5, 0.0, 0.0, 1.0 }, // inner TPC
-  { 0, 1840.0, 381.0,   8, 22.5, 2700.0, -2700.0, 0.5, 0.5, 0.1 }, // inner ECAL
-  { 0, 3000.0, 2046.0, 16,  0.0, 2658.5, -2658.5, 0.0, 0.8, 0.0 }, // outer HCAL
-  { 0, 2045.7,1841.0,   8, 22.5, 2700.0, -2700.0, 0.5, 0.5, 0.1 }, // outer ECAL
-  { 0, 3000.0,  51,     8, 22.5, 702.25,  2826.0, 0.0, 0.8, 0.0 }, // endcap HCAL
-  { 0, 2045.7,  51,     8, 22.5, 101.00,  2820.0, 0.5, 0.5, 0.1 }, // endcap ECAL
-  { 0, 3000.0,  51,     8, 22.5, 702.25, -4230.5, 0.0, 0.8, 0.0 }, // endcap HCAL
-  { 0, 2045.7,  51,     8, 22.5, 101.00, -3022.0, 0.5, 0.5, 0.1 }, // endcap ECAL
-
-*/
-geoCylinder[] = {
+} geoCylinder[] = {
   { 0,   50.0,  6,  0.0, 5658.5, -5658.5, 0.0, 0.0, 1.0 }, // beam tube
   { 0,  380.0, 24,  0.0, 2658.5, -2658.5, 0.0, 0.0, 1.0 }, // inner TPC
   { 0, 1840.0,  8, 22.5, 2700.0, -2700.0, 0.5, 0.5, 0.1 }, // inner ECAL
@@ -471,6 +462,23 @@ static void reshape(int w,int h){
   window_height=h;
 
 
+  if(graphic[3]){
+    glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+    glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
+    //glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
+    //glHint(GL_POLYGON_SMOOTH,GL_FASTEST);
+
+    glEnable(GL_POINT_SMOOTH);
+    glEnable(GL_LINE_SMOOTH);
+    //glEnable(GL_POLYGON_SMOOTH);
+    glShadeModel(GL_SMOOTH);
+
+    //glEnable(GL_BLEND);
+  }else{
+    glDisable(GL_POINT_SMOOTH);
+    glDisable(GL_LINE_SMOOTH);
+  }
+
   if(graphic[2] == 0){
 
         glViewport(0,0,w,h);
@@ -490,7 +498,11 @@ static void reshape(int w,int h){
 
         glMatrixMode( GL_PROJECTION );
         glLoadIdentity();
-        gluPerspective(60,window_width/window_height,100,10000);
+        //gluPerspective(60,window_width/window_height,15,5000);
+        //gluPerspective(60,window_width/window_height,30,3000);
+        gluPerspective(60,window_width/window_height,100,5000);
+
+
         glMatrixMode( GL_MODELVIEW );
 
         glLoadIdentity();
@@ -500,7 +512,16 @@ static void reshape(int w,int h){
         //glDepthFunc(GL_LEQUAL);             
         //glDepthFunc(GL_LESS);             
 
-  
+
+
+
+    //glEnable (GL_LINE_SMOOTH);
+
+     //glHint (GL_LINE_SMOOTH_HINT, GL_DONT_CARE);
+
+
+//    glShadeModel(GL_SMOOTH);
+ 
         //glDepthMask(GL_TRUE);
 
         // //glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); 
@@ -1470,6 +1491,11 @@ void selectFromMenu(int id){ //hauke
              cut_angle=90;
              break;
 
+        case CUT_ANGLE135:
+             cut_angle=135;
+             break;
+
+
         case CUT_ANGLE180:
              cut_angle=180;
              break;
@@ -1484,7 +1510,7 @@ void selectFromMenu(int id){ //hauke
 
 
         case GRAFIC_HIGH:
-            graphic[0] = 0; //todo: little bit dirty, make it better
+            graphic[0] = 1; //todo: little bit dirty, make it better
             graphic[1] = 0;
             graphic[2] = 0;
             selectFromMenu(GRAFIC_TRANS);
@@ -1536,6 +1562,8 @@ void selectFromMenu(int id){ //hauke
                  //glClearColor (0.0, 0.0, 0.0, 0.0);
                  glShadeModel (GL_SMOOTH);
 
+
+
                  //glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
                  //glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
 
@@ -1548,6 +1576,18 @@ void selectFromMenu(int id){ //hauke
                  glEnable(GL_LIGHT0);
                  glMatrixMode(GL_MODELVIEW);
                  //glEnable(GL_DEPTH_TEST);
+            }
+            break;
+
+        case GRAFIC_ALIAS:
+            if(graphic[3] == 1){
+                printf("Anti aliasing is off\n");
+                graphic[3] = 0;
+                reshape(window_width, window_height);
+            }else{
+                printf("Anti aliasing is on\n");
+                graphic[3] = 1;
+                reshape(window_width, window_height);
             }
             break;
 
@@ -1713,11 +1753,17 @@ int buildMenuPopup(void){ //hauke
     //glutAddMenuEntry("Deepbuffer", GRAFIC_BUFFER);
     glutAddMenuEntry("Transparency", GRAFIC_TRANS);
     glutAddMenuEntry("Light", GRAFIC_LIGHT);
+    glutAddMenuEntry("Anti Aliasing", GRAFIC_ALIAS);
+
+
+
 
     subsubMenu2 = glutCreateMenu(selectFromMenu);
     glutAddMenuEntry("0",  CUT_ANGLE0);
     glutAddMenuEntry("30", CUT_ANGLE30);
     glutAddMenuEntry("90", CUT_ANGLE90);
+    glutAddMenuEntry("135", CUT_ANGLE135);
+
     glutAddMenuEntry("180", CUT_ANGLE180);
     glutAddMenuEntry("270", CUT_ANGLE270);
     glutAddMenuEntry("360", CUT_ANGLE360);
@@ -1761,25 +1807,24 @@ int buildMenuPopup(void){ //hauke
   int tmp[6];
 
   int i;
-  for(i=0;i<argc ; i++){
+  for(i=1;i<argc ; i++){
 
     if(!strcmp( argv[i] , "-world_size" ) ) {
-      float w_size = atof(  argv[i+1] )  ;
+      float w_size = atof(  argv[++i] )  ;
       printf( "  setting world size to  %f " , w_size ) ;
       set_world_size( w_size ) ;
-    }
-
-    if(!strcmp(argv[i], "-bgcolor") && i < argc-1){
-      if (!strcmp(argv[i+1],"Black") || !strcmp(argv[i+1],"black")){
+    } else if(!strcmp(argv[i], "-bgcolor") && i < argc-1){
+      i++;
+      if (!strcmp(argv[i],"Black") || !strcmp(argv[i],"black")){
         printf("Set background color to black.\n");
         set_bg_color(0.0,0.0,0.0,0.0); //Black
-      } else if (!strcmp(argv[i+1],"Blue") || !strcmp(argv[i+1],"blue")){
+      } else if (!strcmp(argv[i],"Blue") || !strcmp(argv[i],"blue")){
         printf("Set background color to blue.\n");
         set_bg_color(0.0,0.2,0.4,0.0); //Dark blue
-      }else if (!strcmp(argv[i+1],"White") || !strcmp(argv[i+1],"white")){
+      }else if (!strcmp(argv[i],"White") || !strcmp(argv[i],"white")){
         printf("Set background color to white.\n");
         set_bg_color(1.0,1.0,1.0,0.0); //White
-      }else if((strlen(argv[i+1]) == 8 && argv[i+1][0] == '0' && toupper(argv[i+1][1]) == 'X') || strlen(argv[i+1]) == 6){
+      }else if((strlen(argv[i]) == 8 && argv[i][0] == '0' && toupper(argv[i][1]) == 'X') || strlen(argv[i]) == 6){
         printf("Set background to user defined color.\n");
         int n=0;
         if(strlen(argv[i+1]) == 8){
@@ -1813,9 +1858,7 @@ int buildMenuPopup(void){ //hauke
         printf("Unknown background color.\nPlease choose black/blue/white or a hexadecimal number with 6 digits!\nSet background color to default value.\n");
       }
     
-    }
-
-    if(!strcmp( argv[i] , "-h" ) || 
+    } else if(!strcmp( argv[i] , "-h" ) || 
        !strcmp( argv[i] , "--help" )|| 
        !strcmp( argv[i] , "-?" )
        ) {
@@ -1834,8 +1877,9 @@ int buildMenuPopup(void){ //hauke
               "         export CED_PORT=<portnumber>"
 	      ) ;      
       exit(0) ;
-    } if(!strcmp(argv[i], "--trust")){
-        if(i+1 >= argc){
+    } else if(!strcmp(argv[i], "--trust")){
+        i++;
+        if(i >= argc){
             printf("wrong syntax!\n");
             exit(0);
         }
@@ -1848,6 +1892,9 @@ int buildMenuPopup(void){ //hauke
         } else{
             printf("ERROR: Host %s is unknown!\n", argv[i+1]);  
         }
+    } else {
+        //printf("ERROR: Unknown parameter %s\n Try %s -h for help\n", argv[i], argv[0]);
+        //exit(1);
     }
   }
 
@@ -1871,7 +1918,19 @@ int buildMenuPopup(void){ //hauke
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
 
-    glHint (GL_LINE_SMOOTH_HINT, GL_DONT_CARE);
+    //glHint (GL_LINE_SMOOTH_HINT, GL_DONT_CARE);
+    //glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+    //glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
+
+glEnable(GL_POINT_SMOOTH);
+glEnable(GL_LINE_SMOOTH);
+//glHint(GL_POLYGON_SMOOTH,GL_FASTEST); 
+
+    glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
+
+glEnable(GL_POLYGON_SMOOTH);
+
+
 
     glEnable (GL_LINE_SMOOTH);
 

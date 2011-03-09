@@ -98,35 +98,246 @@ inline float single_fisheye_transform(float c, const double scale_factor) {
   return c/(1.0+scale_factor*fabs(c)); 
 }
 
-/* Draw a Cylinder
-*/
-void drawPartialCylinder(double length, double R /*radius*/, double iR /*inner radius*/, int edges, double angle_cut_off){
+
+void drawPartialLineCylinder(double length, double R /*radius*/, double iR /*inner radius*/, int edges, double angle_cut_off, double angle_cut_off_left){
 #define PI 3.14159265358979323846f 
     double phi=360.0/edges;
     int i,j;
-    double x;
+    double x, xl;
+
+    glPushMatrix();
+
+    glTranslatef(0, 0, length/2);
+
+    
+    //draw the two ends
+    for(j=0;j<2;j++){
+        if(j==0){glTranslatef(0, 0, -length/2);}
+        else if(j==1){glTranslatef(0, 0, length);}
+
+        phi=(360.0/edges);
+
+        i=(int) angle_cut_off_left/phi+1;  
+        phi=(360.0/edges)*(i+edges);
+        xl = cos(2*PI/edges/2)/cos((360- (phi-360/edges/2)+angle_cut_off_left)*2*PI/360);
+
+        glBegin(GL_LINE);
+        glVertex2d(iR*sin(360.0/edges*(i)*2*PI/360.0),iR*cos(360.0/edges*(i)*2*PI/360.0));
+        glVertex2d(iR*xl*sin((angle_cut_off_left)*2*PI/360),iR*xl*cos((angle_cut_off_left)*2*PI/360));
+        glEnd();
+        
+        glBegin(GL_LINE);
+        glVertex2d(R*xl*sin((angle_cut_off_left)*2*PI/360.0),R*xl*cos(angle_cut_off_left*2*PI/360.0));
+        glVertex2d(R*sin(360.0/edges*(i)*2*PI/360.0),R*cos(360.0/edges*(i)*2*PI/360.0));
+        glEnd();
+
+        glBegin(GL_LINE_STRIP );
+        glVertex2d(R*sin(360.0/edges*(i)*2*PI/360.0),R*cos(360.0/edges*(i)*2*PI/360.0));
+
+        i=i+1; 
+
+        for(;i<edges+1;i++){
+            phi=360.0/edges*i;
+            if(360.0-phi <= angle_cut_off){
+                x = cos(2*PI/edges/2)/cos((360- (phi-360/edges/2)-angle_cut_off)*2*PI/360);
+                glVertex2d(R*x*sin((360-angle_cut_off)*2*PI/360), R*x*cos((360-angle_cut_off)*2*PI/360));
+                glVertex2d(R*x*sin((360-angle_cut_off)*2*PI/360), R*x*cos((360-angle_cut_off)*2*PI/360));
+                break;
+            }else{
+                glVertex2d(R*sin(phi*2*PI/360), R*cos(phi*2*PI/360));
+                if(i != 0){
+                    glVertex2d(R*sin(phi*2*PI/360), R*cos(phi*2*PI/360));
+                }
+            }
+        }
+        glEnd();
+
+
+
+        glBegin(GL_LINE_STRIP);
+        i=(int) angle_cut_off_left/phi+1;  
+        i=i+1; 
+
+        glVertex2d(iR*sin(360.0/edges*(i)*2*PI/360.0),iR*cos(360.0/edges*(i)*2*PI/360.0));
+
+
+        for(;i<edges+1;i++){
+            phi=360.0/edges*i;
+            if(360.0-phi <= angle_cut_off){
+                x = cos(2*PI/edges/2)/cos((360- (phi-360/edges/2)-angle_cut_off)*2*PI/360);
+                glVertex2d(iR*sin(360/edges*(i-1)*2*PI/360), iR*cos(360/edges*(i-1)*2*PI/360));
+                glVertex2d(iR*x*sin((360-angle_cut_off)*2*PI/360), iR*x*cos((360-angle_cut_off)*2*PI/360));
+                break;
+            }else{
+                //glVertex2d(R*sin(phi*2*PI/360), R*cos(phi*2*PI/360));
+                if(i != 0){
+                    glVertex2d(iR*sin(360/edges*(i-1)*2*PI/360), iR*cos(360/edges*(i-1)*2*PI/360));
+                    glVertex2d(iR*sin(phi*2*PI/360), iR*cos(phi*2*PI/360));
+                }
+            }
+        }
+        glEnd();
+
+    }
+
+   glTranslatef(0, 0, -length/2);
+
+    //close 2 to cuts, if cutting
+
+    if(angle_cut_off > 0.0 || angle_cut_off_left > 0.0){
+        glBegin(GL_LINE_LOOP);
+        glVertex3d(R*x*sin((360-angle_cut_off)*2*PI/360), R*x*cos((360-angle_cut_off)*2*PI/360), -length/2);
+        glVertex3d(R*x*sin((360-angle_cut_off)*2*PI/360), R*x*cos((360-angle_cut_off)*2*PI/360), length/2);
+        glVertex3d(iR*x*sin((360-angle_cut_off)*2*PI/360), iR*x*cos((360-angle_cut_off)*2*PI/360), length/2);
+        glVertex3d(iR*x*sin((360-angle_cut_off)*2*PI/360), iR*x*cos((360-angle_cut_off)*2*PI/360), -length/2);
+        glEnd();
+
+        glBegin(GL_LINE_LOOP);
+        glVertex3d(R*xl*sin((angle_cut_off_left)*2*PI/360), R*xl*cos((angle_cut_off_left)*2*PI/360), -length/2);
+        glVertex3d(R*xl*sin((angle_cut_off_left)*2*PI/360), R*xl*cos((angle_cut_off_left)*2*PI/360), length/2);
+        glVertex3d(iR*xl*sin((angle_cut_off_left)*2*PI/360),iR*xl*cos((angle_cut_off_left)*2*PI/360), length/2);
+        glVertex3d(iR*xl*sin((angle_cut_off_left)*2*PI/360),iR*xl*cos((angle_cut_off_left)*2*PI/360), -length/2);
+        glEnd();
+    }
+
+
+    //draw the cylinder
+
+    if(edges < 20){
+    phi=(360.0/edges);
+    i=(int) angle_cut_off_left/phi+1;  
+    //outer
+    glBegin(GL_LINE_LOOP);
+    glVertex3d(R*xl*sin((angle_cut_off_left)*2*PI/360), R*xl*cos((angle_cut_off_left)*2*PI/360), -length/2);
+    glVertex3d(R*xl*sin((angle_cut_off_left)*2*PI/360), R*xl*cos((angle_cut_off_left)*2*PI/360), length/2);
+    glVertex3d(R*sin(360.0/edges*(i)*2*PI/360.0),R*cos(360.0/edges*(i)*2*PI/360.0), length/2);
+    glVertex3d(R*sin(360.0/edges*(i)*2*PI/360.0),R*cos(360.0/edges*(i)*2*PI/360.0), -length/2);
+    glEnd();
+
+
+    //inner
+    glBegin(GL_LINE_LOOP);
+    glVertex3d(iR*sin(360.0/edges*(i)*2*PI/360.0),iR*cos(360.0/edges*(i)*2*PI/360.0), -length/2);
+    glVertex3d(iR*sin(360.0/edges*(i)*2*PI/360.0),iR*cos(360.0/edges*(i)*2*PI/360.0), length/2);
+    glVertex3d(iR*xl*sin((angle_cut_off_left)*2*PI/360),iR*xl*cos((angle_cut_off_left)*2*PI/360), length/2);
+    glVertex3d(iR*xl*sin((angle_cut_off_left)*2*PI/360),iR*xl*cos((angle_cut_off_left)*2*PI/360), -length/2);
+    glEnd();
+
+
+    i=(int) angle_cut_off_left/phi+2;  
+
+
+    for(;i<edges+1;i++){
+        phi=360.0/edges*i;
+        double phi2=360.0/edges*(i-1);
+
+        if(360.0-phi <= angle_cut_off){
+            double x = cos(2*PI/edges/2)/cos((360- (phi-360/edges/2)-angle_cut_off)*2*PI/360);
+
+            //outer
+            glBegin(GL_LINE_LOOP);
+            glVertex3d(R*sin(phi2*2*PI/360), R*cos(phi2*2*PI/360),-length/2);
+            glVertex3d(R*sin(phi2*2*PI/360), R*cos(phi2*2*PI/360),length/2);
+            glVertex3d(R*x*sin((360-angle_cut_off)*2*PI/360), R*x*cos((360-angle_cut_off)*2*PI/360), length/2);
+            glVertex3d(R*x*sin((360-angle_cut_off)*2*PI/360), R*x*cos((360-angle_cut_off)*2*PI/360), -length/2);
+            glEnd();
+
+            //inner:
+            glBegin(GL_LINE_LOOP);
+            glVertex3d(iR*sin(phi2*2*PI/360), iR*cos(phi2*2*PI/360),-length/2);
+            glVertex3d(iR*sin(phi2*2*PI/360), iR*cos(phi2*2*PI/360),length/2);
+            glVertex3d(iR*x*sin((360-angle_cut_off)*2*PI/360), iR*x*cos((360-angle_cut_off)*2*PI/360), length/2);
+            glVertex3d(iR*x*sin((360-angle_cut_off)*2*PI/360), iR*x*cos((360-angle_cut_off)*2*PI/360), -length/2);
+            glEnd();
+            break;
+        }else{
+            //outer
+            glBegin(GL_LINE_LOOP);
+            glVertex3d(R*sin(phi2*2*PI/360), R*cos(phi2*2*PI/360),-length/2);
+            glVertex3d(R*sin(phi2*2*PI/360), R*cos(phi2*2*PI/360),length/2);
+            glVertex3d(R*sin(phi*2*PI/360), R*cos(phi*2*PI/360), length/2);
+            glVertex3d(R*sin(phi*2*PI/360), R*cos(phi*2*PI/360), -length/2);
+            glEnd();
+
+            //inner
+            glBegin(GL_LINE_LOOP);
+            glVertex3d(iR*sin(phi2*2*PI/360), iR*cos(phi2*2*PI/360),-length/2);
+            glVertex3d(iR*sin(phi2*2*PI/360), iR*cos(phi2*2*PI/360),length/2);
+            glVertex3d(iR*sin(phi*2*PI/360), iR*cos(phi*2*PI/360), length/2);
+            glVertex3d(iR*sin(phi*2*PI/360), iR*cos(phi*2*PI/360), -length/2);
+            glEnd();
+        }
+    }
+    //glEnd();
+    }
+glPopMatrix();
+
+}
+/* Draw a Cylinder
+*/
+void drawPartialCylinder(double length, double R /*radius*/, double iR /*inner radius*/, int edges, double angle_cut_off, double angle_cut_off_left){
+#define PI 3.14159265358979323846f 
+    double phi=360.0/edges;
+    int i,j;
+    double x, xl;
     
 
     glPushMatrix();
 
     glTranslatef(0, 0, length/2);
 
+    
     //draw the two ends
     for(j=0;j<2;j++){
         if(j==0){glTranslatef(0, 0, -length/2);}
         else if(j==1){glTranslatef(0, 0, length);}
 
 
-        //glBegin(GL_LINE_STRIP);
-        glBegin(GL_TRIANGLE_STRIP );
-        glVertex2d(0,iR);
+//        glBegin(GL_LINE_STRIP);
+        //glBegin(GL_TRIANGLE_STRIP );
+        //glVertex2d(0,iR);
 
-        for(i=0;i<edges+1;i++){
+
+
+        //i=(int) angle_cut_off_left/phi + edges + 1;  
+        //i+=edges;
+        phi=(360.0/edges);
+
+        i=(int) angle_cut_off_left/phi+1;  
+        phi=(360.0/edges)*(i+edges);
+        xl = cos(2*PI/edges/2)/cos((360- (phi-360/edges/2)+angle_cut_off_left)*2*PI/360);
+
+        glBegin(GL_TRIANGLES);
+        glVertex2d(R*xl*sin((angle_cut_off_left)*2*PI/360), R*xl*cos((angle_cut_off_left)*2*PI/360));
+        glVertex2d(iR*sin(360.0/edges*(i)*2*PI/360.0),iR*cos(360.0/edges*(i)*2*PI/360.0));
+        glVertex2d(iR*xl*sin((angle_cut_off_left)*2*PI/360),iR*xl*cos((angle_cut_off_left)*2*PI/360));
+        glEnd();
+        
+        
+
+        glBegin(GL_TRIANGLES);
+        glVertex2d(R*xl*sin((angle_cut_off_left)*2*PI/360.0),R*xl*cos(angle_cut_off_left*2*PI/360.0));
+        glVertex2d(R*sin(360.0/edges*(i)*2*PI/360.0),R*cos(360.0/edges*(i)*2*PI/360.0));
+        glVertex2d(iR*sin(360.0/edges*(i)*2*PI/360.0),iR*cos(360.0/edges*(i)*2*PI/360.0));
+        glEnd();
+
+
+        //phi=(360.0/edges)*i;
+        //i=(int) angle_cut_off_left/phi+1;  
+
+
+        glBegin(GL_TRIANGLE_STRIP );
+        glVertex2d(R*sin(360.0/edges*(i)*2*PI/360.0),R*cos(360.0/edges*(i)*2*PI/360.0));
+        glVertex2d(iR*sin(360.0/edges*(i)*2*PI/360.0),iR*cos(360.0/edges*(i)*2*PI/360.0));
+
+        i=i+1; 
+
+
+        for(;i<edges+1;i++){
             phi=360.0/edges*i;
             if(360.0-phi <= angle_cut_off){
                 x = cos(2*PI/edges/2)/cos((360- (phi-360/edges/2)-angle_cut_off)*2*PI/360);
                 glVertex2d(R*x*sin((360-angle_cut_off)*2*PI/360), R*x*cos((360-angle_cut_off)*2*PI/360));
-
                 glVertex2d(iR*sin(360/edges*(i-1)*2*PI/360), iR*cos(360/edges*(i-1)*2*PI/360));
                 glVertex2d(iR*x*sin((360-angle_cut_off)*2*PI/360), iR*x*cos((360-angle_cut_off)*2*PI/360));
                 glVertex2d(R*x*sin((360-angle_cut_off)*2*PI/360), R*x*cos((360-angle_cut_off)*2*PI/360));
@@ -142,9 +353,11 @@ void drawPartialCylinder(double length, double R /*radius*/, double iR /*inner r
         }
         glEnd();
     }
+
    glTranslatef(0, 0, -length/2);
     //close 2 to cuts, if cutting
-    if(angle_cut_off > 0.0){
+
+    if(angle_cut_off > 0.0 || angle_cut_off_left > 0.0){
         glBegin(GL_QUADS);
         glVertex3d(R*x*sin((360-angle_cut_off)*2*PI/360), R*x*cos((360-angle_cut_off)*2*PI/360), -length/2);
         glVertex3d(R*x*sin((360-angle_cut_off)*2*PI/360), R*x*cos((360-angle_cut_off)*2*PI/360), length/2);
@@ -153,15 +366,43 @@ void drawPartialCylinder(double length, double R /*radius*/, double iR /*inner r
         glEnd();
 
         glBegin(GL_QUADS);
-        phi=0.0;
-        glVertex3d(R*sin(phi*2*PI/360), R*cos(phi*2*PI/360), -length/2);
-        glVertex3d(R*sin(phi*2*PI/360), R*cos(phi*2*PI/360), length/2);
-        glVertex3d(iR*sin(phi*2*PI/360), iR*cos(phi*2*PI/360), length/2);
-        glVertex3d(iR*sin(phi*2*PI/360), iR*cos(phi*2*PI/360), -length/2);
+        //phi=0.0;
+
+        glVertex3d(R*xl*sin((angle_cut_off_left)*2*PI/360), R*xl*cos((angle_cut_off_left)*2*PI/360), -length/2);
+        glVertex3d(R*xl*sin((angle_cut_off_left)*2*PI/360), R*xl*cos((angle_cut_off_left)*2*PI/360), length/2);
+        glVertex3d(iR*xl*sin((angle_cut_off_left)*2*PI/360),iR*xl*cos((angle_cut_off_left)*2*PI/360), length/2);
+        glVertex3d(iR*xl*sin((angle_cut_off_left)*2*PI/360),iR*xl*cos((angle_cut_off_left)*2*PI/360), -length/2);
         glEnd();
     }
+
     //draw the cylinder
-    for(i=1;i<edges+1;i++){
+
+    glEnd();
+    phi=(360.0/edges);
+    i=(int) angle_cut_off_left/phi+1;  
+    //outer
+    glBegin(GL_QUADS);
+    glVertex3d(R*xl*sin((angle_cut_off_left)*2*PI/360), R*xl*cos((angle_cut_off_left)*2*PI/360), -length/2);
+    glVertex3d(R*xl*sin((angle_cut_off_left)*2*PI/360), R*xl*cos((angle_cut_off_left)*2*PI/360), length/2);
+
+    glVertex3d(R*sin(360.0/edges*(i)*2*PI/360.0),R*cos(360.0/edges*(i)*2*PI/360.0), length/2);
+    glVertex3d(R*sin(360.0/edges*(i)*2*PI/360.0),R*cos(360.0/edges*(i)*2*PI/360.0), -length/2);
+    glEnd();
+
+
+    //inner
+    glBegin(GL_QUADS);
+    glVertex3d(iR*sin(360.0/edges*(i)*2*PI/360.0),iR*cos(360.0/edges*(i)*2*PI/360.0), -length/2);
+    glVertex3d(iR*sin(360.0/edges*(i)*2*PI/360.0),iR*cos(360.0/edges*(i)*2*PI/360.0), length/2);
+    glVertex3d(iR*xl*sin((angle_cut_off_left)*2*PI/360),iR*xl*cos((angle_cut_off_left)*2*PI/360), length/2);
+    glVertex3d(iR*xl*sin((angle_cut_off_left)*2*PI/360),iR*xl*cos((angle_cut_off_left)*2*PI/360), -length/2);
+    glEnd();
+
+
+    i=(int) angle_cut_off_left/phi+2;  
+
+
+    for(;i<edges+1;i++){
         phi=360.0/edges*i;
         double phi2=360.0/edges*(i-1);
 
@@ -611,24 +852,53 @@ static void ced_draw_geotube(CED_GeoTube *c){
     double z0 = transformed_shift;
     double z1 = single_fisheye_transform(c->z+c->shift, fisheye_alpha);
     double z = z1-z0;
-
     if(graphic[1] == 1){
-    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //default
+    
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //default
     //glBlendFunc(GL_DST_COLOR, GL_SRC_COLOR); //glass
-    glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA); //locks nice, but lines diapear, so switch it off after drawing
+    //glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA); //locks nice, but lines diapear, so switch it off after drawing
 
         glMatrixMode(GL_MODELVIEW);
-        glColor4f((c->color>>16)&0xff,(c->color>>8)&0xff,(c->color)&0xff, 0.7);
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
         if(cut_angle < 360){
             glTranslatef(0.0, 0.0, transformed_shift);
             if(c->rotate > 0.01 ) glRotatef(c->rotate, 0, 0, 1);
-            drawPartialCylinder(z*2, d_o, d_i, c->edges_o, cut_angle);
+            if(c->rotate <= cut_angle){ //dont cut if rotate angle is to big
+
+               
+                //glColor4f(((c->color>>16)&0xff)*0.02,((c->color>>8)&0xff)*0.02,((c->color)&0xff)*0.02, 0.4);
+                //glLineWidth(5);
+                glLineWidth(0.5);
+                glColor4f(0.5,0.5,0.5, 0.8);
+                //glColor4f(1,1,1, 0.0);
+                drawPartialLineCylinder(z*2, d_o, d_i, c->edges_o, cut_angle-c->rotate, c->rotate);
+
+
+                glColor4f((c->color>>16)&0xff,(c->color>>8)&0xff,(c->color)&0xff, 0.6);
+                glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
+
+                drawPartialCylinder(z*2, d_o, d_i, c->edges_o, cut_angle-c->rotate, c->rotate);
+
+            }else{
+
+
+                //glLineWidth(5);
+                glLineWidth(0.5);
+                glColor4f(0.5,0.5,0.5, 0.8);
+                //glColor4f(((c->color>>16)&0xff)*0.02,((c->color>>8)&0xff)*0.02,((c->color)&0xff)*0.02, 0.4);
+                drawPartialLineCylinder(z*2, d_o, d_i, c->edges_o, 0,0);
+
+
+                glColor4f((c->color>>16)&0xff,(c->color>>8)&0xff,(c->color)&0xff, 0.6);
+                glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
+                drawPartialCylinder(z*2, d_o, d_i, c->edges_o, 0,0);
+            }
+
         }
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //default
 
-    }else{
+    }else{ 
         glLineWidth(1.);
         GLUquadricObj *q1 = gluNewQuadric();
         ced_color(c->color);
@@ -683,6 +953,7 @@ static void ced_draw_geocylinder(CED_GeoCylinder *c){
   double z = z1-z0;
 
 
+/*
 //new
   if(graphic[1] == 1){
 //  if(c->rotate > 0.01 )  //not working...
@@ -706,12 +977,11 @@ static void ced_draw_geocylinder(CED_GeoCylinder *c){
       glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     
 
-    //drawPartialCylinder(double length, double R /*radius*/, double iR /*inner radius*/, int edges, double angle_cut_off){
 
      //glTranslatef(0.0, 0.0, transformed_shift);
 
       if(cut_angle < 360){
-            drawPartialCylinder(z*2, d, d-100, c->sides, cut_angle);
+            drawPartialCylinder(z*2, d, d-100, c->sides, cut_angle,30);
       }
 
 
@@ -720,13 +990,13 @@ static void ced_draw_geocylinder(CED_GeoCylinder *c){
       //std::cout << "drawPartialCylinder: offset: " << transformed_shift  << "outer radius: " << d << " inner radius: " << d-(d/20) << " (sides: " << c->sides << " length: " << z*2 << "  )" << std::endl;
 
       //gluCylinder(q1, d, d, z*2, c->sides, 1);
-  }else{ 
+  }else{  */
     if(c->rotate > 0.01 )  //???
         glRotatef(c->rotate, 0, 0, 1);
 
     gluCylinder(q1, d, d, z*2, c->sides, 1);
 
-  }
+  //}
   gluDeleteQuadric(q1);
 
   glPopMatrix();
