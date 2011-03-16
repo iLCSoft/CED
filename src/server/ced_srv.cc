@@ -215,6 +215,7 @@ void drawPartialLineCylinder(double length, double R /*radius*/, double iR /*inn
     glEnd();
 
 
+    if(iR > 0){
     //inner
     glBegin(GL_LINE_LOOP);
     glVertex3d(iR*sin(360.0/edges*(i)*2*PI/360.0),iR*cos(360.0/edges*(i)*2*PI/360.0), -length/2);
@@ -222,6 +223,7 @@ void drawPartialLineCylinder(double length, double R /*radius*/, double iR /*inn
     glVertex3d(iR*xl*sin((angle_cut_off_left)*2*PI/360),iR*xl*cos((angle_cut_off_left)*2*PI/360), length/2);
     glVertex3d(iR*xl*sin((angle_cut_off_left)*2*PI/360),iR*xl*cos((angle_cut_off_left)*2*PI/360), -length/2);
     glEnd();
+    }
 
 
     i=(int) angle_cut_off_left/phi+2;  
@@ -242,6 +244,7 @@ void drawPartialLineCylinder(double length, double R /*radius*/, double iR /*inn
             glVertex3d(R*x*sin((360-angle_cut_off)*2*PI/360), R*x*cos((360-angle_cut_off)*2*PI/360), -length/2);
             glEnd();
 
+            if(iR > 0){
             //inner:
             glBegin(GL_LINE_LOOP);
             glVertex3d(iR*sin(phi2*2*PI/360), iR*cos(phi2*2*PI/360),-length/2);
@@ -249,6 +252,7 @@ void drawPartialLineCylinder(double length, double R /*radius*/, double iR /*inn
             glVertex3d(iR*x*sin((360-angle_cut_off)*2*PI/360), iR*x*cos((360-angle_cut_off)*2*PI/360), length/2);
             glVertex3d(iR*x*sin((360-angle_cut_off)*2*PI/360), iR*x*cos((360-angle_cut_off)*2*PI/360), -length/2);
             glEnd();
+            }
             break;
         }else{
             //outer
@@ -259,6 +263,7 @@ void drawPartialLineCylinder(double length, double R /*radius*/, double iR /*inn
             glVertex3d(R*sin(phi*2*PI/360), R*cos(phi*2*PI/360), -length/2);
             glEnd();
 
+            if(iR > 0){
             //inner
             glBegin(GL_LINE_LOOP);
             glVertex3d(iR*sin(phi2*2*PI/360), iR*cos(phi2*2*PI/360),-length/2);
@@ -266,6 +271,7 @@ void drawPartialLineCylinder(double length, double R /*radius*/, double iR /*inn
             glVertex3d(iR*sin(phi*2*PI/360), iR*cos(phi*2*PI/360), length/2);
             glVertex3d(iR*sin(phi*2*PI/360), iR*cos(phi*2*PI/360), -length/2);
             glEnd();
+            }
         }
     }
     //glEnd();

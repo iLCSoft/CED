@@ -1914,6 +1914,15 @@ int buildMenuPopup(void){ //hauke
   glutInit(&argc,argv);
   glutInitDisplayMode(GLUT_DOUBLE|GLUT_RGB|GLUT_DEPTH|GLUT_ALPHA);
        //glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+ //glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
+/*   glutInitWindowSize(600,600); // change to smaller window size */
+/*   glutInitWindowPosition(500,0); */
+
+
+
+
+  mainWindow=glutCreateWindow("C Event Display (CED)");
+
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
@@ -1938,14 +1947,6 @@ glEnable(GL_POLYGON_SMOOTH);
 
     glShadeModel(GL_SMOOTH);
 
- //glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
-/*   glutInitWindowSize(600,600); // change to smaller window size */
-/*   glutInitWindowPosition(500,0); */
-
-
-
-
-  mainWindow=glutCreateWindow("C Event Display (CED)");
 
 
   init();
