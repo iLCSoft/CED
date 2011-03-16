@@ -11,6 +11,12 @@
  --------
 
 
+    - added OpenGL library paths to the rpath list for preventing LD_LIBRARY_PATH
+        (set by geant4 env init script) to overwrite the opengl system libraries used
+        in the linking of glced with the ones from Mesa (installed in afs), which might
+        cause a dramatic performance penalty
+
+
  --------
 | v01-02 |
  --------

@@ -78,8 +78,35 @@ IF( CED_SERVER )
 
     INCLUDE_DIRECTORIES( ${GLUT_INCLUDE_DIR} )
 
+    # copy paths from OPENGL_LIBRARIES to rpath list of glced to avoid system
+    # opengl libraries used in the linking process of glced to be overwriten
+    # by LD_LIBRARY_PATH, e.g.: LD_LIBRARY_PATH set by geant4 env_init_script
+    # points to old mesa libraries in afs
+    FOREACH( _opengl_lib ${OPENGL_LIBRARIES} )
+        GET_FILENAME_COMPONENT( _opengl_lib_path ${_opengl_lib} PATH )
+        LIST( APPEND _opengl_linker_paths ${_opengl_lib_path} )
+    ENDFOREACH()
+
+    # remove duplicate paths
+    IF( _opengl_linker_paths )
+        LIST( REMOVE_DUPLICATES _opengl_linker_paths )
+    ENDIF()
+
+    #MESSAGE( "_opengl_linker_paths: ${_opengl_linker_paths}" )
+
+    # this would affect all targets
+    #LIST( APPEND CMAKE_INSTALL_RPATH "${_opengl_linker_paths}" )
+    #IF( APPLE )
+    #    LIST( APPEND CMAKE_INSTALL_NAME_DIR "${_opengl_linker_paths}" )
+    #ENDIF()
+
     AUX_SOURCE_DIRECTORY( ./src/server server_sources )
     ADD_EXECUTABLE( glced ${server_sources} )
+
+    SET_TARGET_PROPERTIES( glced PROPERTIES
+        INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${_opengl_linker_paths}"
+        INSTALL_NAME_DIR "${CMAKE_INSTALL_NAME_DIR};${_opengl_linker_paths}"
+    )
 
     TARGET_LINK_LIBRARIES( glced CED 
         ${GLUT_glut_LIBRARY}
