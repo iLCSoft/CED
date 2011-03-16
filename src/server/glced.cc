@@ -1921,36 +1921,26 @@ int buildMenuPopup(void){ //hauke
 
 
 
+
+
   mainWindow=glutCreateWindow("C Event Display (CED)");
 
+      //glHint (GL_LINE_SMOOTH_HINT, GL_DONT_CARE);
+    //glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+    //glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
+    glEnable(GL_POINT_SMOOTH);
+    glEnable(GL_LINE_SMOOTH);
+    //glHint(GL_POLYGON_SMOOTH,GL_FASTEST); 
+    //glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
+    //glEnable(GL_POLYGON_SMOOTH);
+    glShadeModel(GL_SMOOTH);
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
 
-    //glHint (GL_LINE_SMOOTH_HINT, GL_DONT_CARE);
-    //glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-    //glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
 
-glEnable(GL_POINT_SMOOTH);
-glEnable(GL_LINE_SMOOTH);
-//glHint(GL_POLYGON_SMOOTH,GL_FASTEST); 
-
-    glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
-
-glEnable(GL_POLYGON_SMOOTH);
-
-
-
-    glEnable (GL_LINE_SMOOTH);
-
-
-
-    glShadeModel(GL_SMOOTH);
-
-
-
-  init();
-  mm_reset=mm;
+    init();
+    mm_reset=mm;
 
   
 

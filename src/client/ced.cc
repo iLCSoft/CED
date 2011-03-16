@@ -70,12 +70,12 @@ static char ced_host[30];
 
 
 typedef struct {
-  unsigned size;     // size of one item in bytes
-  unsigned char *b;  // "body" - data are stored here
-                     // (here is some trick :)
-  unsigned long count;    // number of usefull items
-  unsigned long alloced;  // number of allocated items
-  ced_draw_cb draw;  // draw fucation, NOT used in CED client
+  unsigned size;            // size of one item in bytes
+  unsigned char *b;         // "body" - data are stored here
+                            // (here is some trick :)
+  unsigned long count;      // number of usefull items
+  unsigned long alloced;    // number of allocated items
+  ced_draw_cb draw;         // draw fucation, NOT used in CED client
 } ced_element;
 
 typedef struct {
@@ -92,8 +92,10 @@ static ced_event ceve = {0,0}; // current event on screen
 
 unsigned ced_register_element(unsigned item_size,ced_draw_cb draw_func){
   ced_element *pe;
-  if(!(eve.e_count&0xf))
+  if(!(eve.e_count&0xf)){
     eve.e=(ced_element *) realloc(eve.e,(eve.e_count+0x10)*sizeof(ced_element));
+  }
+
   pe=eve.e+eve.e_count;
   memset(pe,0,sizeof(*pe));
   pe->size=item_size;
@@ -211,8 +213,7 @@ int ced_process_input(void *data){
   }
   pe=eve.e+hdr->type;
   if((hdr->size-HDR_SIZE)%pe->size){
-    fprintf(stderr,"BUG:CED: size alignment is wrong for element %u\n",
-	    hdr->type);
+    fprintf(stderr,"BUG:CED: size alignment is wrong for element %u\n", hdr->type);
     return 0;
   }
   count=(hdr->size-HDR_SIZE)/pe->size;

@@ -133,8 +133,8 @@ typedef struct {
 typedef struct {
   float r_o;           // outer radius
   float r_i;           // inner radius
-  unsigned  edges_o;   // edges outer
-  unsigned  edges_i;   // edges inner
+  unsigned edges_o;   // edges outer
+  unsigned edges_i;   // edges inner
   float rotate;        // angle degree
   float z;             // 1/2 length
   float shift;         // shift in z
