@@ -881,7 +881,9 @@ static void ced_draw_geotube(CED_GeoTube *c){
                 drawPartialLineCylinder(z*2, d_o, d_i, c->edges_o, cut_angle-c->rotate, c->rotate);
 
 
-                glColor4f((c->color>>16)&0xff,(c->color>>8)&0xff,(c->color)&0xff, 0.6);
+                //glColor4f((c->color>>16)&0xff,(c->color>>8)&0xff,(c->color)&0xff, 0.6);
+                //fg: here we can change the transparancy => also below !!!!!!!
+                glColor4f((c->color>>16)&0xff,(c->color>>8)&0xff,(c->color)&0xff, 0.8);
                 glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
 
                 drawPartialCylinder(z*2, d_o, d_i, c->edges_o, cut_angle-c->rotate, c->rotate);
@@ -896,7 +898,8 @@ static void ced_draw_geotube(CED_GeoTube *c){
                 drawPartialLineCylinder(z*2, d_o, d_i, c->edges_o, 0,0);
 
 
-                glColor4f((c->color>>16)&0xff,(c->color>>8)&0xff,(c->color)&0xff, 0.6);
+                //glColor4f((c->color>>16)&0xff,(c->color>>8)&0xff,(c->color)&0xff, 0.6);
+                glColor4f((c->color>>16)&0xff,(c->color>>8)&0xff,(c->color)&0xff, 0.8);
                 glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
                 drawPartialCylinder(z*2, d_o, d_i, c->edges_o, 0,0);
             }
