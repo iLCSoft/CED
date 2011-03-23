@@ -852,11 +852,12 @@ static void ced_draw_line(CED_Line *h){
 
 static unsigned CED_PICKING_TEXT_ID=0;
 static void ced_write_picking_text(CED_PICKING_TEXT *text){
+//TODO TODO TODO!!!
     static int biggest_number_picking_text=0;
     if(text->id > biggest_number_picking_text){
 
-     //from: http://nehe.gamedev.net/data/articles/article.asp?article=13
-GLfloat winX, winY, winZ;               // Holds Our X, Y and Z Coordinates
+     //based on: http://nehe.gamedev.net/data/articles/article.asp?article=13
+GLfloat winX, winY, winZ;
 
 winX=mouse_x;
 winY=mouse_y;
