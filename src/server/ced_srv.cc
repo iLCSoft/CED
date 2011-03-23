@@ -32,6 +32,8 @@
 int graphic[3];
 double cut_angle;
 
+static int mouse_x, mouse_y; 
+
 #include <ced.h>
 #define PORT        0x1234
 
@@ -533,6 +535,9 @@ static void renderBitmapString(
 * without center the selected object                           *
 ***************************************************************/
 int ced_picking(int x,int y,GLfloat *wx,GLfloat *wy,GLfloat *wz){
+  mouse_x=x;
+  mouse_y=y;
+
   CED_ObjMap *p,*best;
   unsigned i;
   int dx,dy;
@@ -743,6 +748,7 @@ static void ced_draw_hit(CED_Hit *h){
 static unsigned LINE_ID=0;
 
 static void ced_draw_line(CED_Line *h){
+
   //  printf("Draw line\n");
 
 /*
@@ -818,8 +824,8 @@ static void ced_draw_line(CED_Line *h){
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   glMatrixMode(GL_MODELVIEW);
   //TODO
-  //glEnable(GL_BLEND);
-  //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glColor4f((h->color>>16)&0xff,(h->color>>8)&0xff,(h->color)&0xff, 0.1);
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
@@ -844,9 +850,70 @@ static void ced_draw_line(CED_Line *h){
 
 
 
+static unsigned CED_PICKING_TEXT_ID=0;
+static void ced_write_picking_text(CED_PICKING_TEXT *text){
+    static int biggest_number_picking_text=0;
+    if(text->id > biggest_number_picking_text){
+
+     //from: http://nehe.gamedev.net/data/articles/article.asp?article=13
+GLfloat winX, winY, winZ;               // Holds Our X, Y and Z Coordinates
+
+winX=mouse_x;
+winY=mouse_y;
+
+     float x=winX;
+     float y=winY;
+            GLint viewport[4];
+    GLdouble modelview[16];
+    GLdouble projection[16];
+    //GLfloat winX, winY, winZ;
+    GLdouble posX, posY, posZ;
+
+    glGetDoublev( GL_MODELVIEW_MATRIX, modelview );
+    glGetDoublev( GL_PROJECTION_MATRIX, projection );
+    glGetIntegerv( GL_VIEWPORT, viewport );
+
+    winX = (float)x;
+    winY = (float)viewport[3] - (float)y;
+    glReadPixels( x, int(winY), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &winZ );
+
+    gluUnProject( winX, winY, winZ, modelview, projection, viewport, &posX, &posY, &posZ);
+    std::cout << "x: " << posX << "Y: " << posY << "Z: " << posZ << std::endl;
+
+
+        glMatrixMode(GL_MODELVIEW);
+
+    glLineWidth(5);
+    glColor3f(1,0,0);
+
+   glBegin(GL_LINE);
+   glVertex3d(winX,winY,winZ);
+   glVertex3d(0,0,0);
+   glEnd();
+
+   glBegin(GL_LINE);
+   glVertex3d(0,0,0);
+   glVertex3d(10000,10000,10000);
+   glEnd();
+   glutPostRedisplay();
+
+
+        std::cout << text->text << std::endl;
+        
+        biggest_number_picking_text = text->id;
+        //std::cout << mm.mv.x << mm.mv.y << mm.mv.z << std::endl;
+
+    }
+
+}
+
+
+
+
 static unsigned GEOT_ID=0;
 
 static void ced_draw_geotube(CED_GeoTube *c){
+    
     glPushMatrix();
 
     double transformed_shift = single_fisheye_transform(c->shift, fisheye_alpha);
@@ -940,6 +1007,7 @@ static unsigned GEOC_ID=0;
 
 static void ced_draw_geocylinder(CED_GeoCylinder *c){
 
+
   GLUquadricObj *q1 = gluNewQuadric();
 
   glPushMatrix();
@@ -1016,6 +1084,7 @@ static void ced_draw_geocylinder(CED_GeoCylinder *c){
  */
 static unsigned GEOCR_ID=0;
 static void ced_draw_geocylinder_r(CED_GeoCylinderR *c){
+
 //FIXME: implement fisheye here as well
 //Non trivial due to possible rotations...
   GLUquadricObj *q1 = gluNewQuadric();
@@ -1062,6 +1131,7 @@ static unsigned ELLIPSOID_ID = 0;
 
 static void ced_draw_ellipsoid_r(CED_EllipsoidR * eli )  {
 
+
 	if(!IS_VISIBLE(eli->layer))
       return;
 
@@ -1081,8 +1151,8 @@ static void ced_draw_ellipsoid_r(CED_EllipsoidR * eli )  {
   	
    /** Quadric object */
     //TODO
-   	//glEnable(GL_BLEND);
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+   	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   	GLUquadricObj *Sphere;
   	
   	/** Obtain a new quadric */
@@ -1117,6 +1187,7 @@ static unsigned CLUELLIPSE_ID = 0;
  */
 static void ced_draw_cluellipse_r(CED_CluEllipseR * eli )  {
 
+
 	if(!IS_VISIBLE(eli->layer))
       return;
 
@@ -1140,9 +1211,9 @@ static void ced_draw_cluellipse_r(CED_CluEllipseR * eli )  {
 	float t;
 	
 	/** openGL alpha blending */
-	//glEnable(GL_BLEND);
+	glEnable(GL_BLEND);
     //TODO
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	
 	
 	glBegin(GL_POLYGON);
@@ -1292,14 +1363,14 @@ static unsigned TEXT_ID=0;
 static void print_layer_text(CED_TEXT *obj){
     addLayerDescriptionToMenu(obj->id, obj->text);
 
+    /*
+    printf("%s: %i\n", obj->text, obj->id);
     //this
-/*
     if(obj->id == -1){
         printf("Print picking\n");
         fflush(stdout);
-        exit(1);
     }
-*/
+    */
 }
 
 //end hauke
@@ -1313,6 +1384,26 @@ static unsigned LEGEND_ID=0;
  * @date: 1.09.09
  * */
 static void ced_draw_legend(CED_Legend *legend){
+    //saves the matrices on the stack
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    
+    //changes the matrices to be compatible with the old ced_draw_legend code:
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+
+    GLfloat w=glutGet(GLUT_SCREEN_WIDTH); 
+    GLfloat h=glutGet(GLUT_SCREEN_HEIGHT); ;
+
+    int  WORLD_SIZE=1000; //static worldsize maybe will get problems in the future...
+    glOrtho(-WORLD_SIZE*w/h,WORLD_SIZE*w/h,-WORLD_SIZE,WORLD_SIZE, -15*WORLD_SIZE,15*WORLD_SIZE);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+
+
+    //begin original code: 
 	
 	int color_steps = legend->color_steps;
 	float ene_max = legend->ene_max;
@@ -1346,7 +1437,6 @@ static void ced_draw_legend(CED_Legend *legend){
 	int y_offset_legend = 20;
 	
 	void* font=GLUT_BITMAP_TIMES_ROMAN_10; //default font                           //draw into back right buffer
-  	glLoadIdentity(); //load an 'identity projection' matrix
   	int tick_size = 10;
 	
 	/**
@@ -1447,7 +1537,13 @@ static void ced_draw_legend(CED_Legend *legend){
 		}
 	}
 	glEnd();
-	glPopMatrix();
+
+    glMatrixMode(GL_PROJECTION);
+    glPopMatrix();
+    glMatrixMode(GL_MODELVIEW);
+    glPopMatrix();
+
+//	glPopMatrix();
 }
 
 /*
@@ -1456,6 +1552,7 @@ static void ced_draw_legend(CED_Legend *legend){
 static unsigned GEOB_ID = 0;
 
 static void ced_draw_geobox(CED_GeoBox * box )  {
+
 
   // a box has 8 vertices, four belonging to the first surface facing
   // the beam, the other four from the second surface
@@ -1660,8 +1757,8 @@ static void ced_draw_cone_r(CED_ConeR * cone )  {
 
 	/** Draw the cone */
     //TODO
-	//glEnable(GL_BLEND);
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glColor4f(cone->RGBAcolor[0], cone->RGBAcolor[1], cone->RGBAcolor[2], cone->RGBAcolor[3]);
 	glutSolidCone(base, height, slices, stacks);
 	//glDisable(GL_BLEND); //hauke test
@@ -1803,25 +1900,38 @@ static void ced_draw_geobox_r_solid(CED_GeoBoxR * box )  {
 
 void ced_register_elements(void){
 
-
+  //1
   GEOC_ID       =ced_register_element(sizeof(CED_GeoCylinder),(ced_draw_cb)ced_draw_geocylinder);
-
+  //2
   GEOCR_ID      =ced_register_element(sizeof(CED_GeoCylinderR),(ced_draw_cb)ced_draw_geocylinder_r);
+  //3
   LINE_ID       =ced_register_element(sizeof(CED_Line),(ced_draw_cb)ced_draw_line);
+  //4
   HIT_ID        =ced_register_element(sizeof(CED_Hit),(ced_draw_cb)ced_draw_hit);
+  //5
   GEOB_ID       =ced_register_element(sizeof(CED_GeoBox),(ced_draw_cb)ced_draw_geobox);
+  //6
   GEOBR_ID      =ced_register_element(sizeof(CED_GeoBoxR),(ced_draw_cb)ced_draw_geobox_r);
+  //7
   GEOBRS_ID     =ced_register_element(sizeof(CED_GeoBoxR),(ced_draw_cb)ced_draw_geobox_r_solid);
+  //8
   CONER_ID      =ced_register_element(sizeof(CED_ConeR),(ced_draw_cb)ced_draw_cone_r);
+  //9
   ELLIPSOID_ID  =ced_register_element(sizeof(CED_EllipsoidR),(ced_draw_cb)ced_draw_ellipsoid_r);
+  //10
   CLUELLIPSE_ID =ced_register_element(sizeof(CED_CluEllipseR),(ced_draw_cb)ced_draw_cluellipse_r);
+  //11
   TEXT_ID       =ced_register_element(sizeof(CED_TEXT),(ced_draw_cb)print_layer_text); //hauke
 
   /** due to an issue w/ drawing the legend (in 2D) this has to come last ! */
+  //12
   LEGEND_ID  =ced_register_element(sizeof(CED_Legend),(ced_draw_cb)ced_draw_legend);
   //TEXT_ID   =ced_register_element(sizeof(CED_TEXT),(ced_draw_cb)ced_draw_text); //hauke
   //LAYER_TEXT_ID   =ced_register_element(sizeof(LAYER_TEXT),(ced_draw_cb)print_layer_text); //hauke
 
+  //13
   GEOT_ID       =ced_register_element(sizeof(CED_GeoTube),(ced_draw_cb)ced_draw_geotube);
+  //14
+  CED_PICKING_TEXT_ID=ced_register_element(sizeof(CED_PICKING_TEXT),(ced_draw_cb)ced_write_picking_text);
 }
 

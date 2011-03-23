@@ -60,10 +60,13 @@
 #define CUT_ANGLE0              2100
 #define CUT_ANGLE30             2101
 #define CUT_ANGLE90             2102
-#define CUT_ANGLE135            2112
-#define CUT_ANGLE180            2103
-#define CUT_ANGLE270            2104
-#define CUT_ANGLE360            2105
+#define CUT_ANGLE135            2103
+#define CUT_ANGLE180            2104
+#define CUT_ANGLE270            2105
+#define CUT_ANGLE360            2106
+
+
+static int available_cutangles[]={0,30,90,135, 180, 270, 360};  //for new angles add the new angle to this list and to define in top of this
 
 
 #define BGCOLOR_WHITE           1000
@@ -129,6 +132,7 @@ const char layer_keys[] = {'0','1', '2','3','4','5','6','7','8','9',')', '!', '@
 static int mainWindow=-1;
 static int subWindow=-1;
 static int layerMenu;
+static int subsubMenu2;
 
 //static int helpWindow=-1;
 static int showHelp=0;
@@ -950,6 +954,7 @@ glutPostRedisplay();
 
 static void timer (int val)
 {
+  //change timer for testing to 1
   fd_set fds;
   int rc;
   struct __glutSocketList *sock;
@@ -973,7 +978,9 @@ static void timer (int val)
       if (errno == EINTR) 
        {
 	  //glutTimerFunc(500,timer,01);
-      glutTimerFunc(50,timer,1);
+      //glutTimerFunc(50,timer,1);
+      glutTimerFunc(1,timer,1);
+
 	  return;
 	} 
       else 
@@ -992,7 +999,9 @@ static void timer (int val)
 	      (*(sock->read_func))(sock);
           //printf("reading...\n");
 	      //glutTimerFunc(500,timer,01);
-          glutTimerFunc(50,timer,01);
+          //glutTimerFunc(50,timer,01);
+        glutTimerFunc(1,timer,01);
+
 
 	      return ; /* to avoid complexity with removed sockets */
 	    }
@@ -1002,7 +1011,9 @@ static void timer (int val)
   //fix for old glut version
   glutSetWindow(mainWindow); 
 
-  glutTimerFunc(200,timer,01);
+  //glutTimerFunc(200,timer,01);
+  glutTimerFunc(1,timer,01);
+
 
   return;
 
@@ -1318,6 +1329,35 @@ void addLayerDescriptionToMenu(int id, char * str){
  
     //printf("layerDescription: layer %i text: %s\n", id, layerDescription[id]);
 }
+
+
+void update_cut_angle_menu(void){
+    char string[300];
+
+    glutSetMenu(subsubMenu2);
+    int i;
+    for(i=0; i < sizeof(available_cutangles)/sizeof(int); i++){
+    //for(i=0; i < 5; i++){
+
+        if(available_cutangles[i] == cut_angle){
+            sprintf(string,"[X] %i°", available_cutangles[i]);
+            glutChangeToMenuEntry(i+1, string,  CUT_ANGLE0+i);
+        }else{
+            sprintf(string,"[  ] %i°", available_cutangles[i]);
+            glutChangeToMenuEntry(i+1, string,  CUT_ANGLE0+i);
+        }
+    }
+/*
+    glutAddMenuEntry("[X]     0°",  CUT_ANGLE0);
+    glutAddMenuEntry("[  ]   30°", CUT_ANGLE30);
+    glutAddMenuEntry("[  ]   90°", CUT_ANGLE90);
+    glutAddMenuEntry("[  ] 135°", CUT_ANGLE135);
+
+    glutAddMenuEntry("[  ] 180°", CUT_ANGLE180);
+    glutAddMenuEntry("[  ] 270°", CUT_ANGLE270);
+    glutAddMenuEntry("[  ] 360°", CUT_ANGLE360);
+*/
+}
 void selectFromMenu(int id){ //hauke
     //char string[250];
     int i;
@@ -1482,31 +1522,42 @@ void selectFromMenu(int id){ //hauke
                 break;
         case CUT_ANGLE0:
             cut_angle=0; 
+            update_cut_angle_menu();
             break;
 
         case CUT_ANGLE30:
             cut_angle=30; 
+            update_cut_angle_menu();
             break;
+
         case CUT_ANGLE90:
-             cut_angle=90;
-             break;
+            cut_angle=90;
+            update_cut_angle_menu();
+
+            break;
 
         case CUT_ANGLE135:
-             cut_angle=135;
-             break;
+            cut_angle=135;
+            update_cut_angle_menu();
+
+            break;
 
 
         case CUT_ANGLE180:
-             cut_angle=180;
-             break;
+            cut_angle=180;
+            update_cut_angle_menu();
+
+            break;
 
         case CUT_ANGLE270:
-             cut_angle=270;
-             break;
+            cut_angle=270;
+            update_cut_angle_menu();
+            break;
 
         case CUT_ANGLE360:
-             cut_angle=360;
-             break;
+            cut_angle=360;
+            update_cut_angle_menu();
+            break;
 
 
         case GRAFIC_HIGH:
@@ -1687,7 +1738,7 @@ int buildMenuPopup(void){ //hauke
     int subMenu3;
     int subMenu4;
     int subsubMenu1;
-    int subsubMenu2;
+    //int subsubMenu2;
 
 
 
@@ -1759,14 +1810,20 @@ int buildMenuPopup(void){ //hauke
 
 
     subsubMenu2 = glutCreateMenu(selectFromMenu);
-    glutAddMenuEntry("0",  CUT_ANGLE0);
-    glutAddMenuEntry("30", CUT_ANGLE30);
-    glutAddMenuEntry("90", CUT_ANGLE90);
-    glutAddMenuEntry("135", CUT_ANGLE135);
+    for(i=0; i < sizeof(available_cutangles) / sizeof(available_cutangles[0]); i++){
+        glutAddMenuEntry("  ",  CUT_ANGLE0+i);
+    }
+    update_cut_angle_menu();
+/*
+    glutAddMenuEntry("[X]     0°",  CUT_ANGLE0);
+    glutAddMenuEntry("[  ]   30°", CUT_ANGLE30);
+    glutAddMenuEntry("[  ]   90°", CUT_ANGLE90);
+    glutAddMenuEntry("[  ] 135°", CUT_ANGLE135);
 
-    glutAddMenuEntry("180", CUT_ANGLE180);
-    glutAddMenuEntry("270", CUT_ANGLE270);
-    glutAddMenuEntry("360", CUT_ANGLE360);
+    glutAddMenuEntry("[  ] 180°", CUT_ANGLE180);
+    glutAddMenuEntry("[  ] 270°", CUT_ANGLE270);
+    glutAddMenuEntry("[  ] 360°", CUT_ANGLE360);
+*/
 
 
 
@@ -1800,7 +1857,7 @@ int buildMenuPopup(void){ //hauke
 
   graphic[1]=1; //transp
   graphic[2]=1; //persp
-  cut_angle=0;
+  cut_angle=45;
 
 
   char hex[]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};

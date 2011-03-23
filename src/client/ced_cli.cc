@@ -326,7 +326,7 @@ void ced_describe_layer(const char *message, int id) {
     //text->y=yCordinate;
 }
 
-
+/*
 static unsigned LAYER_TEXT_ID=0;
 
 void ced_layer_text(char *message, int id) {
@@ -338,6 +338,24 @@ void ced_layer_text(char *message, int id) {
     strncpy(obj->str,message,MAX_LAYER_CHAR-1);
     obj->id=id;
     //printf("ced_layer_text\n");
+}
+*/
+
+static unsigned PICKING_TEXT_ID=0;
+
+void ced_picking_text(const char *message, int id) {
+	CED_PICKING_TEXT *text = (CED_PICKING_TEXT*) ced_add(PICKING_TEXT_ID);
+	if(!text){
+        printf("WARNING: ced_picking_text: cant register CED_PICKING_TEXT");  
+        return;
+    }
+
+    strncpy(text->text,message,999);
+    text->id=id;
+    //text->text[MAX_LAYER_CHAR-1] = 0;
+    //text->id=id;
+    //text->x=xCordinate;
+    //text->y=yCordinate;
 }
 //end hauke
 
@@ -423,18 +441,33 @@ void ced_cluellipse_r_ID(float radius, float height, float *center, double *rota
 
 
 void ced_register_elements(void){
-  GEOC_ID		=ced_register_element(sizeof(CED_GeoCylinder),0);
-  GEOCR_ID	    =ced_register_element(sizeof(CED_GeoCylinderR), 0);
-  LINE_ID		=ced_register_element(sizeof(CED_Line),0);
-  HIT_ID		=ced_register_element(sizeof(CED_Hit),0);
-  GEOB_ID		=ced_register_element(sizeof(CED_GeoBox), 0);
-  GEOBR_ID	    =ced_register_element(sizeof(CED_GeoBoxR), 0);
-  GEOBRS_ID	    =ced_register_element(sizeof(CED_GeoBoxR), 0);
-  CONER_ID	    =ced_register_element(sizeof(CED_ConeR), 0);
-  ELLIPSOID_ID	=ced_register_element(sizeof(CED_EllipsoidR), 0);
-  CLUELLIPSE_ID =ced_register_element(sizeof(CED_CluEllipseR), 0);
-  TEXT_ID       =ced_register_element(sizeof(CED_TEXT),0); //hauke: the order of this items is important
-  LEGEND_ID	    =ced_register_element(sizeof(CED_Legend), 0);
 
+  //1:
+  GEOC_ID		=ced_register_element(sizeof(CED_GeoCylinder),0);
+  //2:
+  GEOCR_ID	    =ced_register_element(sizeof(CED_GeoCylinderR), 0);
+  //3:
+  LINE_ID		=ced_register_element(sizeof(CED_Line),0);
+  //4:
+  HIT_ID		=ced_register_element(sizeof(CED_Hit),0);
+  //5:
+  GEOB_ID		=ced_register_element(sizeof(CED_GeoBox), 0);
+  //6:
+  GEOBR_ID	    =ced_register_element(sizeof(CED_GeoBoxR), 0);
+  //7:
+  GEOBRS_ID	    =ced_register_element(sizeof(CED_GeoBoxR), 0);
+  //8:
+  CONER_ID	    =ced_register_element(sizeof(CED_ConeR), 0);
+  //9:
+  ELLIPSOID_ID	=ced_register_element(sizeof(CED_EllipsoidR), 0);
+  //10:
+  CLUELLIPSE_ID =ced_register_element(sizeof(CED_CluEllipseR), 0);
+  //11:
+  TEXT_ID       =ced_register_element(sizeof(CED_TEXT),0); //hauke: the order of this items is important
+  //12:
+  LEGEND_ID	    =ced_register_element(sizeof(CED_Legend), 0);
+  //13: 
   GEOT_ID       =ced_register_element(sizeof(CED_GeoTube),0);
+  //14:
+  PICKING_TEXT_ID =ced_register_element(sizeof(CED_PICKING_TEXT),0);
 }

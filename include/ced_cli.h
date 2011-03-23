@@ -215,9 +215,19 @@ void ced_geobox_r_solid(double * sizes, double * center, double * rotate, unsign
 
 //hauke
   typedef struct{
+    char text[1000];
+    int id;
+  } CED_PICKING_TEXT; 
+
+void ced_picking_text(const char *, int number);
+
+//--------
+
+  typedef struct{
     char text[400];
     int id;
   } CED_TEXT; 
+
 
 void ced_describe_layer(const char *, int); //, int, int);
 
