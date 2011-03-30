@@ -135,7 +135,8 @@ typedef struct {
   float r_i;           // inner radius
   unsigned edges_o;   // edges outer
   unsigned edges_i;   // edges inner
-  float rotate;        // angle degree
+  float rotate_o;        // angle degree, rotate outer cylinder
+  float rotate_i;      //rotate inner cylinder
   float z;             // 1/2 length
   float shift;         // shift in z
   unsigned color;      // color
