@@ -123,6 +123,7 @@ static int available_cutangles[]={0,30,90,135, 180, 270, 360};  //for new angles
 
 extern int graphic[];  //= {0,0,0,0}; //light, transparence, perspective, anti aliasing
 extern double cut_angle;
+static double z_cutting=7000;
 
 int ced_picking(int x,int y,GLfloat *wx,GLfloat *wy,GLfloat *wz); //from ced_srv.c, need header files!
 
@@ -451,10 +452,25 @@ static void display(void){
   // draw static objects
   display_world(); //only axes?
 
+
+   //glTranslatef(0,0,1000);
+
+   const GLdouble clip_plane[]={0,0,-1,z_cutting};
+   if(z_cutting < 6999){
+        glEnable(GL_CLIP_PLANE0);
+   }else{
+        glDisable(GL_CLIP_PLANE0);
+   }
+   glClipPlane(GL_CLIP_PLANE0,clip_plane);
+
+
+
+
   // draw elements (hits + detector)
   ced_prepare_objmap();
   ced_do_draw_event();
 
+  
   glPopMatrix();
 
   glutSwapBuffers();
@@ -823,10 +839,14 @@ static void keypressed(unsigned char key,int x,int y){
   } else if(key == '-'){
         selectFromMenu(VIEW_ZOOM_OUT);
   } else if(key == 'z'){
-        mm.mv.z+=150./mm.sf;
+        if(z_cutting < 7000) z_cutting+=100;
+        printf("zcutting: %f\n",z_cutting);
+        //mm.mv.z+=150./mm.sf;
         glutPostRedisplay();
   } else if(key == 'Z'){
-        mm.mv.z-=150./mm.sf;
+        if(z_cutting > -7000) z_cutting-=100;
+        printf("zcutting: %f\n",z_cutting);
+        //mm.mv.z-=150./mm.sf;
         glutPostRedisplay();
   }
 
@@ -1422,6 +1442,7 @@ void selectFromMenu(int id){ //hauke
 
 
         case VIEW_RESET:
+            z_cutting=7000;
             mm=mm_reset;
             break;
         case VIEW_FISHEYE:
