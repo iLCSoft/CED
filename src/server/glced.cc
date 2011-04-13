@@ -65,6 +65,15 @@
 #define CUT_ANGLE270            2105
 #define CUT_ANGLE360            2106
 
+#define TRANS0                  3000
+#define TRANS40                 3101
+
+#define TRANS60                 3001
+#define TRANS70                 3002
+#define TRANS80                 3003
+#define TRANS90                 3004
+#define TRANS95                 3005
+
 
 static int available_cutangles[]={0,30,90,135, 180, 270, 360};  //for new angles add the new angle to this list and to define in top of this
 
@@ -123,6 +132,7 @@ static int available_cutangles[]={0,30,90,135, 180, 270, 360};  //for new angles
 
 extern int graphic[];  //= {0,0,0,0}; //light, transparence, perspective, anti aliasing
 extern double cut_angle;
+extern double trans_value;
 static double z_cutting=7000;
 
 int ced_picking(int x,int y,GLfloat *wx,GLfloat *wy,GLfloat *wz); //from ced_srv.c, need header files!
@@ -840,12 +850,12 @@ static void keypressed(unsigned char key,int x,int y){
         selectFromMenu(VIEW_ZOOM_OUT);
   } else if(key == 'z'){
         if(z_cutting < 7000) z_cutting+=100;
-        printf("zcutting: %f\n",z_cutting);
+        //printf("zcutting: %f\n",z_cutting);
         //mm.mv.z+=150./mm.sf;
         glutPostRedisplay();
   } else if(key == 'Z'){
         if(z_cutting > -7000) z_cutting-=100;
-        printf("zcutting: %f\n",z_cutting);
+        //printf("zcutting: %f\n",z_cutting);
         //mm.mv.z-=150./mm.sf;
         glutPostRedisplay();
   }
@@ -1579,6 +1589,35 @@ void selectFromMenu(int id){ //hauke
             cut_angle=360;
             update_cut_angle_menu();
             break;
+        case TRANS0:
+            trans_value=0;
+            break;
+
+        case TRANS40:
+            trans_value=0.4;
+            break;
+
+
+        case TRANS60:
+            trans_value=0.6;
+            break;
+
+        case TRANS70:
+            trans_value=0.7;
+            break;
+
+        case TRANS80:
+            trans_value=0.8;
+            break;
+
+        case TRANS90:
+            trans_value=0.9;
+            break;
+
+        case TRANS95:
+            trans_value=0.95;
+            break;
+
 
 
         case GRAFIC_HIGH:
@@ -1759,7 +1798,8 @@ int buildMenuPopup(void){ //hauke
     int subMenu3;
     int subMenu4;
     int subsubMenu1;
-    //int subsubMenu2;
+    int subsubMenu3;
+    //int subsubMenu2; //extern
 
 
 
@@ -1851,11 +1891,23 @@ int buildMenuPopup(void){ //hauke
 
 
 
+
+    subsubMenu3=glutCreateMenu(selectFromMenu);
+    glutAddMenuEntry("  0%",TRANS0);
+    glutAddMenuEntry("40%",TRANS40);
+    glutAddMenuEntry("60%",TRANS60);
+    glutAddMenuEntry("70%",TRANS70);
+    glutAddMenuEntry("80%",TRANS80);
+    glutAddMenuEntry("90%",TRANS90);
+    glutAddMenuEntry("95%",TRANS95);
+
+
     subMenu4 = glutCreateMenu(selectFromMenu);
     glutAddMenuEntry("Classic View",GRAFIC_LOW);
     glutAddMenuEntry("New View", GRAFIC_HIGH);
     glutAddSubMenu("Graphic details", subsubMenu1);
     glutAddSubMenu("Cut angle", subsubMenu2);
+    glutAddSubMenu("Transparency value", subsubMenu3);
 
 
 
@@ -1873,12 +1925,13 @@ int buildMenuPopup(void){ //hauke
  int main(int argc,char *argv[]){
 
   WORLD_SIZE = DEFAULT_WORLD_SIZE ;
-  //set_bg_color(0.0,0.0,0.0,0.0); //set to default (black)
-  set_bg_color(bgColors[0][0],bgColors[0][1],bgColors[0][2],bgColors[0][3]); //set to default (light blue [0.0, 0.2, 0.4, 0.0])
+  set_bg_color(0.0,0.0,0.0,0.0); //set to default (black)
+  //set_bg_color(bgColors[0][0],bgColors[0][1],bgColors[0][2],bgColors[0][3]); //set to default (light blue [0.0, 0.2, 0.4, 0.0])
 
   graphic[1]=1; //transp
   graphic[2]=1; //persp
-  cut_angle=45;
+  cut_angle=0; //45;
+  trans_value=0.8;
 
 
   char hex[]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
