@@ -130,10 +130,19 @@ static int available_cutangles[]={0,30,90,135, 180, 270, 360};  //for new angles
 
 #define HELP            100
 
+#define TOGGLE_PHI_PROJECTION   5000
+#define TOGGLE_Z_PROJECTION     5001
+
+//#define PHI_PROJECTION_OFF 5001
+
+
 extern int graphic[];  //= {0,0,0,0}; //light, transparence, perspective, anti aliasing
 extern double cut_angle;
 extern double trans_value;
 static double z_cutting=7000;
+
+extern bool phi_projection;
+extern bool z_projection;
 
 int ced_picking(int x,int y,GLfloat *wx,GLfloat *wy,GLfloat *wz); //from ced_srv.c, need header files!
 
@@ -741,17 +750,27 @@ static void keypressed(unsigned char key,int x,int y){
       selectFromMenu(VIEW_RESET);
       //mm=mm_reset;
       //glutPostRedisplay();
-  } else if(key=='f' || key=='F'){ 
-      selectFromMenu(VIEW_FRONT);
+  } else if(key=='f'){     
+     selectFromMenu(VIEW_FRONT);
       ////mm=mm_reset;
       //mm.ha=mm.va=0.;
       //glutPostRedisplay();
-  } else if(key=='s' || key=='S'){
+  } else if(key == 'F'){
+    selectFromMenu(TOGGLE_Z_PROJECTION); 
+  } else if(key=='s'){
       selectFromMenu(VIEW_SIDE);
       ////mm=mm_reset;
       //mm.ha=90.;
       //mm.va=0.;
       //glutPostRedisplay();
+
+  } else if(key=='S'){
+      selectFromMenu(TOGGLE_PHI_PROJECTION);
+      ////mm=mm_reset;
+      //mm.ha=90.;
+      //mm.va=0.;
+      //glutPostRedisplay();
+
   } else if(key==27) { //esc
       
       exit(0);
@@ -1452,7 +1471,11 @@ void selectFromMenu(int id){ //hauke
 
 
         case VIEW_RESET:
-            z_cutting=7000;
+            if(graphic[2] == 0){selectFromMenu(GRAFIC_PERSP); }
+            z_cutting=7000; //no z cutting
+            cut_angle=0;    // no detector cutting
+            phi_projection = false; // no phi projection
+            z_projection=false; // no phi projection;
             mm=mm_reset;
             break;
         case VIEW_FISHEYE:
@@ -1485,6 +1508,35 @@ void selectFromMenu(int id){ //hauke
             mm.ha=90.;
             mm.va=0.;
             break;
+
+        case TOGGLE_PHI_PROJECTION:
+            if(phi_projection){
+              phi_projection=false;
+            }else{
+              if(z_projection){selectFromMenu(TOGGLE_Z_PROJECTION);}
+              phi_projection=true;
+              if(graphic[2]==1){selectFromMenu(GRAFIC_PERSP); }
+              cut_angle=180;
+              z_cutting=7000;
+              selectFromMenu(VIEW_SIDE);
+            }
+            break;
+
+        case TOGGLE_Z_PROJECTION:
+            if(z_projection){
+              z_projection=false;
+            }else{
+              if(phi_projection){selectFromMenu(TOGGLE_PHI_PROJECTION);}
+              z_projection=true;
+              cut_angle=0;
+              z_cutting=10;
+              selectFromMenu(VIEW_FRONT);
+              if(graphic[2]==1){selectFromMenu(GRAFIC_PERSP); }
+            }
+            break;
+
+
+
         case VIEW_ZOOM_IN:
             mm.sf += mm.sf*50.0/window_height;
             if(mm.sf>50){ mm.sf=50; }
@@ -1838,7 +1890,9 @@ int buildMenuPopup(void){ //hauke
     glutAddMenuEntry("Reset view [r]", VIEW_RESET);
     glutAddMenuEntry("Front view [f]", VIEW_FRONT);
     glutAddMenuEntry("Side view [s]", VIEW_SIDE);
-    glutAddMenuEntry("Fisheye [v]",VIEW_FISHEYE);
+    glutAddMenuEntry("Toggle Phi-projection [S]", TOGGLE_PHI_PROJECTION);
+    glutAddMenuEntry("Toggle Z-projection [S]", TOGGLE_Z_PROJECTION);
+    glutAddMenuEntry("Toggle Fisheye projection [v]",VIEW_FISHEYE);
     glutAddMenuEntry("Zoom in [+]", VIEW_ZOOM_IN);
     glutAddMenuEntry("Zoom out [-]", VIEW_ZOOM_OUT);
     //glutAddMenuEntry("Center [c]", VIEW_CENTER);
@@ -1930,7 +1984,10 @@ int buildMenuPopup(void){ //hauke
 
   graphic[1]=1; //transp
   graphic[2]=1; //persp
-  cut_angle=0; //45;
+  cut_angle=0; //degrees
+  phi_projection=false;
+  z_projection=false;
+
   trans_value=0.8;
 
 

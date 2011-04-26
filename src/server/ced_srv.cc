@@ -32,6 +32,8 @@
 int graphic[3];
 double cut_angle;
 double trans_value;
+double phi_projection;
+double z_projection;
 
 static int mouse_x, mouse_y; 
 
@@ -1044,6 +1046,15 @@ static void ced_draw_hit(CED_Hit *h){
     float y = p_new.y;
     float z = p_new.z;
 
+    if(phi_projection){
+      //phi_projection is on
+        y = y > 0 ? sqrt(x*x + y*y) : -1*sqrt(x*x + y*y);
+        x = 0; 
+    }
+   
+    if(z_projection){
+       z=0;
+    }
 
     if(!IS_VISIBLE(h->type))
       return;
@@ -1087,7 +1098,9 @@ static void ced_draw_hit(CED_Hit *h){
 	default:
 	    glPointSize((GLfloat)h->size);
 	    glBegin(GL_POINTS);
-	    glVertex3fv(&p_new.x);
+	    //glVertex3fv(&p_new.x);
+        glVertex3f(x,y,z);
+
     }
     glEnd();
     ced_add_objmap(&h->p,5,h->lcioID);
@@ -1184,15 +1197,47 @@ static void ced_draw_line(CED_Line *h){
 
 //-- end new
 
-
-
   	glLineWidth(h->width);
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   	glBegin(GL_LINES);
+
+
+    
+    if(phi_projection){
+      //phi_projection is on
+        fisheye_point0.y = fisheye_point0.y > 0 ? sqrt(fisheye_point0.x*fisheye_point0.x + fisheye_point0.y*fisheye_point0.y) : -1*sqrt(fisheye_point0.x*fisheye_point0.x + fisheye_point0.y*fisheye_point0.y);
+        fisheye_point0.x = 0;
+
+        fisheye_point1.y = fisheye_point1.y > 0 ? sqrt(fisheye_point1.x*fisheye_point1.x + fisheye_point1.y*fisheye_point1.y) : -1*sqrt(fisheye_point1.x*fisheye_point1.x + fisheye_point1.y*fisheye_point1.y);
+        fisheye_point1.x = 0;
+   }
+   if(z_projection){
+    fisheye_point0.z=0;
+    fisheye_point1.z=0;
+   }
+/*
+        
+        if(fisheye_point0.y > 0){
+            glVertex3f(0, sqrt(fisheye_point0.x*fisheye_point0.x + fisheye_point0.y*fisheye_point0.y), fisheye_point0.z);
+        }else{
+            glVertex3f(0, -1*sqrt(fisheye_point0.x*fisheye_point0.x + fisheye_point0.y*fisheye_point0.y), fisheye_point0.z);
+        }
+
+        if(fisheye_point1.y > 0){
+            glVertex3f(0, sqrt(fisheye_point1.x*fisheye_point1.x + fisheye_point1.y*fisheye_point1.y), fisheye_point1.z);
+        }else{
+            glVertex3f(0, -1*sqrt(fisheye_point1.x*fisheye_point1.x + fisheye_point1.y*fisheye_point1.y), fisheye_point1.z);
+        }
+
+    }else{
+      //phi_projection is off
+      
+*/
   	//glVertex3fv(&h->p0.x);
   	//glVertex3fv(&h->p1.x);
     glVertex3fv(&fisheye_point0.x); 
     glVertex3fv(&fisheye_point1.x); 
+
 
   	//glDisable(GL_BLEND);
   	glEnd();
@@ -1455,7 +1500,6 @@ static unsigned GEOC_ID=0;
 
 static void ced_draw_geocylinder(CED_GeoCylinder *c){
 
-
   GLUquadricObj *q1 = gluNewQuadric();
 
   glPushMatrix();
@@ -1532,6 +1576,7 @@ static void ced_draw_geocylinder(CED_GeoCylinder *c){
  */
 static unsigned GEOCR_ID=0;
 static void ced_draw_geocylinder_r(CED_GeoCylinderR *c){
+
 
 //FIXME: implement fisheye here as well
 //Non trivial due to possible rotations...
@@ -1634,7 +1679,6 @@ static unsigned CLUELLIPSE_ID = 0;
  * Draws 3 orthogonal elipses as wireframes
  */
 static void ced_draw_cluellipse_r(CED_CluEllipseR * eli )  {
-
 
 	if(!IS_VISIBLE(eli->layer))
       return;
