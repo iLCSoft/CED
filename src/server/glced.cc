@@ -14,6 +14,7 @@
  */
 
 
+
 #ifdef __APPLE__
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
@@ -340,7 +341,7 @@ static struct {
 } mm = {
   30.,
   150.,
-  0.2, //SJA:FIXED set redraw scale a lot smaller
+  0.1, //hauke decrease zoom, //SJA:FIXED set redraw scale a lot smaller
   { 0., 0., 0. },
   0.,
   0.,
@@ -1477,18 +1478,32 @@ void selectFromMenu(int id){ //hauke
             phi_projection = false; // no phi projection
             z_projection=false; // no phi projection;
             mm=mm_reset;
+            mm.sf = fisheye_alpha > 0 ? mm.sf*8.0: mm.sf;
+
             break;
         case VIEW_FISHEYE:
             if(fisheye_alpha==0.0){
+                //mm.sf += 0.69;
+                mm.sf *= 8.0;
+
+
                 fisheye_alpha = 1e-3;
-                 //FISHEYE_WORLD_SIZE = WORLD_SIZE/(1.0+WORLD_SIZE*fisheye_alpha); //<--old
+
+                // FISHEYE_WORLD_SIZE = WORLD_SIZE/(1.0+WORLD_SIZE*fisheye_alpha); //<--old
                 FISHEYE_WORLD_SIZE = WORLD_SIZE/(WORLD_SIZE*fisheye_alpha); //<-- new
                 set_world_size(WORLD_SIZE); // <-- old
                 //set_world_size(FISHEYE_WORLD_SIZE); //<-- new
                 //mm.sf += 0.69; //<-- new
                 //printf("Fisheye view on\n");
+                //printf("mm.sf = %f\n", mm.sf);
+
             }
             else{
+                //mm.sf -= 0.69;
+                mm.sf *= 1.0/8.0;
+
+
+                //printf("mm.sf = %f\n", mm.sf);
                 fisheye_alpha = 0.0;
                 //BACKUP_WORLD_SIZE=WORLD_SIZE; //<-- new
 
@@ -1500,13 +1515,16 @@ void selectFromMenu(int id){ //hauke
             break;
 
         case VIEW_FRONT:
-            mm=mm_reset;
+            //mm=mm_reset;
+            //mm.sf = fisheye_alpha > 0 ? mm.sf*8.0: mm.sf;
             mm.ha=mm.va=0.;
             break;
         case VIEW_SIDE:
-            mm=mm_reset;
+            //mm=mm_reset;
+            //mm.sf = fisheye_alpha > 0 ? mm.sf*8.0: mm.sf;
             mm.ha=90.;
             mm.va=0.;
+
             break;
 
         case TOGGLE_PHI_PROJECTION:
@@ -1525,6 +1543,8 @@ void selectFromMenu(int id){ //hauke
         case TOGGLE_Z_PROJECTION:
             if(z_projection){
               z_projection=false;
+              //z_cutting=7000;
+              //selectFromMenu(GRAFIC_PERSP);
             }else{
               if(phi_projection){selectFromMenu(TOGGLE_PHI_PROJECTION);}
               z_projection=true;
@@ -1539,11 +1559,11 @@ void selectFromMenu(int id){ //hauke
 
         case VIEW_ZOOM_IN:
             mm.sf += mm.sf*50.0/window_height;
-            if(mm.sf>50){ mm.sf=50; }
+            //if(mm.sf>50){ mm.sf=50; }
             break;
         case VIEW_ZOOM_OUT:
             mm.sf -= mm.sf*50.0/window_height;
-            if(mm.sf<0.01){ mm.sf=0.01; }
+            //if(mm.sf<0.01){ mm.sf=0.01; }
             break;
         case VIEW_CENTER:
             //ced_get_selected(x,y,&mm.mv.x,&mm.mv.y,&mm.mv.z);
@@ -2103,8 +2123,10 @@ int buildMenuPopup(void){ //hauke
   glutInitDisplayMode(GLUT_DOUBLE|GLUT_RGB|GLUT_DEPTH|GLUT_ALPHA);
        //glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
  //glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
-/*   glutInitWindowSize(600,600); // change to smaller window size */
+ //  glutInitWindowSize(600,600); // change to smaller window size */
 /*   glutInitWindowPosition(500,0); */
+
+glutInitWindowSize(500,500);
 
 
 

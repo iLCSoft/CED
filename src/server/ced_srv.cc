@@ -94,13 +94,21 @@ CED_Point fisheye_transform(const float x, const float y, const float z, const d
     p_final.x = r*cos(phi)*sin(theta);
     p_final.y = r*sin(phi)*sin(theta);
     p_final.z = z/(1.0 + fisheye_alpha*abs(z));
+
+   /* 
+    p_final.x *= 20;
+    p_final.y *= 20;
+    p_final.z *= 20;
+*/
+
+
   }
   return p_final;
 }
 //SM-H: The same as above, but just applied to r or z rather than a whole cartesian co-ordinate system
 //CED co-ordinates only defined up to float precision
 inline float single_fisheye_transform(float c, const double scale_factor) {
-  return c/(1.0+scale_factor*fabs(c)); 
+  return c/(1.0+scale_factor*fabs(c));
 }
 
 
