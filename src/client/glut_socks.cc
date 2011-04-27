@@ -84,7 +84,7 @@ static void tcp_server_read(struct __glutSocketList *list){
 	  buf_size=need_size;
 	}
 	got_sum=8;
-	while(got_sum<need_size){
+	while(got_sum<(unsigned)need_size){
 	    size=read(list->fd,buf+got_sum,need_size-got_sum);
 	    if(size <= 0){
 	      if (errno == EAGAIN)

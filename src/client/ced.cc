@@ -167,7 +167,7 @@ static void ced_event_copy(ced_event *trg){
 }
 
 void ced_do_draw_event(void){
-  int i,j;
+  unsigned int i,j;
   ced_element *pe;
   unsigned char *pdata;
   for(i=0;i<ceve.e_count;i++){
@@ -231,7 +231,8 @@ void ced_send_event(void){
     int size;
     unsigned type;
   } *hdr,draw_hdr;
-  unsigned i,sent_sum,problem=0;
+  unsigned i,problem=0;
+  int sent_sum;
   char *buf;
   int sent;
   ced_element *pe;

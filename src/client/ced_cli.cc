@@ -50,7 +50,7 @@ void ced_line_ID(float x0,float y0,float z0,
 	      float x1,float y1,float z1,
 	      unsigned type, unsigned width,unsigned color, unsigned lcioID){
   //test for picking
-  static int anz;
+  //static int anz;
   float length=(x1-x0)*(x1-x0) + (y1-y0)*(y1-y0) + (z1-z0)*(z1-z0);
   //printf("CEDLINE length: %f\n x0 %f y0 %f z0 %f, x1 %f, y1 %f z1 %f", length, x0, y0, z0, x1, y1, z1);
 
@@ -295,7 +295,7 @@ void ced_legend(float ene_min, float ene_max, unsigned int color_steps, unsigned
  	legend->scale = scale;
  	
   	const unsigned int numberOfColours = 3;
-  	int i,j;
+  	unsigned int i,j;
   	for (i = 0; i < numberOfColours; i ++ ) {
   		for (j = 0; j < color_steps; j ++ ) {
   			legend->rgb_matrix[j][i] = rgb_matrix[j][i];
@@ -376,7 +376,7 @@ void ced_cone_r_ID(float base, float height, double *center, double *rotate, uns
  	
   	const unsigned int dim = 3;
   	const unsigned int channel = 4;
-  	int i, j;
+  	unsigned int i, j;
 
     // ced_line_ID(0,0,0, center[0], center[1], center[2], type, width, RGBAcolor, lcioid);
 
@@ -404,7 +404,7 @@ void ced_ellipsoid_r_ID(double *size, double *center, double *rotate, unsigned i
 	if ( ! eli ) return;	
  	
   	const unsigned int dim = 3;
-  	int i;
+  	unsigned int i;
   	for (i = 0; i < dim; i ++ ) {
 		eli->center[i] = center[i];
 		eli->rotate[i] = rotate[i];
@@ -427,7 +427,7 @@ void ced_cluellipse_r_ID(float radius, float height, float *center, double *rota
 	if ( ! eli ) return;	
  	
   	const unsigned int dim = 3;
-  	int i;
+  	unsigned int i;
   	for (i = 0; i < dim; i ++ ) {
 		eli->center[i] = center[i];
 		eli->rotate[i] = rotate[i];
