@@ -42,7 +42,10 @@ double z_projection;
 static int mouse_x, mouse_y; 
 
 /** This defines what is visible */
-unsigned ced_visible_layers=0x00000FFF;
+//unsigned ced_visible_layers=0x00000FFF;
+//unsigned long ced_visible_layers=0xFFFFFFFF;
+bool ced_visible_layers[MAX_LAYER]={1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
+
 int SELECTED_ID = -1;
 
 //hauke
@@ -50,7 +53,9 @@ int SELECTED_X=0;
 int SELECTED_Y=0;
 
 extern double fisheye_alpha;
-#define IS_VISIBLE(x) ((1<<((x>>8)&0xff))&ced_visible_layers)
+//#define IS_VISIBLE(x) ((1<<((x>>8)&0xff))&ced_visible_layers)
+#define IS_VISIBLE(x) ((x < (MAX_LAYER-1) && x >= 0)?ced_visible_layers[x]:false)
+
 
 /*
  * To support mouse operations with objects, we need
@@ -766,7 +771,7 @@ static void ced_draw_hit(CED_Hit *h){
         z=0;
     }
 
-    if(!IS_VISIBLE(h->type)){
+    if(!IS_VISIBLE(h->layer)){
         return;
     }
 
@@ -774,12 +779,12 @@ static void ced_draw_hit(CED_Hit *h){
 
     ced_color(h->color);
 
-    switch((h->type&0xf)){
+    switch(h->type){
     	case CED_HIT_CROSS:
     	case CED_HIT_STAR:
     	    glLineWidth(1.);
     	    glBegin(GL_LINES);
-    	    if((h->type & CED_HIT_CROSS)==CED_HIT_CROSS){
+    	    if(h->type ==  CED_HIT_CROSS){
     	        //	      printf("cross type == %d \n",(h->type & CED_HIT_CROSS));
     	        d=h->size/2;
     
@@ -807,7 +812,7 @@ static void ced_draw_hit(CED_Hit *h){
     	    }
     	    break;
     	default:
-    	    glPointSize((GLfloat)h->size);
+    	    glPointSize((GLfloat)h->size/2);
     	    glBegin(GL_POINTS);
     	    //glVertex3fv(&p_new.x);
             glVertex3f(x,y,z);
@@ -947,6 +952,10 @@ winY=mouse_y;
 static unsigned GEOT_ID=0;
 
 static void ced_draw_geotube(CED_GeoTube *c){
+    if(!IS_VISIBLE(c->type)){
+        return;
+    }
+
     glPushMatrix();
 
     double transformed_shift = single_fisheye_transform(c->shift, fisheye_alpha);

@@ -5,6 +5,20 @@
 #ifndef __CED_CLI_H
 #define __CED_CLI_H
 
+
+//important:
+//          - sum of all layers must be smaler than max_layer!
+//          - number_popup_layer must be smaler than number_data_layer
+
+#define MAX_LAYER       100
+#define NUMBER_POPUP_LAYER      20
+#define NUMBER_DATA_LAYER       25
+#define NUMBER_DETECTOR_LAYER   20
+
+
+#define MAX_LAYER_CHAR 400
+
+
 //#ifdef __cplusplus
 //extern "C" {
 //#endif
@@ -62,10 +76,18 @@ int ced_selected_id_noblock(void);
 
 void ced_register_elements(void);
 
+/*
 typedef enum {
   CED_TYPE_SHIFT=0x0,
   CED_LAYER_SHIFT=0x8
 } CED_TYPE_BITS;
+*/
+
+typedef enum {
+  CED_TYPE_SHIFT=0x0,
+  CED_LAYER_SHIFT=0x0
+} CED_TYPE_BITS;
+
 
 typedef struct {
   float x;
@@ -85,14 +107,15 @@ typedef enum {
 
 typedef struct {
   CED_Point p;
-  unsigned type;  // not yet defined...
+  unsigned type;  // point, star, etc
+  unsigned layer; //layer
   unsigned color; // in ARGB form (so, 0xff0000 is RED)
   unsigned size;  // size of point/size of cross
   unsigned lcioID; // unique id of LICO object
 } CED_Hit;
 
 void ced_hit(float x,float y,float z,unsigned type,unsigned size,unsigned color);
-void ced_hit_ID(float x,float y,float z,unsigned type,unsigned size,unsigned color, unsigned lcioID);
+void ced_hit_ID(float x,float y,float z,unsigned type,unsigned layer, unsigned size,unsigned color, unsigned lcioID);
 
 /*
  * Line element
@@ -140,6 +163,7 @@ typedef struct {
   float z;             // 1/2 length
   float shift;         // shift in z
   unsigned color;      // color
+  unsigned type;        //describes the layer where this element lies
 } CED_GeoTube;
 
 void ced_geotubes(unsigned n,CED_GeoTube *all);

@@ -15,6 +15,8 @@
 
 
 
+#include <iomanip>
+
 #ifdef __APPLE__
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
@@ -45,6 +47,31 @@
 #include <sys/time.h>
 #include <time.h>
 #include <netdb.h>
+#include <iostream>
+
+#define DETECTOR1               4001
+#define DETECTOR2               4002
+#define DETECTOR3               4003
+#define DETECTOR4               4004
+#define DETECTOR5               4005
+#define DETECTOR6               4006
+#define DETECTOR7               4007
+#define DETECTOR8               4008
+#define DETECTOR9               4009
+#define DETECTOR10              4010
+#define DETECTOR11              4011
+#define DETECTOR12              4012
+#define DETECTOR13               4013
+#define DETECTOR14               4014
+#define DETECTOR15               4015
+#define DETECTOR16               4016
+#define DETECTOR17               4017
+#define DETECTOR18               4018
+#define DETECTOR19               4019
+#define DETECTOR20              4020
+
+#define DETECTOR_ALL            4100
+
 
 #define GRAFIC_HIGH             2000            
 #define GRAFIC_LOW              2001
@@ -150,6 +177,7 @@ const char layer_keys[] = {'0','1', '2','3','4','5','6','7','8','9',')', '!', '@
 static int mainWindow=-1;
 static int subWindow=-1;
 static int layerMenu;
+static int detectorMenu;
 static int subsubMenu2;
 
 //static int helpWindow=-1;
@@ -221,7 +249,8 @@ extern struct __glutSocketList {
 void ced_prepare_objmap(void);
 int ced_get_selected(int x,int y,GLfloat *wx,GLfloat *wy,GLfloat *wz);
 //SJA:FIXED set this to extern as it is a global from ced_srv.c
-extern unsigned ced_visible_layers; 
+//extern unsigned long ced_visible_layers; 
+extern bool ced_visible_layers[100];
 
 static struct _geoCylinder {
   GLuint obj;
@@ -660,6 +689,7 @@ void printBinaer(int x){
     }
     printf("\n");
 }
+/*
 int isLayerVisible(int x){
     if( ((1<<(x))&ced_visible_layers) > 0){
         return(1);
@@ -667,13 +697,32 @@ int isLayerVisible(int x){
         return(0);
     }
 }
+*/
 
+int isLayerVisible(int x){
+    return(ced_visible_layers[x]);
+}
+
+
+/*
 static void toggle_layer(unsigned l){
     //printf("Toggle layer %u:\n",l);
     //printBinaer(ced_visible_layers);
     ced_visible_layers^=(1<<l);
+    //std::cout << "ced_visible_layers: "<<ced_visible_layers << std::endl;
+
     //  printf("Toggle Layer %u  and ced_visible_layers = %u \n",l,ced_visible_layers);  
     //printBinaer(ced_visible_layers);
+}
+*/
+static void toggle_layer(unsigned l){
+    if(l > MAX_LAYER-1){ return; }
+
+    if(ced_visible_layers[l]){
+        ced_visible_layers[l]=false;
+    }else{
+        ced_visible_layers[l]=true;
+    }
 }
 
 /*
@@ -1025,7 +1074,7 @@ void subDisplay(void){
     glRasterPos2f(((int)(aline/ITEMS_PER_COLUMN)+actual_column)*column, 0.80F);
     drawStringBig(label);
 
-    for(i=0;i<MAX_LAYER;i++){
+    for(i=0;i<NUMBER_DATA_LAYER;i++){
         for(j=0;j<MAX_LAYER_CHAR-1;j++){
             if(layerDescription[i][j] != ','){
                 tmp[j]=layerDescription[i][j];
@@ -1107,7 +1156,7 @@ void toggleHelpWindow(void){ //hauke
 void updateLayerEntryInPopupMenu(int id){ //id is layer id, not menu id!
     char string[200];
     char tmp[41];
-    if(id < 0 || id > MAX_LAYER_POPUP-1){
+    if(id < 0 || id > NUMBER_POPUP_LAYER-1){
         return;
     }
     strncpy(tmp, layerDescription[id], 40); 
@@ -1118,6 +1167,23 @@ void updateLayerEntryInPopupMenu(int id){ //id is layer id, not menu id!
     glutChangeToMenuEntry(id+2,string, id+LAYER_0);                     
 }
 
+void updateLayerEntryDetector(int id){ //id is layer id, not menu id!
+    char string[200];
+    char tmp[41];
+    if(id < NUMBER_DATA_LAYER || id > NUMBER_DETECTOR_LAYER+NUMBER_DATA_LAYER-1 || id > MAX_LAYER-1 || id < 0){
+        return;
+    }
+    strncpy(tmp, layerDescription[id], 40); 
+    tmp[40]=0;
+    
+    //sprintf(string,"[%s] Layer %s%i [%c]: %s%s",isLayerVisible(id)?"X":"   ", (id < 10)?"0":"" ,id, layer_keys[id], tmp, (strlen(layerDescription[id]) > 40)?"...":"");
+    sprintf(string,"[%s] Layer %s%i: %s%s",isLayerVisible(id)?"X":"   ", (id < 10)?"0":"" ,id,tmp, (strlen(layerDescription[id]) > 40)?"...":"");
+
+    glutSetMenu(detectorMenu);
+    glutChangeToMenuEntry(id-NUMBER_DATA_LAYER+2,string, id-NUMBER_DATA_LAYER+DETECTOR1);                     
+}
+
+
 void addLayerDescriptionToMenu(int id, char * str){
     if(id < 0 || id >= MAX_LAYER){
         printf("Warning: Layer id out of range\n");
@@ -1125,6 +1191,8 @@ void addLayerDescriptionToMenu(int id, char * str){
     }
     strncpy(layerDescription[id], str,MAX_LAYER_CHAR-1);
     updateLayerEntryInPopupMenu(id);
+    updateLayerEntryDetector(id);
+
 }
 
 
@@ -1295,7 +1363,7 @@ void selectFromMenu(int id){ //hauke
         case LAYER_ALL:
             glutSetMenu(layerMenu);
             anz=0;
-            for(i=0;i<MAX_LAYER_POPUP;i++){ //try to turn all layers on
+            for(i=0;i<NUMBER_POPUP_LAYER;i++){ //try to turn all layers on
                 if(!isLayerVisible(i)){
                    //sprintf(string,"[X] Layer %s%i [%c]: %s", (i < 10)?"0":"" ,i, layer_keys[i], layerDescription[i]);
                    //glutChangeToMenuEntry(i+2,string, LAYER_0+i);                     
@@ -1305,7 +1373,7 @@ void selectFromMenu(int id){ //hauke
                 }
             }
             if(anz == 0){ //turn all layers off
-                for(i=0;i<MAX_LAYER_POPUP;i++){
+                for(i=0;i<NUMBER_POPUP_LAYER;i++){
                    //sprintf(string,"[   ] Layer %s%i [%c]: %s",(i < 10)?"0":"" ,i, layer_keys[i], layerDescription[i]);
                    //glutChangeToMenuEntry(i+2,string, LAYER_0+i);                     
                    toggle_layer(i);
@@ -1313,6 +1381,58 @@ void selectFromMenu(int id){ //hauke
                 }
             }
             break;
+
+        case DETECTOR_ALL:
+            glutSetMenu(detectorMenu);
+            anz=0;
+            for(i=NUMBER_DATA_LAYER;i<NUMBER_DETECTOR_LAYER+NUMBER_DATA_LAYER;i++){ //try to turn all layers on
+                if(!isLayerVisible(i)){
+                   //sprintf(string,"[X] Layer %s%i [%c]: %s", (i < 10)?"0":"" ,i, layer_keys[i], layerDescription[i]);
+                   //glutChangeToMenuEntry(i+2,string, LAYER_0+i);                     
+                   toggle_layer(i);
+                   updateLayerEntryDetector(i);
+                   anz++;
+                }
+            }
+            if(anz == 0){ //turn all layers off
+                for(i=NUMBER_DATA_LAYER;i<NUMBER_DETECTOR_LAYER+NUMBER_DATA_LAYER;i++){
+                   //sprintf(string,"[   ] Layer %s%i [%c]: %s",(i < 10)?"0":"" ,i, layer_keys[i], layerDescription[i]);
+                   //glutChangeToMenuEntry(i+2,string, LAYER_0+i);                     
+                   toggle_layer(i);
+                   updateLayerEntryDetector(id);
+                }
+            }
+            break;
+
+
+        case DETECTOR1:
+        case DETECTOR2:
+        case DETECTOR3:
+        case DETECTOR4:
+        case DETECTOR5:
+        case DETECTOR6:
+        case DETECTOR7:
+        case DETECTOR8:
+        case DETECTOR9:
+        case DETECTOR10:
+        case DETECTOR11:
+        case DETECTOR12:
+        case DETECTOR13:
+        case DETECTOR14:
+        case DETECTOR15:
+        case DETECTOR16:
+        case DETECTOR17:
+        case DETECTOR18:
+        case DETECTOR19:
+        case DETECTOR20:
+
+            glutSetMenu(detectorMenu);
+            toggle_layer(id-DETECTOR1+NUMBER_DATA_LAYER);
+            //std::cout << "toogle layer " << id-DETECTOR1 + NUMBER_DATA_LAYER<< std::endl;
+            updateLayerEntryDetector(id-DETECTOR1+NUMBER_DATA_LAYER);
+            break;
+
+
 
         case LAYER_0:
         case LAYER_1:
@@ -1336,6 +1456,7 @@ void selectFromMenu(int id){ //hauke
         case LAYER_19:
             glutSetMenu(layerMenu);
             toggle_layer(id-LAYER_0);
+            //std::cout << "toogle layer " << id-LAYER_0 << std::endl;
             updateLayerEntryInPopupMenu(id-LAYER_0);
             break;
 
@@ -1509,6 +1630,7 @@ int buildMenuPopup(void){ //hauke
     int subMenu4;
     int subsubMenu1;
     int subsubMenu3;
+    int DetectorComponents;
     //int subsubMenu2; //extern
 
 
@@ -1556,20 +1678,27 @@ int buildMenuPopup(void){ //hauke
     //glutAddMenuEntry("Center [c]", VIEW_CENTER);
 
 
+
+    //set up detector components and data layer menu
+    int i;
     subMenu3 = glutCreateMenu(selectFromMenu);
     layerMenu=subMenu3;
 
-  
-    glutAddMenuEntry("Show all Layers [`]", LAYER_ALL);
-
-    int i;
-    //char string[100];
-
-    for(i=0;i<MAX_LAYER_POPUP;i++){
+    glutAddMenuEntry("Show/Hide all data Layers [`]", LAYER_ALL);
+    for(i=0;i<NUMBER_POPUP_LAYER;i++){
         //sprintf(string,"[%s] Layer %s%i [%c]: %s",isLayerVisible(i)?"X":"   ", (i < 10)?"0":"" ,i, layer_keys[i], layerDescription[i]);
         glutAddMenuEntry(" ",LAYER_0+i);
         //updateLayerEntryInPopupMenu(LAYER_0+i);
     }
+
+
+
+    DetectorComponents = glutCreateMenu(selectFromMenu);
+    glutAddMenuEntry("Show/Hide all detector components", DETECTOR_ALL);
+    for(i=NUMBER_DATA_LAYER;i<NUMBER_DETECTOR_LAYER+NUMBER_DATA_LAYER;i++){
+        glutAddMenuEntry(" ",DETECTOR1+i-NUMBER_DATA_LAYER);
+    }
+    detectorMenu=DetectorComponents;
 
 
     subsubMenu1 = glutCreateMenu(selectFromMenu);
@@ -1605,9 +1734,16 @@ int buildMenuPopup(void){ //hauke
     glutAddSubMenu("Cut angle", subsubMenu2);
     glutAddSubMenu("Transparency value", subsubMenu3);
 
+
+
+
+
+
     menu=glutCreateMenu(selectFromMenu);
     glutAddSubMenu("View", subMenu2);
     glutAddSubMenu("Layers", subMenu3);
+    glutAddSubMenu("Detector Components", DetectorComponents);
+
     glutAddSubMenu("Background Color", subMenu1);
     glutAddSubMenu("Graphics options", subMenu4);
     glutAddMenuEntry("Toggle help [h]",HELP);
@@ -1783,9 +1919,15 @@ int main(int argc,char *argv[]){
     buildMenuPopup(); //hauke
     glutAttachMenu(GLUT_RIGHT_BUTTON); 
   
-    for(i=0;i<MAX_LAYER_POPUP;i++){ //fill the layer section
+    for(i=0;i<NUMBER_POPUP_LAYER;i++){ //fill the layer section
       updateLayerEntryInPopupMenu(i);
     }
+
+    for(i=NUMBER_DATA_LAYER;i<NUMBER_DETECTOR_LAYER+NUMBER_DATA_LAYER;i++){ //fill the layer section
+      updateLayerEntryDetector(i);
+    }
+
+
   
     glutTimerFunc(500,timer,1);
   
