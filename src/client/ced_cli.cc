@@ -21,6 +21,7 @@ void ced_hit(float x,float y,float z,unsigned type,unsigned size,unsigned color)
     ced_hit_ID(x,y,z,type,0, size,color, 0);
 }
 
+//this function need: type: typenumber, layer: layernumber
 void ced_hit_ID(float x,float y,float z,unsigned type,unsigned layer, unsigned size,unsigned color, unsigned lcioID){
  CED_Hit *h=(CED_Hit *)ced_add(HIT_ID);
  if(!h)
@@ -34,6 +35,23 @@ void ced_hit_ID(float x,float y,float z,unsigned type,unsigned layer, unsigned s
  h->color=color;
  h->lcioID=lcioID;
 }
+
+//deprecated!!!
+//this function need: type = (typenumber & (layernumber << CED_LAYER_SHIFT))
+void ced_hit_ID(float x,float y,float z,unsigned type, unsigned size,unsigned color, unsigned lcioID){
+ CED_Hit *h=(CED_Hit *)ced_add(HIT_ID);
+ if(!h)
+   return;
+ h->p.x=x;
+ h->p.y=y;
+ h->p.z=z;
+ h->type=(type & 0xFF);
+ h->layer=(type >> CED_LAYER_SHIFT);
+ h->size=size;
+ h->color=color;
+ h->lcioID=lcioID;
+}
+
 
 /*
  * Line element
