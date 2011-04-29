@@ -828,7 +828,7 @@ static void ced_draw_hit(CED_Hit *h){
 static unsigned LINE_ID=0;
 
 static void ced_draw_line(CED_Line *h){
-    if(!IS_VISIBLE(h->type)){
+    if(!IS_VISIBLE(h->type << CED_LAYER_SHIFT)){
         return;
     }
    	

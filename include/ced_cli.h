@@ -76,18 +76,18 @@ int ced_selected_id_noblock(void);
 
 void ced_register_elements(void);
 
+/*
 typedef enum {
   CED_TYPE_SHIFT=0x0,
   CED_LAYER_SHIFT=0x8
 } CED_TYPE_BITS;
+*/
 
-/*
 typedef enum {
   CED_TYPE_SHIFT=0x0,
   CED_LAYER_SHIFT=0x0
 } CED_TYPE_BITS;
 
-*/
 
 typedef struct {
   float x;
@@ -115,13 +115,7 @@ typedef struct {
 } CED_Hit;
 
 void ced_hit(float x,float y,float z,unsigned type,unsigned size,unsigned color);
-
-//this function need: type: type, layer: layernumber
 void ced_hit_ID(float x,float y,float z,unsigned type,unsigned layer, unsigned size,unsigned color, unsigned lcioID);
-      
-//this function need: type = (type & (layer << CED_LAYER_SHIFT))
-void ced_hit_ID(float x,float y,float z,unsigned type, unsigned size,unsigned color, unsigned lcioID);
-
 
 /*
  * Line element
