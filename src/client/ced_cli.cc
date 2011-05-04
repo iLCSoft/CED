@@ -21,6 +21,16 @@ void ced_hit(float x,float y,float z,unsigned type,unsigned size,unsigned color)
     ced_hit_ID(x,y,z,type,0, size,color, 0);
 }
 
+//deprecated!!
+void ced_hit_ID(float x,float y,float z,unsigned type, unsigned size,unsigned color, unsigned lcioID){
+   static int warn=0;
+   if(warn==0){
+        printf("Warning: \"ced_hit_ID(float x,float y,float z,unsigned type,unsigned layer, unsigned size,unsigned color, unsigned lcioID)\" is deprecated, please use \"ced_hit_ID(float x,float y,float z,unsigned type,unsigned layer, unsigned size,unsigned color, unsigned lcioID)\"\n");
+        warn=1;
+    }
+    ced_hit_ID(x,y,z,0,type,size,color,lcioID);
+}
+
 void ced_hit_ID(float x,float y,float z,unsigned type,unsigned layer, unsigned size,unsigned color, unsigned lcioID){
  CED_Hit *h=(CED_Hit *)ced_add(HIT_ID);
  if(!h)

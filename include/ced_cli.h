@@ -115,6 +115,11 @@ typedef struct {
 } CED_Hit;
 
 void ced_hit(float x,float y,float z,unsigned type,unsigned size,unsigned color);
+
+//to give a bit of downward compatibility
+void ced_hit_ID(float x,float y,float z,unsigned type, unsigned size,unsigned color, unsigned lcioID);
+
+
 void ced_hit_ID(float x,float y,float z,unsigned type,unsigned layer, unsigned size,unsigned color, unsigned lcioID);
 
 /*

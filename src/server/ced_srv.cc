@@ -771,6 +771,7 @@ static void ced_draw_hit(CED_Hit *h){
         z=0;
     }
 
+    //printf("hit on layer: %i\n", h->layer);
     if(!IS_VISIBLE(h->layer)){
         return;
     }
@@ -828,7 +829,7 @@ static void ced_draw_hit(CED_Hit *h){
 static unsigned LINE_ID=0;
 
 static void ced_draw_line(CED_Line *h){
-    if(!IS_VISIBLE(h->type << CED_LAYER_SHIFT)){
+    if(!IS_VISIBLE(h->type)){ //<< CED_LAYER_SHIFT)){
         return;
     }
    	
@@ -837,7 +838,7 @@ static void ced_draw_line(CED_Line *h){
     fisheye_point0 = fisheye_transform(h->p0.x, h->p0.y, h->p0.z, fisheye_alpha);
     fisheye_point1 = fisheye_transform(h->p1.x, h->p1.y, h->p1.z, fisheye_alpha);    	
 
-   	glEnable(GL_BLEND);
+   	//glEnable(GL_BLEND);
 
 
   	ced_color(h->color);
@@ -849,10 +850,16 @@ static void ced_draw_line(CED_Line *h){
     gluQuadricTexture(Sphere, GL_TRUE);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glMatrixMode(GL_MODELVIEW);
+
     //TODO
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glColor4f((h->color>>16)&0xff,(h->color>>8)&0xff,(h->color)&0xff, 0.1);
+    //glEnable(GL_BLEND);
+    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    //glDisable(GL_BLEND);
+
+    //glColor4f((h->color>>16)&0xff,(h->color>>8)&0xff,(h->color)&0xff, 1);
+    glColor3f((h->color>>16)&0xff,(h->color>>8)&0xff,(h->color)&0xff);
+
+
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     //end hauke
 
@@ -881,6 +888,7 @@ static void ced_draw_line(CED_Line *h){
 
   	//glDisable(GL_BLEND);
   	glEnd();
+    //glEnable(GL_BLEND);
     ced_add_objmap(&h->p0,5,h->lcioID);
 }
 

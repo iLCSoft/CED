@@ -1560,19 +1560,19 @@ void selectFromMenu(int id){ //hauke
                 printf("Light is now on\n");
                  graphic[0] = 1;
                  //TODO: CHANGE IT
-                 GLfloat light0_spec[] = {1, 1, 1, 1};
-                 GLfloat light0_pos[] = {0, 0, 5000};
-                 GLfloat light0_ambi[]= {0.5, 0.5, 0.5, 1};     
+                 GLfloat light0_spec[] = {1, 1, 1, 0.5};
+                 GLfloat light0_pos[] = {0, 0, 8000};
+                 GLfloat light0_ambi[]= {0.5, 0.5, 0.5, 0.5};     
 
-                 glLightfv(GL_LIGHT0, GL_DIFFUSE, light0_ambi);
-                 glLightfv(GL_LIGHT0, GL_AMBIENT, light0_ambi);
+                 //glLightfv(GL_LIGHT0, GL_DIFFUSE, light0_ambi);
+                 //glLightfv(GL_LIGHT0, GL_AMBIENT, light0_ambi);
                  glLightfv(GL_LIGHT0, GL_SPECULAR, light0_spec);
 
 
                  glLightfv(GL_LIGHT0, GL_POSITION, light0_pos);
                  
-                 //glClearColor (0.0, 0.0, 0.0, 0.0);
-                 glShadeModel (GL_SMOOTH);
+                 ////glClearColor (0.0, 0.0, 0.0, 0.0);
+                 //glShadeModel (GL_SMOOTH);
 
 
 
@@ -1583,11 +1583,15 @@ void selectFromMenu(int id){ //hauke
                  glColorMaterial (GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE) ;
                  glEnable (GL_COLOR_MATERIAL) ;
 
-                 glEnable(GL_LIGHTING); 
 
+                 glEnable(GL_NORMALIZE);
+
+                 glEnable(GL_LIGHTING); 
                  glEnable(GL_LIGHT0);
+
+                 glEnable(GL_DEPTH_TEST);
+
                  glMatrixMode(GL_MODELVIEW);
-                 //glEnable(GL_DEPTH_TEST);
             }
             break;
 
@@ -1704,9 +1708,9 @@ int buildMenuPopup(void){ //hauke
     subsubMenu1 = glutCreateMenu(selectFromMenu);
     glutAddMenuEntry("Perspective",GRAFIC_PERSP);
     //glutAddMenuEntry("Deepbuffer", GRAFIC_BUFFER);
-    glutAddMenuEntry("Transparency", GRAFIC_TRANS);
-    glutAddMenuEntry("Light", GRAFIC_LIGHT);
-    glutAddMenuEntry("Anti Aliasing", GRAFIC_ALIAS);
+    glutAddMenuEntry("Transparency/mesh", GRAFIC_TRANS);
+    //glutAddMenuEntry("Light", GRAFIC_LIGHT);
+    //glutAddMenuEntry("Anti Aliasing", GRAFIC_ALIAS);
 
 
 
@@ -1731,7 +1735,6 @@ int buildMenuPopup(void){ //hauke
     glutAddMenuEntry("Classic View",GRAFIC_LOW);
     glutAddMenuEntry("New View", GRAFIC_HIGH);
     glutAddSubMenu("Graphic details", subsubMenu1);
-    glutAddSubMenu("Cut angle", subsubMenu2);
     glutAddSubMenu("Transparency value", subsubMenu3);
 
 
@@ -1741,9 +1744,9 @@ int buildMenuPopup(void){ //hauke
 
     menu=glutCreateMenu(selectFromMenu);
     glutAddSubMenu("View", subMenu2);
-    glutAddSubMenu("Layers", subMenu3);
-    glutAddSubMenu("Detector Components", DetectorComponents);
-
+    glutAddSubMenu("Data layers", subMenu3);
+    glutAddSubMenu("Detector components", DetectorComponents);
+    glutAddSubMenu("Detector cuts", subsubMenu2);
     glutAddSubMenu("Background Color", subMenu1);
     glutAddSubMenu("Graphics options", subMenu4);
     glutAddMenuEntry("Toggle help [h]",HELP);
@@ -1897,7 +1900,7 @@ int main(int argc,char *argv[]){
   
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
-  
+
     init();
     mm_reset=mm;
    
