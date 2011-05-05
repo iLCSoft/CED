@@ -1829,7 +1829,7 @@ int main(int argc,char *argv[]){
          !strcmp( argv[i] , "-?" )
          ) {
         printf( "\n  CED event display server: \n\n" 
-  	      "   Usage:  glced [-bgcolor color] [-world_size length] [-geometry x_geometry] [--trust trusted_host]\n" 
+  	      "   Usage:  glced [-bgcolor color] [-world_size length] [-geometry x_geometry] [-trust trusted_host]\n" 
   	      "        where:  \n"
             "              - color:        Background color (values: black, white, blue or hexadecimal number)\n"
   	      "              - length:       Visible world-cube size in mm (default: 6000) \n" 
@@ -1840,21 +1840,25 @@ int main(int argc,char *argv[]){
   	      "     ./bin/glced -bgcolor 4C4C66 -world_size 1000. -geometry 600x600+500+0  --trust 192.168.11.22 > /tmp/glced.log 2>&1 & \n\n"  
   	      "    "
   	      "   Change port (before starting glced):"
-                "         export CED_PORT=<portnumber>"
+          "         export CED_PORT=<portnumber>"
+          "\n\n"
   	      ) ;      
         exit(0) ;
-      } else if(!strcmp(argv[i], "--trust")){
+      } else if(!strcmp(argv[i], "-trust")){
           i++;
           if(i >= argc){
               printf("wrong syntax!\n");
               exit(0);
           }
-          struct hostent *host = gethostbyname(argv[i+1]);
+
+          //printf("test: %s %s\n",argv[i], argv[i+1]);
+          struct hostent *host = gethostbyname(argv[i]);
           if (host != NULL){
   	    extern char trusted_hosts[50];
+
               snprintf(trusted_hosts, 50, "%u.%u.%u.%u",(unsigned char)host->h_addr[0] ,(unsigned char)host->h_addr[1] ,(unsigned char)host->h_addr[2] ,(unsigned char)host->h_addr[3]);
   
-             //printf("trust ip %s\n", trusted_hosts);
+             printf("Trust ip: %s\n", trusted_hosts);
           } else{
               printf("ERROR: Host %s is unknown!\n", argv[i+1]);  
           }
