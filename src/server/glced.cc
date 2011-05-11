@@ -15,6 +15,7 @@
 
 
 
+
 #include <iomanip>
 
 #ifdef __APPLE__
@@ -48,6 +49,9 @@
 #include <time.h>
 #include <netdb.h>
 #include <iostream>
+
+
+    //#include<jpeglib.h>
 
 #define DETECTOR1               4001
 #define DETECTOR2               4002
@@ -154,6 +158,7 @@ static int available_cutangles[]={0,30,90,135, 180, 270, 360};  //for new angles
 #define LAYER_ALL       60
 
 #define HELP            100
+#define SAVE            101
 
 #define TOGGLE_PHI_PROJECTION   5000
 #define TOGGLE_Z_PROJECTION     5001
@@ -165,6 +170,7 @@ extern int graphic[];  //= {0,0,0,0}; //light, transparence, perspective, anti a
 extern double cut_angle;
 extern double trans_value;
 static double z_cutting=7000;
+static bool fixed_view=0;
 
 extern bool phi_projection;
 extern bool z_projection;
@@ -211,6 +217,7 @@ static void set_world_size( float length) {
   axe[2][1] = WORLD_SIZE / 2. ;
   axe[3][2] = WORLD_SIZE / 2. ;
 };
+
 
 //hauke
 static void set_bg_color(float one, float two, float three, float four){
@@ -315,10 +322,14 @@ static void init(void){
     glClearDepth(1);
 
     glEnable(GL_DEPTH_TEST); //activate 'depth-test'
+
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //clear buffers
 
     //glDepthFunc(GL_LESS);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //default
+
+
+    //glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
     //glBlendFunc(GL_DST_COLOR, GL_SRC_COLOR); //glass
     //glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA); //locks nice, but lines diapear
 
@@ -552,7 +563,10 @@ static void reshape(int w,int h){
         glLoadIdentity();
         //gluPerspective(60,window_width/window_height,15,5000);
         //gluPerspective(60,window_width/window_height,30,3000);
+
         gluPerspective(60,window_width/window_height,100,5000);
+        //gluPerspective(60,window_width/window_height,0.0001,50000);
+
   
         glMatrixMode( GL_MODELVIEW );
   
@@ -647,7 +661,9 @@ static void mouse(int btn,int state,int x,int y){
             }
         }else{
             //printf("Single Click\n");
-            move_mode=TURN_XY;
+            if(fixed_view == 0){ //dont rotate the view when in side or front projection
+                move_mode=TURN_XY;
+            }
         }
         doubleClickTime=tv.tv_sec*1000000+tv.tv_usec;
         return;
@@ -1214,6 +1230,11 @@ void update_cut_angle_menu(void){
 void selectFromMenu(int id){ //hauke
     int i;
     int anz;
+    static float z_cutting_backup;
+    static float cut_angle_backup;
+    static float mm_ha_backup; 
+    static float mm_va_backup;
+
     glutSetWindow(mainWindow); //hauke
 
 
@@ -1289,6 +1310,7 @@ void selectFromMenu(int id){ //hauke
             z_projection=false; // no phi projection;
             mm=mm_reset;
             mm.sf = fisheye_alpha > 0 ? mm.sf*8.0: mm.sf;
+            fixed_view=false;
             break;
 
         case VIEW_FISHEYE:
@@ -1308,41 +1330,94 @@ void selectFromMenu(int id){ //hauke
         case VIEW_FRONT:
             //mm=mm_reset;
             //mm.sf = fisheye_alpha > 0 ? mm.sf*8.0: mm.sf;
-            mm.ha=mm.va=0.;
+
+            if(fixed_view){ break;}
+
+                mm.ha=mm.va=0.;
+
             break;
 
         case VIEW_SIDE:
             //mm=mm_reset;
             //mm.sf = fisheye_alpha > 0 ? mm.sf*8.0: mm.sf;
-            mm.ha=90.;
-            mm.va=0.;
+            if(fixed_view){ break;}
+
+                mm.ha=90.;
+                mm.va=0.;
+
             break;
 
         case TOGGLE_PHI_PROJECTION:
-            if(phi_projection){
+            if(phi_projection){ //turn projection off
                 phi_projection=false;
-            }else{
-                if(z_projection){selectFromMenu(TOGGLE_Z_PROJECTION);}
+                z_cutting=z_cutting_backup;
+                cut_angle=cut_angle_backup;
+                if(graphic[2]==0){selectFromMenu(GRAFIC_PERSP); } //turn perspectiv view on
+
+                mm.ha = mm_ha_backup;
+                mm.va = mm_va_backup;
+
+                fixed_view=false;
+
+            }else{ //turn projection on
+                if(z_projection){
+                    selectFromMenu(TOGGLE_Z_PROJECTION);
+                }
+
+                z_cutting_backup=z_cutting;
+                cut_angle_backup=cut_angle;
+
                 phi_projection=true;
                 if(graphic[2]==1){selectFromMenu(GRAFIC_PERSP); }
+
                 cut_angle=180;
                 z_cutting=7000;
-                selectFromMenu(VIEW_SIDE);
+                mm_ha_backup=mm.ha;
+                mm_va_backup = mm.va;
+                mm.ha=90.;
+                mm.va=0.;
+
+                fixed_view=true;
             }
             break;
 
         case TOGGLE_Z_PROJECTION:
-            if(z_projection){
+            if(z_projection){ //turn projection off
+
                 z_projection=false;
                 //z_cutting=7000;
                 //selectFromMenu(GRAFIC_PERSP);
-            }else{
+                z_cutting=z_cutting_backup;
+                cut_angle=cut_angle_backup;
+                if(graphic[2]==0){selectFromMenu(GRAFIC_PERSP); }
+
+                mm.ha = mm_ha_backup;
+                mm.va = mm_va_backup;
+
+                fixed_view=false;
+            }else{ //turn projection on
+
                 if(phi_projection){selectFromMenu(TOGGLE_PHI_PROJECTION);}
+
+                z_cutting_backup=z_cutting;
+                cut_angle_backup=cut_angle;
+
                 z_projection=true;
                 cut_angle=0;
                 z_cutting=10;
-                selectFromMenu(VIEW_FRONT);
+
                 if(graphic[2]==1){selectFromMenu(GRAFIC_PERSP); }
+               
+               //side view
+                mm_ha_backup=mm.ha;
+                mm_va_backup = mm.va;
+
+                mm.ha=0.;
+                mm.va=0.;
+
+
+
+                fixed_view=true;
             }
             break;
 
@@ -1609,11 +1684,11 @@ void selectFromMenu(int id){ //hauke
 
         case GRAFIC_PERSP:
             if(graphic[2] == 1){
-                printf("Perspective is now flat\n");
+                //printf("Perspective is now flat\n");
                 graphic[2] = 0;
                 reshape((int)window_width, (int)window_height); //hack, call resize function to overwrite perspectivic settings
             }else{
-                printf("Perspective is now 3d\n");
+                //printf("Perspective is now 3d\n");
                 graphic[2] = 1;
                 reshape((int)window_width, (int)window_height); //hack, call resize function to overwrite perspectivic settings
             }
@@ -1621,6 +1696,9 @@ void selectFromMenu(int id){ //hauke
         case HELP:
             toggleHelpWindow();
             break;
+        case SAVE:
+            std::cout << "write screenshot to /tmp/glced.bmp" << std::endl;
+            //screenshot("/tmp/glced.bmp");
 
     }
     glutPostRedisplay();
@@ -1749,6 +1827,7 @@ int buildMenuPopup(void){ //hauke
     glutAddSubMenu("Detector cuts", subsubMenu2);
     glutAddSubMenu("Background Color", subMenu1);
     glutAddSubMenu("Graphics options", subMenu4);
+    glutAddMenuEntry("Save Screenshot",SAVE);
     glutAddMenuEntry("Toggle help [h]",HELP);
 
     return menu;
@@ -1938,6 +2017,9 @@ int main(int argc,char *argv[]){
   
     glutTimerFunc(500,timer,1);
   
+
+//    glDisable(GL_BLEND);
+
     glutMainLoop();
     return 0;
 }

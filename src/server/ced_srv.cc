@@ -409,6 +409,8 @@ void drawPartialLineCylinder(double length, double R /*radius*/, double iR /*inn
  *                                                      hauke hoelbe 2011
  */
 void drawPartialCylinder(double length, double R /*radius*/, double iR /*inner radius*/, int edges, double angle_cut_off, double angle_cut_off_left, bool outer_face=1, bool inner_face=1){
+    //glDisable(GL_BLEND);
+
     double phi=360.0/edges;
     int i,j;
     double x, xl;
@@ -605,6 +607,8 @@ void drawPartialCylinder(double length, double R /*radius*/, double iR /*inner r
 
     glTranslatef(0, 0, -length/2);
     glPopMatrix(); //restore the matrix from the stack
+    //glEnable(GL_BLEND);
+
 }
 
 
