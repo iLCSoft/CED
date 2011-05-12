@@ -636,6 +636,7 @@ static void mouse(int btn,int state,int x,int y){
         }
     #endif
 
+
     if(state!=GLUT_DOWN){
         move_mode=NO_MOVE;
         return;
@@ -671,7 +672,11 @@ static void mouse(int btn,int state,int x,int y){
           move_mode=ZOOM;
           return;
         case GLUT_MIDDLE_BUTTON:
-          move_mode=ORIGIN;
+          #ifdef __APPLE__
+              move_mode=ZOOM;
+          #else
+              move_mode=ORIGIN;
+	  #endif
           return;
         default:
           break;
@@ -869,10 +874,11 @@ static void motion(int x,int y){
       //todo
     } else if (move_mode == ZOOM){
         mm.sf=mm.sf_start+(y-mouse_y)*10./window_height;
-        if(mm.sf<0.2)
-  	  mm.sf=0.2;
-        else if(mm.sf>20.)
-  	  mm.sf=20.;
+        if(mm.sf<0)
+  	  mm.sf=0.001;
+        else if(mm.sf>2000.)
+  	  mm.sf=2000.;
+     
     } else if (move_mode == ORIGIN){
         /* 
         //old code: do not work with rotate 
@@ -1213,19 +1219,29 @@ void addLayerDescriptionToMenu(int id, char * str){
 
 
 void update_cut_angle_menu(void){
-    char string[300];
+    char str[200];
+
+    int i;
 
     glutSetMenu(subsubMenu2);
-    int i;
-    for(i=0; (unsigned)i < sizeof(available_cutangles)/sizeof(int); i++){
+
+    for(i=0; (unsigned)i < sizeof(available_cutangles)/sizeof(available_cutangles[0]); i++){
+
         if(available_cutangles[i] == cut_angle){
-            sprintf(string,"[X] %i°", available_cutangles[i]);
-            glutChangeToMenuEntry(i+1, string,  CUT_ANGLE0+i);
+
+
+            sprintf(str,"[X] %i", available_cutangles[i]);
+
+
+            glutChangeToMenuEntry(i+1, str,  CUT_ANGLE0+i);
+
         }else{
-            sprintf(string,"[  ] %i°", available_cutangles[i]);
-            glutChangeToMenuEntry(i+1, string,  CUT_ANGLE0+i);
+
+            sprintf(str,"[  ] %i", available_cutangles[i]);
+            glutChangeToMenuEntry(i+1, str,  CUT_ANGLE0+i);
         }
     }
+
 }
 void selectFromMenu(int id){ //hauke
     int i;
@@ -1717,6 +1733,7 @@ int buildMenuPopup(void){ //hauke
 
 
 
+
     subMenu1 = glutCreateMenu(selectFromMenu);
     glutAddMenuEntry("White",BGCOLOR_WHITE);
     glutAddMenuEntry("Gainsboro", BGCOLOR_GAINSBORO);
@@ -1766,6 +1783,7 @@ int buildMenuPopup(void){ //hauke
     subMenu3 = glutCreateMenu(selectFromMenu);
     layerMenu=subMenu3;
 
+
     glutAddMenuEntry("Show/Hide all data Layers [`]", LAYER_ALL);
     for(i=0;i<NUMBER_POPUP_LAYER;i++){
         //sprintf(string,"[%s] Layer %s%i [%c]: %s",isLayerVisible(i)?"X":"   ", (i < 10)?"0":"" ,i, layer_keys[i], layerDescription[i]);
@@ -1775,12 +1793,14 @@ int buildMenuPopup(void){ //hauke
 
 
 
+
     DetectorComponents = glutCreateMenu(selectFromMenu);
     glutAddMenuEntry("Show/Hide all detector components", DETECTOR_ALL);
     for(i=NUMBER_DATA_LAYER;i<NUMBER_DETECTOR_LAYER+NUMBER_DATA_LAYER;i++){
         glutAddMenuEntry(" ",DETECTOR1+i-NUMBER_DATA_LAYER);
     }
     detectorMenu=DetectorComponents;
+
 
 
     subsubMenu1 = glutCreateMenu(selectFromMenu);
@@ -1793,11 +1813,16 @@ int buildMenuPopup(void){ //hauke
 
 
 
+
+
     subsubMenu2 = glutCreateMenu(selectFromMenu);
+
     for(i=0; (unsigned) i < sizeof(available_cutangles) / sizeof(available_cutangles[0]); i++){
-        glutAddMenuEntry("  ",  CUT_ANGLE0+i);
+        glutAddMenuEntry(" ",  CUT_ANGLE0+i);
     }
+
     update_cut_angle_menu();
+
 
     subsubMenu3=glutCreateMenu(selectFromMenu);
     glutAddMenuEntry("  0%",TRANS0);
@@ -1809,11 +1834,13 @@ int buildMenuPopup(void){ //hauke
     glutAddMenuEntry("95%",TRANS95);
 
 
+
     subMenu4 = glutCreateMenu(selectFromMenu);
     glutAddMenuEntry("Classic View",GRAFIC_LOW);
     glutAddMenuEntry("New View", GRAFIC_HIGH);
     glutAddSubMenu("Graphic details", subsubMenu1);
     glutAddSubMenu("Transparency value", subsubMenu3);
+
 
 
 
@@ -1829,6 +1856,7 @@ int buildMenuPopup(void){ //hauke
     glutAddSubMenu("Graphics options", subMenu4);
     glutAddMenuEntry("Save Screenshot",SAVE);
     glutAddMenuEntry("Toggle help [h]",HELP);
+
 
     return menu;
 }
@@ -1970,6 +1998,7 @@ int main(int argc,char *argv[]){
     glutInitWindowSize(500,500);
  
     mainWindow=glutCreateWindow("C Event Display (CED)");
+
   
     //glHint (GL_LINE_SMOOTH_HINT, GL_DONT_CARE);
     //glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
@@ -1984,13 +2013,16 @@ int main(int argc,char *argv[]){
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
 
+
     init();
     mm_reset=mm;
    
+
     #ifndef __APPLE__
     //glutMouseWheelFunc(mouseWheel); //dont works under mac os!
     #endif
   
+
   
     glutMouseFunc(mouse);
     glutDisplayFunc(display);
@@ -1998,16 +2030,20 @@ int main(int argc,char *argv[]){
     glutKeyboardFunc(keypressed);
     glutSpecialFunc(SpecialKey);
     glutMotionFunc(motion);
+
   
     //glutTimerFunc(2000,time,23);
     //glutTimerFunc(500,timer,23);
   
+
     buildMenuPopup(); //hauke
     glutAttachMenu(GLUT_RIGHT_BUTTON); 
+
   
     for(i=0;i<NUMBER_POPUP_LAYER;i++){ //fill the layer section
       updateLayerEntryInPopupMenu(i);
     }
+
 
     for(i=NUMBER_DATA_LAYER;i<NUMBER_DETECTOR_LAYER+NUMBER_DATA_LAYER;i++){ //fill the layer section
       updateLayerEntryDetector(i);
@@ -2019,6 +2055,7 @@ int main(int argc,char *argv[]){
   
 
 //    glDisable(GL_BLEND);
+
 
     glutMainLoop();
     return 0;
