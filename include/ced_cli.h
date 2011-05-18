@@ -5,9 +5,23 @@
 #ifndef __CED_CLI_H
 #define __CED_CLI_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+
+//important:
+//          - sum of all layers must be smaler than max_layer!
+//          - number_popup_layer must be smaler than number_data_layer
+
+#define MAX_LAYER       100
+#define NUMBER_POPUP_LAYER      20
+#define NUMBER_DATA_LAYER       25
+#define NUMBER_DETECTOR_LAYER   20
+
+
+#define MAX_LAYER_CHAR 400
+
+
+//#ifdef __cplusplus
+//extern "C" {
+//#endif
 
 /*
  * This is the first function to call (before any other).
@@ -67,6 +81,14 @@ typedef enum {
   CED_LAYER_SHIFT=0x8
 } CED_TYPE_BITS;
 
+/*
+typedef enum {
+  CED_TYPE_SHIFT=0x0,
+  CED_LAYER_SHIFT=0x0
+} CED_TYPE_BITS;
+*/
+
+
 typedef struct {
   float x;
   float y;
@@ -85,14 +107,20 @@ typedef enum {
 
 typedef struct {
   CED_Point p;
-  unsigned type;  // not yet defined...
+  unsigned type;  // point, star, etc
+  unsigned layer; //layer
   unsigned color; // in ARGB form (so, 0xff0000 is RED)
   unsigned size;  // size of point/size of cross
   unsigned lcioID; // unique id of LICO object
 } CED_Hit;
 
 void ced_hit(float x,float y,float z,unsigned type,unsigned size,unsigned color);
-void ced_hit_ID(float x,float y,float z,unsigned type,unsigned size,unsigned color, unsigned lcioID);
+
+//to give a bit of downward compatibility
+void ced_hit_ID(float x,float y,float z,unsigned type, unsigned size,unsigned color, unsigned lcioID);
+
+
+void ced_hit_ID(float x,float y,float z,unsigned type,unsigned layer, unsigned size,unsigned color, unsigned lcioID);
 
 /*
  * Line element
@@ -126,6 +154,25 @@ typedef struct {
   float shift;   // in z
   unsigned color;
 } CED_GeoCylinder;
+
+/*
+ * GeoTube
+ */
+typedef struct {
+  float r_o;           // outer radius
+  float r_i;           // inner radius
+  unsigned edges_o;   // edges outer
+  unsigned edges_i;   // edges inner
+  float rotate_o;        // angle degree, rotate outer cylinder
+  float rotate_i;      //rotate inner cylinder
+  float z;             // 1/2 length
+  float shift;         // shift in z
+  unsigned color;      // color
+  unsigned type;        //describes the layer where this element lies
+} CED_GeoTube;
+
+void ced_geotubes(unsigned n,CED_GeoTube *all);
+
 
 void ced_geocylinder(float d,unsigned sides,float rotate,float z,float shift,
 		     unsigned color);
@@ -198,9 +245,19 @@ void ced_geobox_r_solid(double * sizes, double * center, double * rotate, unsign
 
 //hauke
   typedef struct{
+    char text[1000];
+    int id;
+  } CED_PICKING_TEXT; 
+
+void ced_picking_text(const char *, int number);
+
+//--------
+
+  typedef struct{
     char text[400];
     int id;
   } CED_TEXT; 
+
 
 void ced_describe_layer(const char *, int); //, int, int);
 
@@ -297,9 +354,9 @@ void ced_cluellipse_r(float radius, float height, float *center, double *rotate,
 void ced_cluellipse_r_ID(float radius, float height, float *center, double *rotate, unsigned int layer, int color, int lcioid); //hauke
 
 
-#ifdef __cplusplus
- }
-#endif
+//#ifdef __cplusplus
+// }
+//#endif
 	
 
 #endif /* __CED_CLI_H */

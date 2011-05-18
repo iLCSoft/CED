@@ -6,7 +6,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6 FATAL_ERROR)
 
 
 # project name
-PROJECT( CED C )
+PROJECT( CED )
 
 # project version
 SET( ${PROJECT_NAME}_VERSION_MAJOR 1 )
@@ -68,7 +68,8 @@ MARK_AS_ADVANCED( c_math_lib )
 
 
 # --------- CED SERVER (GLCED) ----------------------
-OPTION( CED_SERVER "Set to ON to build the glced server" OFF )
+OPTION( CED_SERVER "Set to ON to build the glced server" ON )
+MESSAGE( STATUS "CED_SERVER = ${CED_SERVER}" )
 MESSAGE( STATUS "CED_SERVER = ${CED_SERVER}" )
 IF( CED_SERVER )
 
@@ -122,9 +123,9 @@ ENDIF( CED_SERVER )
 FOREACH( _testname test_ced test_ced_mhits )
 
     IF( BUILD_TESTING )
-        ADD_EXECUTABLE( ${_testname} ./src/tests/${_testname}.c )
+        ADD_EXECUTABLE( ${_testname} ./src/tests/${_testname}.cc )
     ELSE()
-        ADD_EXECUTABLE( ${_testname} EXCLUDE_FROM_ALL ./src/tests/${_testname}.c )
+        ADD_EXECUTABLE( ${_testname} EXCLUDE_FROM_ALL ./src/tests/${_testname}.cc )
     ENDIF()
 
     TARGET_LINK_LIBRARIES( ${_testname} CED )

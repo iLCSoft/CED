@@ -18,10 +18,21 @@
 static unsigned HIT_ID=0;
 
 void ced_hit(float x,float y,float z,unsigned type,unsigned size,unsigned color){
-    ced_hit_ID(x,y,z,type,size,color, 0);
+    ced_hit_ID(x,y,z,type,0, size,color, 0);
 }
 
-void ced_hit_ID(float x,float y,float z,unsigned type,unsigned size,unsigned color, unsigned lcioID){
+//deprecated!!
+void ced_hit_ID(float x,float y,float z,unsigned type, unsigned size,unsigned color, unsigned lcioID){
+   static int warn=0;
+   if(warn==0){
+        printf("Warning: \"ced_hit_ID(float x,float y,float z,unsigned type,unsigned layer, unsigned size,unsigned color, unsigned lcioID)\" is deprecated, please use \"ced_hit_ID(float x,float y,float z,unsigned type,unsigned layer, unsigned size,unsigned color, unsigned lcioID)\"\n");
+        warn=1;
+    }
+    //printf("Deprecated ced_hit_ID: type: %i, layer: %i", type & 0xF, type >> CED_LAYER_SHIFT);
+    ced_hit_ID(x,y,z,type & 0xF,type >> CED_LAYER_SHIFT,size,color,lcioID);
+}
+
+void ced_hit_ID(float x,float y,float z,unsigned type,unsigned layer, unsigned size,unsigned color, unsigned lcioID){
  CED_Hit *h=(CED_Hit *)ced_add(HIT_ID);
  if(!h)
    return;
@@ -29,6 +40,11 @@ void ced_hit_ID(float x,float y,float z,unsigned type,unsigned size,unsigned col
  h->p.y=y;
  h->p.z=z;
  h->type=type;
+ if(layer > 255){ //downward compability
+    h->layer=layer >> CED_LAYER_SHIFT;
+ }else{
+    h->layer=layer;
+ }
  h->size=size;
  h->color=color;
  h->lcioID=lcioID;
@@ -48,21 +64,21 @@ void ced_line(float x0,float y0,float z0,
 
 void ced_line_ID(float x0,float y0,float z0,
 	      float x1,float y1,float z1,
-	      unsigned type, unsigned width,unsigned color, unsigned lcioID){
+	      unsigned layer, unsigned width,unsigned color, unsigned lcioID){
   //test for picking
-  static int anz;
+  //static int anz;
   float length=(x1-x0)*(x1-x0) + (y1-y0)*(y1-y0) + (z1-z0)*(z1-z0);
   //printf("CEDLINE length: %f\n x0 %f y0 %f z0 %f, x1 %f, y1 %f z1 %f", length, x0, y0, z0, x1, y1, z1);
 
   if(length > 500.0){
       ced_line_ID(x0,y0,z0,
           (x1-x0)/2.0+x0,(y1-y0)/2.0+y0,(z1-z0)/2.0+z0,
-          type, width, color, lcioID);
+          layer, width, color, lcioID);
               ced_line_ID(
           (x1-x0)/2.0+x0,(y1-y0)/2.0+y0,(z1-z0)/2.0+z0,
 
           x1,y1,z1,
-          type, width, color, lcioID);
+          layer, width, color, lcioID);
           //todo
           //printf("seperate line %i\n", anz++);
       return;
@@ -96,7 +112,13 @@ void ced_line_ID(float x0,float y0,float z0,
   l->p1.x=x1;
   l->p1.y=y1;
   l->p1.z=z1;
-  l->type=type;
+ if(layer > 255){ //downward compability
+    l->type=layer >> CED_LAYER_SHIFT;
+ }else{
+    l->type=layer;
+ }
+
+//  l->type=type;
   l->width=width;
   l->color=color;
   l->lcioID=lcioID;
@@ -140,7 +162,13 @@ void ced_geocylinder_r(float d, double z, double * center, double * rotate, unsi
   c->sides=sides;
   c->color=color;
   c->z=z;
-  c->layer=layer;
+ if(layer > 255){ //downward compability
+    c->layer=layer >> CED_LAYER_SHIFT;
+ }else{
+    c->layer=layer;
+ }
+
+  //c->layer=layer;
 }
  
 void ced_geocylinders(unsigned n,CED_GeoCylinder *all){
@@ -153,6 +181,20 @@ void ced_geocylinders(unsigned n,CED_GeoCylinder *all){
     memcpy(c,all+i,sizeof(CED_GeoCylinder));
   }
 }
+
+static unsigned GEOT_ID=0;
+
+void ced_geotubes(unsigned n,CED_GeoTube *all){
+  CED_GeoTube *c;
+  unsigned i;
+  for(i=0;i<n;i++){
+    c=(CED_GeoTube *)ced_add(GEOT_ID);
+    if(!c)
+      return;
+    memcpy(c,all+i,sizeof(CED_GeoTube));
+  }
+}
+
 
 static unsigned GEOB_ID=0;
 
@@ -189,7 +231,9 @@ void ced_geobox_r_ID(double *size, double *position, double *rotate, unsigned in
 
     int i;
     double vektor1[3], vektor2[3];
-    unsigned int type = layer << CED_LAYER_SHIFT;
+    //unsigned int type = layer; //<< CED_LAYER_SHIFT;
+    //unsigned int type = layer;
+
     double cubematrix[12][6] ={ {-1,-1,-1, +1,-1,-1},
                                 {-1,-1,-1, -1,+1,-1},
                                 {-1,-1,-1, -1,-1,+1},
@@ -215,9 +259,10 @@ void ced_geobox_r_ID(double *size, double *position, double *rotate, unsigned in
         rotate3d(vektor1,rotate);
         rotate3d(vektor2,rotate);
 
+
         ced_line_ID(position[0]+vektor1[0], position[1]+vektor1[1], position[2]+vektor1[2],
                     position[0]+vektor2[0], position[1]+vektor2[1], position[2]+vektor2[2],
-                    type, 1,color, lcio_id);
+                    layer, 1,color, lcio_id);
     }
 }
 
@@ -250,7 +295,14 @@ void ced_geobox_r(double * sizes, double * center, double * rotate, unsigned int
     box->rotate[iDim] = rotate[iDim];
   }
   box->color = color;
-  box->layer = layer;
+
+ if(layer > 255){ //downward compability
+    box->layer=layer >> CED_LAYER_SHIFT;
+ }else{
+    box->layer=layer;
+ }
+
+//  box->layer = layer;
 }
 
 static unsigned GEOBRS_ID=0;
@@ -265,7 +317,14 @@ void ced_geobox_r_solid(double * sizes, double * center, double * rotate, unsign
     box->rotate[iDim] = rotate[iDim];
   }
   box->color = color;
-  box->layer = layer;
+
+ if(layer > 255){ //downward compability
+    box->layer=layer >> CED_LAYER_SHIFT;
+ }else{
+    box->layer=layer;
+ }
+
+//  box->layer = layer;
 }
 
 static unsigned LEGEND_ID=0;
@@ -281,7 +340,7 @@ void ced_legend(float ene_min, float ene_max, unsigned int color_steps, unsigned
  	legend->scale = scale;
  	
   	const unsigned int numberOfColours = 3;
-  	int i,j;
+  	unsigned int i,j;
   	for (i = 0; i < numberOfColours; i ++ ) {
   		for (j = 0; j < color_steps; j ++ ) {
   			legend->rgb_matrix[j][i] = rgb_matrix[j][i];
@@ -312,7 +371,7 @@ void ced_describe_layer(const char *message, int id) {
     //text->y=yCordinate;
 }
 
-
+/*
 static unsigned LAYER_TEXT_ID=0;
 
 void ced_layer_text(char *message, int id) {
@@ -324,6 +383,24 @@ void ced_layer_text(char *message, int id) {
     strncpy(obj->str,message,MAX_LAYER_CHAR-1);
     obj->id=id;
     //printf("ced_layer_text\n");
+}
+*/
+
+static unsigned PICKING_TEXT_ID=0;
+
+void ced_picking_text(const char *message, int id) {
+	CED_PICKING_TEXT *text = (CED_PICKING_TEXT*) ced_add(PICKING_TEXT_ID);
+	if(!text){
+        printf("WARNING: ced_picking_text: cant register CED_PICKING_TEXT");  
+        return;
+    }
+
+    strncpy(text->text,message,999);
+    text->id=id;
+    //text->text[MAX_LAYER_CHAR-1] = 0;
+    //text->id=id;
+    //text->x=xCordinate;
+    //text->y=yCordinate;
 }
 //end hauke
 
@@ -339,12 +416,19 @@ void ced_cone_r_ID(float base, float height, double *center, double *rotate, uns
 	
 	cone->base = base;
   	cone->height = height;
- 	cone->layer = layer;
+
+ if(layer > 255){ //downward compability
+    cone->layer=layer >> CED_LAYER_SHIFT;
+ }else{
+    cone->layer=layer;
+ }
+
+// 	cone->layer = layer;
     cone->lcioid = lcioid;
  	
   	const unsigned int dim = 3;
   	const unsigned int channel = 4;
-  	int i, j;
+  	unsigned int i, j;
 
     // ced_line_ID(0,0,0, center[0], center[1], center[2], type, width, RGBAcolor, lcioid);
 
@@ -372,14 +456,21 @@ void ced_ellipsoid_r_ID(double *size, double *center, double *rotate, unsigned i
 	if ( ! eli ) return;	
  	
   	const unsigned int dim = 3;
-  	int i;
+  	unsigned int i;
   	for (i = 0; i < dim; i ++ ) {
 		eli->center[i] = center[i];
 		eli->rotate[i] = rotate[i];
 		eli->size[i] = size[i];
 	}
 	eli->color = color;
-	eli->layer = layer;
+
+ if(layer > 255){ //downward compability
+    eli->layer=layer >> CED_LAYER_SHIFT;
+ }else{
+    eli->layer=layer;
+ }
+
+//	eli->layer = layer;
     eli->lcioid = lcioID;
 }
 
@@ -395,30 +486,55 @@ void ced_cluellipse_r_ID(float radius, float height, float *center, double *rota
 	if ( ! eli ) return;	
  	
   	const unsigned int dim = 3;
-  	int i;
+  	unsigned int i;
   	for (i = 0; i < dim; i ++ ) {
 		eli->center[i] = center[i];
 		eli->rotate[i] = rotate[i];
 	}
 	eli->radius = radius;
 	eli->height = height;
-	eli->layer = layer;
+
+ if(layer > 255){ //downward compability
+    eli->layer=layer >> CED_LAYER_SHIFT;
+ }else{
+    eli->layer=layer;
+ }
+
+//	eli->layer = layer;
 	eli->color = color;
     eli->lcioid=lcioid;
 }
 
 
 void ced_register_elements(void){
+
+  //1:
   GEOC_ID		=ced_register_element(sizeof(CED_GeoCylinder),0);
-  GEOCR_ID	=ced_register_element(sizeof(CED_GeoCylinderR), 0);
+  //2:
+  GEOCR_ID	    =ced_register_element(sizeof(CED_GeoCylinderR), 0);
+  //3:
   LINE_ID		=ced_register_element(sizeof(CED_Line),0);
+  //4:
   HIT_ID		=ced_register_element(sizeof(CED_Hit),0);
+  //5:
   GEOB_ID		=ced_register_element(sizeof(CED_GeoBox), 0);
-  GEOBR_ID	=ced_register_element(sizeof(CED_GeoBoxR), 0);
-  GEOBRS_ID	=ced_register_element(sizeof(CED_GeoBoxR), 0);
-  CONER_ID	=ced_register_element(sizeof(CED_ConeR), 0);
+  //6:
+  GEOBR_ID	    =ced_register_element(sizeof(CED_GeoBoxR), 0);
+  //7:
+  GEOBRS_ID	    =ced_register_element(sizeof(CED_GeoBoxR), 0);
+  //8:
+  CONER_ID	    =ced_register_element(sizeof(CED_ConeR), 0);
+  //9:
   ELLIPSOID_ID	=ced_register_element(sizeof(CED_EllipsoidR), 0);
+  //10:
   CLUELLIPSE_ID =ced_register_element(sizeof(CED_CluEllipseR), 0);
+  //11:
   TEXT_ID       =ced_register_element(sizeof(CED_TEXT),0); //hauke: the order of this items is important
-  LEGEND_ID	=ced_register_element(sizeof(CED_Legend), 0);
+  //12:
+  LEGEND_ID	    =ced_register_element(sizeof(CED_Legend), 0);
+  //13: 
+  GEOT_ID       =ced_register_element(sizeof(CED_GeoTube),0);
+  //14:
+  PICKING_TEXT_ID =ced_register_element(sizeof(CED_PICKING_TEXT),0);
 }
+

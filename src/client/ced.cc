@@ -70,12 +70,12 @@ static char ced_host[30];
 
 
 typedef struct {
-  unsigned size;     // size of one item in bytes
-  unsigned char *b;  // "body" - data are stored here
-                     // (here is some trick :)
-  unsigned long count;    // number of usefull items
-  unsigned long alloced;  // number of allocated items
-  ced_draw_cb draw;  // draw fucation, NOT used in CED client
+  unsigned size;            // size of one item in bytes
+  unsigned char *b;         // "body" - data are stored here
+                            // (here is some trick :)
+  unsigned long count;      // number of usefull items
+  unsigned long alloced;    // number of allocated items
+  ced_draw_cb draw;         // draw fucation, NOT used in CED client
 } ced_element;
 
 typedef struct {
@@ -92,8 +92,10 @@ static ced_event ceve = {0,0}; // current event on screen
 
 unsigned ced_register_element(unsigned item_size,ced_draw_cb draw_func){
   ced_element *pe;
-  if(!(eve.e_count&0xf))
-    eve.e=realloc(eve.e,(eve.e_count+0x10)*sizeof(ced_element));
+  if(!(eve.e_count&0xf)){
+    eve.e=(ced_element *) realloc(eve.e,(eve.e_count+0x10)*sizeof(ced_element));
+  }
+
   pe=eve.e+eve.e_count;
   memset(pe,0,sizeof(*pe));
   pe->size=item_size;
@@ -110,14 +112,14 @@ static void ced_reset(void){
 static void ced_buf_alloc(ced_element *pe,unsigned count){
   //if(!pe->b){
   if(!pe->b){
-    pe->b=malloc(count*pe->size+HDR_SIZE);
+    pe->b=(unsigned char *) malloc(count*pe->size+HDR_SIZE);
     //printf("malloc: ask for NEW %lu bytes pointer: %p\n ", count*pe->size+HDR_SIZE, pe->b); //hauke
     if(pe->b==NULL){ //hauke
         printf("ERROR: malloc failed!\n");
         exit(1);
     }
   }else{
-    pe->b=realloc(pe->b-HDR_SIZE,count*pe->size+HDR_SIZE);
+    pe->b=(unsigned char *) realloc(pe->b-HDR_SIZE,count*pe->size+HDR_SIZE);
     //printf("malloc: ask for %lu bytes, pointer: %p\n", count*pe->size+HDR_SIZE,pe->b);//hauke
     if(pe->b==NULL){ //hauke
         printf("ERROR: malloc failed!\n");
@@ -144,7 +146,7 @@ static void ced_event_copy(ced_event *trg){
   unsigned i;
   ced_element *pe;
   if(trg->e_count<eve.e_count)
-    trg->e=realloc(trg->e,eve.e_count*sizeof(ced_element));
+    trg->e=(ced_element*) realloc(trg->e,eve.e_count*sizeof(ced_element));
   for(i=0;i<eve.e_count;i++){
     pe=trg->e+i;
     if(i<trg->e_count){
@@ -165,10 +167,14 @@ static void ced_event_copy(ced_event *trg){
 }
 
 void ced_do_draw_event(void){
-  unsigned i,j;
+  unsigned int i,j;
   ced_element *pe;
   unsigned char *pdata;
   for(i=0;i<ceve.e_count;i++){
+    //printf("ceve.e_count: %i\n", ceve.e_count);
+    //for(i=ceve.e_count-1; i >=0;i--){ //quick hack, change order so that the detector is drawn at last
+    //printf("i = %i\n", i);
+
     pe=ceve.e+i;
     if(!pe->draw)
       continue;
@@ -186,7 +192,7 @@ int ced_process_input(void *data){
     unsigned size;
     unsigned type;
     unsigned char b[4];
-  } *hdr = data;
+  } *hdr = (_phdr*) data;
   unsigned count;
   ced_element *pe;
   
@@ -207,8 +213,7 @@ int ced_process_input(void *data){
   }
   pe=eve.e+hdr->type;
   if((hdr->size-HDR_SIZE)%pe->size){
-    fprintf(stderr,"BUG:CED: size alignment is wrong for element %u\n",
-	    hdr->type);
+    fprintf(stderr,"BUG:CED: size alignment is wrong for element %u\n", hdr->type);
     return 0;
   }
   count=(hdr->size-HDR_SIZE)/pe->size;
@@ -226,7 +231,8 @@ void ced_send_event(void){
     int size;
     unsigned type;
   } *hdr,draw_hdr;
-  unsigned i,sent_sum,problem=0;
+  unsigned i,problem=0;
+  int sent_sum;
   char *buf;
   int sent;
   ced_element *pe;
