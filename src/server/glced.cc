@@ -636,7 +636,6 @@ static void mouse(int btn,int state,int x,int y){
         }
     #endif
 
-
     if(state!=GLUT_DOWN){
         move_mode=NO_MOVE;
         return;
@@ -684,14 +683,14 @@ static void mouse(int btn,int state,int x,int y){
 
 
     //hauke
-    if (btn == mouseWheelUp){
+    if (btn == mouseWheelUp || btn == 3 ){ // 3 is mouse-wheel-up under ubuntu
     
         selectFromMenu(VIEW_ZOOM_IN);
       //  mm.mv.z+=150./mm.sf;
       //  glutPostRedisplay();
         return;
     }
-    if (btn == mouseWheelDown){
+    if (btn == mouseWheelDown || btn == 4 ){ // 4 is mouse-wheel-down under ubuntu
         selectFromMenu(VIEW_ZOOM_OUT);
         return;
     
