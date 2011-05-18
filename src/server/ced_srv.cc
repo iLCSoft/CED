@@ -784,14 +784,22 @@ static void ced_draw_hit(CED_Hit *h){
 
     ced_color(h->color);
 
+
+
+    glDisable(GL_BLEND);
     switch(h->type){
+
     	case CED_HIT_CROSS:
     	case CED_HIT_STAR:
-    	    glLineWidth(1.);
+    	    //glLineWidth(1.);
+            glLineWidth(1.);
+
     	    glBegin(GL_LINES);
+
     	    if(h->type ==  CED_HIT_CROSS){
-    	        //	      printf("cross type == %d \n",(h->type & CED_HIT_CROSS));
+    	       	 //     printf("cross type == %d \n",(h->type & CED_HIT_CROSS));
     	        d=h->size/2;
+
     
     	        glVertex3f(x-d,y-d,z+d);
     	        glVertex3f(x+d,y+d,z-d);
@@ -806,7 +814,7 @@ static void ced_draw_hit(CED_Hit *h){
     	        glVertex3f(x+d,y-d,z-d);
     
     	    } else {
-    	        //	      printf("star type == %d \n",(h->type & CED_HIT_STAR));
+    	       	//      printf("star type == %d \n",(h->type & CED_HIT_STAR));
     	        d=h->size/2.;
     	        glVertex3f(x-d,y,z);
     	        glVertex3f(x+d,y,z);
@@ -815,14 +823,19 @@ static void ced_draw_hit(CED_Hit *h){
     	        glVertex3f(x,y,z-d);
     	        glVertex3f(x,y,z+d); 
     	    }
+            glEnd();
     	    break;
     	default:
-    	    glPointSize((GLfloat)h->size/2);
+    	    glPointSize((GLfloat)h->size);
     	    glBegin(GL_POINTS);
+
     	    //glVertex3fv(&p_new.x);
             glVertex3f(x,y,z);
+            glEnd();
+
     }
-    glEnd();
+    //glEnd();
+    glEnable(GL_BLEND);
     ced_add_objmap(&h->p,5,h->lcioID);
 }
 
@@ -1007,11 +1020,15 @@ static void ced_draw_geotube(CED_GeoTube *c){
                     glPolygonOffset( 1.f, 1.f ); 
                     glEnable( GL_POLYGON_OFFSET_FILL );
                     glPolygonOffset( 2.f, 2.f );
-                    drawPartialCylinder(z*2, d_o-(d_o-d_i)/5, d_i, c->edges_i, cut_angle - c->rotate_i- c->rotate_o, c->rotate_i + c->rotate_o,0,1); //draw the inner cylinder 
+                    if(trans_value < 1.0){
+                        drawPartialCylinder(z*2, d_o-(d_o-d_i)/5, d_i, c->edges_i, cut_angle - c->rotate_i- c->rotate_o, c->rotate_i + c->rotate_o,0,1); //draw the inner cylinder 
+                    }
                     //draw the outer shape
                     glRotatef(-1*c->rotate_i, 0, 0, 1);
                     glPolygonOffset( 1.f, 1.f );
-                    drawPartialCylinder(z*2, d_o, d_i+(d_o-d_i)/5, c->edges_o, cut_angle - c->rotate_o, c->rotate_o,1,0); //draw the outer cylinder
+                    if(trans_value < 1.0){
+                        drawPartialCylinder(z*2, d_o, d_i+(d_o-d_i)/5, c->edges_o, cut_angle - c->rotate_o, c->rotate_o,1,0); //draw the outer cylinder
+                    }
 
 
                     //glLineWidth(0.5);
@@ -1036,7 +1053,9 @@ static void ced_draw_geotube(CED_GeoTube *c){
 
                     glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
 
-                    drawPartialCylinder(z*2, d_o, d_i, c->edges_o, cut_angle - c->rotate_o, c->rotate_o);
+                    if(trans_value < 1.0){
+                        drawPartialCylinder(z*2, d_o, d_i, c->edges_o, cut_angle - c->rotate_o, c->rotate_o);
+                    }
 
                     glLineWidth(1);
 
@@ -1059,11 +1078,16 @@ static void ced_draw_geotube(CED_GeoTube *c){
                     glPolygonOffset( 1.f, 1.f ); 
                     glEnable( GL_POLYGON_OFFSET_FILL );
                     glPolygonOffset( 2.f, 2.f );
-                    drawPartialCylinder(z*2, d_o-(d_o-d_i)/5, d_i, c->edges_i, 0,0 ,0,1); //draw the inner cylinder 
+                    if(trans_value < 1.0){
+                        drawPartialCylinder(z*2, d_o-(d_o-d_i)/5, d_i, c->edges_i, 0,0 ,0,1); //draw the inner cylinder 
+                    }
+
                     //draw the outer shape
                     glRotatef(-1*c->rotate_i, 0, 0, 1);
                     glPolygonOffset( 1.f, 1.f );
-                    drawPartialCylinder(z*2, d_o, d_i+(d_o-d_i)/5, c->edges_o, 0,0,1,0); //draw the outer cylinder
+                    if(trans_value < 1.0){
+                        drawPartialCylinder(z*2, d_o, d_i+(d_o-d_i)/5, c->edges_o, 0,0,1,0); //draw the outer cylinder
+                    }
 
 
                     //glLineWidth(0.5);
@@ -1089,7 +1113,9 @@ static void ced_draw_geotube(CED_GeoTube *c){
 
                     glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
 
-                    drawPartialCylinder(z*2, d_o, d_i, c->edges_o, 0,0);
+                    if(trans_value < 1.0){
+                        drawPartialCylinder(z*2, d_o, d_i, c->edges_o, 0,0);
+                    }
 
                     //glLineWidth(0.5);
                     glLineWidth(1);
@@ -1111,12 +1137,19 @@ static void ced_draw_geotube(CED_GeoTube *c){
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);    
       
         glTranslatef(0.0, 0.0, transformed_shift);
+
         if(c->rotate_o > 0.01 ) glRotatef(c->rotate_o, 0, 0, 1);
+
         gluQuadricNormals(q1, GL_SMOOTH);
         gluQuadricTexture(q1, GL_TRUE);
         
-        gluCylinder(q1, d_o, d_o, z*2, c->edges_o > 20?20:c->edges_o, 1);
-        if(d_i > 0){gluCylinder(q1, d_i, d_i, z*2, c->edges_i>20?20:c->edges_i, 1); }
+        if(c->classic_outer){
+            gluCylinder(q1, d_o, d_o, z*2, c->edges_o > 20?20:c->edges_o, 1);
+        }
+        if(d_i > 0 && c->classic_inner){
+            if(c->rotate_o > 0.01 ) glRotatef(c->rotate_i, 0, 0, 1);
+            gluCylinder(q1, d_i, d_i, z*2, c->edges_i>20?20:c->edges_i, 1); 
+        }
 
         gluDeleteQuadric(q1);
     }

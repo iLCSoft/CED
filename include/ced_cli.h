@@ -159,16 +159,18 @@ typedef struct {
  * GeoTube
  */
 typedef struct {
-  float r_o;           // outer radius
-  float r_i;           // inner radius
-  unsigned edges_o;   // edges outer
-  unsigned edges_i;   // edges inner
-  float rotate_o;        // angle degree, rotate outer cylinder
-  float rotate_i;      //rotate inner cylinder
-  float z;             // 1/2 length
-  float shift;         // shift in z
-  unsigned color;      // color
+  float r_o;            // outer radius
+  float r_i;            // inner radius
+  unsigned edges_o;     // edges outer
+  unsigned edges_i;     // edges inner
+  float rotate_o;       // angle degree, rotate outer cylinder
+  float rotate_i;       //rotate inner cylinder
+  float z;              // 1/2 length
+  float shift;          // shift in z
+  unsigned color;       // color
   unsigned type;        //describes the layer where this element lies
+  bool classic_inner;   //draw the outer detector lines in classic view?
+  bool classic_outer;   //draw the inner detector lines in classic view?
 } CED_GeoTube;
 
 void ced_geotubes(unsigned n,CED_GeoTube *all);

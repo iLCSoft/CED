@@ -102,6 +102,8 @@
 #define TRANS80                 3003
 #define TRANS90                 3004
 #define TRANS95                 3005
+#define TRANS100                3006
+
 
 
 static int available_cutangles[]={0,30,90,135, 180, 270, 360};  //for new angles add the new angle to this list and to define in top of this
@@ -1249,6 +1251,8 @@ void selectFromMenu(int id){ //hauke
     static float cut_angle_backup;
     static float mm_ha_backup; 
     static float mm_va_backup;
+    static int graphic_2_backup;
+
 
     glutSetWindow(mainWindow); //hauke
 
@@ -1367,7 +1371,7 @@ void selectFromMenu(int id){ //hauke
                 phi_projection=false;
                 z_cutting=z_cutting_backup;
                 cut_angle=cut_angle_backup;
-                if(graphic[2]==0){selectFromMenu(GRAFIC_PERSP); } //turn perspectiv view on
+                if(graphic_2_backup != graphic[2]){selectFromMenu(GRAFIC_PERSP); } //restore persp setting
 
                 mm.ha = mm_ha_backup;
                 mm.va = mm_va_backup;
@@ -1383,6 +1387,8 @@ void selectFromMenu(int id){ //hauke
                 cut_angle_backup=cut_angle;
 
                 phi_projection=true;
+
+                graphic_2_backup=graphic[2];
                 if(graphic[2]==1){selectFromMenu(GRAFIC_PERSP); }
 
                 cut_angle=180;
@@ -1404,7 +1410,9 @@ void selectFromMenu(int id){ //hauke
                 //selectFromMenu(GRAFIC_PERSP);
                 z_cutting=z_cutting_backup;
                 cut_angle=cut_angle_backup;
-                if(graphic[2]==0){selectFromMenu(GRAFIC_PERSP); }
+                //if(graphic[2]==0){selectFromMenu(GRAFIC_PERSP); }
+                if(graphic_2_backup != graphic[2]){selectFromMenu(GRAFIC_PERSP); } //restore persp setting
+
 
                 mm.ha = mm_ha_backup;
                 mm.va = mm_va_backup;
@@ -1421,6 +1429,8 @@ void selectFromMenu(int id){ //hauke
                 cut_angle=0;
                 z_cutting=10;
 
+
+                graphic_2_backup=graphic[2];
                 if(graphic[2]==1){selectFromMenu(GRAFIC_PERSP); }
                
                //side view
@@ -1429,6 +1439,7 @@ void selectFromMenu(int id){ //hauke
 
                 mm.ha=0.;
                 mm.va=0.;
+
 
 
 
@@ -1613,6 +1624,11 @@ void selectFromMenu(int id){ //hauke
             trans_value=0.95;
             break;
 
+        case TRANS100:
+            //std::cout<<"change to 1!" << std::endl;
+            trans_value=1.0;
+            break;
+
         case GRAFIC_HIGH:
             graphic[0] = 1; //todo: little bit dirty, make it better
             graphic[1] = 0;
@@ -1633,26 +1649,28 @@ void selectFromMenu(int id){ //hauke
 
         case GRAFIC_TRANS:
             if(graphic[1] == 1){
-                printf("Transparency  is now off\n");
+                //printf("Transparency  is now off\n");
                 graphic[1] = 0;
             }else{
-                printf("Transparency  is now on\n");
+                //printf("Transparency  is now on\n");
                 graphic[1] = 1;
             }
             break;
             
         case GRAFIC_LIGHT:
             if(graphic[0] == 1){
-                printf("Light  is now on\n");
+                //printf("Light  is now on\n");
                 graphic[0] = 0;
                 glDisable(GL_LIGHTING); 
             }else{
-                printf("Light is now on\n");
+                 //printf("Light is now on\n");
                  graphic[0] = 1;
+                 break; //do nothing...
+
                  //TODO: CHANGE IT
                  GLfloat light0_spec[] = {1, 1, 1, 0.5};
                  GLfloat light0_pos[] = {0, 0, 8000};
-                 GLfloat light0_ambi[]= {0.5, 0.5, 0.5, 0.5};     
+                 //GLfloat light0_ambi[]= {0.5, 0.5, 0.5, 0.5};     
 
                  //glLightfv(GL_LIGHT0, GL_DIFFUSE, light0_ambi);
                  //glLightfv(GL_LIGHT0, GL_AMBIENT, light0_ambi);
@@ -1831,6 +1849,8 @@ int buildMenuPopup(void){ //hauke
     glutAddMenuEntry("80%",TRANS80);
     glutAddMenuEntry("90%",TRANS90);
     glutAddMenuEntry("95%",TRANS95);
+    glutAddMenuEntry("100%",TRANS100);
+
 
 
 
@@ -1853,7 +1873,7 @@ int buildMenuPopup(void){ //hauke
     glutAddSubMenu("Detector cuts", subsubMenu2);
     glutAddSubMenu("Background Color", subMenu1);
     glutAddSubMenu("Graphics options", subMenu4);
-    glutAddMenuEntry("Save Screenshot",SAVE);
+    //glutAddMenuEntry("Save Screenshot",SAVE);
     glutAddMenuEntry("Toggle help [h]",HELP);
 
 
