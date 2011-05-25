@@ -33,18 +33,20 @@
 #define PI 3.14159265358979323846f 
 
 //hauke
-int graphic[3];
+//int graphic[3];
 double cut_angle;
 double trans_value;
 double phi_projection;
 double z_projection;
+
+CEDsettings setting;
 
 static int mouse_x, mouse_y; 
 
 /** This defines what is visible */
 //unsigned ced_visible_layers=0x00000FFF;
 //unsigned long ced_visible_layers=0xFFFFFFFF;
-bool ced_visible_layers[MAX_LAYER]={1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
+//bool ced_visible_layers[MAX_LAYER]={1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
 
 int SELECTED_ID = -1;
 
@@ -54,7 +56,9 @@ int SELECTED_Y=0;
 
 extern double fisheye_alpha;
 //#define IS_VISIBLE(x) ((1<<((x>>8)&0xff))&ced_visible_layers)
-#define IS_VISIBLE(x) ((x < (MAX_LAYER-1) && x >= 0)?ced_visible_layers[x]:false)
+//#define IS_VISIBLE(x) ((x < (MAX_LAYER-1) && x >= 0)?ced_visible_layers[x]:false)
+
+#define IS_VISIBLE(x) ((x < (MAX_LAYER-1) && x >= 0)?setting.layer[x]:false)
 
 
 /*
@@ -993,7 +997,9 @@ static void ced_draw_geotube(CED_GeoTube *c){
     double z1 = single_fisheye_transform(c->z+c->shift, fisheye_alpha);
     double z = z1-z0;
     //hauke
-    if(graphic[1] == 1){
+    //if(graphic[1] == 1){
+    if(setting.trans == 1){
+
         GLfloat face_color[4]={((c->color>>16)&0xff)/255.0,((c->color>>8)&0xff)/255.0,((c->color)&0xff)/255.0, trans_value};  
         //GLfloat line_color[4]={0.5,0.5,0.5, 0.4}; //lines in gray
         GLfloat line_color[4]={((c->color>>16)&0xff)/255.0,((c->color>>8)&0xff)/255.0,((c->color)&0xff)/255.0, 0.5}; //lines in detector color

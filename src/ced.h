@@ -11,6 +11,8 @@
 #ifndef __CED_H
 #define __CED_H
 
+#include "ced_cli.h"
+
 //#ifdef __cplusplus
 // extern "C" {
 //#endif
@@ -81,6 +83,20 @@ void selectFromMenu(int id);//glced.c
 void toggleHelpWindow(void);//glced.c
 void updateLayerEntryInPopupMenu(int); //glced.c
 int buildMenuPopup(void);//glced.c
+
+
+struct CEDsettings{
+    bool trans;         //grid or surface view
+    bool persp;         //perspectivic view or flat projection 
+    bool antia;         //anti aliasing
+    bool light;         //light source 
+    double cut_angle;
+    double trans_value;
+    bool layer[MAX_LAYER];
+    bool phi_projection;
+    bool z_projection;
+    double view[3];
+};
 
 /*
 //important: 

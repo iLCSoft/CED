@@ -49,6 +49,9 @@
 #include <time.h>
 #include <netdb.h>
 #include <iostream>
+#include <fstream>
+#include <stdlib.h> //getenv
+using namespace std;
 
 
     //#include<jpeglib.h>
@@ -168,7 +171,9 @@ static int available_cutangles[]={0,30,90,135, 180, 270, 360};  //for new angles
 //#define PHI_PROJECTION_OFF 5001
 
 
-extern int graphic[];  //= {0,0,0,0}; //light, transparence, perspective, anti aliasing
+extern CEDsettings setting;
+
+//extern int graphic[];  //= {0,0,0,0}; //light, transparence, perspective, anti aliasing
 extern double cut_angle;
 extern double trans_value;
 static double z_cutting=7000;
@@ -259,7 +264,7 @@ void ced_prepare_objmap(void);
 int ced_get_selected(int x,int y,GLfloat *wx,GLfloat *wy,GLfloat *wz);
 //SJA:FIXED set this to extern as it is a global from ced_srv.c
 //extern unsigned long ced_visible_layers; 
-extern bool ced_visible_layers[100];
+//extern bool ced_visible_layers[100];
 
 static struct _geoCylinder {
   GLuint obj;
@@ -312,6 +317,61 @@ static void makeGeometry(void) {
     }
 }
 
+void saveSettings(void){
+    ofstream file;
+    const char *home = getenv("HOME");
+    char filename[1000];
+    snprintf(filename, 1000, "%s/.glced", home);
+
+    file.open(filename, ios::out | ios::binary);
+    //file.open(filename);
+
+    if(file.is_open()){ 
+//        file << setting.trans << endl;
+//        file << setting.persp << endl;
+//        file.close();
+        file.write((char*)&setting, sizeof(setting));
+        std::cout << "Save settings to: " << filename << std::endl;
+
+    }else{
+        std::cout << "Error open file: " << filename << std::endl;
+    }
+}
+
+void loadSettings(void){
+    ifstream file;
+
+    const char *home = getenv("HOME");
+    char filename[1000];
+    snprintf(filename, 1000, "%s/.glced", home);
+//    file.open(filename);
+    file.open(filename, ios::in | ios::binary);
+
+
+    if(file.is_open()){
+//
+//        string line;
+//        getline(file,line);
+//        setting.trans=atoi(line.c_str());
+//        //cout << line << " : ";
+//        //cout << atoi(line.c_str()) << endl;
+//        getline(file,line);
+//        setting.persp=atoi(line.c_str());
+
+        file.read((char*)&setting, sizeof(setting));
+        std::cout << "Read settings from: " << filename << std::endl;
+
+    }else{ //set to default
+        setting.trans=true;
+        setting.persp=true;
+        for(int i=0; i < MAX_LAYER; i++){
+            setting.layer[i]=true; // turn all layers on
+        }
+        std::cout << "Set to default settings" << std::endl;
+    
+    }
+
+}
 
 static void init(void){
 
@@ -533,7 +593,9 @@ static void reshape(int w,int h){
     window_height=h;
   
   
-    if(graphic[3]){
+    //if(graphic[3]){
+    if(setting.antia){
+
         glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
         glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
         //glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
@@ -550,7 +612,9 @@ static void reshape(int w,int h){
         glDisable(GL_LINE_SMOOTH);
     }
   
-    if(graphic[2] == 0){
+    //if(graphic[2] == 0){
+    if(setting.persp == false){
+
         glViewport(0,0,w,h);
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
@@ -722,7 +786,9 @@ int isLayerVisible(int x){
 */
 
 int isLayerVisible(int x){
-    return(ced_visible_layers[x]);
+    //return(ced_visible_layers[x]);
+
+    return(setting.layer[x]);
 }
 
 
@@ -740,11 +806,19 @@ static void toggle_layer(unsigned l){
 static void toggle_layer(unsigned l){
     if(l > MAX_LAYER-1){ return; }
 
-    if(ced_visible_layers[l]){
-        ced_visible_layers[l]=false;
+//    if(ced_visible_layers[l]){
+//        ced_visible_layers[l]=false;
+//    }else{
+//        ced_visible_layers[l]=true;
+//    }
+
+
+    if(setting.layer[l]){
+        setting.layer[l]=false;
     }else{
-        ced_visible_layers[l]=true;
+        setting.layer[l]=true;
     }
+
 }
 
 /*
@@ -1322,7 +1396,8 @@ void selectFromMenu(int id){ //hauke
             glClearColor(userDefinedBGColor[0],userDefinedBGColor[1], userDefinedBGColor[2], userDefinedBGColor[3]);
 
         case VIEW_RESET:
-            if(graphic[2] == 0){selectFromMenu(GRAFIC_PERSP); }
+            //if(graphic[2] == 0){selectFromMenu(GRAFIC_PERSP); }
+            if(setting.persp == false){selectFromMenu(GRAFIC_PERSP); }
             z_cutting=7000; //no z cutting
             cut_angle=0;    // no detector cutting
             phi_projection = false; // no phi projection
@@ -1371,7 +1446,8 @@ void selectFromMenu(int id){ //hauke
                 phi_projection=false;
                 z_cutting=z_cutting_backup;
                 cut_angle=cut_angle_backup;
-                if(graphic_2_backup != graphic[2]){selectFromMenu(GRAFIC_PERSP); } //restore persp setting
+                //if(graphic_2_backup != graphic[2]){selectFromMenu(GRAFIC_PERSP); } //restore persp setting
+                if(graphic_2_backup != setting.persp){selectFromMenu(GRAFIC_PERSP); } //restore persp setting
 
                 mm.ha = mm_ha_backup;
                 mm.va = mm_va_backup;
@@ -1388,8 +1464,12 @@ void selectFromMenu(int id){ //hauke
 
                 phi_projection=true;
 
-                graphic_2_backup=graphic[2];
-                if(graphic[2]==1){selectFromMenu(GRAFIC_PERSP); }
+                //graphic_2_backup=graphic[2];
+                graphic_2_backup=setting.persp;
+
+                //if(graphic[2]==1){selectFromMenu(GRAFIC_PERSP); }
+                if(setting.persp==1){selectFromMenu(GRAFIC_PERSP); }
+
 
                 cut_angle=180;
                 z_cutting=7000;
@@ -1411,7 +1491,8 @@ void selectFromMenu(int id){ //hauke
                 z_cutting=z_cutting_backup;
                 cut_angle=cut_angle_backup;
                 //if(graphic[2]==0){selectFromMenu(GRAFIC_PERSP); }
-                if(graphic_2_backup != graphic[2]){selectFromMenu(GRAFIC_PERSP); } //restore persp setting
+                //if(graphic_2_backup != graphic[2]){selectFromMenu(GRAFIC_PERSP); } //restore persp setting
+                if(graphic_2_backup != setting.persp){selectFromMenu(GRAFIC_PERSP); } //restore persp setting
 
 
                 mm.ha = mm_ha_backup;
@@ -1430,8 +1511,12 @@ void selectFromMenu(int id){ //hauke
                 z_cutting=10;
 
 
-                graphic_2_backup=graphic[2];
-                if(graphic[2]==1){selectFromMenu(GRAFIC_PERSP); }
+                //graphic_2_backup=graphic[2];
+                graphic_2_backup=setting.persp;
+
+                //if(graphic[2]==1){selectFromMenu(GRAFIC_PERSP); }
+                if(setting.persp==true){selectFromMenu(GRAFIC_PERSP); }
+
                
                //side view
                 mm_ha_backup=mm.ha;
@@ -1630,24 +1715,34 @@ void selectFromMenu(int id){ //hauke
             break;
 
         case GRAFIC_HIGH:
-            graphic[0] = 1; //todo: little bit dirty, make it better
-            graphic[1] = 0;
-            graphic[2] = 0;
+            //graphic[0] = 1; //todo: little bit dirty, make it better
+            setting.light=true;
+            //graphic[1] = 0;
+            setting.trans=false;
+
+            //graphic[2] = 0;
+            setting.trans=false;
             selectFromMenu(GRAFIC_TRANS);
             selectFromMenu(GRAFIC_LIGHT);
             selectFromMenu(GRAFIC_PERSP);
             break;
             
         case GRAFIC_LOW:
-            graphic[0] = 1; //todo: little bit dirty, make it better
-            graphic[1] = 1;
-            graphic[2] = 1;
+            //graphic[0] = 1; //todo: little bit dirty, make it better
+            setting.light=true;
+
+            //graphic[1] = 1;
+            setting.trans=true;
+            //graphic[2] = 1;
+            setting.persp=true;
+
             selectFromMenu(GRAFIC_TRANS);
             selectFromMenu(GRAFIC_LIGHT);
             selectFromMenu(GRAFIC_PERSP);
             break;
 
         case GRAFIC_TRANS:
+/*
             if(graphic[1] == 1){
                 //printf("Transparency  is now off\n");
                 graphic[1] = 0;
@@ -1655,16 +1750,32 @@ void selectFromMenu(int id){ //hauke
                 //printf("Transparency  is now on\n");
                 graphic[1] = 1;
             }
+
+*/
+
+            if(setting.trans == true){
+                //printf("Transparency  is now off\n");
+                setting.trans = false;
+            }else{
+                //printf("Transparency  is now on\n");
+                setting.trans = true;
+            }
+
             break;
             
         case GRAFIC_LIGHT:
-            if(graphic[0] == 1){
+            //if(graphic[0] == 1){
+            if(setting.light == true){
+
                 //printf("Light  is now on\n");
-                graphic[0] = 0;
+                //graphic[0] = 0;
+                setting.light=false;
                 glDisable(GL_LIGHTING); 
             }else{
                  //printf("Light is now on\n");
-                 graphic[0] = 1;
+                 //graphic[0] = 1;
+                setting.light = true;
+
                  break; //do nothing...
 
                  //TODO: CHANGE IT
@@ -1704,25 +1815,32 @@ void selectFromMenu(int id){ //hauke
             break;
 
         case GRAFIC_ALIAS:
-            if(graphic[3] == 1){
+            //if(graphic[3] == 1){
+            if(setting.antia == true){
                 printf("Anti aliasing is off\n");
-                graphic[3] = 0;
+                //graphic[3] = 0;
+                setting.antia = false;
                 reshape((int)window_width, (int)window_height);
             }else{
                 printf("Anti aliasing is on\n");
-                graphic[3] = 1;
+                //graphic[3] = 1;
+                setting.antia=true;
                 reshape((int)window_width, (int)window_height);
             }
             break;
 
         case GRAFIC_PERSP:
-            if(graphic[2] == 1){
+            //if(graphic[2] == 1){
+            if(setting.persp == true){
                 //printf("Perspective is now flat\n");
-                graphic[2] = 0;
+                //graphic[2] = 0;
+                setting.persp = false;
+
                 reshape((int)window_width, (int)window_height); //hack, call resize function to overwrite perspectivic settings
             }else{
                 //printf("Perspective is now 3d\n");
-                graphic[2] = 1;
+                //graphic[2] = 1;
+                setting.persp = true;
                 reshape((int)window_width, (int)window_height); //hack, call resize function to overwrite perspectivic settings
             }
             break;
@@ -1730,8 +1848,8 @@ void selectFromMenu(int id){ //hauke
             toggleHelpWindow();
             break;
         case SAVE:
-            std::cout << "write screenshot to /tmp/glced.bmp" << std::endl;
-            //screenshot("/tmp/glced.bmp");
+            saveSettings(); 
+            break;
 
     }
     glutPostRedisplay();
@@ -1873,7 +1991,7 @@ int buildMenuPopup(void){ //hauke
     glutAddSubMenu("Detector cuts", subsubMenu2);
     glutAddSubMenu("Background Color", subMenu1);
     glutAddSubMenu("Graphics options", subMenu4);
-    //glutAddMenuEntry("Save Screenshot",SAVE);
+    glutAddMenuEntry("Save Settings",SAVE);
     glutAddMenuEntry("Toggle help [h]",HELP);
 
 
@@ -1886,13 +2004,15 @@ int main(int argc,char *argv[]){
     set_bg_color(0.0,0.0,0.0,0.0); //set to default (black)
     //set_bg_color(bgColors[0][0],bgColors[0][1],bgColors[0][2],bgColors[0][3]); //set to default (light blue [0.0, 0.2, 0.4, 0.0])
   
-    graphic[1]=1; //transp
-    graphic[2]=1; //persp
+    //graphic[1]=1; //transp
+    //graphic[2]=1; //persp
     cut_angle=0; //degrees
     phi_projection=false;
     z_projection=false;
   
     trans_value=0.8;
+
+    loadSettings(); //todo
   
   
     char hex[]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
