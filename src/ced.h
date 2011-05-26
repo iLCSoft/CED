@@ -85,6 +85,7 @@ void updateLayerEntryInPopupMenu(int); //glced.c
 int buildMenuPopup(void);//glced.c
 
 
+#define VERSION_CONFIG 2
 struct CEDsettings{
     bool trans;         //grid or surface view
     bool persp;         //perspectivic view or flat projection 
@@ -96,6 +97,17 @@ struct CEDsettings{
     bool phi_projection;
     bool z_projection;
     double view[3];
+    double va; //vertical angle of view
+    double ha; //horionzional angle of view
+    bool fixed_view;
+    double z_cutting;
+    int win_h; //height of the window (pixel)
+    int win_w; //wight of the window (pixel)
+    double zoom;
+    double fisheye_alpha;
+    double world_size;
+    double fisheye_world_size;
+    double bgcolor[4];
 };
 
 /*
@@ -118,6 +130,6 @@ struct CEDsettings{
 // }
 //#endif
 
-	 
+	
 
 #endif /* __CED_H  */

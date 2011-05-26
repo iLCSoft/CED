@@ -174,13 +174,13 @@ static int available_cutangles[]={0,30,90,135, 180, 270, 360};  //for new angles
 extern CEDsettings setting;
 
 //extern int graphic[];  //= {0,0,0,0}; //light, transparence, perspective, anti aliasing
-extern double cut_angle;
-extern double trans_value;
-static double z_cutting=7000;
-static bool fixed_view=0;
+//extern double cut_angle;
+//extern double trans_value;
+//static double z_cutting=7000;
+//static bool fixed_view=0;
 
-extern bool phi_projection;
-extern bool z_projection;
+//extern bool phi_projection;
+//extern bool z_projection;
 
 int ced_picking(int x,int y,GLfloat *wx,GLfloat *wy,GLfloat *wz); //from ced_srv.c, need header files!
 
@@ -317,61 +317,6 @@ static void makeGeometry(void) {
     }
 }
 
-void saveSettings(void){
-    ofstream file;
-    const char *home = getenv("HOME");
-    char filename[1000];
-    snprintf(filename, 1000, "%s/.glced", home);
-
-    file.open(filename, ios::out | ios::binary);
-    //file.open(filename);
-
-    if(file.is_open()){ 
-//        file << setting.trans << endl;
-//        file << setting.persp << endl;
-//        file.close();
-        file.write((char*)&setting, sizeof(setting));
-        std::cout << "Save settings to: " << filename << std::endl;
-
-    }else{
-        std::cout << "Error open file: " << filename << std::endl;
-    }
-}
-
-void loadSettings(void){
-    ifstream file;
-
-    const char *home = getenv("HOME");
-    char filename[1000];
-    snprintf(filename, 1000, "%s/.glced", home);
-//    file.open(filename);
-    file.open(filename, ios::in | ios::binary);
-
-
-    if(file.is_open()){
-//
-//        string line;
-//        getline(file,line);
-//        setting.trans=atoi(line.c_str());
-//        //cout << line << " : ";
-//        //cout << atoi(line.c_str()) << endl;
-//        getline(file,line);
-//        setting.persp=atoi(line.c_str());
-
-        file.read((char*)&setting, sizeof(setting));
-        std::cout << "Read settings from: " << filename << std::endl;
-
-    }else{ //set to default
-        setting.trans=true;
-        setting.persp=true;
-        for(int i=0; i < MAX_LAYER; i++){
-            setting.layer[i]=true; // turn all layers on
-        }
-        std::cout << "Set to default settings" << std::endl;
-    
-    }
-
-}
 
 static void init(void){
 
@@ -547,6 +492,7 @@ static void display_world(void){
   
 }
 
+
 static void display(void){
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   
@@ -566,8 +512,8 @@ static void display(void){
   
      //glTranslatef(0,0,1000);
   
-     const GLdouble clip_plane[]={0,0,-1,z_cutting};
-     if(z_cutting < 6999){
+     const GLdouble clip_plane[]={0,0,-1,setting.z_cutting};
+     if(setting.z_cutting < 6999){
           glEnable(GL_CLIP_PLANE0);
      }else{
           glDisable(GL_CLIP_PLANE0);
@@ -671,6 +617,209 @@ static void reshape(int w,int h){
     }
 }
 
+void saveSettings(void){
+    ofstream file;
+    const char *home = getenv("HOME");
+    char filename[1000];
+    snprintf(filename, 1000, "%s/.glced", home);
+
+    //file.open(filename, ios::out | ios::binary);
+    file.open(filename);
+
+    if(file.is_open()){ 
+//        file << setting.trans << endl;
+//        file << setting.persp << endl;
+//        file.close();
+        setting.va=mm.va;
+        setting.ha=mm.ha;
+        setting.win_w=(int)window_width;
+        setting.win_h=(int)window_height;
+        setting.zoom = mm.sf; 
+        setting.fisheye_alpha=fisheye_alpha;
+
+        setting.fisheye_world_size = FISHEYE_WORLD_SIZE; 
+        setting.world_size = WORLD_SIZE;
+        //double bgcolor[4];
+        glGetDoublev(GL_COLOR_CLEAR_VALUE, setting.bgcolor);
+        //glGetDoublev(GL_COLOR_CLEAR_VALUE, bgcolor);
+        //cout << "bgcolor: " << bgcolor[0] << ", " << bgcolor[1] << ", " << bgcolor[2] << ", "  << bgcolor[3] << "\n" ;
+
+        //file.write((char*)&setting, sizeof(setting));
+        file<<"#Config version:"<<std::endl<<VERSION_CONFIG << std::endl; 
+        file<<"#Transp:"<<std::endl<<setting.trans << std::endl; 
+        file<<"#Persp:"<<std::endl<<setting.persp  << std::endl;
+        file<<"#Anti A:"<<std::endl<<setting.antia<< std::endl;
+        file<<"#Light:"<<std::endl<<setting.light<< std::endl;
+        file<<"#Cut angle:"<<std::endl<<setting.cut_angle<< std::endl;
+        file<<"#Trans value:"<<std::endl<<setting.trans_value<< std::endl;
+        for(int i=0;i<MAX_LAYER;i++){
+            file<<"#Visibility Layer " << i << ":" <<std::endl<<setting.layer[i]<< std::endl;
+        }
+        file<<"#Phi projection:"<<std::endl<<setting.phi_projection<< std::endl;
+        file<<"#Z projection:"<<std::endl<<setting.z_projection<< std::endl;
+        for(int i=0;i<3;i++){
+            file<<"#View setting" << i << ":" <<std::endl<<setting.view[i] << std::endl;
+        }
+        file<<"#Vertical angle:"<<std::endl<<setting.va<< std::endl;
+        file<<"#Horiz angle:"<<std::endl<<setting.ha<< std::endl;
+        file<<"#Fixed view:"<<std::endl<<setting.fixed_view<< std::endl;
+        file<<"#Z cutting:"<<std::endl<<setting.z_cutting<< std::endl;
+        file<<"#Window height:"<<std::endl<<setting.win_h<< std::endl;
+        file<<"#Window width:"<<std::endl<<setting.win_w<< std::endl;
+        file<<"#Zoom:"<<std::endl<<setting.zoom<< std::endl;
+        file<<"#Fisheye_alpha:"<<std::endl<<setting.fisheye_alpha<< std::endl;
+        file<<"#World size:"<<std::endl<<setting.world_size<< std::endl;
+        file<<"#fisheye world size:"<<std::endl<<setting.fisheye_world_size<< std::endl;
+        for(int i=0;i<4;i++){
+            file<<"#Background color, value "<< i << ":" << std::endl<<setting.bgcolor[i]<< std::endl;
+        }
+
+
+        std::cout << "Save settings to: " << filename << std::endl;
+
+    }else{
+        std::cout << "Error open file: " << filename << std::endl;
+    }
+}
+
+void defaultSettings(void){
+        setting.trans=true;
+        setting.persp=true;
+        setting.light=false;
+        setting.antia=false;
+        setting.cut_angle=180;
+        setting.trans_value=0.8;
+        setting.z_cutting=7000;
+
+
+        setting.win_w=500;
+        setting.win_h=500;
+
+        setting.va=mm.va;
+        setting.ha=mm.ha;
+    
+        
+        for(int i=0; i < MAX_LAYER; i++){
+            setting.layer[i]=true; // turn all layers on
+        }
+        for(int i=0;i < 4; i++){
+            setting.bgcolor[i]=0; //black
+        }
+
+        std::cout << "Set to default settings" << std::endl;
+}
+
+void loadSettings(void){
+    ifstream file;
+
+    const char *home = getenv("HOME");
+    char filename[1000];
+    snprintf(filename, 1000, "%s/.glced", home);
+    file.open(filename);
+
+    if(file.is_open()){
+        string line;
+//        file.read((char*)&setting, sizeof(setting));
+            getline(file,line);getline(file,line);
+            if(VERSION_CONFIG != atoi(line.c_str())){
+                std::cout << "WARNING: Cant read configfile (" << filename << ") please delete or rename it" << std::endl; 
+                defaultSettings();
+            }
+
+            getline(file,line);getline(file,line);
+            setting.trans=atoi(line.c_str());
+
+            getline(file,line);getline(file,line);
+            setting.persp=atoi(line.c_str());
+
+            getline(file,line);getline(file,line);
+            setting.antia=atoi(line.c_str());
+
+            getline(file,line);getline(file,line);
+            setting.light=atoi(line.c_str());
+
+            getline(file,line);getline(file,line);
+            setting.cut_angle=atof(line.c_str());
+
+            getline(file,line);getline(file,line);
+            setting.trans_value=atof(line.c_str());
+
+            for(int i=0;i<MAX_LAYER;i++){
+                getline(file,line);getline(file,line);
+                setting.layer[i]=atoi(line.c_str());
+            }
+
+            getline(file,line);getline(file,line);
+            setting.phi_projection=atoi(line.c_str());
+
+            getline(file,line);getline(file,line);
+            setting.z_projection=atoi(line.c_str());
+
+            for(int i=0;i<3;i++){
+                getline(file,line);getline(file,line);
+                setting.view[i]=atof(line.c_str());
+            }
+
+            getline(file,line);getline(file,line);
+            setting.va=atof(line.c_str());
+            getline(file,line);getline(file,line);
+            setting.ha=atof(line.c_str());
+
+            getline(file,line);getline(file,line);
+            setting.fixed_view=atoi(line.c_str());
+            
+            getline(file,line);getline(file,line);
+            setting.z_cutting=atof(line.c_str());
+
+            getline(file,line);getline(file,line);
+            setting.win_h=atoi(line.c_str());
+
+            getline(file,line);getline(file,line);
+            setting.win_w=atoi(line.c_str());
+
+            getline(file,line);getline(file,line);
+            setting.zoom=atof(line.c_str());
+
+            getline(file,line);getline(file,line);
+            setting.fisheye_alpha=atof(line.c_str());
+
+            getline(file,line);getline(file,line);
+            setting.world_size=atof(line.c_str());
+
+            getline(file,line);getline(file,line);
+            setting.fisheye_world_size=atof(line.c_str());
+
+            for(int i=0;i<3;i++){
+                getline(file,line);getline(file,line);
+                setting.bgcolor[i] = atof(line.c_str());
+            }
+
+
+        mm.va=setting.va;
+        mm.ha=setting.ha;
+        mm.sf = setting.zoom; 
+        fisheye_alpha=setting.fisheye_alpha;
+
+
+        FISHEYE_WORLD_SIZE = setting.fisheye_world_size; 
+        WORLD_SIZE=setting.world_size;
+
+
+
+
+        //reshape(setting.win_w, setting.win_h);
+
+
+        std::cout << "Read settings from: " << filename << std::endl;
+
+    }else{ //set to default
+        defaultSettings();
+    }
+
+}
+
+
+
 
 void mouseWheel(int button, int dir, int x, int y){ //hauke
     if(dir > 0){
@@ -727,7 +876,7 @@ static void mouse(int btn,int state,int x,int y){
             }
         }else{
             //printf("Single Click\n");
-            if(fixed_view == 0){ //dont rotate the view when in side or front projection
+            if(setting.fixed_view == 0){ //dont rotate the view when in side or front projection
                 move_mode=TURN_XY;
             }
         }
@@ -880,10 +1029,10 @@ static void keypressed(unsigned char key,int x,int y){
     } else if(key == '-'){
           selectFromMenu(VIEW_ZOOM_OUT);
     } else if(key == 'z'){
-          if(z_cutting < 7000){ z_cutting+=100; };
+          if(setting.z_cutting < 7000){ setting.z_cutting+=100; };
           glutPostRedisplay();
     } else if(key == 'Z'){
-          if(z_cutting > -7000){ z_cutting-=100; };
+          if(setting.z_cutting > -7000){ setting.z_cutting-=100; };
           glutPostRedisplay();
     } else if(key=='t'){ // t - momentum at ip layer 2
       toggle_layer(20);
@@ -1302,16 +1451,10 @@ void update_cut_angle_menu(void){
 
     for(i=0; (unsigned)i < sizeof(available_cutangles)/sizeof(available_cutangles[0]); i++){
 
-        if(available_cutangles[i] == cut_angle){
-
-
+        if(available_cutangles[i] == setting.cut_angle){
             sprintf(str,"[X] %i", available_cutangles[i]);
-
-
             glutChangeToMenuEntry(i+1, str,  CUT_ANGLE0+i);
-
         }else{
-
             sprintf(str,"[  ] %i", available_cutangles[i]);
             glutChangeToMenuEntry(i+1, str,  CUT_ANGLE0+i);
         }
@@ -1398,14 +1541,19 @@ void selectFromMenu(int id){ //hauke
         case VIEW_RESET:
             //if(graphic[2] == 0){selectFromMenu(GRAFIC_PERSP); }
             if(setting.persp == false){selectFromMenu(GRAFIC_PERSP); }
-            z_cutting=7000; //no z cutting
-            cut_angle=0;    // no detector cutting
-            phi_projection = false; // no phi projection
-            z_projection=false; // no phi projection;
+            setting.z_cutting=7000; //no z cutting
+            setting.cut_angle=0;    // no detector cutting
+            setting.phi_projection = false; // no phi projection
+            setting.z_projection=false; // no phi projection;
             mm=mm_reset;
-            mm.sf = fisheye_alpha > 0 ? mm.sf*8.0: mm.sf;
-            fixed_view=false;
+            //mm.sf = fisheye_alpha > 0 ? mm.sf*8.0: mm.sf;
+            fisheye_alpha=0;
+            setting.fixed_view=false;
+            update_cut_angle_menu();
+            set_world_size(DEFAULT_WORLD_SIZE ); 
+            //std::cout << "DEFAULT_WORLD_SIZE "  << DEFAULT_WORLD_SIZE << "zoom: " << mm.sf << std::endl;
             break;
+
 
         case VIEW_FISHEYE:
             if(fisheye_alpha==0.0){
@@ -1425,7 +1573,7 @@ void selectFromMenu(int id){ //hauke
             //mm=mm_reset;
             //mm.sf = fisheye_alpha > 0 ? mm.sf*8.0: mm.sf;
 
-            if(fixed_view){ break;}
+            if(setting.fixed_view){ break;}
 
                 mm.ha=mm.va=0.;
 
@@ -1434,7 +1582,7 @@ void selectFromMenu(int id){ //hauke
         case VIEW_SIDE:
             //mm=mm_reset;
             //mm.sf = fisheye_alpha > 0 ? mm.sf*8.0: mm.sf;
-            if(fixed_view){ break;}
+            if(setting.fixed_view){ break;}
 
                 mm.ha=90.;
                 mm.va=0.;
@@ -1442,27 +1590,27 @@ void selectFromMenu(int id){ //hauke
             break;
 
         case TOGGLE_PHI_PROJECTION:
-            if(phi_projection){ //turn projection off
-                phi_projection=false;
-                z_cutting=z_cutting_backup;
-                cut_angle=cut_angle_backup;
+            if(setting.phi_projection){ //turn projection off
+                setting.phi_projection=false;
+                setting.z_cutting=z_cutting_backup;
+                setting.cut_angle=cut_angle_backup;
                 //if(graphic_2_backup != graphic[2]){selectFromMenu(GRAFIC_PERSP); } //restore persp setting
                 if(graphic_2_backup != setting.persp){selectFromMenu(GRAFIC_PERSP); } //restore persp setting
 
                 mm.ha = mm_ha_backup;
                 mm.va = mm_va_backup;
 
-                fixed_view=false;
+                setting.fixed_view=false;
 
             }else{ //turn projection on
-                if(z_projection){
+                if(setting.z_projection){
                     selectFromMenu(TOGGLE_Z_PROJECTION);
                 }
 
-                z_cutting_backup=z_cutting;
-                cut_angle_backup=cut_angle;
+                z_cutting_backup=setting.z_cutting;
+                cut_angle_backup=setting.cut_angle;
 
-                phi_projection=true;
+                setting.phi_projection=true;
 
                 //graphic_2_backup=graphic[2];
                 graphic_2_backup=setting.persp;
@@ -1471,25 +1619,27 @@ void selectFromMenu(int id){ //hauke
                 if(setting.persp==1){selectFromMenu(GRAFIC_PERSP); }
 
 
-                cut_angle=180;
-                z_cutting=7000;
+                setting.cut_angle=180;
+                setting.z_cutting=7000;
                 mm_ha_backup=mm.ha;
                 mm_va_backup = mm.va;
                 mm.ha=90.;
                 mm.va=0.;
 
-                fixed_view=true;
+                setting.fixed_view=true;
             }
+
+            update_cut_angle_menu();
             break;
 
         case TOGGLE_Z_PROJECTION:
-            if(z_projection){ //turn projection off
+            if(setting.z_projection){ //turn projection off
 
-                z_projection=false;
+                setting.z_projection=false;
                 //z_cutting=7000;
                 //selectFromMenu(GRAFIC_PERSP);
-                z_cutting=z_cutting_backup;
-                cut_angle=cut_angle_backup;
+                setting.z_cutting=z_cutting_backup;
+                setting.cut_angle=cut_angle_backup;
                 //if(graphic[2]==0){selectFromMenu(GRAFIC_PERSP); }
                 //if(graphic_2_backup != graphic[2]){selectFromMenu(GRAFIC_PERSP); } //restore persp setting
                 if(graphic_2_backup != setting.persp){selectFromMenu(GRAFIC_PERSP); } //restore persp setting
@@ -1498,17 +1648,17 @@ void selectFromMenu(int id){ //hauke
                 mm.ha = mm_ha_backup;
                 mm.va = mm_va_backup;
 
-                fixed_view=false;
+                setting.fixed_view=false;
             }else{ //turn projection on
 
-                if(phi_projection){selectFromMenu(TOGGLE_PHI_PROJECTION);}
+                if(setting.phi_projection){selectFromMenu(TOGGLE_PHI_PROJECTION);}
 
-                z_cutting_backup=z_cutting;
-                cut_angle_backup=cut_angle;
+                z_cutting_backup=setting.z_cutting;
+                cut_angle_backup=setting.cut_angle;
 
-                z_projection=true;
-                cut_angle=0;
-                z_cutting=10;
+                setting.z_projection=true;
+                setting.cut_angle=0;
+                setting.z_cutting=10;
 
 
                 //graphic_2_backup=graphic[2];
@@ -1528,8 +1678,10 @@ void selectFromMenu(int id){ //hauke
 
 
 
-                fixed_view=true;
+                setting.fixed_view=true;
             }
+
+            update_cut_angle_menu();
             break;
 
         case VIEW_ZOOM_IN:
@@ -1647,71 +1799,71 @@ void selectFromMenu(int id){ //hauke
             break;
 
         case CUT_ANGLE0:
-            cut_angle=0; 
+            setting.cut_angle=0; 
             update_cut_angle_menu();
             break;
 
         case CUT_ANGLE30:
-            cut_angle=30; 
+            setting.cut_angle=30; 
             update_cut_angle_menu();
             break;
 
         case CUT_ANGLE90:
-            cut_angle=90;
+            setting.cut_angle=90;
             update_cut_angle_menu();
             break;
 
         case CUT_ANGLE135:
-            cut_angle=135;
+            setting.cut_angle=135;
             update_cut_angle_menu();
             break;
 
         case CUT_ANGLE180:
-            cut_angle=180;
+            setting.cut_angle=180;
             update_cut_angle_menu();
             break;
 
         case CUT_ANGLE270:
-            cut_angle=270;
+            setting.cut_angle=270;
             update_cut_angle_menu();
             break;
 
         case CUT_ANGLE360:
-            cut_angle=360;
+            setting.cut_angle=360;
             update_cut_angle_menu();
             break;
 
         case TRANS0:
-            trans_value=0;
+            setting.trans_value=0;
             break;
 
         case TRANS40:
-            trans_value=0.4;
+            setting.trans_value=0.4;
             break;
 
         case TRANS60:
-            trans_value=0.6;
+            setting.trans_value=0.6;
             break;
 
         case TRANS70:
-            trans_value=0.7;
+            setting.trans_value=0.7;
             break;
 
         case TRANS80:
-            trans_value=0.8;
+            setting.trans_value=0.8;
             break;
 
         case TRANS90:
-            trans_value=0.9;
+            setting.trans_value=0.9;
             break;
 
         case TRANS95:
-            trans_value=0.95;
+            setting.trans_value=0.95;
             break;
 
         case TRANS100:
             //std::cout<<"change to 1!" << std::endl;
-            trans_value=1.0;
+            setting.trans_value=1.0;
             break;
 
         case GRAFIC_HIGH:
@@ -2000,21 +2152,25 @@ int buildMenuPopup(void){ //hauke
 
 int main(int argc,char *argv[]){
 
+    mm_reset=mm;
     WORLD_SIZE = DEFAULT_WORLD_SIZE ;
-    set_bg_color(0.0,0.0,0.0,0.0); //set to default (black)
+
+    loadSettings();  
+    set_bg_color(setting.bgcolor[0],setting.bgcolor[1],setting.bgcolor[2],setting.bgcolor[2]); //set to default (black)
+
+    //set_bg_color(0.0,0.0,0.0,0.0); //set to default (black)
     //set_bg_color(bgColors[0][0],bgColors[0][1],bgColors[0][2],bgColors[0][3]); //set to default (light blue [0.0, 0.2, 0.4, 0.0])
   
     //graphic[1]=1; //transp
     //graphic[2]=1; //persp
-    cut_angle=0; //degrees
-    phi_projection=false;
-    z_projection=false;
+    //cut_angle=0; //degrees
+    //phi_projection=false;
+    //projection=false;
   
-    trans_value=0.8;
+    //trans_value=0.8;
 
-    loadSettings(); //todo
-  
-  
+
+
     char hex[]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
     int tmp[6];
   
@@ -2039,7 +2195,7 @@ int main(int argc,char *argv[]){
         }else if((strlen(argv[i]) == 8 && argv[i][0] == '0' && toupper(argv[i][1]) == 'X') || strlen(argv[i]) == 6){
           printf("Set background to user defined color.\n");
           int n=0;
-          if(strlen(argv[i+1]) == 8){
+          if(strlen(argv[i]) == 8){
               n=2;
           }
           int k;
@@ -2047,7 +2203,7 @@ int main(int argc,char *argv[]){
               int j;
               tmp[k]=999;
               for(j=0;j<16;j++){
-                  if(toupper(argv[i+1][k+n]) == hex[j]){
+                  if(toupper(argv[i][k+n]) == hex[j]){
                       tmp[k]=j;
                   }
   
@@ -2131,6 +2287,8 @@ int main(int argc,char *argv[]){
     }
   
   
+
+
   
     glutInit(&argc,argv);
     glutInitDisplayMode(GLUT_DOUBLE|GLUT_RGB|GLUT_DEPTH|GLUT_ALPHA);
@@ -2139,7 +2297,10 @@ int main(int argc,char *argv[]){
     //  glutInitWindowSize(600,600); // change to smaller window size */
     /*   glutInitWindowPosition(500,0); */
   
-    glutInitWindowSize(500,500);
+    //glutInitWindowSize(500,500);
+    //cout << setting.win_w << " x " << setting.win_h << std::endl;
+    glutInitWindowSize(setting.win_w,setting.win_h);
+
  
     mainWindow=glutCreateWindow("C Event Display (CED)");
 
@@ -2158,8 +2319,12 @@ int main(int argc,char *argv[]){
     glEnable(GL_BLEND);
 
 
+
+    //set_bg_color(setting.bgcolor[0],setting.bgcolor[1],setting.bgcolor[2],setting.bgcolor[2]); //set to default (black)
+    //glClearColor(BG_COLOR[0],BG_COLOR[1], BG_COLOR[2], BG_COLOR[3]);
     init();
-    mm_reset=mm;
+
+
    
 
     #ifndef __APPLE__
@@ -2194,11 +2359,15 @@ int main(int argc,char *argv[]){
     }
 
 
+
   
+
     glutTimerFunc(500,timer,1);
   
 
 //    glDisable(GL_BLEND);
+
+
 
 
     glutMainLoop();
