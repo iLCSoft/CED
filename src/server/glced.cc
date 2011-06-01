@@ -107,6 +107,8 @@ using namespace std;
 #define TRANS95                 3005
 #define TRANS100                3006
 
+#define FULLSCREEN              6001
+
 
 
 static int available_cutangles[]={0,30,90,135, 180, 270, 360};  //for new angles add the new angle to this list and to define in top of this
@@ -501,7 +503,9 @@ static void display(void){
   
     glRotatef(mm.va,1.,0.,0.);
     glRotatef(mm.ha,0.,1.0,0.);
-    glScalef(mm.sf,mm.sf,mm.sf);
+    glScalef(mm.sf,mm.sf,mm.sf); //streech the world
+
+
     glTranslatef(-mm.mv.x,-mm.mv.y,-mm.mv.z);
   
       //glMatrixMode(GL_MODELVIEW); //
@@ -527,6 +531,19 @@ static void display(void){
     ced_prepare_objmap();
     ced_do_draw_event();
   
+    //cout << "mm.sf: " << mm.sf << "hinterer clipping plane: " << 5000*2.0*mm.sf << std::endl;
+    //gluPerspective(60,window_width/window_height,100*2.0*mm.sf,5000*2.0*mm.sf);
+
+//    std::cout  << "clipping planes: " << 200*2.0*mm.sf << " bis " << 5000*2.0*mm.sf << std::endl;
+//
+//    gluPerspective(60,window_width/window_height,200*2.0*mm.sf,5000*2.0*mm.sf);
+//        glMatrixMode( GL_MODELVIEW );
+//  
+//        glLoadIdentity();
+//        gluLookAt  (0,0,2000,    0,0,0,    0,1,0);
+//
+//
+
     
     glPopMatrix();
   
@@ -573,11 +590,10 @@ static void reshape(int w,int h){
   
         glMatrixMode( GL_PROJECTION );
         glLoadIdentity();
-        //gluPerspective(60,window_width/window_height,15,5000);
-        //gluPerspective(60,window_width/window_height,30,3000);
+        //std::cout  << "clipping planes: " << 100 << " bis " << 5000 << std::endl;
+        gluPerspective(60,window_width/window_height,100,500000);
+        //gluPerspective(60,window_width/window_height,100*2.0*mm.sf,5000*2.0*mm.sf);
 
-        gluPerspective(60,window_width/window_height,100,5000);
-        //gluPerspective(60,window_width/window_height,0.0001,50000);
 
   
         glMatrixMode( GL_MODELVIEW );
@@ -776,6 +792,9 @@ void loadSettings(void){
 
             getline(file,line);getline(file,line);
             setting.win_w=atoi(line.c_str());
+            if(setting.win_w == 0 || setting.win_h == 0){
+                setting.win_w = setting.win_h = 500;
+            }
 
             getline(file,line);getline(file,line);
             setting.zoom=atof(line.c_str());
@@ -1256,8 +1275,11 @@ void subDisplay(void){
     int i;
 
     glutSetWindow(subWindow);
-    glClearColor(0.5, 0.5, 0.5, 100);
+    //glClearColor(0.5, 0.5, 0.5, 100);
+    glClearColor(0.5, 0.5, 0.5, 0.5);
 
+
+    //std::cout << glutGet(GLUT_WINDOW_WIDTH) << " vs " << window_width << std::endl; 
     glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     float line = 45/window_height; //height of one line
@@ -1469,6 +1491,7 @@ void selectFromMenu(int id){ //hauke
     static float mm_ha_backup; 
     static float mm_va_backup;
     static int graphic_2_backup;
+    static int fullscreen=false;
 
 
     glutSetWindow(mainWindow); //hauke
@@ -1862,32 +1885,34 @@ void selectFromMenu(int id){ //hauke
             break;
 
         case TRANS100:
-            //std::cout<<"change to 1!" << std::endl;
             setting.trans_value=1.0;
             break;
+//        case FULLSCREEN:
+//////            glutDestroyWindow(mainWindow);;
+//////            glutGameModeString("1280x1024:32@60");
+//////            glutEnterGameMode();
+////            if(fullscreen == false){
+////                glutFullScreen(); 
+////                fullscreen = true;
+////            }else{
+////                fullscreen = false; 
+////                reshape(setting.win_w, setting.win_h);
+////            }
+//            
 
         case GRAFIC_HIGH:
-            //graphic[0] = 1; //todo: little bit dirty, make it better
             setting.light=true;
-            //graphic[1] = 0;
             setting.trans=false;
-
-            //graphic[2] = 0;
-            setting.trans=false;
+            setting.persp=false;
             selectFromMenu(GRAFIC_TRANS);
             selectFromMenu(GRAFIC_LIGHT);
             selectFromMenu(GRAFIC_PERSP);
             break;
             
         case GRAFIC_LOW:
-            //graphic[0] = 1; //todo: little bit dirty, make it better
             setting.light=true;
-
-            //graphic[1] = 1;
             setting.trans=true;
-            //graphic[2] = 1;
             setting.persp=true;
-
             selectFromMenu(GRAFIC_TRANS);
             selectFromMenu(GRAFIC_LIGHT);
             selectFromMenu(GRAFIC_PERSP);
@@ -1982,16 +2007,13 @@ void selectFromMenu(int id){ //hauke
             break;
 
         case GRAFIC_PERSP:
-            //if(graphic[2] == 1){
             if(setting.persp == true){
                 //printf("Perspective is now flat\n");
-                //graphic[2] = 0;
                 setting.persp = false;
 
                 reshape((int)window_width, (int)window_height); //hack, call resize function to overwrite perspectivic settings
             }else{
                 //printf("Perspective is now 3d\n");
-                //graphic[2] = 1;
                 setting.persp = true;
                 reshape((int)window_width, (int)window_height); //hack, call resize function to overwrite perspectivic settings
             }
@@ -2127,6 +2149,7 @@ int buildMenuPopup(void){ //hauke
     subMenu4 = glutCreateMenu(selectFromMenu);
     glutAddMenuEntry("Classic View",GRAFIC_LOW);
     glutAddMenuEntry("New View", GRAFIC_HIGH);
+//    glutAddMenuEntry("Full Screen mode", FULLSCREEN);
     glutAddSubMenu("Graphic details", subsubMenu1);
     glutAddSubMenu("Transparency value", subsubMenu3);
 
@@ -2151,6 +2174,7 @@ int buildMenuPopup(void){ //hauke
 }
 
 int main(int argc,char *argv[]){
+    bool geometry = false;
 
     mm_reset=mm;
     WORLD_SIZE = DEFAULT_WORLD_SIZE ;
@@ -2269,7 +2293,9 @@ int main(int argc,char *argv[]){
           } else{
               printf("ERROR: Host %s is unknown!\n", argv[i+1]);  
           }
-      } else {
+      } else if(!strcmp(argv[i], "-geometry")){
+        geometry = true;
+      }else {
           //printf("ERROR: Unknown parameter %s\n Try %s -h for help\n", argv[i], argv[0]);
           //exit(1);
       }
@@ -2299,9 +2325,15 @@ int main(int argc,char *argv[]){
   
     //glutInitWindowSize(500,500);
     //cout << setting.win_w << " x " << setting.win_h << std::endl;
-    glutInitWindowSize(setting.win_w,setting.win_h);
 
+
+            //glutGameModeString("1280x1024:32@60");
+            //glutEnterGameMode();
  
+    if(geometry == false){
+        glutInitWindowSize(setting.win_w,setting.win_h);
+    }
+
     mainWindow=glutCreateWindow("C Event Display (CED)");
 
   
