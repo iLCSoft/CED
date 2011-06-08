@@ -21,15 +21,9 @@ void ced_hit(float x,float y,float z,unsigned type,unsigned size,unsigned color)
     ced_hit_ID(x,y,z,type,0, size,color, 0);
 }
 
-//deprecated!!
+//deprecated
 void ced_hit_ID(float x,float y,float z,unsigned type, unsigned size,unsigned color, unsigned lcioID){
-//   static int warn=0;
-//   if(warn==0){
-//        printf("Warning: \"ced_hit_ID(float x,float y,float z,unsigned type,unsigned layer, unsigned size,unsigned color, unsigned lcioID)\" is deprecated, please use \"ced_hit_ID(float x,float y,float z,unsigned type,unsigned layer, unsigned size,unsigned color, unsigned lcioID)\"\n");
-//        warn=1;
-//    }
-    //printf("Deprecated ced_hit_ID: type: %i, layer: %i", type & 0xF, type >> CED_LAYER_SHIFT);
-    ced_hit_ID(x,y,z,type & 0x7,type >> CED_LAYER_SHIFT,size,color,lcioID);
+    ced_hit_ID(x,y,z,type & 0xFF,type >> CED_LAYER_SHIFT,size,color,lcioID);
 }
 
 void ced_hit_ID(float x,float y,float z,unsigned type,unsigned layer, unsigned size,unsigned color, unsigned lcioID){

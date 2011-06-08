@@ -878,7 +878,7 @@ static void ced_draw_line(CED_Line *h){
     //glDisable(GL_BLEND);
 
     //glColor4f((h->color>>16)&0xff,(h->color>>8)&0xff,(h->color)&0xff, 1);
-    glColor3f((h->color>>16)&0xff,(h->color>>8)&0xff,(h->color)&0xff);
+    //glColor3f((h->color>>16)&0xff,(h->color>>8)&0xff,(h->color)&0xff);
 
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -1001,13 +1001,20 @@ static void ced_draw_geotube(CED_GeoTube *c){
     if(setting.trans == 1){
 
         GLfloat face_color[4]={((c->color>>16)&0xff)/255.0,((c->color>>8)&0xff)/255.0,((c->color)&0xff)/255.0, setting.trans_value};  
+        //GLfloat face_color[4]={((c->color>>16)&0xff)/255.0/2.0+(1.0-setting.bgcolor[0])/2.0,((c->color>>8)&0xff)/255.0/2.0+(1.0-setting.bgcolor[1])/2.0,((c->color)&0xff)/255.0/2.0+(1.0-setting.bgcolor[2])/2.0, setting.trans_value}; //shape in detector color mixed with anti background color
+
+
+        float detector_lines_wide=0.3;
+
         //GLfloat line_color[4]={0.5,0.5,0.5, 0.4}; //lines in gray
-        GLfloat line_color[4]={((c->color>>16)&0xff)/255.0,((c->color>>8)&0xff)/255.0,((c->color)&0xff)/255.0, 0.5}; //lines in detector color
+        //GLfloat line_color[4]={((c->color>>16)&0xff)/255.0,((c->color>>8)&0xff)/255.0,((c->color)&0xff)/255.0, 0.5}; //lines in detector color
+        glGetDoublev(GL_COLOR_CLEAR_VALUE, setting.bgcolor);
+        GLfloat line_color[4]={((c->color>>16)&0xff)/255.0/2.0+(1.0-setting.bgcolor[0])/2.0,((c->color>>8)&0xff)/255.0/2.0+(1.0-setting.bgcolor[1])/2.0,((c->color)&0xff)/255.0/2.0+(1.0-setting.bgcolor[2])/2.0, 0.6}; //lines in detector color mixed with anti background color
 
 
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //default
+        //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //default
         //glBlendFunc(GL_DST_COLOR, GL_SRC_COLOR); //glass
-        //glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA); //locks nice, but lines diapear, so switch it off after drawing
+        glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA); //locks nice, but lines diapear, so switch it off after drawing
 
         glMatrixMode(GL_MODELVIEW);
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -1038,7 +1045,7 @@ static void ced_draw_geotube(CED_GeoTube *c){
 
 
                     //glLineWidth(0.5);
-                    glLineWidth(1);
+                    glLineWidth(detector_lines_wide);
 
                     //glColor4f(0.5,0.5,0.5, 0.4);
                     glColor4f(line_color[0], line_color[1], line_color[2], line_color[3]);
@@ -1063,7 +1070,9 @@ static void ced_draw_geotube(CED_GeoTube *c){
                         drawPartialCylinder(z*2, d_o, d_i, c->edges_o, setting.cut_angle - c->rotate_o, c->rotate_o);
                     }
 
-                    glLineWidth(1);
+                    //glLineWidth(1);
+                    glLineWidth(detector_lines_wide);
+
 
                     //glColor4f(0.5,0.5,0.5, 0.4);
                     glColor4f(line_color[0], line_color[1], line_color[2], line_color[3]);
@@ -1097,7 +1106,9 @@ static void ced_draw_geotube(CED_GeoTube *c){
 
 
                     //glLineWidth(0.5);
-                    glLineWidth(1);
+                    //glLineWidth(1);
+                    glLineWidth(detector_lines_wide);
+
 
                     //glColor4f(0.5,0.5,0.5, 0.4);
                     glColor4f(line_color[0], line_color[1], line_color[2], line_color[3]);
@@ -1124,7 +1135,9 @@ static void ced_draw_geotube(CED_GeoTube *c){
                     }
 
                     //glLineWidth(0.5);
-                    glLineWidth(1);
+                    //glLineWidth(1);
+                    glLineWidth(detector_lines_wide);
+
 
                     //glColor4f(0.5,0.5,0.5, 0.4);
                     glColor4f(line_color[0], line_color[1], line_color[2], line_color[3]);
@@ -1138,6 +1151,8 @@ static void ced_draw_geotube(CED_GeoTube *c){
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //default
     }else{ 
         glLineWidth(1.);
+        //glLineWidth(detector_lines_wide);
+
         GLUquadricObj *q1 = gluNewQuadric();
         ced_color(c->color);
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);    

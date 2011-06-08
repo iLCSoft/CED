@@ -559,17 +559,23 @@ static void reshape(int w,int h){
     //if(graphic[3]){
     if(setting.antia){
 
-        glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-        glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
+        //glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+        //glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
         //glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
         //glHint(GL_POLYGON_SMOOTH,GL_FASTEST);
   
-        glEnable(GL_POINT_SMOOTH);
-        glEnable(GL_LINE_SMOOTH);
+        //glEnable(GL_POINT_SMOOTH);
+        //glEnable(GL_LINE_SMOOTH);
         //glEnable(GL_POLYGON_SMOOTH);
-        glShadeModel(GL_SMOOTH);
+        //glShadeModel(GL_SMOOTH);
   
         //glEnable(GL_BLEND);
+        //glEnable (GL_BLEND);
+        //glBlendFunc (GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+        glEnable (GL_LINE_SMOOTH);
+        glEnable (GL_BLEND);
+        glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glHint (GL_LINE_SMOOTH_HINT, GL_DONT_CARE);
     }else{
         glDisable(GL_POINT_SMOOTH);
         glDisable(GL_LINE_SMOOTH);
@@ -2117,7 +2123,7 @@ int buildMenuPopup(void){ //hauke
     //glutAddMenuEntry("Deepbuffer", GRAFIC_BUFFER);
     glutAddMenuEntry("Transparency/mesh", GRAFIC_TRANS);
     //glutAddMenuEntry("Light", GRAFIC_LIGHT);
-    //glutAddMenuEntry("Anti Aliasing", GRAFIC_ALIAS);
+    glutAddMenuEntry("Anti Aliasing", GRAFIC_ALIAS);
 
 
 
