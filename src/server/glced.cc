@@ -108,6 +108,8 @@ using namespace std;
 #define TRANS100                3006
 
 #define FULLSCREEN              6001
+#define AXES                    6002
+#define FPS                     6003
 
 
 
@@ -429,9 +431,14 @@ static void display_world(void){
 /*     { 0., 0., WORLD_SIZE/2 } */
 /*   }; */
   //  unsigned i;
+    if(setting.show_axes == false){
+        return;
+    }
 
     glColor3f(0.2,0.2,0.8);
-    glLineWidth(2.);
+    //glLineWidth(2.);
+    glLineWidth(0.5);
+
     glBegin(GL_LINES);
     glVertex3fv(axe[0]);
     glVertex3fv(axe[1]);
@@ -466,7 +473,14 @@ static void display_world(void){
   
     // Draw X,Y,Z ...
     //glColor3f(1.,1.,1.); //white labels
-    glColor3f(0.,0.,0.); //black labels
+    //glColor3f(0.,0.,0.); //black labels
+
+    glGetDoublev(GL_COLOR_CLEAR_VALUE, setting.bgcolor);
+    double dark=1.0-(setting.bgcolor[0]+setting.bgcolor[1]+setting.bgcolor[2])/3.0;
+    //glColor3f(1-setting.bgcolor[0], 1-setting.bgcolor[1], 1-setting.bgcolor[2]);
+    glColor3f(dark,dark,dark); 
+
+
     glRasterPos3f(WORLD_SIZE/2.+WORLD_SIZE/8,0.,0.);
     glBitmap(8,12,4,6,0,0,x_bm);
     glRasterPos3f(0.,WORLD_SIZE/2.+WORLD_SIZE/8,0.);
@@ -495,7 +509,73 @@ static void display_world(void){
 }
 
 
+void printFPS(void){
+    //calculate fps:
+    //----------------------
+    static int fps=0;
+    static int old_fps=0;
+    static double startTime;
+    struct timeval tv;
+    gettimeofday(&tv, 0); 
+
+    if(tv.tv_sec+tv.tv_usec/1000000.0-startTime < 1.0){
+        fps++;
+    }else{
+        startTime=tv.tv_sec+tv.tv_usec/1000000.0;
+        //printf("FPS: %i\n", fps);
+        old_fps=fps;
+        fps=1;
+    }
+
+    if(setting.fps == false){
+        return;
+    }
+    //print on screen: 
+    //----------------------
+
+    //saves the matrices on the stack
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+
+    //changes the matrices to be compatible with the old ced_draw_legend code:
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+
+    GLfloat w=glutGet(GLUT_SCREEN_WIDTH);
+    GLfloat h=glutGet(GLUT_SCREEN_HEIGHT); ;
+
+    int  WORLD_SIZE=1000; //static worldsize maybe will get problems in the future...
+    glOrtho(-WORLD_SIZE*w/h,WORLD_SIZE*w/h,-WORLD_SIZE,WORLD_SIZE, -15*WORLD_SIZE,15*WORLD_SIZE);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+
+    char text[400];
+    void *font=GLUT_BITMAP_TIMES_ROMAN_10; //default font
+
+    sprintf(text, "FPS: %i", old_fps);
+
+    glLoadIdentity();
+
+    double dark=1.0-(setting.bgcolor[0]+setting.bgcolor[1]+setting.bgcolor[2])/3.0;
+    glColor3f(dark,dark,dark);
+
+    glRasterPos2f(-1200,-950);
+    char *c;
+    for (c=text; *c != '\0'; c++) {
+        glutBitmapCharacter(font, *c);
+    }
+
+    glEnd();
+
+    glMatrixMode(GL_PROJECTION);
+    glPopMatrix();
+    glMatrixMode(GL_MODELVIEW);
+    glPopMatrix();
+}
 static void display(void){
+ 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   
     glPushMatrix();
@@ -544,6 +624,8 @@ static void display(void){
 //
 //
 
+
+    printFPS();
     
     glPopMatrix();
   
@@ -696,6 +778,9 @@ void saveSettings(void){
             file<<"#Background color, value "<< i << ":" << std::endl<<setting.bgcolor[i]<< std::endl;
         }
 
+        file<<"#Show axes:"<<std::endl<<setting.show_axes<< std::endl;
+        file<<"#Show fps:"<<std::endl<<setting.fps<< std::endl;
+
 
         std::cout << "Save settings to: " << filename << std::endl;
 
@@ -716,6 +801,8 @@ void defaultSettings(void){
 
         setting.win_w=500;
         setting.win_h=500;
+        setting.show_axes=true;
+        setting.fps=false;
 
         setting.va=mm.va;
         setting.ha=mm.ha;
@@ -730,6 +817,11 @@ void defaultSettings(void){
 
         std::cout << "Set to default settings" << std::endl;
 }
+
+void idle(void){
+    glutPostRedisplay();
+}
+
 
 void loadSettings(void){
     ifstream file;
@@ -814,10 +906,17 @@ void loadSettings(void){
             getline(file,line);getline(file,line);
             setting.fisheye_world_size=atof(line.c_str());
 
-            for(int i=0;i<3;i++){
+            for(int i=0;i<4;i++){
                 getline(file,line);getline(file,line);
                 setting.bgcolor[i] = atof(line.c_str());
             }
+
+            getline(file,line);getline(file,line);
+            setting.show_axes=atoi(line.c_str());
+
+            getline(file,line);getline(file,line);
+            setting.fps=atoi(line.c_str());
+
 
 
         mm.va=setting.va;
@@ -911,11 +1010,12 @@ static void mouse(int btn,int state,int x,int y){
           move_mode=ZOOM;
           return;
         case GLUT_MIDDLE_BUTTON:
-          #ifdef __APPLE__
-              move_mode=ZOOM;
-          #else
-              move_mode=ORIGIN;
-	  #endif
+          //#ifdef __APPLE__
+          //    move_mode=ZOOM;
+          //#else
+          //    move_mode=ORIGIN;
+	      //#endif
+          move_mode=ORIGIN;
           return;
         default:
           break;
@@ -1489,6 +1589,8 @@ void update_cut_angle_menu(void){
     }
 
 }
+
+
 void selectFromMenu(int id){ //hauke
     int i;
     int anz;
@@ -1905,6 +2007,23 @@ void selectFromMenu(int id){ //hauke
 ////                reshape(setting.win_w, setting.win_h);
 ////            }
 //            
+        case AXES:
+            if(setting.show_axes){
+                setting.show_axes= false;
+            }else{
+                setting.show_axes= true;
+            }
+            break;
+
+        case FPS:  
+            if(setting.fps){
+                glutIdleFunc(NULL);
+                setting.fps=false;
+            }else{
+                glutIdleFunc(idle);
+                setting.fps=true;
+            }
+            break;
 
         case GRAFIC_HIGH:
             setting.light=true;
@@ -2124,6 +2243,9 @@ int buildMenuPopup(void){ //hauke
     glutAddMenuEntry("Transparency/mesh", GRAFIC_TRANS);
     //glutAddMenuEntry("Light", GRAFIC_LIGHT);
     glutAddMenuEntry("Anti Aliasing", GRAFIC_ALIAS);
+    glutAddMenuEntry("Toggle visible of axes", AXES);
+    glutAddMenuEntry("Show FPS", FPS);
+
 
 
 
@@ -2178,6 +2300,7 @@ int buildMenuPopup(void){ //hauke
 
     return menu;
 }
+
 
 int main(int argc,char *argv[]){
     bool geometry = false;
@@ -2373,6 +2496,10 @@ int main(int argc,char *argv[]){
   
     glutMouseFunc(mouse);
     glutDisplayFunc(display);
+    if(setting.fps){
+        glutIdleFunc(idle); //to show fps
+    }
+
     glutReshapeFunc(reshape);
     glutKeyboardFunc(keypressed);
     glutSpecialFunc(SpecialKey);

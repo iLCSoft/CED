@@ -108,6 +108,8 @@ struct CEDsettings{
     double world_size;
     double fisheye_world_size;
     double bgcolor[4];
+    bool show_axes;
+    bool fps;
 };
 
 /*
