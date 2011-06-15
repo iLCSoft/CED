@@ -586,6 +586,10 @@ static void display(void){
     glScalef(mm.sf,mm.sf,mm.sf); //streech the world
 
 
+
+
+
+    
     glTranslatef(-mm.mv.x,-mm.mv.y,-mm.mv.z);
   
       //glMatrixMode(GL_MODELVIEW); //
@@ -626,6 +630,8 @@ static void display(void){
 
 
     printFPS();
+
+
     
     glPopMatrix();
   
@@ -678,12 +684,17 @@ static void reshape(int w,int h){
   
         glMatrixMode( GL_PROJECTION );
         glLoadIdentity();
-        //std::cout  << "clipping planes: " << 100 << " bis " << 5000 << std::endl;
-        gluPerspective(60,window_width/window_height,100,500000);
-        //gluPerspective(60,window_width/window_height,100*2.0*mm.sf,5000*2.0*mm.sf);
+        //gluPerspective(60,window_width/window_height,100,500000);
+        //double plane1, plane2;
+        //plane1=100.0*mm.sf;
+        //plane2=50000.0*mm.sf;
+        //gluPerspective(60,window_width/window_height,plane1,plane2);
+        gluPerspective(60,window_width/window_height,100.0,50000.0*mm.sf+50000/mm.sf);
 
 
-  
+        //std::cout  << "clipping planes: " << plane1 << " bis " << plane2<< std::endl;
+
+
         glMatrixMode( GL_MODELVIEW );
   
         glLoadIdentity();
@@ -1817,11 +1828,15 @@ void selectFromMenu(int id){ //hauke
 
         case VIEW_ZOOM_IN:
             mm.sf += mm.sf*50.0/window_height;
+            //reshape((int)window_width, (int)window_height);
+
             //if(mm.sf>50){ mm.sf=50; }
             break;
 
         case VIEW_ZOOM_OUT:
             mm.sf -= mm.sf*50.0/window_height;
+            //reshape((int)window_width, (int)window_height);
+
             //if(mm.sf<0.01){ mm.sf=0.01; }
             break;
 
@@ -2151,6 +2166,8 @@ void selectFromMenu(int id){ //hauke
             break;
 
     }
+
+    reshape((int)window_width, (int)window_height);
     glutPostRedisplay();
 }
 
@@ -2333,7 +2350,8 @@ int main(int argc,char *argv[]){
       if(!strcmp( argv[i] , "-world_size" ) ) {
         float w_size = atof(  argv[++i] )  ;
         printf( "  setting world size to  %f " , w_size ) ;
-        set_world_size( w_size ) ;
+        //set_world_size( w_size ) ;
+        mm.sf = 205.0/w_size;
       } else if(!strcmp(argv[i], "-bgcolor") && i < argc-1){
         i++;
         if (!strcmp(argv[i],"Black") || !strcmp(argv[i],"black")){
