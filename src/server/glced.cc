@@ -630,8 +630,6 @@ static void display(void){
 
 
     printFPS();
-
-
     
     glPopMatrix();
   
@@ -2261,7 +2259,10 @@ int buildMenuPopup(void){ //hauke
     //glutAddMenuEntry("Light", GRAFIC_LIGHT);
     glutAddMenuEntry("Anti Aliasing", GRAFIC_ALIAS);
     glutAddMenuEntry("Toggle visible of axes", AXES);
-    glutAddMenuEntry("Show FPS", FPS);
+    #ifndef __APPLE__
+        glutAddMenuEntry("Show FPS", FPS);
+    #endif
+
 
 
 
