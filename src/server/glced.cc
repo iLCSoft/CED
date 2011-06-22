@@ -687,7 +687,9 @@ static void reshape(int w,int h){
         //plane1=100.0*mm.sf;
         //plane2=50000.0*mm.sf;
         //gluPerspective(60,window_width/window_height,plane1,plane2);
-        gluPerspective(60,window_width/window_height,100.0,50000.0*mm.sf+50000/mm.sf);
+        //gluPerspective(60,window_width/window_height,100.0,50000.0*mm.sf+50000/mm.sf);
+
+        gluPerspective(45,window_width/window_height,100.0,50000.0*mm.sf+50000/mm.sf);
 
 
         //std::cout  << "clipping planes: " << plane1 << " bis " << plane2<< std::endl;
