@@ -70,7 +70,7 @@ MARK_AS_ADVANCED( c_math_lib )
 # --------- CED SERVER (GLCED) ----------------------
 OPTION( CED_SERVER "Set to ON to build the glced server" ON )
 MESSAGE( STATUS "CED_SERVER = ${CED_SERVER}" )
-MESSAGE( STATUS "CED_SERVER = ${CED_SERVER}" )
+
 IF( CED_SERVER )
 
     IF( NOT GLUT_FOUND OR NOT OPENGL_FOUND )
