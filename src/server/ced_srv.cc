@@ -918,19 +918,18 @@ static void ced_draw_line(CED_Line *h){
 static unsigned CED_PICKING_TEXT_ID=0;
 static void ced_write_picking_text(CED_PICKING_TEXT *text){
 /*
-//TODO TODO TODO!!!
     static int biggest_number_picking_text=0;
     if(text->id > biggest_number_picking_text){
 
-     //based on: http://nehe.gamedev.net/data/articles/article.asp?article=13
-GLfloat winX, winY, winZ;
+    //example based on:  http://nehe.gamedev.net/data/articles/article.asp?article=13
+    GLfloat winX, winY, winZ;
 
-winX=mouse_x;
-winY=mouse_y;
+    winX=mouse_x;
+    winY=mouse_y;
 
-     float x=winX;
-     float y=winY;
-            GLint viewport[4];
+    float x=winX;
+    float y=winY;
+    GLint viewport[4];
     GLdouble modelview[16];
     GLdouble projection[16];
     //GLfloat winX, winY, winZ;
@@ -948,27 +947,27 @@ winY=mouse_y;
     std::cout << "x: " << posX << "Y: " << posY << "Z: " << posZ << std::endl;
 
 
-        glMatrixMode(GL_MODELVIEW);
+    glMatrixMode(GL_MODELVIEW);
 
     glLineWidth(5);
     glColor3f(1,0,0);
 
-   glBegin(GL_LINE);
-   glVertex3d(winX,winY,winZ);
-   glVertex3d(0,0,0);
-   glEnd();
+    glBegin(GL_LINE);
+    glVertex3d(winX,winY,winZ);
+    glVertex3d(0,0,0);
+    glEnd();
 
-   glBegin(GL_LINE);
-   glVertex3d(0,0,0);
-   glVertex3d(10000,10000,10000);
-   glEnd();
-   glutPostRedisplay();
+    glBegin(GL_LINE);
+    glVertex3d(0,0,0);
+    glVertex3d(10000,10000,10000);
+    glEnd();
+    glutPostRedisplay();
 
 
-        std::cout << text->text << std::endl;
+    std::cout << text->text << std::endl;
         
-        biggest_number_picking_text = text->id;
-        //std::cout << mm.mv.x << mm.mv.y << mm.mv.z << std::endl;
+    biggest_number_picking_text = text->id;
+    //std::cout << mm.mv.x << mm.mv.y << mm.mv.z << std::endl;
 
     }
 
