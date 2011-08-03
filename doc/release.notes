@@ -10,6 +10,37 @@
 |  HEAD  |
  --------
 
+   - New features (H. Hoelbe, DESY):
+        * Save settings option (saves zoom, background color, view position, etc in ~/.glced)
+        * Detector components have now layers and layer description
+        * Increased the number of available layers 
+        * Add side view projection (press 'S' to toggle)
+        * Add front view projection (press 'F' to toggle)
+        * Add perspectivical option (objects far away apairs smaller)
+        * Its possible to toggle the visible of the axes (select it from the menu)
+        * Show frames per secounds (select it from the menu) 
+        * Enhanced fisheye view by adding zoom levels when view mode toggles,
+          or when switches to side, front or reset view
+
+        * Add a new optional draw style for the detector, called "New view" includes: 
+            * Detector cuts: longitudinal (press and hold 'z' or 'Z') 
+              and transversal cuts (select it from the menu) 
+            * Its possible to change the value of the transparence (menu)
+            * in 3d-view also added a line model for better identification
+            * Inner edges can be different from outeredges, and the inner cylinder can be 
+              rotated with an other angle as the outer cylinder shape
+            * Its possible to set a flag in GEO_Tube objects, so that they only 
+              get drawn in new view, see marlinCED.c for an example
+
+
+   * Fixes/Intern stuff (H. Hoelbe, DESY):
+        * Fixed mouse-wheel functionality for Ubuntu
+        * Changed CED from a c to a c++ project
+        * Change order of drawing items 
+        * Removed zoom level reset from side and front view
+        * Update deepfilter and blend function
+
+
 
     - added OpenGL library paths to the rpath list for preventing LD_LIBRARY_PATH
         (set by geant4 env init script) to overwrite the opengl system libraries used
