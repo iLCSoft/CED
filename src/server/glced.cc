@@ -50,7 +50,9 @@
 #include <netdb.h>
 #include <iostream>
 #include <fstream>
+#include <vector>
 #include <stdlib.h> //getenv
+
 using namespace std;
 
 
@@ -1364,24 +1366,24 @@ void drawStringBig (char *s){
     }
 }
 
-void drawHelpString (char *string, float x,float y){ //format help strings strings: "[<key>] <description>"
+void drawHelpString (const string & str, float x,float y){ //format help strings strings: "[<key>] <description>"
     unsigned int i;
     glRasterPos2f(x,y);
   
     int monospace = 0;
-    for (i = 0; string[i]; i++){
-        if(string[i] == '['){ 
+    for (i = 0; str[i]; i++){
+        if(str[i] == '['){ 
             monospace = 1;
             glutBitmapCharacter (GLUT_BITMAP_HELVETICA_10, '[');
             i++;
         }
-        else if(string[i] == ']'){
+        else if(str[i] == ']'){
              monospace = 0;
         }
         if(monospace){
-            glutBitmapCharacter(GLUT_BITMAP_8_BY_13, string[i]);
+            glutBitmapCharacter(GLUT_BITMAP_8_BY_13, str[i]);
         }else{
-            glutBitmapCharacter (GLUT_BITMAP_HELVETICA_10, string[i]);
+            glutBitmapCharacter (GLUT_BITMAP_HELVETICA_10, str[i]);
         }
     }
 }
@@ -1417,28 +1419,28 @@ void subDisplay(void){
     glColor3f(1.0, 1.0, 1.0); //white
 
     //printf("window_height %f\nwindow width %f\n", window_height, window_width);
-    char *shortcuts[]={
-            "[h] Toggle shortcut frame",
-            "[r] Reset view",
-            "[f] Font view",
-            "[s] Side view", 
-            "[v] Fish eye view",
-            "[b] Change background color",
-            "[+] Zoom in",
-            "[-] Zoom out",
-            "[c] Center",
-            "[Z] Move in z-axe direction",
-            "[z] Move in -z-axe direction",
-            "[`] Toggle all layers",
-            "[Esc] Quit CED"
-            };
+
+    vector<string> shortcuts;
+    shortcuts.push_back( "[h] Toggle shortcut frame" );
+    shortcuts.push_back( "[r] Reset view" );
+    shortcuts.push_back( "[f] Font view" );
+    shortcuts.push_back( "[s] Side view" );
+    shortcuts.push_back( "[v] Fish eye view" );
+    shortcuts.push_back( "[b] Change background color" );
+    shortcuts.push_back( "[+] Zoom in" );
+    shortcuts.push_back( "[-] Zoom out" );
+    shortcuts.push_back( "[c] Center" );
+    shortcuts.push_back( "[Z] Move in z-axe direction" );
+    shortcuts.push_back( "[z] Move in -z-axe direction" );
+    shortcuts.push_back( "[`] Toggle all layers" );
+    shortcuts.push_back( "[Esc] Quit CED" );
 
     glColor3f(1.0, 1.0, 1.0);
     sprintf (label, "Control keys");
     glRasterPos2f(((int)(0/ITEMS_PER_COLUMN))*column+0.02, 0.80F);
     drawStringBig(label);
 
-    for(i=0;(unsigned) i<sizeof(shortcuts)/sizeof(char *);i++){
+    for(i=0;(unsigned) i<sizeof(shortcuts);i++){
        //if((i/ITEMS_PER_COLUMN) > MAX_COLUMN) break;
        //sprintf(label,"%s", shortcuts[i]);
        //glRasterPos2f(((int)(i/ITEMS_PER_COLUMN))*column+0.02,(ITEMS_PER_COLUMN-(i%ITEMS_PER_COLUMN))*line);
@@ -1610,7 +1612,7 @@ void selectFromMenu(int id){ //hauke
     static float mm_ha_backup; 
     static float mm_va_backup;
     static int graphic_2_backup;
-    static int fullscreen=false;
+    //static int fullscreen=false;
 
 
     glutSetWindow(mainWindow); //hauke
