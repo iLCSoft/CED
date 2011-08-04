@@ -1541,8 +1541,8 @@ static void ced_draw_legend(CED_Legend *legend){
 	float num;
 	
 	/** Legend header */
-	char* header = "GeV";
-	char* footer = "LOG";
+	char header [] = "GeV";
+	char footer [] = "LOG";
 	int x_offset_legend = 60;
 	int y_offset_legend = 20;
 	
@@ -1565,7 +1565,7 @@ static void ced_draw_legend(CED_Legend *legend){
 		break;
 		/** LIN */
 		case 'b':
-			footer = "LIN";	
+			strncpy( footer, "LIN", 3 );	
 			renderBitmapString(x_min-x_offset_legend,y_min-y_offset_legend, font, footer);
 			glEnd();
 		break;
