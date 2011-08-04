@@ -112,6 +112,8 @@ void ced_line_ID(float x0,float y0,float z0,
     l->type=layer;
  }
 
+    //printf("layer pre: %i  after: %i\n" , layer, l->type); 
+
 //  l->type=type;
   l->width=width;
   l->color=color;

@@ -170,6 +170,7 @@ static int available_cutangles[]={0,30,90,135, 180, 270, 360};  //for new angles
 
 #define HELP            100
 #define SAVE            101
+#define LOAD            102
 
 #define TOGGLE_PHI_PROJECTION   5000
 #define TOGGLE_Z_PROJECTION     5001
@@ -1162,9 +1163,9 @@ static void keypressed(unsigned char key,int x,int y){
           selectFromMenu(LAYER_19);
     } else if(key=='`'){
           selectFromMenu(LAYER_ALL);
-    } else if(key == '+'){
+    } else if(key == '+'|| key == '='){
           selectFromMenu(VIEW_ZOOM_IN);
-    } else if(key == '-'){
+    } else if(key == '-'|| key == '_'){
           selectFromMenu(VIEW_ZOOM_OUT);
     } else if(key == 'z'){
           if(setting.z_cutting < 7000){ setting.z_cutting+=100; };
@@ -1849,7 +1850,9 @@ void selectFromMenu(int id){ //hauke
         case LAYER_ALL:
             glutSetMenu(layerMenu);
             anz=0;
-            for(i=0;i<NUMBER_POPUP_LAYER;i++){ //try to turn all layers on
+            //for(i=0;i<NUMBER_POPUP_LAYER;i++){ //try to turn all layers on
+
+            for(i=0;i<NUMBER_DATA_LAYER;i++){ //try to turn all layers on
                 if(!isLayerVisible(i)){
                    //sprintf(string,"[X] Layer %s%i [%c]: %s", (i < 10)?"0":"" ,i, layer_keys[i], layerDescription[i]);
                    //glutChangeToMenuEntry(i+2,string, LAYER_0+i);                     
@@ -1859,7 +1862,9 @@ void selectFromMenu(int id){ //hauke
                 }
             }
             if(anz == 0){ //turn all layers off
-                for(i=0;i<NUMBER_POPUP_LAYER;i++){
+                //for(i=0;i<NUMBER_POPUP_LAYER;i++){
+
+                for(i=0;i<NUMBER_DATA_LAYER;i++){
                    //sprintf(string,"[   ] Layer %s%i [%c]: %s",(i < 10)?"0":"" ,i, layer_keys[i], layerDescription[i]);
                    //glutChangeToMenuEntry(i+2,string, LAYER_0+i);                     
                    toggle_layer(i);
@@ -2167,6 +2172,11 @@ void selectFromMenu(int id){ //hauke
             saveSettings(); 
             break;
 
+        case LOAD:
+            loadSettings(); 
+            break;
+
+
     }
 
     reshape((int)window_width, (int)window_height);
@@ -2316,7 +2326,8 @@ int buildMenuPopup(void){ //hauke
     glutAddSubMenu("Detector cuts", subsubMenu2);
     glutAddSubMenu("Background Color", subMenu1);
     glutAddSubMenu("Graphics options", subMenu4);
-    glutAddMenuEntry("Save Settings",SAVE);
+    glutAddMenuEntry("Save settings",SAVE);
+    glutAddMenuEntry("Load saved settings",LOAD);
     glutAddMenuEntry("Toggle help [h]",HELP);
 
 
