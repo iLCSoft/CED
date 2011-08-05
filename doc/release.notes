@@ -11,7 +11,7 @@
  --------
 
    - New features (H. Hoelbe, DESY):
-        * Save settings option (saves zoom, background color, view position, etc in ~/.glced)
+        * Save/Load settings option (saves zoom, background color, view position, etc in ~/.glced)
         * Detector components have now layers and layer description
         * Increased the number of available layers 
         * Add side view projection (press 'S' to toggle)
@@ -39,7 +39,6 @@
         * Change order of drawing items 
         * Removed zoom level reset from side and front view
         * Update deepfilter and blend function
-
 
 
     - added OpenGL library paths to the rpath list for preventing LD_LIBRARY_PATH
