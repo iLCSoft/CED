@@ -171,7 +171,53 @@ typedef struct {
   unsigned type;        //describes the layer where this element lies
   bool classic_inner;   //draw the outer detector lines in classic view?
   bool classic_outer;   //draw the inner detector lines in classic view?
-} CED_GeoTube;
+}  CED_GeoTube;
+
+
+/** Same as CED_GeoTube but here as C++ struct with contstructor. This is allows
+ *  to dynamically allocate the detector structure (in an std::vector using the constructor) 
+ *  without knowing the exact number of  detector elements a priori (such as the #layers in the FTD).
+ *  This wasn't poassible with the static allocation using the C type struct.
+ *  ( Used in MArlinCED::drawGearDetector ).
+ */
+struct CEDGeoTube{
+  CEDGeoTube(double  r_out,
+	     double  r_in,
+	     int edges_out,
+	     int edges_in,
+	     double  rotate_out,
+	     double  rotate_in,
+	     double  zlength,
+	     double  zshift,
+	     int col,
+	     int layer,
+	     bool classic_i,
+	     bool classic_o ) :
+    r_o(r_out),
+    r_i(r_in),
+    edges_o(edges_out),
+    edges_i (edges_in),
+    rotate_o (rotate_out),
+    rotate_i (rotate_in),
+    z( zlength),
+    shift (zshift),
+    color (col),
+    type(layer),
+    classic_inner(classic_i),
+    classic_outer(classic_o) {} 
+  float r_o;            // outer radius
+  float r_i;            // inner radius
+  unsigned edges_o;     // edges outer
+  unsigned edges_i;     // edges inner
+  float rotate_o;       // angle degree, rotate outer cylinder
+  float rotate_i;       //rotate inner cylinder
+  float z;              // 1/2 length
+  float shift;          // shift in z
+  unsigned color;       // color
+  unsigned type;        //describes the layer where this element lies
+  bool classic_inner;   //draw the outer detector lines in classic view?
+  bool classic_outer;   //draw the inner detector lines in classic view?
+} ;
 
 void ced_geotubes(unsigned n,CED_GeoTube *all);
 

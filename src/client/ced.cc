@@ -27,10 +27,12 @@
 
 
 //http://www.rhyolite.com/pipermail/dcc/2004/001986.html
+#ifndef POLLRDNORM //fg: should be defined in poll.h
 # define POLLRDNORM     0x040           /* Normal data may be read.  */
 # define POLLRDBAND     0x080           /* Priority data may be read.  */
 # define POLLWRNORM     0x100           /* Writing now will not block.  */
 # define POLLWRBAND     0x200           /* Priority data may be written.  */
+#endif
 //end hauke
 
 static int ced_fd=-1; // CED connection socket
