@@ -2325,7 +2325,7 @@ int buildMenuPopup(void){ //hauke
     glutAddSubMenu("Detector components", DetectorComponents);
     glutAddSubMenu("Detector cuts", subsubMenu2);
     glutAddSubMenu("Background Color", subMenu1);
-    glutAddSubMenu("Graphics options", subMenu4);
+    glutAddSubMenu("Graphic options", subMenu4);
     glutAddMenuEntry("Save settings",SAVE);
     glutAddMenuEntry("Load saved settings",LOAD);
     glutAddMenuEntry("Toggle help [h]",HELP);
