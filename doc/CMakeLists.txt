@@ -76,6 +76,7 @@ IF( PDFLATEX_COMPILER )
     ADD_CUSTOM_COMMAND(
         OUTPUT  "${DOC_SRC_DIR}/manual.pdf"
         COMMAND "${PDFLATEX_COMPILER}" ARGS -interaction=batchmode manual.tex
+        COMMAND "${PDFLATEX_COMPILER}" ARGS -interaction=batchmode manual.tex
         # copy files to doc directory
         COMMAND "${CMAKE_COMMAND}" -E copy "manual.pdf"
             "${CMAKE_INSTALL_PREFIX}/${DOC_INSTALL_PREFIX}"
