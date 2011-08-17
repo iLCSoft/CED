@@ -92,7 +92,7 @@ To reset the view and cut settings press 'r', or choose it from the pop up menu 
 There is a big difference between views and projections: View options show the same objects at a different direction, in contrast to projections which change the objects. 
 
 \subsection{Side view projection}
-To enable side view projection press capital 'S', or choose it from the pop-up menu under 'View $\rightarrow$ Side view projection'. This projection turns the view into side view, and transforms all data (hits, tracks, etc) so that the distance from the beamline to the object are the same as in 3D mode.
+To enable side view projection press capital 'S', or choose it from the pop-up menu under 'View $\rightarrow$ Toggle side view projection'. This projection turns the view into side view, and transforms all data (hits, tracks, etc) so that the distance from the beamline to the object are the same as in 3D mode.
 \newline\newline
 $y_{proj} = \pm \sqrt{x^2 + y^2}$\newline
 $x_{proj}=0$\newline
@@ -103,7 +103,7 @@ The detector is cut at $\phi=0$ to enable a view into it. The ability to rotate 
 
 
 \subsection{Front view projection}
-To enable front view projection press capital 'F', or choose it from the pop-up menu under 'View $\rightarrow$ Front view projection'. This projection turns the view into front view, and transforms all data (hits, tracks etc)
+To enable front view projection press capital 'F', or choose it from the pop-up menu under 'View $\rightarrow$ Toggle front view projection'. This projection turns the view into front view, and transforms all data (hits, tracks etc)
 ($z_{proj} = 0$). The perspective is turned off and the detector is cutted at z=0 to enable a view into the detector. The ability to rotate is disabled as well. To exit this projection, choose the front view projection mode again. 
 
 \begin{figure}[h!]
@@ -117,6 +117,14 @@ To enable front view projection press capital 'F', or choose it from the pop-up 
 \centerline{\includegraphics[height=5cm]{frontview2.png}}
 \caption{\label{DSTViewer}\textsl{Front view projection}}
 \end{minipage}
+\end{figure}
+
+\subsection{Fisheye view}
+This projection enlarges the inner region of the detector, to give a clearer view to the inner tracks and hits of the event. To enable fisheye press 'v' or select it from the pop-up menu under 'View $\rightarrow$ Toggle fisheye projection'. To turn it off press 'v' again or select it from the pop-up menu again. The fisheye projection is usable together with the front or side view projection.
+
+\begin{figure}[h]
+\centerline{ \includegraphics[height=6cm]{fisheye1.png}}
+\caption{\label{CEDViewer} \textsl{Fisheye projection}}
 \end{figure}
 
 \section{Layer}

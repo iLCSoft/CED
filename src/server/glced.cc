@@ -2232,9 +2232,9 @@ int buildMenuPopup(void){ //hauke
     glutAddMenuEntry("Reset view [r]", VIEW_RESET);
     glutAddMenuEntry("Front view [f]", VIEW_FRONT);
     glutAddMenuEntry("Side view [s]", VIEW_SIDE);
-    glutAddMenuEntry("Toggle Phi-projection [S]", TOGGLE_PHI_PROJECTION);
-    glutAddMenuEntry("Toggle Z-projection [S]", TOGGLE_Z_PROJECTION);
-    glutAddMenuEntry("Toggle Fisheye projection [v]",VIEW_FISHEYE);
+    glutAddMenuEntry("Toggle side view projection [S]", TOGGLE_PHI_PROJECTION);
+    glutAddMenuEntry("Toggle front view projection [S]", TOGGLE_Z_PROJECTION);
+    glutAddMenuEntry("Toggle fisheye projection [v]",VIEW_FISHEYE);
     glutAddMenuEntry("Zoom in [+]", VIEW_ZOOM_IN);
     glutAddMenuEntry("Zoom out [-]", VIEW_ZOOM_OUT);
     //glutAddMenuEntry("Center [c]", VIEW_CENTER);
