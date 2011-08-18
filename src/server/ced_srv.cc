@@ -105,6 +105,7 @@ CED_Point fisheye_transform(const float x, const float y, const float z, const d
         p_final.y = r*sin(phi)*sin(theta);
         //p_final.z = z/(1.0 + fisheye_alpha*abs(z)); //hauke: missing 'f' in abs???
         p_final.z = z/(1.0 + fisheye_alpha*fabs(z));
+        
     }
     return p_final;
 }

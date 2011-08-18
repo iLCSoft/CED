@@ -33,15 +33,15 @@
 \newpage
 \section{Overview}
 %\subsection{What CED is}
-CED stands for "C Event Display" and is a client server based tool to draw objects into a dynamic 3D picture. CED is a graphical application which uses OpenGL to display the 3D world. It is possible to draw individual objects with CED, but for the common use it is well integrated into the ilcsoft framework.
+CED stands for "C Event Display" and is a client server based tool to draw objects into a dynamic 3D picture. CED is a graphical application which uses OpenGL to display the 3D world. It is possible to draw individual objects with CED, but for common use it is well integrated into the ilcsoft framework.
 \newline\newline
-The common use for CED is to display events, this is split into different parts. First of all a data file which contains the LCIO objects to be drawn is needed. This the object gets processed with Marlin, that sends the data over a TCP/IP connection to CED. In order to do this, Marlin needs a steering file. This XML file can be written by hand or can be generated with MarlinGUI.
+The common use for CED is to display events, this is split into different parts. First of all a data file which contains the LCIO objects to be drawn is needed. This object gets processed with Marlin, that sends the data over a TCP/IP connection to CED. In order to do this, Marlin needs a steering file. This XML file can be written by hand or can be generated with MarlinGUI.
 \newline\newline
 The steering file decides which data file is read and also which viewer is used, the viewer decides which datatype is on what layer (see layer section), which color will be used etc. Example viewers are: Generic-, CED- and DST-Viewer.
 
 %\subsection{(0.2 How do you get it)}
 \section{Quickstart}
-Generating a Marlin steering file can be time expensive, but there is a tool in the CED package which displays the event using a default configuration. For a simple first look, source the ini ilcsoft script and enter: 
+Generating a Marlin steering file can be time consumming, but there is a tool in the CED package which displays the event using a default configuration. For a simple first look, source the ini ilcsoft script and enter: 
 \begin{verbatim}
     ced2go <your datafile>
 \end{verbatim}
@@ -59,10 +59,10 @@ Select the CED window and press 'h' to see the available keyboard shortcuts. Rig
 Select the CED window and press 'h' to get an overlay of shortcuts and a description of used layers.
 
 \subsection{Pop-up menu}
-Right-click into the CED window to open an pop-up menu. This menu allows you to configure CED.
+Right-click in the CED window to open an pop-up menu. This menu allows you to configure CED.
 
 \section{Save settings}
-By selecting 'save settings' from the pop-up menu, all CED settings will be stored into $\sim$/.glced. This includes current background color, view, transparency, cuts, layers visibility etc. but does not save the current event or other Marlin settings, because it depends on the Marlin steering file and not on CED. On the next start up CED will read the config file and restore the settings.
+By selecting 'save settings' from the pop-up menu, all CED settings will be stored into $\sim$/.glced. This includes current background color, view, transparency, cuts, layers visibility etc. but does not save the current event or other Marlin settings, because these depend on the Marlin steering file and not on CED. On the next start up CED will read the config file and restore the settings.
 \newline\newline
 The config file $\sim$/.glced is human readable but it is not recommended to change the settings within an editor.
 
@@ -76,20 +76,21 @@ To increase the magnification press '+', to decrease press '-'. If you are on Li
 To move the center of view to any direction, press and hold the middle mouse button and pull. 
 \newline\newline
 To move the detector on the z-axis, press arrow key $\uparrow$ or $\downarrow$. 
+
 \subsection{Center}
-It is possible to center any data object drawn into CED. Simply put your mouse cursor over that object and press 'c' 
+It is possible to center any data object drawn within CED. Simply put your mouse cursor over that object and press 'c' 
 
 \subsection{Side view}
-To view the detector from the side press 's', or choose it from the pop-up menu under 'View $\rightarrow$ Side view'. This does nothing else as choose a rotate angle so that the detector is sidewise to the viewer.
+To view the detector from the side press 's', or choose it from the pop-up menu under 'View $\rightarrow$ Side view'.
 
 \subsection{Front view}
-To view the detector from front press 'f', or choose it from the pop up-menu under 'View $\rightarrow$ Front view'. This does nothing else as choose an rotate angle so that the detector is in front to the viewer.
+To view the detector from front press 'f', or choose it from the pop up-menu under 'View $\rightarrow$ Front view'.
 
 \subsection{Reset view settings}
 To reset the view and cut settings press 'r', or choose it from the pop up menu under 'View $\rightarrow$ Reset view'. This option resets: perspective, cutting, projections and zoom level.
 
 \section{Projections}
-There is a big difference between views and projections: View options show the same objects at a different direction, in contrast to projections which change the objects. 
+There is a big difference between views and projections: View options show the same objects at a different angle, in contrast to projections which change the objects. 
 
 \subsection{Side view projection}
 To enable side view projection press capital 'S', or choose it from the pop-up menu under 'View $\rightarrow$ Toggle side view projection'. This projection turns the view into side view, and transforms all data (hits, tracks, etc) so that the distance from the beamline to the object are the same as in 3D mode.
@@ -105,7 +106,7 @@ The detector is cut at $\phi=0$ to enable a view into it. The ability to rotate 
 
 \subsection{Front view projection}
 To enable front view projection press capital 'F', or choose it from the pop-up menu under 'View $\rightarrow$ Toggle front view projection'. This projection turns the view into front view, and transforms all data (hits, tracks etc)
-($z_{proj} = 0$). The perspective is turned off and the detector is cutted at z=0 to enable a view into the detector. The ability to rotate is disabled as well. To exit this projection, press 'F' or choose the front view projection mode again. 
+($z_{proj} = 0$). The perspective is turned off and the detector is cut at z=0 to enable a view into the detector. The ability to rotate is disabled. To exit this projection, press 'F' or choose the front view projection mode again. 
 
 \begin{figure}[h!]
 \begin{minipage}[t]{6cm}
@@ -186,7 +187,7 @@ To cut off a pie slice from the detector, select 'Detector cuts $\rightarrow$ An
 
 
 \section{Background color}
-Changing the background color not only is a setting to increase the aesthetic of the picture it can also extremely increase the visiblility of the drawn data.
+Changing the background color is not only a setting to increase the aesthetic of the picture, it can also be used to increase the visiblility of the drawn data.
 \subsection{Change background color}
 To toggle the background color choose a color from the pop-up menu under 'Background color', or press 'b' to change the color from blue to black, over gray to white.
 
@@ -229,7 +230,7 @@ For some examples see Figure \ref{html}
 \end{figure}
 
 \section{Graphical options}
-There are a loot of options to customize the look of CED.
+There are a lot of options to customize the look of CED.
 
 \subsection{Differences between classic and new view}
 To toggle between classic and new view chose 'Graphics options $\rightarrow$ Classic view' or 'Graphics options $\rightarrow$ New view' from the pop up menu. There are two graphical settings which are affected by this option:
@@ -260,7 +261,7 @@ To toggle between classic and new view chose 'Graphics options $\rightarrow$ Cla
 
 
 \subsection{Perspective setting}
-To turn the perspective on or off, select 'Graphics options $\rightarrow$ Graphic details $\rightarrow$ Perspective' from pop-up menu. Perspective on means, that objects which are farther away from the visitor appear smaller. Perspective off means, all objects have the same size however far away they are. 
+To turn the perspective on or off, select 'Graphics options $\rightarrow$ Graphic details $\rightarrow$ Perspective' from pop-up menu. Perspective on means, that objects which are further away from the viewer appear smaller. Perspective off means, all objects have the same size, however far away they are. 
 
 \subsection{Transparency or mesh view}
 To change the way the detector is drawn, select 'Graphics options $\rightarrow$ Graphic details $\rightarrow$ Transparency/mesh' from pop up-menu.
@@ -304,9 +305,9 @@ While not in mesh view, it is possible to change the value of detector transpare
 \end{figure}
 
 \subsection{Frames per seconds}
-To measure the performance of CED, there is a build-in function called 'FPS' (Frames per seconds). Normally CED only renders a new image after changes, like toggle the visibility of a layer, or changing the view. In contrast, in FPS mode CED renders so many images as possible and prints out, how many images there were in the last second. This is a good way, to compare the performance of CED in different circumstances like different versions, different viewers, or different machines. 
+To measure the performance of CED, there is a build-in function called 'FPS' (Frames per seconds). Normally CED only renders a new image after changes, such as toggleing the visibility of a layer, or changing the view. In contrast, in FPS mode CED renders so many images as possible and prints out, how many images there were rendered in the last second. This is a good way, to compare the performance of CED in different circumstances, for instance different versions, different viewers, or different machines. 
 \newline\newline
-Notice: This function is disabled under MAC Os. 
+Notice: This function is disabled under Mac OSX. 
 \section{Picking}
 %By selecting a object in CED by double click it, CED send the object ID back to client (usual Marlin).
 \subsection{Quickstart}
@@ -327,7 +328,7 @@ Simply double click on the object in which you are interested in, Marlin will pr
  
 
 \subsection{Install your own print function}\label{own_picking}
-First, the following code has to be inserted into the processEvent function of the viewer (if you use your very own viewer):
+First, the following code has to be inserted into the processEvent function of the viewer (if you use your own viewer):
 \begin{verbatim}
 CEDPickingHandler &pHandler=CEDPickingHandler::getInstance();
 pHandler.update(evt);
@@ -343,9 +344,9 @@ pHandler.registerFunction(LCIO::MCPARTICLE, &MyMCParticlePrintFunction);
 pHandler.update(evt);
 \end{verbatim}
 
-Remark: For a proper use of picking, it is essential that the IDs of every object drawn in CED are communicated to CED. This is done by using ced\_line\_ID instead of ced\_line and ced\_hit\_ID instead of ced\_hit. 
+Note: For a proper use of picking, it is essential that the IDs of every object drawn in CED are communicated to CED. This is done by using the functions ced\_line\_ID instead of ced\_line and ced\_hit\_ID instead of ced\_hit. 
 \newline
-During the project, print functions have been designed for a number of LCIO objects. The work of Jan Engels served as a basic principle. This allows to send LCIO objects directly to output streams. It is possible to print LCIO objects in a short or long style. The long form:
+Within the project, print functions have been designed for a number of LCIO objects. The work of Jan Engels served as a basic principle. This allows to send LCIO objects directly to output streams. It is possible to print LCIO objects in a short or long style. The long form:
 
 \begin{verbatim}
 Vertex *vertex = (Vertex *) YourLCIOVertexObjekt;
@@ -368,11 +369,11 @@ or:
 cout << header(EVENT::Vertex) << tail(EVENT::Vertex) << lcshort(vertex1)
 << lcshort(vertex2) << tail(EVENT::Vertex);
 \end{verbatim}
-These ways of printing are available for the following LCIO types: MCParticle, TrackerHit,
+This method of printing is available for the following LCIO types: MCParticle, TrackerHit,
 SimTrackerHit, CalorimeterHit, SimCalorimeterHit, ReconstructedParticle, Track and Cluster.
 
 \section{Work with CED from remote}
-For a smooth and quick workflow it is always recommended to start CED on the local computer. How to connect which marlin from a remote computer to your local running CED will be described here after.
+For a smooth and quick workflow it is always recommended to start CED on the local computer. How to connect which Marlin from a remote computer to your local running CED will be described hereafter.
 \newline\newline
 To allow incoming remote connections, CED must be started with the option 'trust'. The arguments of this option are a hostname or IP address.
 \begin{verbatim}
@@ -407,7 +408,7 @@ CED2go will determine which gearfile has been used by generating the LCIO file a
 %\subsection{ced2go options}
 %\section{FAQ}
 \section{Viewer}
-To draw an event with Marlin into CED, Marlin needs a configuration file, written in XML. This file is called Marlin-Steeringfile, see its documentation for details. In this file one or more viewers are configured. There a a number of different viewers available in ilcsoft: CEDViewer, DSTViewer, Generic Viewer, and Vertex Viewer. The difference between this viewers is how the event gets drawn. The detector geometry does not depend on with viewer is used. 
+To draw an event with Marlin into CED, Marlin needs a configuration file, written in XML. This file is called the Marlin-Steeringfile, see its documentation for details. In this file one or more viewers are configured. There a a number of different viewers available in ilcsoft: CEDViewer, DSTViewer, Generic Viewer, and Vertex Viewer. The difference between these viewers is how the event gets drawn. The detector geometry does not depend on with viewer is used. 
 
 A sample viewer configuration section could be:
  \begin{verbatim}
