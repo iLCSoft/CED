@@ -11,24 +11,22 @@ SET( DOC_BIN_DIR "${PROJECT_BINARY_DIR}/docbuild" )
 # in-source vs out-of-source installations
 IF( CMAKE_INSTALL_PREFIX STREQUAL "${PROJECT_SOURCE_DIR}" )
     # --- in-source installations ---
-    SET( DOC_INSTALL_PREFIX doc )
+    SET( DOC_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}/doc )
 ELSE()
     # --- out-of-source installations ---
-    SET( DOC_INSTALL_PREFIX doc/${PROJECT_NAME} )
+    SET( DOC_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}/doc/${PROJECT_NAME} )
 ENDIF()
 
 
+# global doc target for calling doc_html and doc_latex
 ADD_CUSTOM_TARGET( doc ) 
 
 
 #FIND_PACKAGE( Doxygen )
 #IF( DOXYGEN_FOUND )
 #
-#    # build documentation out-of-source
-#    
 #    # directories to search for documentation
 #    SET( DOX_INPUT ../src)
-#
 #
 #    # custom command to build documentation
 #    ADD_CUSTOM_COMMAND(
@@ -43,20 +41,21 @@ ADD_CUSTOM_TARGET( doc )
 #        DEPENDS Doxyfile CMakeLists.txt 
 #    )
 #
-#    # add doc target
-#    ADD_CUSTOM_TARGET( doc_cpp DEPENDS "${DOC_BIN_DIR}/html/index.html" )
-#    ADD_DEPENDENCIES( doc doc_cpp)
+#    # add doc_html target
+#    ADD_CUSTOM_TARGET( doc_html DEPENDS "${DOC_BIN_DIR}/html/index.html" )
+#    # tell doc target to call doc_html
+#    ADD_DEPENDENCIES( doc doc_html )
 #
 #ELSE()
-#
-#    MESSAGE( STATUS "Doxygen not found -- INSTALL_DOC set to OFF" )
-#    SET( INSTALL_DOC OFF )
-#
+#    MESSAGE( STATUS "Doxygen not found in your system!!" )
+#    IF( INSTALL_DOC )
+#        MESSAGE( "INSTALL_DOC set to OFF" )
+#        SET( INSTALL_DOC OFF )
+#    ENDIF()
 #ENDIF()
 
-# doxygen and latex stuff
-FIND_PACKAGE( LATEX )
 
+FIND_PACKAGE( LATEX )
 IF( PDFLATEX_COMPILER )
 
     # user manual
@@ -67,32 +66,38 @@ IF( PDFLATEX_COMPILER )
         COMMAND "${CMAKE_COMMAND}" -E copy_directory
             "${DOC_SRC_DIR}/manual"
             "${DOC_BIN_DIR}/manual"
-        )
+    )
 
     SET_DIRECTORY_PROPERTIES( PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES
         "${DOC_BIN_DIR}/manual"
     )
 
     ADD_CUSTOM_COMMAND(
-        OUTPUT  "${DOC_SRC_DIR}/manual.pdf"
+        OUTPUT  "${DOC_INSTALL_PREFIX}/manual.pdf"
         COMMAND "${PDFLATEX_COMPILER}" ARGS -interaction=batchmode manual.tex
         COMMAND "${PDFLATEX_COMPILER}" ARGS -interaction=batchmode manual.tex
         # copy files to doc directory
-        COMMAND "${CMAKE_COMMAND}" -E copy "manual.pdf"
-            "${CMAKE_INSTALL_PREFIX}/${DOC_INSTALL_PREFIX}"
+        COMMAND "${CMAKE_COMMAND}" -E copy "manual.pdf" "${DOC_INSTALL_PREFIX}/manual.pdf"
         DEPENDS "${DOC_BIN_DIR}/manual"
         WORKING_DIRECTORY "${DOC_BIN_DIR}/manual"
         COMMENT "Building Documentation - Users Manual..."
-        )
+    )
 
-    ADD_CUSTOM_TARGET( doc_manual DEPENDS "${PROJECT_SOURCE_DIR}/doc/manual.pdf" )
+    ADD_CUSTOM_TARGET( doc_manual DEPENDS "${DOC_INSTALL_PREFIX}/manual.pdf" )
 
     ADD_DEPENDENCIES( doc doc_manual )
+
+    # uninstall rule to delete manual.pdf
+    ADD_CUSTOM_TARGET( uninstall_doc
+        #COMMAND "${CMAKE_COMMAND}" -E remove_directory "${CMAKE_INSTALL_PREFIX}/doc/html"
+        COMMAND "${CMAKE_COMMAND}" -E remove "${DOC_INSTALL_PREFIX}/manual.pdf"
+    )
+    ADD_DEPENDENCIES( uninstall uninstall_doc )
 
 ELSE()
     MESSAGE( STATUS "pdflatex not found in your system!!" )
     IF( INSTALL_DOC )
-        MESSAGE( STATUS "WARNING: INSTALL_DOC forced to OFF" )
+        MESSAGE( "INSTALL_DOC set to OFF" )
         SET( INSTALL_DOC OFF )
     ENDIF()
 ENDIF()
@@ -101,5 +106,8 @@ ENDIF()
 IF( INSTALL_DOC )
     # make sure doxygen is executed (make doc) before make install
     INSTALL( CODE "EXECUTE_PROCESS( COMMAND ${CMAKE_BUILD_TOOL} doc)" )
+
+    # install html documentation
+    #INSTALL_DIRECTORY( "${DOC_BIN_DIR}/html" DESTINATION ${DOC_INSTALL_PREFIX} )
 ENDIF()
 
