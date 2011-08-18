@@ -1720,8 +1720,10 @@ void selectFromMenu(int id){ //hauke
 
             if(setting.fixed_view){ break;}
 
-            mm.ha=0.000000000000000001;  //TODO work around:  because in some cases it could get strange lines in fisheye view 
-                                         //from (0,0,0) to (-inf, -inf,x)
+            mm.ha=0.000000000000000001;  // TODO: fix it! 
+                                         // setting mm.ha not to 0 is a work around:  because in some cases it could get strange lines in fisheye view 
+                                         // from (0,0,0) to (-inf, -inf,x)
+
             mm.va=0.;
             break;
 
@@ -1818,7 +1820,10 @@ void selectFromMenu(int id){ //hauke
                 mm_ha_backup=mm.ha;
                 mm_va_backup = mm.va;
 
-                mm.ha=0.;
+                mm.ha=0.000000000000000001;  // TODO: fix it! 
+                                             // setting mm.ha not to 0 is a work around:  because in some cases it could get strange lines in fisheye view 
+                                             // from (0,0,0) to (-inf, -inf,x)
+
                 mm.va=0.;
 
 
