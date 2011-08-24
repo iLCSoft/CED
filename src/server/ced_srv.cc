@@ -1152,6 +1152,7 @@ static void ced_draw_geotube(CED_GeoTube *c){
         }
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //default
     }else{ 
+        //int maxEdges=20; //how many edges should be drawn in classic view maximal
         glLineWidth(1.);
         //glLineWidth(detector_lines_wide);
 
@@ -1167,11 +1168,14 @@ static void ced_draw_geotube(CED_GeoTube *c){
         gluQuadricTexture(q1, GL_TRUE);
         
         if(c->classic_outer){
-            gluCylinder(q1, d_o, d_o, z*2, c->edges_o > 20?20:c->edges_o, 1);
+            //gluCylinder(q1, d_o, d_o, z*2, c->edges_o > maxEdges?maxEdges:c->edges_o, 1);
+
+            gluCylinder(q1, d_o, d_o, z*2, c->edges_o, 1);
         }
         if(d_i > 0 && c->classic_inner){
             if(c->rotate_o > 0.01 ) glRotatef(c->rotate_i, 0, 0, 1);
-            gluCylinder(q1, d_i, d_i, z*2, c->edges_i>20?20:c->edges_i, 1); 
+            //gluCylinder(q1, d_i, d_i, z*2, c->edges_i>maxEdges?maxEdges:c->edges_i, 1); 
+            gluCylinder(q1, d_i, d_i, z*2, c->edges_i, 1); 
         }
 
         gluDeleteQuadric(q1);
