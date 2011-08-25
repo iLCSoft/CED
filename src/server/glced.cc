@@ -1448,7 +1448,9 @@ void subDisplay(void){
     glRasterPos2f(((int)(0/ITEMS_PER_COLUMN))*column+0.02, 0.80F);
     drawStringBig(label);
 
-    for(i=0;(unsigned) i<sizeof(shortcuts);i++){
+    //for(i=0;(unsigned) i<sizeof(shortcuts)/sizeof(shortcuts[0]);i++){
+
+    for(i=0;(unsigned) i<shortcuts.size();i++){
        //if((i/ITEMS_PER_COLUMN) > MAX_COLUMN) break;
        //sprintf(label,"%s", shortcuts[i]);
        //glRasterPos2f(((int)(i/ITEMS_PER_COLUMN))*column+0.02,(ITEMS_PER_COLUMN-(i%ITEMS_PER_COLUMN))*line);
