@@ -1690,7 +1690,9 @@ void selectFromMenu(int id){ //hauke
 
         case VIEW_RESET:
             //if(graphic[2] == 0){selectFromMenu(GRAFIC_PERSP); }
-            if(setting.persp == false){selectFromMenu(GRAFIC_PERSP); }
+            if(setting.trans == true && setting.persp == false || setting.trans == false && setting.persp == true){
+                selectFromMenu(GRAFIC_PERSP); //switch persp on in new view, switch persp off in classic view
+            }
             setting.z_cutting=7000; //no z cutting
             setting.cut_angle=0;    // no detector cutting
             setting.phi_projection = false; // no phi projection
