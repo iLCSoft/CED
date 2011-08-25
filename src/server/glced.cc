@@ -1431,13 +1431,15 @@ void subDisplay(void){
     shortcuts.push_back( "[r] Reset view" );
     shortcuts.push_back( "[f] Font view" );
     shortcuts.push_back( "[s] Side view" );
-    shortcuts.push_back( "[v] Fish eye view" );
+    shortcuts.push_back( "[F] Front projection" );
+    shortcuts.push_back( "[S] Side projection" );
+    shortcuts.push_back( "[v] Fisheye projection" );
     shortcuts.push_back( "[b] Change background color" );
     shortcuts.push_back( "[+] Zoom in" );
     shortcuts.push_back( "[-] Zoom out" );
     shortcuts.push_back( "[c] Center" );
-    shortcuts.push_back( "[Z] Move in z-axe direction" );
-    shortcuts.push_back( "[z] Move in -z-axe direction" );
+    shortcuts.push_back( "[Z] Cut in z-axe direction" );
+    shortcuts.push_back( "[z] Cut in -z-axe direction" );
     shortcuts.push_back( "[`] Toggle all layers" );
     shortcuts.push_back( "[Esc] Quit CED" );
 
