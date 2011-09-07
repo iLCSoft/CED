@@ -44,8 +44,8 @@ ENDIF()
 ### LIBRARY AND TOOLS #######################################################
 
 # include directories
-INCLUDE_DIRECTORIES( ./include )
-INCLUDE_DIRECTORIES( ./src )
+INCLUDE_DIRECTORIES( BEFORE ./include )
+INCLUDE_DIRECTORIES( BEFORE ./src )
 INSTALL_DIRECTORY( ./include DESTINATION . FILES_MATCHING PATTERN "*.h" )
 
 
