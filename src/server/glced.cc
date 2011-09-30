@@ -52,6 +52,7 @@
 #include <fstream>
 #include <vector>
 #include <stdlib.h> //getenv
+#include <sys/stat.h>
 
 using namespace std;
 
@@ -169,8 +170,18 @@ static int available_cutangles[]={0,30,90,135, 180, 270, 360};  //for new angles
 #define LAYER_ALL       60
 
 #define HELP            100
-#define SAVE            101
-#define LOAD            102
+#define SAVE1           101
+#define SAVE2           102
+#define SAVE3           103
+#define SAVE4           104
+#define SAVE5           105
+#define LOAD1           131
+#define LOAD2           132
+#define LOAD3           133
+#define LOAD4           134
+#define LOAD5           135
+
+
 
 #define TOGGLE_PHI_PROJECTION   5000
 #define TOGGLE_Z_PROJECTION     5001
@@ -199,6 +210,10 @@ static int subWindow=-1;
 static int layerMenu;
 static int detectorMenu;
 static int subsubMenu2;
+
+static int subSave;
+static int subLoad;
+
 
 //static int helpWindow=-1;
 static int showHelp=0;
@@ -239,6 +254,9 @@ static void set_bg_color(float one, float two, float three, float four){
     BG_COLOR[1]=two;
     BG_COLOR[2]=three;
     BG_COLOR[3]=four;
+
+
+    glClearColor(BG_COLOR[0],BG_COLOR[1],BG_COLOR[2],BG_COLOR[3]);
 }
 
 typedef GLfloat color_t[4];
@@ -740,11 +758,17 @@ static void reshape(int w,int h){
     }
 }
 
-void saveSettings(void){
+void saveSettings(int slot){
     ofstream file;
     const char *home = getenv("HOME");
     char filename[1000];
-    snprintf(filename, 1000, "%s/.glced", home);
+    char dirname[1000];
+
+    snprintf(dirname, 1000, "%s/.glced_cfg/", home);
+    //if(exists){
+       mkdir(dirname,700); 
+    //}
+    snprintf(filename, 1000, "%s/.glced_cfg/settings%i", home, slot);
 
     //file.open(filename, ios::out | ios::binary);
     file.open(filename);
@@ -842,12 +866,13 @@ void idle(void){
 }
 
 
-void loadSettings(void){
+void loadSettings(int slot){
     ifstream file;
 
     const char *home = getenv("HOME");
     char filename[1000];
-    snprintf(filename, 1000, "%s/.glced", home);
+    snprintf(filename, 1000, "%s/.glced_cfg/settings%i",home, slot);
+    //std::cout << "Read config: " << filename << std::endl;
     file.open(filename);
 
     if(file.is_open()){
@@ -950,12 +975,16 @@ void loadSettings(void){
 
 
 
+        set_bg_color(setting.bgcolor[0],setting.bgcolor[1],setting.bgcolor[2],setting.bgcolor[3]); 
+
+
         //reshape(setting.win_w, setting.win_h);
 
 
         std::cout << "Read settings from: " << filename << std::endl;
 
     }else{ //set to default
+        std::cout << "WARNING: Failed to read settings from: " << filename << std::endl;
         defaultSettings();
     }
 
@@ -1563,6 +1592,32 @@ void updateLayerEntryInPopupMenu(int id){ //id is layer id, not menu id!
     glutSetMenu(layerMenu);
     glutChangeToMenuEntry(id+2,string, id+LAYER_0);                     
 }
+
+void updateSaveLoadMenu(int id){ //id is save id, not menu id!
+    struct stat s;
+
+
+    const char *home = getenv("HOME");
+    char filename[1000];
+    char menuStr[1000];
+    snprintf(filename, 1000, "%s/.glced_cfg/settings%i", home, id);
+    if(stat(filename,&s) == 0){
+        snprintf(menuStr,1000,"Slot %i, created: %s",id,ctime(&s.st_mtime));
+    }else{
+        snprintf(menuStr,1000,"Slot %i, %s",id,"Empty");
+    }
+
+    glutSetMenu(subSave);
+    glutChangeToMenuEntry(id,menuStr, SAVE1+id-1);                     
+    
+
+
+    glutSetMenu(subLoad);
+    glutChangeToMenuEntry(id,menuStr, LOAD1+id-1);                     
+
+    //std::cout << menuStr << std::endl;
+}
+
 
 void updateLayerEntryDetector(int id){ //id is layer id, not menu id!
     char string[200];
@@ -2179,19 +2234,28 @@ void selectFromMenu(int id){ //hauke
         case HELP:
             toggleHelpWindow();
             break;
-        case SAVE:
-            saveSettings(); 
+        case SAVE1:
+        case SAVE2:
+        case SAVE3:
+        case SAVE4:
+        case SAVE5:
+            saveSettings(id-SAVE1+1); 
+            updateSaveLoadMenu(id-SAVE1+1);
             break;
 
-        case LOAD:
-            loadSettings(); 
+        case LOAD1:
+        case LOAD2:
+        case LOAD3:
+        case LOAD4:
+        case LOAD5:
+            loadSettings(id-LOAD1+1); 
             break;
-
-
     }
 
     reshape((int)window_width, (int)window_height);
     glutPostRedisplay();
+    //printf("bgcolor = %f %f %f %f\n",setting.bgcolor[0],setting.bgcolor[1],setting.bgcolor[2],setting.bgcolor[2]); 
+
 }
 
 int buildMenuPopup(void){ //hauke
@@ -2326,6 +2390,26 @@ int buildMenuPopup(void){ //hauke
 
 
 
+    subSave=glutCreateMenu(selectFromMenu);
+    glutAddMenuEntry("Slot 1",SAVE1);
+    glutAddMenuEntry("Slot 2",SAVE2);
+    glutAddMenuEntry("Slot 3",SAVE3);
+    glutAddMenuEntry("Slot 4",SAVE4);
+    glutAddMenuEntry("Slot 5",SAVE5);
+
+
+    subLoad=glutCreateMenu(selectFromMenu);
+    glutAddMenuEntry("Slot 1",LOAD1);
+    glutAddMenuEntry("Slot 2",LOAD2);
+    glutAddMenuEntry("Slot 3",LOAD3);
+    glutAddMenuEntry("Slot 4",LOAD4);
+    glutAddMenuEntry("Slot 5",LOAD5);
+
+
+    for(int i=1;i<=5;i++){
+        updateSaveLoadMenu(i);
+    }
+
 
 
 
@@ -2337,8 +2421,10 @@ int buildMenuPopup(void){ //hauke
     glutAddSubMenu("Detector cuts", subsubMenu2);
     glutAddSubMenu("Background Color", subMenu1);
     glutAddSubMenu("Graphic options", subMenu4);
-    glutAddMenuEntry("Save settings",SAVE);
-    glutAddMenuEntry("Load saved settings",LOAD);
+
+    glutAddSubMenu("Save settings",subSave);
+
+    glutAddSubMenu("Load saved settings",subLoad);
     glutAddMenuEntry("Toggle help [h]",HELP);
 
 
@@ -2352,8 +2438,8 @@ int main(int argc,char *argv[]){
     mm_reset=mm;
     WORLD_SIZE = DEFAULT_WORLD_SIZE ;
 
-    loadSettings();  
-    set_bg_color(setting.bgcolor[0],setting.bgcolor[1],setting.bgcolor[2],setting.bgcolor[2]); //set to default (black)
+    loadSettings(1);  
+    //set_bg_color(setting.bgcolor[0],setting.bgcolor[1],setting.bgcolor[2],setting.bgcolor[2]); //set to default (black)=0;
 
     //set_bg_color(0.0,0.0,0.0,0.0); //set to default (black)
     //set_bg_color(bgColors[0][0],bgColors[0][1],bgColors[0][2],bgColors[0][3]); //set to default (light blue [0.0, 0.2, 0.4, 0.0])
