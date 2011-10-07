@@ -90,6 +90,7 @@ using namespace std;
 #define GRAFIC_TRANS            2004
 #define GRAFIC_LIGHT            2005
 #define GRAFIC_ALIAS            2006
+#define GRAFIC_FOG              2007
 
 
 #define CUT_ANGLE0              2100
@@ -344,7 +345,6 @@ static void makeGeometry(void) {
 
 
 static void init(void){
-
     //Set background color
     glClearColor(BG_COLOR[0],BG_COLOR[1], BG_COLOR[2], BG_COLOR[3]);
 
@@ -359,6 +359,8 @@ static void init(void){
 
     //glDepthFunc(GL_LESS);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //default
+
+//glEnable(GL_POLYGON_STIPPLE);
 
 
     //glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
@@ -716,6 +718,8 @@ static void reshape(int w,int h){
         //gluPerspective(60,window_width/window_height,100.0,50000.0*mm.sf+50000/mm.sf);
 
         gluPerspective(45,window_width/window_height,100.0,50000.0*mm.sf+50000/mm.sf);
+
+        //gluPerspective(170,window_width/window_height,100.0,50000.0*mm.sf+50000/mm.sf);
 
 
         //std::cout  << "clipping planes: " << plane1 << " bis " << plane2<< std::endl;
@@ -2219,6 +2223,29 @@ void selectFromMenu(int id){ //hauke
             }
             break;
 
+
+        case GRAFIC_FOG:
+                glGetDoublev(GL_COLOR_CLEAR_VALUE, setting.bgcolor);
+                //GLfloat fogcolor[4]={setting.bgcolor[0],setting.bgcolor[1],setting.bgcolor[2],1.0};   
+                GLfloat fogcolor[4];
+                fogcolor[0]=setting.bgcolor[0];
+                fogcolor[1]=setting.bgcolor[1];
+                fogcolor[2]=setting.bgcolor[2];
+                fogcolor[3]=0.5;
+
+
+                glFogfv(GL_FOG_COLOR,fogcolor);          
+                glFogf(GL_FOG_DENSITY,0.5);                 
+                //glFogi(GL_FOG_MODE,GL_EXP);             
+
+                glFogi(GL_FOG_MODE,GL_LINEAR);            
+                glFogf(GL_FOG_START,500.0);              
+                glFogf(GL_FOG_END,3000.0);                
+                glHint(GL_FOG_HINT, GL_FASTEST);          
+                glEnable(GL_FOG);
+                break;
+
+
         case GRAFIC_PERSP:
             if(setting.persp == true){
                 //printf("Perspective is now flat\n");
@@ -2346,7 +2373,10 @@ int buildMenuPopup(void){ //hauke
     //glutAddMenuEntry("Deepbuffer", GRAFIC_BUFFER);
     glutAddMenuEntry("Transparency/mesh", GRAFIC_TRANS);
     //glutAddMenuEntry("Light", GRAFIC_LIGHT);
+
     glutAddMenuEntry("Anti Aliasing", GRAFIC_ALIAS);
+
+    glutAddMenuEntry("Enable Fog", GRAFIC_FOG);
     glutAddMenuEntry("Toggle visible of axes", AXES);
     #ifndef __APPLE__
         glutAddMenuEntry("Show FPS", FPS);
