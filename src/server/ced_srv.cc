@@ -26,11 +26,14 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <unistd.h>
+#include <vector>
+#include<iostream>
 
 #include <ced.h>
 
 #define PORT        0x1234
 #define PI 3.14159265358979323846f 
+
 
 //hauke
 //int graphic[3];
@@ -124,6 +127,12 @@ inline float single_fisheye_transform(float c, const double scale_factor) {
  *                                            hauke hoelbe 2011
  */
 void drawPartialLineCylinder(double length, double R /*radius*/, double iR /*inner radius*/, int edges, double angle_cut_off, double angle_cut_off_left, bool outer_face=1, bool inner_face=1){
+    //return;
+
+	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_LINE_SMOOTH);
+    glHint(GL_LINE_SMOOTH,GL_NICEST);
+    glDepthMask(GL_FALSE);
     double phi, x, xl; 
     int i,j;
     phi=360.0/edges;
@@ -409,16 +418,32 @@ void drawPartialLineCylinder(double length, double R /*radius*/, double iR /*inn
         }
     }
     glPopMatrix(); //get the saved matrix back
+
+    glDepthMask(GL_TRUE);
+    glDisable(GL_LINE_SMOOTH);
+
+    glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
 }
 
 /*
  *      Draw a partial cylinder made of planes (for the detector geometry 
  *                                                      hauke hoelbe 2011
  */
+
+typedef struct my_point {
+                double x;
+                double y;
+                };
+
+typedef struct T {double a; int b;};
+
 void drawPartialCylinder(double length, double R /*radius*/, double iR /*inner radius*/, int edges, double angle_cut_off, double angle_cut_off_left, bool outer_face=1, bool inner_face=1, double irotate=0){
     //glDisable(GL_BLEND);
+    using namespace std;
+   // cout << "inside drawPartialCylinder: outer" << outer_face << " inner: " << inner_face << endl;
 
     static double edge_vec[12];
+    static vector<my_point> inner_side_points;
 
     double phi=360.0/edges;
     int i,j;
@@ -595,62 +620,132 @@ void drawPartialCylinder(double length, double R /*radius*/, double iR /*inner r
       }
     }
 
-    //draw the two ends
-    for(j=0;j<2;j++){
-//        if(inner_face != outer_face){
-//            continue;
-//        }
-        if(inner_face == false){
-            
-            if(j==0){
-                glTranslatef(0, 0, -length/2-5*0);
-                //glDisable( GL_DEPTH_TEST );
-            }
-            else if(j==1){
-                glTranslatef(0, 0, length+10*0);
-                //glEnable( GL_DEPTH_TEST );
-            }
-        }else{
+    //draw the two ends 
+    //run this block when drawing the hole cylinder
+    if(outer_face == true && inner_face == true){
+        for(j=0;j<2;j++){
             if(j==0){glTranslatef(0, 0, -length/2);}
             else if(j==1){glTranslatef(0, 0, length);}
- 
+
+            phi=(360.0/edges);
+
+            i=int( angle_cut_off_left/phi+1);  
+            phi=(360.0/edges)*(i+edges);
+            xl = cos(2*PI/edges/2)/cos((360.0- (phi-360.0/edges/2)+angle_cut_off_left)*2*PI/360.0);
+
+
+
+            glBegin(GL_TRIANGLES);
+            glVertex2d(R*xl*sin((angle_cut_off_left)*2*PI/360.0), R*xl*cos((angle_cut_off_left)*2*PI/360.0));
+            glVertex2d(iR*sin(360.0/edges*(i)*2*PI/360.0),iR*cos(360.0/edges*(i)*2*PI/360.0));
+            glVertex2d(iR*xl*sin((angle_cut_off_left)*2*PI/360.0),iR*xl*cos((angle_cut_off_left)*2*PI/360.0));
+            glEnd();
+            
+            
+
+            glBegin(GL_TRIANGLES);
+            glVertex2d(R*xl*sin((angle_cut_off_left)*2*PI/360.0),R*xl*cos(angle_cut_off_left*2*PI/360.0));
+            glVertex2d(R*sin(360.0/edges*(i)*2*PI/360.0),R*cos(360.0/edges*(i)*2*PI/360.0));
+            glVertex2d(iR*sin(360.0/edges*(i)*2*PI/360.0),iR*cos(360.0/edges*(i)*2*PI/360.0));
+            glEnd();
+
+            //phi=(360.0/edges)*i;
+            //i=(int) angle_cut_off_left/phi+1;  
+
+            glBegin(GL_TRIANGLE_STRIP );
+            glVertex2d(R*sin(360.0/edges*(i)*2*PI/360.0),R*cos(360.0/edges*(i)*2*PI/360.0));
+            glVertex2d(iR*sin(360.0/edges*(i)*2*PI/360.0),iR*cos(360.0/edges*(i)*2*PI/360.0));
+
+            i=i+1; 
+
+
+            for(;i<edges+1;i++){
+                phi=360.0/edges*i;
+                if(360.0-phi <= angle_cut_off){
+                    x = cos(2*PI/edges/2)/cos((360.0- (phi-360.0/edges/2)-angle_cut_off)*2*PI/360.0);
+                    glVertex2d(R*x*sin((360.0-angle_cut_off)*2*PI/360.0), R*x*cos((360.0-angle_cut_off)*2*PI/360.0));
+                    glVertex2d(iR*sin(360.0/edges*(i-1)*2*PI/360.0), iR*cos(360.0/edges*(i-1)*2*PI/360.0));
+                    glVertex2d(iR*x*sin((360.0-angle_cut_off)*2*PI/360.0), iR*x*cos((360.0-angle_cut_off)*2*PI/360.0));
+                    glVertex2d(R*x*sin((360.0-angle_cut_off)*2*PI/360.0), R*x*cos((360.0-angle_cut_off)*2*PI/360.0));
+                    break;
+                }else{
+                    glVertex2d(R*sin(phi*2*PI/360.0), R*cos(phi*2*PI/360.0));
+                    if(i != 0){
+                        glVertex2d(iR*sin(360.0/edges*(i-1)*2*PI/360.0), iR*cos(360.0/edges*(i-1)*2*PI/360.0));
+                        glVertex2d(iR*sin(phi*2*PI/360.0), iR*cos(phi*2*PI/360.0));
+                        glVertex2d(R*sin(phi*2*PI/360.0), R*cos(phi*2*PI/360.0));
+                    }
+                }
+            }
+            glEnd();
         }
 
+        glTranslatef(0, 0, -length/2);
+        glPopMatrix(); //restore the matrix from the stack
+        //glEnable(GL_BLEND);
+    }else if(outer_face == false && inner_face==true){ //fill up vectors to draw the detector in next step
 
-//        glBegin(GL_LINE_STRIP);
-        //glBegin(GL_TRIANGLE_STRIP );
-        //glVertex2d(0,iR);
+        //glEnd();
+        //inner_side_points.clear();
+       // cout << "inner side size" << inner_side_points.size() << endl;
+
+
+        for(j=0;j<2;j++){
+            if(j==0){glTranslatef(0, 0, -length/2);}
+            else if(j==1){glTranslatef(0, 0, length); }
+        }
+
+            phi=(360.0/edges);
+
+            i=int( angle_cut_off_left/phi+1);  
+            phi=(360.0/edges)*(i+edges);
+            xl = cos(2*PI/edges/2)/cos((360.0- (phi-360.0/edges/2)+angle_cut_off_left)*2*PI/360.0);
 
 
 
-        //i=(int) angle_cut_off_left/phi + edges + 1;  
-        //i+=edges;
+
+            //inner_side_points.push_back((my_point){iR*sin(360.0/edges*(i)*2*PI/360.0),iR*cos(360.0/edges*(i)*2*PI/360.0)});
+            inner_side_points.push_back((my_point){iR*xl*sin((angle_cut_off_left)*2*PI/360.0),iR*xl*cos((angle_cut_off_left)*2*PI/360.0)});
+
+            i=i+1; 
+
+
+            for(;i<edges+1;i++){
+                phi=360.0/edges*i;
+                if(360.0-phi <= angle_cut_off){
+                    x = cos(2*PI/edges/2)/cos((360.0- (phi-360.0/edges/2)-angle_cut_off)*2*PI/360.0);
+                    inner_side_points.push_back((my_point){iR*sin(360.0/edges*(i-1)*2*PI/360.0), iR*cos(360.0/edges*(i-1)*2*PI/360.0)});
+                    inner_side_points.push_back((my_point){iR*x*sin((360.0-angle_cut_off)*2*PI/360.0), iR*x*cos((360.0-angle_cut_off)*2*PI/360.0)});
+                    break;
+                }else{
+                    if(i != 0){
+                        inner_side_points.push_back((my_point){iR*sin(360.0/edges*(i-1)*2*PI/360.0), iR*cos(360.0/edges*(i-1)*2*PI/360.0)});
+                        inner_side_points.push_back((my_point){iR*sin(phi*2*PI/360.0), iR*cos(phi*2*PI/360.0)});
+                    }
+                }
+            }
+             //glEnd();
+        //}
+
+        glPopMatrix(); //restore the matrix from the stack
+
+        
+    }else if(inner_face == false && outer_face == true){
+        vector<my_point> outer_side_points;
+        //outer_side_points.clear();
         phi=(360.0/edges);
 
         i=int( angle_cut_off_left/phi+1);  
         phi=(360.0/edges)*(i+edges);
         xl = cos(2*PI/edges/2)/cos((360.0- (phi-360.0/edges/2)+angle_cut_off_left)*2*PI/360.0);
 
-        glBegin(GL_TRIANGLES);
-        glVertex2d(R*xl*sin((angle_cut_off_left)*2*PI/360.0), R*xl*cos((angle_cut_off_left)*2*PI/360.0));
-        glVertex2d(iR*sin(360.0/edges*(i)*2*PI/360.0),iR*cos(360.0/edges*(i)*2*PI/360.0));
-        glVertex2d(iR*xl*sin((angle_cut_off_left)*2*PI/360.0),iR*xl*cos((angle_cut_off_left)*2*PI/360.0));
-        glEnd();
+//        outer_side_points.push_back((my_point){});
+
+
+
         
-        
-
-        glBegin(GL_TRIANGLES);
-        glVertex2d(R*xl*sin((angle_cut_off_left)*2*PI/360.0),R*xl*cos(angle_cut_off_left*2*PI/360.0));
-        glVertex2d(R*sin(360.0/edges*(i)*2*PI/360.0),R*cos(360.0/edges*(i)*2*PI/360.0));
-        glVertex2d(iR*sin(360.0/edges*(i)*2*PI/360.0),iR*cos(360.0/edges*(i)*2*PI/360.0));
-        glEnd();
-
-        //phi=(360.0/edges)*i;
-        //i=(int) angle_cut_off_left/phi+1;  
-
-        glBegin(GL_TRIANGLE_STRIP );
-        glVertex2d(R*sin(360.0/edges*(i)*2*PI/360.0),R*cos(360.0/edges*(i)*2*PI/360.0));
-        glVertex2d(iR*sin(360.0/edges*(i)*2*PI/360.0),iR*cos(360.0/edges*(i)*2*PI/360.0));
+        outer_side_points.push_back((my_point){R*xl*sin((angle_cut_off_left)*2*PI/360.0), R*xl*cos(angle_cut_off_left*2*PI/360.0)});
+        outer_side_points.push_back((my_point){R*sin(360.0/edges*(i)*2*PI/360.0),R*cos(360.0/edges*(i)*2*PI/360.0)});
 
         i=i+1; 
 
@@ -659,26 +754,117 @@ void drawPartialCylinder(double length, double R /*radius*/, double iR /*inner r
             phi=360.0/edges*i;
             if(360.0-phi <= angle_cut_off){
                 x = cos(2*PI/edges/2)/cos((360.0- (phi-360.0/edges/2)-angle_cut_off)*2*PI/360.0);
-                glVertex2d(R*x*sin((360.0-angle_cut_off)*2*PI/360.0), R*x*cos((360.0-angle_cut_off)*2*PI/360.0));
-                glVertex2d(iR*sin(360.0/edges*(i-1)*2*PI/360.0), iR*cos(360.0/edges*(i-1)*2*PI/360.0));
-                glVertex2d(iR*x*sin((360.0-angle_cut_off)*2*PI/360.0), iR*x*cos((360.0-angle_cut_off)*2*PI/360.0));
-                glVertex2d(R*x*sin((360.0-angle_cut_off)*2*PI/360.0), R*x*cos((360.0-angle_cut_off)*2*PI/360.0));
+
+                outer_side_points.push_back((my_point){R*x*sin((360.0-angle_cut_off)*2*PI/360.0), R*x*cos((360.0-angle_cut_off)*2*PI/360.0)});
+                //outer_side_points.push_back((my_point){R*x*sin((360.0-angle_cut_off)*2*PI/360.0), R*x*cos((360.0-angle_cut_off)*2*PI/360.0)});
                 break;
             }else{
-                glVertex2d(R*sin(phi*2*PI/360.0), R*cos(phi*2*PI/360.0));
-                if(i != 0){
-                    glVertex2d(iR*sin(360.0/edges*(i-1)*2*PI/360.0), iR*cos(360.0/edges*(i-1)*2*PI/360.0));
-                    glVertex2d(iR*sin(phi*2*PI/360.0), iR*cos(phi*2*PI/360.0));
-                    glVertex2d(R*sin(phi*2*PI/360.0), R*cos(phi*2*PI/360.0));
-                }
+                outer_side_points.push_back((my_point){R*sin(phi*2*PI/360.0), R*cos(phi*2*PI/360.0)});
+                //if(i != 0){
+                //    outer_side_points.push_back((my_point){R*sin(phi*2*PI/360.0), R*cos(phi*2*PI/360.0)});
+                //}
             }
         }
-        glEnd();
+
+        for(unsigned int i=0;i<inner_side_points.size();i++){ //transform the points to inner rotate angle
+            my_point tmp = my_point(inner_side_points[i]);
+            inner_side_points[i].x=tmp.x*cos(irotate/360*2*PI) - sin(irotate/360*2*PI)*tmp.y;
+            inner_side_points[i].y=tmp.x*sin(irotate/360*2*PI) + tmp.y*cos(irotate/360.0*2*PI);
+        }
+
+        for(j=0;j<2;j++){  //here do the drawing
+            //glEnd();
+            if(j==0){glTranslatef(0, 0, -length/2);}
+            else if(j==1){glTranslatef(0, 0, length);}
+
+
+            //glBegin(GL_TRIANGLE_STRIP );
+
+
+            unsigned int inner_c,outer_c;
+            inner_c=0;outer_c=0;
+
+
+            //glBegin(GL_LINE_STRIP);
+
+            glBegin(GL_TRIANGLE_STRIP);
+
+            glVertex2d(inner_side_points[inner_c].x, inner_side_points[inner_c].y);
+            glVertex2d(outer_side_points[outer_c].x, outer_side_points[outer_c].y);
+
+            if(inner_side_points.size() < outer_side_points.size()){ //outer cylinder have more edges
+                int step=(int)outer_side_points.size()/inner_side_points.size();
+
+            
+                while(inner_c < inner_side_points.size()-1 && outer_c + step < outer_side_points.size()-1){
+                    for(int k=0;k<step;k++){
+                        outer_c++;
+                        glVertex2d(inner_side_points[inner_c].x, inner_side_points[inner_c].y);
+                        glVertex2d(outer_side_points[outer_c].x, outer_side_points[outer_c].y);
+                    }
+                    inner_c++;
+                }
+            
+            }else{ //inner cylinder have more edges
+                int step=(int)inner_side_points.size()/outer_side_points.size();
+            
+
+                //glBegin(GL_TRIANGLE_STRIP);
+                //glBegin(GL_LINE_STRIP);
+                while(outer_c < outer_side_points.size()-1 && inner_c + step < inner_side_points.size()-1){
+                    for(int k=0;k<step;k++){
+                        //cout << "max inner: " << inner_side_points.size()-1 << "outer max: " << outer_side_points.size()-1 << endl;
+                        //cout << "inner counter: " << inner_c << " ( " << inner_side_points[inner_c].x << ", " 
+                        //      << outer_side_points[outer_c].y << ") outer counter: " << outer_c << endl;
+                        glVertex2d(outer_side_points[outer_c].x, outer_side_points[outer_c].y);
+                        glVertex2d(inner_side_points[inner_c].x, inner_side_points[inner_c].y);
+                        inner_c++;
+                    }
+                    outer_c++;
+                }
+
+                
+            }
+
+            inner_c--;
+            outer_c--;
+            for(;outer_c < outer_side_points.size()-1; outer_c++){
+                glVertex2d(outer_side_points[outer_c].x, outer_side_points[outer_c].y);
+                glVertex2d(inner_side_points[inner_c].x, inner_side_points[inner_c].y);
+            }
+
+            for(;inner_c < inner_side_points.size()-1; inner_c++){
+                glVertex2d(outer_side_points[outer_c].x, outer_side_points[outer_c].y);
+                glVertex2d(inner_side_points[inner_c].x, inner_side_points[inner_c].y);
+            }
+
+            glVertex2d(inner_side_points[inner_c].x, inner_side_points[inner_c].y);
+            glVertex2d(outer_side_points[outer_c].x, outer_side_points[outer_c].y);
+
+            glEnd();
+
+//            glBegin(GL_LINE_STRIP);
+//            for(int i=0;i<inner_side_points.size() && i<outer_side_points.size();i++){
+//
+//                glVertex2d(inner_side_points[i].x, inner_side_points[i].y);
+//                glVertex2d(outer_side_points[i].x, outer_side_points[i].y);
+//            }
+//
+//            glEnd();
+
+            
+
+            
+
+        }
+        inner_side_points.clear();
+        outer_side_points.clear();
+        glTranslatef(0, 0, -length/2);
+        glPopMatrix(); //restore the matrix from the stack
+        //glEnable(GL_BLEND);
     }
 
-    glTranslatef(0, 0, -length/2);
-    glPopMatrix(); //restore the matrix from the stack
-    //glEnable(GL_BLEND);
+                
 
 }
 
@@ -1065,199 +1251,228 @@ static void ced_draw_geotube(CED_GeoTube *c){
     //hauke
     //if(graphic[1] == 1){
     if(setting.trans == 1){
+        for(int k=0;k<2;k++){        
+            GLfloat face_color[4]={((c->color>>16)&0xff)/255.0,((c->color>>8)&0xff)/255.0,((c->color)&0xff)/255.0, setting.trans_value};  
+            //GLfloat face_color[4]={((c->color>>16)&0xff)/255.0/2.0+(1.0-setting.bgcolor[0])/2.0,((c->color>>8)&0xff)/255.0/2.0+(1.0-setting.bgcolor[1])/2.0,((c->color)&0xff)/255.0/2.0+(1.0-setting.bgcolor[2])/2.0, setting.trans_value}; //shape in detector color mixed with anti background color
+    
+    
+            //float detector_lines_wide=0.3;
 
-        GLfloat face_color[4]={((c->color>>16)&0xff)/255.0,((c->color>>8)&0xff)/255.0,((c->color)&0xff)/255.0, setting.trans_value};  
-        //GLfloat face_color[4]={((c->color>>16)&0xff)/255.0/2.0+(1.0-setting.bgcolor[0])/2.0,((c->color>>8)&0xff)/255.0/2.0+(1.0-setting.bgcolor[1])/2.0,((c->color)&0xff)/255.0/2.0+(1.0-setting.bgcolor[2])/2.0, setting.trans_value}; //shape in detector color mixed with anti background color
+            float detector_lines_wide=0.3;
+    
+            //GLfloat line_color[4]={0.5,0.5,0.5, 0.4}; //lines in gray
+            //GLfloat line_color[4]={((c->color>>16)&0xff)/255.0,((c->color>>8)&0xff)/255.0,((c->color)&0xff)/255.0, 0.5}; //lines in detector color
+            glGetDoublev(GL_COLOR_CLEAR_VALUE, setting.bgcolor);
+            //GLfloat line_color[4]={((c->color>>16)&0xff)/255.0/2.0+(1.0-setting.bgcolor[0])/2.0,((c->color>>8)&0xff)/255.0/2.0+(1.0-setting.bgcolor[1])/2.0,((c->color)&0xff)/255.0/2.0+(1.0-setting.bgcolor[2])/2.0, 0.6}; //lines in detector color mixed with anti background color
+    
+            GLfloat line_color[4]={((c->color>>16)&0xff)/255.0/2.0+(1.0-setting.bgcolor[0])/2.0,((c->color>>8)&0xff)/255.0/2.0+(1.0-setting.bgcolor[1])/2.0,((c->color)&0xff)/255.0/2.0+(1.0-setting.bgcolor[2])/2.0, (1-setting.trans_value)+0.2}; //lines in detector color mixed with anti background color
+    
+    
+            //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //default
+            //glBlendFunc(GL_DST_COLOR, GL_SRC_COLOR); //glass
+            glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA); //locks nice, but lines diapear, so switch it off after drawing
+    
+            glMatrixMode(GL_MODELVIEW);
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    
+            if(setting.cut_angle < 360){
+                glTranslatef(0.0, 0.0, transformed_shift);
+                if(c->rotate_o > 0.01 ) glRotatef(c->rotate_o, 0, 0, 1);
+                if(c->rotate_o <= setting.cut_angle){ //dont cut if rotate angle is to big
+                    if(c->edges_o != c->edges_i || c->rotate_i != 0){
+                        //glColor4f((c->color>>16)&0xff,(c->color>>8)&0xff,(c->color)&0xff, 0.8);
+                        glColor4f(face_color[0], face_color[1], face_color[2], face_color[3]);
+                        glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
+    
+    
+                        //here
+                        //draw the inner shape
+                        glRotatef(c->rotate_i, 0, 0, 1);
+     
+                        glPolygonOffset( 1.f, 1.f );
+                        if(setting.trans_value < 1.0){
+    
+                            //std::cout << "call drawPartialCylinder outer:" << 0 << " inner" << 1 << std::endl;
+                            if(k==0)
+                                drawPartialCylinder(z*2, d_o-(d_o-d_i)/5, d_i, c->edges_i, setting.cut_angle - c->rotate_i- c->rotate_o, c->rotate_i + c->rotate_o,0,1); //draw the inner cylinder 
+                        }
+    
+                        glRotatef(-1*c->rotate_i, 0, 0, 1);
+    
+                        //draw the outer shape
+                        glPolygonOffset( 1.f, 1.f ); 
+                        glEnable( GL_POLYGON_OFFSET_FILL );
+                        glPolygonOffset( 2.f, 2.f );
+                        if(setting.trans_value < 1.0){
+                            //std::cout << "call drawPartialCylinder outer:" << 1 << " inner" << 0 << std::endl;
+                            if(k==0)
+                                drawPartialCylinder(z*2, d_o, d_i+(d_o-d_i)/5, c->edges_o, setting.cut_angle - c->rotate_o, c->rotate_o,1,0, c->rotate_i); //draw the outer cylinder
+                        }
+    
+    
+    
+    
+    
+    //                    //draw the inner shape
+    //                    glRotatef(c->rotate_i, 0, 0, 1);
+    //                    glPolygonOffset( 1.f, 1.f ); 
+    //                    glEnable( GL_POLYGON_OFFSET_FILL );
+    //                    glPolygonOffset( 2.f, 2.f );
+    //                    if(setting.trans_value < 1.0){
+    //                        drawPartialCylinder(z*2, d_o-(d_o-d_i)/5, d_i, c->edges_i, setting.cut_angle - c->rotate_i- c->rotate_o, c->rotate_i + c->rotate_o,0,1); //draw the inner cylinder 
+    //                    }
+    //                    //draw the outer shape
+    //                    glRotatef(-1*c->rotate_i, 0, 0, 1);
+    //                    glPolygonOffset( 1.f, 1.f );
+    //                    if(setting.trans_value < 1.0){
+    //                        drawPartialCylinder(z*2, d_o, d_i+(d_o-d_i)/5, c->edges_o, setting.cut_angle - c->rotate_o, c->rotate_o,1,0); //draw the outer cylinder
+    //                    }
+    //
+    
+                        //glLineWidth(0.5);
+                        glLineWidth(detector_lines_wide);
+    
+                        //glColor4f(0.5,0.5,0.5, 0.4);
+                        glColor4f(line_color[0], line_color[1], line_color[2], line_color[3]);
+                        glRotatef(c->rotate_i, 0, 0, 1);
+                        //draw the inner cylinder 
+                        if(k==1)
+                        drawPartialLineCylinder(z*2, d_o-(d_o-d_i)/5, d_i, c->edges_i, setting.cut_angle - c->rotate_i- c->rotate_o, c->rotate_i + c->rotate_o,0,1); 
+                        glRotatef(-1*c->rotate_i, 0, 0, 1);
+                        //draw the outer cylinder
 
+                        if(k==1)
+                        drawPartialLineCylinder(z*2, d_o, d_i+(d_o-d_i)/5, c->edges_o, setting.cut_angle - c->rotate_o, c->rotate_o,1,0);
+                    }else{
+    
+                        //glColor4f(((c->color>>16)&0xff)*0.02,((c->color>>8)&0xff)*0.02,((c->color)&0xff)*0.02, 0.4);
+                        //glLineWidth(5);
+    
+                        //glColor4f((c->color>>16)&0xff,(c->color>>8)&0xff,(c->color)&0xff, 0.8);
+                       //glLineWidth(0.5);
+                        glColor4f(face_color[0], face_color[1], face_color[2], face_color[3]);
+    
+                        glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
+    
+                        if(setting.trans_value < 1.0){
+    
+                            //std::cout << "call drawPartialCylinder inner:" << 1 << " outer" << 1 << std::endl;
 
-        float detector_lines_wide=0.3;
+                            if(k==0)
+                                drawPartialCylinder(z*2, d_o, d_i, c->edges_o, setting.cut_angle - c->rotate_o, c->rotate_o);
+                        }
+    
+                        //glLineWidth(1);
+                        glLineWidth(detector_lines_wide);
+    
+    
+                        //glColor4f(0.5,0.5,0.5, 0.4);
+                        glColor4f(line_color[0], line_color[1], line_color[2], line_color[3]);
+    
+                        //glColor4f(1,1,1, 0.0);
+    
 
-        //GLfloat line_color[4]={0.5,0.5,0.5, 0.4}; //lines in gray
-        //GLfloat line_color[4]={((c->color>>16)&0xff)/255.0,((c->color>>8)&0xff)/255.0,((c->color)&0xff)/255.0, 0.5}; //lines in detector color
-        glGetDoublev(GL_COLOR_CLEAR_VALUE, setting.bgcolor);
-        GLfloat line_color[4]={((c->color>>16)&0xff)/255.0/2.0+(1.0-setting.bgcolor[0])/2.0,((c->color>>8)&0xff)/255.0/2.0+(1.0-setting.bgcolor[1])/2.0,((c->color)&0xff)/255.0/2.0+(1.0-setting.bgcolor[2])/2.0, 0.6}; //lines in detector color mixed with anti background color
-
-
-        //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //default
-        //glBlendFunc(GL_DST_COLOR, GL_SRC_COLOR); //glass
-        glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA); //locks nice, but lines diapear, so switch it off after drawing
-
-        glMatrixMode(GL_MODELVIEW);
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-        if(setting.cut_angle < 360){
-            glTranslatef(0.0, 0.0, transformed_shift);
-            if(c->rotate_o > 0.01 ) glRotatef(c->rotate_o, 0, 0, 1);
-            if(c->rotate_o <= setting.cut_angle){ //dont cut if rotate angle is to big
-                if(c->edges_o != c->edges_i || c->rotate_i != 0){
-                    //glColor4f((c->color>>16)&0xff,(c->color>>8)&0xff,(c->color)&0xff, 0.8);
-                    glColor4f(face_color[0], face_color[1], face_color[2], face_color[3]);
-                    glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
-
-
-                    //here
-                    //draw the inner shape
-                    glRotatef(c->rotate_i, 0, 0, 1);
- 
-                    glPolygonOffset( 1.f, 1.f );
-                    if(setting.trans_value < 1.0){
-
-                        //std::cout << "call drawPartialCylinder inner:" << 1 << " outer" << 0 << std::endl;
-                        drawPartialCylinder(z*2, d_o-(d_o-d_i)/5, d_i, c->edges_i, setting.cut_angle - c->rotate_i- c->rotate_o, c->rotate_i + c->rotate_o,0,1); //draw the inner cylinder 
+                        if(k==1)
+                        drawPartialLineCylinder(z*2, d_o, d_i, c->edges_o, setting.cut_angle - c->rotate_o, c->rotate_o);
                     }
-
-                    glRotatef(-1*c->rotate_i, 0, 0, 1);
-
-                    //draw the outer shape
-                    glPolygonOffset( 1.f, 1.f ); 
-                    glEnable( GL_POLYGON_OFFSET_FILL );
-                    glPolygonOffset( 2.f, 2.f );
-                    if(setting.trans_value < 1.0){
-                        //std::cout << "call drawPartialCylinder inner:" << 0 << " outer" << 1 << std::endl;
-                        drawPartialCylinder(z*2, d_o, d_i+(d_o-d_i)/5, c->edges_o, setting.cut_angle - c->rotate_o, c->rotate_o,1,0, c->rotate_i); //draw the outer cylinder
-                    }
-
-
-
-
-
-//                    //draw the inner shape
-//                    glRotatef(c->rotate_i, 0, 0, 1);
-//                    glPolygonOffset( 1.f, 1.f ); 
-//                    glEnable( GL_POLYGON_OFFSET_FILL );
-//                    glPolygonOffset( 2.f, 2.f );
-//                    if(setting.trans_value < 1.0){
-//                        drawPartialCylinder(z*2, d_o-(d_o-d_i)/5, d_i, c->edges_i, setting.cut_angle - c->rotate_i- c->rotate_o, c->rotate_i + c->rotate_o,0,1); //draw the inner cylinder 
-//                    }
-//                    //draw the outer shape
-//                    glRotatef(-1*c->rotate_i, 0, 0, 1);
-//                    glPolygonOffset( 1.f, 1.f );
-//                    if(setting.trans_value < 1.0){
-//                        drawPartialCylinder(z*2, d_o, d_i+(d_o-d_i)/5, c->edges_o, setting.cut_angle - c->rotate_o, c->rotate_o,1,0); //draw the outer cylinder
-//                    }
-//
-
-                    //glLineWidth(0.5);
-                    glLineWidth(detector_lines_wide);
-
-                    //glColor4f(0.5,0.5,0.5, 0.4);
-                    glColor4f(line_color[0], line_color[1], line_color[2], line_color[3]);
-                    glRotatef(c->rotate_i, 0, 0, 1);
-                    //draw the inner cylinder 
-                    drawPartialLineCylinder(z*2, d_o-(d_o-d_i)/5, d_i, c->edges_i, setting.cut_angle - c->rotate_i- c->rotate_o, c->rotate_i + c->rotate_o,0,1); 
-                    glRotatef(-1*c->rotate_i, 0, 0, 1);
-                    //draw the outer cylinder
-                    drawPartialLineCylinder(z*2, d_o, d_i+(d_o-d_i)/5, c->edges_o, setting.cut_angle - c->rotate_o, c->rotate_o,1,0);
                 }else{
+                    if(c->edges_o != c->edges_i || c->rotate_i != 0){
+                        //glColor4f((c->color>>16)&0xff,(c->color>>8)&0xff,(c->color)&0xff, 0.8);
+                        glColor4f(face_color[0], face_color[1], face_color[2], face_color[3]);
+    
+                        glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
+    
+    
+    
+    
+    
+                        //draw the inner shape
+                        glRotatef(c->rotate_i, 0, 0, 1);
+     
+                        glPolygonOffset( 1.f, 1.f );
+                        if(setting.trans_value < 1.0){
+    
+                            //std::cout << "call drawPartialCylinder inner:" << 1 << " outer" << 0 << std::endl;
 
-                    //glColor4f(((c->color>>16)&0xff)*0.02,((c->color>>8)&0xff)*0.02,((c->color)&0xff)*0.02, 0.4);
-                    //glLineWidth(5);
+                            if(k==0)
+                                drawPartialCylinder(z*2, d_o-(d_o-d_i)/5, d_i, c->edges_i, 0,0 ,0,1); //draw the inner cylinder 
+                        }
+    
+                        glRotatef(-1*c->rotate_i, 0, 0, 1);
+    
+    
+                        //draw the outer shape
+                        glPolygonOffset( 1.f, 1.f ); 
+                        glEnable( GL_POLYGON_OFFSET_FILL );
+                        glPolygonOffset( 2.f, 2.f );
+                        if(setting.trans_value < 1.0){
+    
+                            //std::cout << "call drawPartialCylinder inner:" << 0 << " outer" << 1 << std::endl;
+                            if(k==0)
+                            drawPartialCylinder(z*2, d_o, d_i+(d_o-d_i)/5, c->edges_o, 0,0,1,0, c->rotate_i); //draw the outer cylinder
+                        }
+    
+    
+    
+                        //glLineWidth(0.5);
+                        //glLineWidth(1);
+                        glLineWidth(detector_lines_wide);
+    
+    
+                        //glColor4f(0.5,0.5,0.5, 0.4);
+                        glColor4f(line_color[0], line_color[1], line_color[2], line_color[3]);
+    
+    
+                        glRotatef(c->rotate_i, 0, 0, 1);
+                        //draw the inner cylinder 
 
-                    //glColor4f((c->color>>16)&0xff,(c->color>>8)&0xff,(c->color)&0xff, 0.8);
-                   //glLineWidth(0.5);
-                    glColor4f(face_color[0], face_color[1], face_color[2], face_color[3]);
+                        if(k==1)
+                        drawPartialLineCylinder(z*2, d_o-(d_o-d_i)/5, d_i, c->edges_i, 0,0,0,1); 
+                        glRotatef(-1*c->rotate_i, 0, 0, 1);
+                        //draw the outer cylinder
 
-                    glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
+                        if(k==1)
+                        drawPartialLineCylinder(z*2, d_o, d_i+(d_o-d_i)/5, c->edges_o, 0,0,1,0);
+                    }else{
+                        //glColor4f(((c->color>>16)&0xff)*0.02,((c->color>>8)&0xff)*0.02,((c->color)&0xff)*0.02, 0.4);
+                        //glLineWidth(5);
+    
+                        //glColor4f((c->color>>16)&0xff,(c->color>>8)&0xff,(c->color)&0xff, 0.8);
+    
+                        glColor4f(face_color[0], face_color[1], face_color[2], face_color[3]);
+    
+                        glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
+    
+                        if(setting.trans_value < 1.0){
+    
+                            //std::cout << "call drawPartialCylinder inner:" << 1 << " outer" << 1 << std::endl;
+                            if(k==0)
+                            drawPartialCylinder(z*2, d_o, d_i, c->edges_o, 0,0);
+                        }
+    
+                        //glLineWidth(0.5);
+                        //glLineWidth(1);
+                        glLineWidth(detector_lines_wide);
+    
+    
+                        //glColor4f(0.5,0.5,0.5, 0.4);
+                        glColor4f(line_color[0], line_color[1], line_color[2], line_color[3]);
+    
+                        //glColor4f(1,1,1, 0.0);
+    
 
-                    if(setting.trans_value < 1.0){
-
-                        //std::cout << "call drawPartialCylinder inner:" << 1 << " outer" << 1 << std::endl;
-                        drawPartialCylinder(z*2, d_o, d_i, c->edges_o, setting.cut_angle - c->rotate_o, c->rotate_o);
+                        if(k==1)
+                            drawPartialLineCylinder(z*2, d_o, d_i, c->edges_o, 0,0);
                     }
-
-                    //glLineWidth(1);
-                    glLineWidth(detector_lines_wide);
-
-
-                    //glColor4f(0.5,0.5,0.5, 0.4);
-                    glColor4f(line_color[0], line_color[1], line_color[2], line_color[3]);
-
-                    //glColor4f(1,1,1, 0.0);
-
-                    drawPartialLineCylinder(z*2, d_o, d_i, c->edges_o, setting.cut_angle - c->rotate_o, c->rotate_o);
                 }
-            }else{
-                if(c->edges_o != c->edges_i || c->rotate_i != 0){
-                    //glColor4f((c->color>>16)&0xff,(c->color>>8)&0xff,(c->color)&0xff, 0.8);
-                    glColor4f(face_color[0], face_color[1], face_color[2], face_color[3]);
 
-                    glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
+                glTranslatef(0.0, 0.0, -transformed_shift);
+                glRotatef(-1*c->rotate_o, 0, 0, 1);
 
-
-
-
-
-                    //draw the inner shape
-                    glRotatef(c->rotate_i, 0, 0, 1);
- 
-                    glPolygonOffset( 1.f, 1.f );
-                    if(setting.trans_value < 1.0){
-
-                        //std::cout << "call drawPartialCylinder inner:" << 1 << " outer" << 0 << std::endl;
-                        drawPartialCylinder(z*2, d_o-(d_o-d_i)/5, d_i, c->edges_i, 0,0 ,0,1); //draw the inner cylinder 
-                    }
-
-                    glRotatef(-1*c->rotate_i, 0, 0, 1);
-
-
-                    //draw the outer shape
-                    glPolygonOffset( 1.f, 1.f ); 
-                    glEnable( GL_POLYGON_OFFSET_FILL );
-                    glPolygonOffset( 2.f, 2.f );
-                    if(setting.trans_value < 1.0){
-
-                        //std::cout << "call drawPartialCylinder inner:" << 0 << " outer" << 1 << std::endl;
-                        drawPartialCylinder(z*2, d_o, d_i+(d_o-d_i)/5, c->edges_o, 0,0,1,0, c->rotate_i); //draw the outer cylinder
-                    }
-
-
-
-                    //glLineWidth(0.5);
-                    //glLineWidth(1);
-                    glLineWidth(detector_lines_wide);
-
-
-                    //glColor4f(0.5,0.5,0.5, 0.4);
-                    glColor4f(line_color[0], line_color[1], line_color[2], line_color[3]);
-
-
-                    glRotatef(c->rotate_i, 0, 0, 1);
-                    //draw the inner cylinder 
-                    drawPartialLineCylinder(z*2, d_o-(d_o-d_i)/5, d_i, c->edges_i, 0,0,0,1); 
-                    glRotatef(-1*c->rotate_i, 0, 0, 1);
-                    //draw the outer cylinder
-                    drawPartialLineCylinder(z*2, d_o, d_i+(d_o-d_i)/5, c->edges_o, 0,0,1,0);
-                }else{
-                    //glColor4f(((c->color>>16)&0xff)*0.02,((c->color>>8)&0xff)*0.02,((c->color)&0xff)*0.02, 0.4);
-                    //glLineWidth(5);
-
-                    //glColor4f((c->color>>16)&0xff,(c->color>>8)&0xff,(c->color)&0xff, 0.8);
-
-                    glColor4f(face_color[0], face_color[1], face_color[2], face_color[3]);
-
-                    glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
-
-                    if(setting.trans_value < 1.0){
-
-                        //std::cout << "call drawPartialCylinder inner:" << 1 << " outer" << 1 << std::endl;
-                        drawPartialCylinder(z*2, d_o, d_i, c->edges_o, 0,0);
-                    }
-
-                    //glLineWidth(0.5);
-                    //glLineWidth(1);
-                    glLineWidth(detector_lines_wide);
-
-
-                    //glColor4f(0.5,0.5,0.5, 0.4);
-                    glColor4f(line_color[0], line_color[1], line_color[2], line_color[3]);
-
-                    //glColor4f(1,1,1, 0.0);
-
-                    drawPartialLineCylinder(z*2, d_o, d_i, c->edges_o, 0,0);
-                }
             }
-        }
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //default
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //default
+    }
+    //end trans drawing
     }else{ 
         //int maxEdges=20; //how many edges should be drawn in classic view maximal
         glLineWidth(1.);

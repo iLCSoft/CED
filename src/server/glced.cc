@@ -53,6 +53,7 @@
 #include <vector>
 #include <stdlib.h> //getenv
 #include <sys/stat.h>
+//#include <wx>
 
 using namespace std;
 
@@ -1241,7 +1242,21 @@ static void keypressed(unsigned char key,int x,int y){
         }
     } else if(key == 'h'){
           toggleHelpWindow();
+    } else if(key == '<'){
+          if(setting.trans_value > 0.005){
+            //std::cout << "increase trans: " << setting.trans_value << endl;
+            setting.trans_value-=0.005;
+            glutPostRedisplay();
+          }
+    }else if(key == '>'){
+          if(setting.trans_value < 1-0.005){
+            setting.trans_value+=0.005;
+            //std::cout << "decrease trans" << setting.trans_value <<endl;
+            glutPostRedisplay();
+          }
     }
+
+
 }
 
 static void SpecialKey( int key, int x, int y ){
@@ -2373,10 +2388,8 @@ int buildMenuPopup(void){ //hauke
     //glutAddMenuEntry("Deepbuffer", GRAFIC_BUFFER);
     glutAddMenuEntry("Transparency/mesh", GRAFIC_TRANS);
     //glutAddMenuEntry("Light", GRAFIC_LIGHT);
-
-    glutAddMenuEntry("Anti Aliasing", GRAFIC_ALIAS);
-
-    glutAddMenuEntry("Enable Fog", GRAFIC_FOG);
+    //glutAddMenuEntry("Anti Aliasing", GRAFIC_ALIAS);
+    glutAddMenuEntry("Fade far objects to current background color", GRAFIC_FOG);
     glutAddMenuEntry("Toggle visible of axes", AXES);
     #ifndef __APPLE__
         glutAddMenuEntry("Show FPS", FPS);
