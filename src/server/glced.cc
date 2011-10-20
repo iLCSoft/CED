@@ -980,7 +980,8 @@ void loadSettings(int slot){
 
 
 
-        set_bg_color(setting.bgcolor[0],setting.bgcolor[1],setting.bgcolor[2],setting.bgcolor[3]); 
+        //set_bg_color(setting.bgcolor[0],setting.bgcolor[1],setting.bgcolor[2],setting.bgcolor[3]); 
+
 
 
         //reshape(setting.win_w, setting.win_h);
@@ -2291,6 +2292,7 @@ void selectFromMenu(int id){ //hauke
         case LOAD4:
         case LOAD5:
             loadSettings(id-LOAD1+1); 
+            set_bg_color(setting.bgcolor[0],setting.bgcolor[1],setting.bgcolor[2],setting.bgcolor[3]); 
             break;
     }
 
@@ -2629,16 +2631,14 @@ int main(int argc,char *argv[]){
       glut_tcp_server(7286,input_data);
     }
   
-  
-
-
-  
  
+
     if(geometry == false){
         glutInitWindowSize(setting.win_w,setting.win_h);
     }
 
     mainWindow=glutCreateWindow("C Event Display (CED)");
+
 
   
     //glHint (GL_LINE_SMOOTH_HINT, GL_DONT_CARE);
@@ -2656,7 +2656,7 @@ int main(int argc,char *argv[]){
 
 
 
-    //set_bg_color(setting.bgcolor[0],setting.bgcolor[1],setting.bgcolor[2],setting.bgcolor[2]); //set to default (black)
+    set_bg_color(setting.bgcolor[0],setting.bgcolor[1],setting.bgcolor[2],setting.bgcolor[2]); //set to default (black)
     //glClearColor(BG_COLOR[0],BG_COLOR[1], BG_COLOR[2], BG_COLOR[3]);
     init();
 
