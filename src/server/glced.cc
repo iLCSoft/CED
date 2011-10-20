@@ -2481,6 +2481,20 @@ int main(int argc,char *argv[]){
     mm_reset=mm;
     WORLD_SIZE = DEFAULT_WORLD_SIZE ;
 
+    glutInit(&argc,argv);
+    glutInitDisplayMode(GLUT_DOUBLE|GLUT_RGB|GLUT_DEPTH|GLUT_ALPHA);
+    //glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+    //glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
+    //  glutInitWindowSize(600,600); // change to smaller window size */
+    /*   glutInitWindowPosition(500,0); */
+  
+    //glutInitWindowSize(500,500);
+    //cout << setting.win_w << " x " << setting.win_h << std::endl;
+
+
+            //glutGameModeString("1280x1024:32@60");
+            //glutEnterGameMode();
+
     loadSettings(1);  
     //set_bg_color(setting.bgcolor[0],setting.bgcolor[1],setting.bgcolor[2],setting.bgcolor[2]); //set to default (black)=0;
 
@@ -2619,19 +2633,6 @@ int main(int argc,char *argv[]){
 
 
   
-    glutInit(&argc,argv);
-    glutInitDisplayMode(GLUT_DOUBLE|GLUT_RGB|GLUT_DEPTH|GLUT_ALPHA);
-    //glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-    //glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
-    //  glutInitWindowSize(600,600); // change to smaller window size */
-    /*   glutInitWindowPosition(500,0); */
-  
-    //glutInitWindowSize(500,500);
-    //cout << setting.win_w << " x " << setting.win_h << std::endl;
-
-
-            //glutGameModeString("1280x1024:32@60");
-            //glutEnterGameMode();
  
     if(geometry == false){
         glutInitWindowSize(setting.win_w,setting.win_h);
