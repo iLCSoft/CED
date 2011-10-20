@@ -118,6 +118,7 @@ using namespace std;
 
 
 
+
 static int available_cutangles[]={0,30,90,135, 180, 270, 360};  //for new angles add the new angle to this list and to define in top of this
 
 
@@ -184,6 +185,7 @@ static int available_cutangles[]={0,30,90,135, 180, 270, 360};  //for new angles
 #define LOAD5           135
 
 
+#define SAVE_IMAGE      5555
 
 #define TOGGLE_PHI_PROJECTION   5000
 #define TOGGLE_Z_PROJECTION     5001
@@ -240,6 +242,9 @@ static GLfloat axe[][3]={
   { 0., DEFAULT_WORLD_SIZE/2, 0. },
   { 0., 0., DEFAULT_WORLD_SIZE/2 }
 };
+
+
+void screenshot(char *name);
 
 // allows to reset the visible world size
 static void set_world_size( float length) {
@@ -344,6 +349,51 @@ static void makeGeometry(void) {
     }
 }
 
+////function from: http://www.opengl.org/discussion_boards/ubbthreads.php?ubb=showflat&Number=44286
+//bool screenshot(char *fileName){
+//    static unsigned char header[54] = {
+//        0x42, 0x4D, 0x36, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x36, 0x00, 0x00, 0x00, 0x28, 0x00, 
+//        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x18, 0x00, 0x00, 0x00, 
+//        0x00, 0x00, 0x00, 0x00, 0x03, 0x00, 0xC4, 0x0E, 0x00, 0x00, 0xC4, 0x0E, 0x00, 0x00, 0x00, 0x00, 
+//        0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+//
+//    unsigned char *pixels = (unsigned char *) malloc(Xres * Yres * 3);
+//    ((unsigned __int16 *) header)[ 9] = Xres;
+//    ((unsigned __int16 *) header)[11] = Yres;
+//
+//    glReadPixels(0,0,Xres,Yres,GL_RGB,GL_UNSIGNED_BYTE,pixels);
+//
+//    unsigned char temp;
+//    for (unsigned int i = 0; i < Xres * Yres * 3; i += 3){
+//        temp = pixels[i];
+//        pixels[i] = pixels[i + 2];
+//        pixels[i + 2] = temp;
+//    }
+//
+//    HANDLE FileHandle;
+//    unsigned long Size;
+//
+//    if (fileName == NULL){
+//        char file[256];
+//        i = 0;
+//        do {
+//            sprintf(file,"Screenshot%d.bmp",i);
+//            FileHandle = CreateFile(file,GENERIC_WRITE,0,NULL,CREATE_NEW,FILE_ATTRIBUTE_NORMAL,NULL);
+//            i++;
+//        } while (FileHandle == INVALID_HANDLE_VALUE);
+//    } else {
+//        FileHandle = CreateFile(fileName,GENERIC_WRITE,0,NULL,CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL,NULL);
+//        if (FileHandle == INVALID_HANDLE_VALUE) return false;
+//    }
+//
+//    WriteFile(FileHandle,header,sizeof(header),&Size,NULL);
+//    WriteFile(FileHandle,pixels,Xres * Yres * 3,&Size,NULL);
+//    
+//    CloseHandle(FileHandle);
+//
+//    free(pixels);
+//    return true;    
+//}
 
 static void init(void){
     //Set background color
@@ -425,6 +475,8 @@ static enum {
 } move_mode;
 static GLfloat mouse_x=0.;
 static GLfloat mouse_y=0.;
+
+
 
 
 // bitmaps for X,Y and Z
@@ -1705,67 +1757,68 @@ void selectFromMenu(int id){ //hauke
 
     switch(id){
         case BGCOLOR_GAINSBORO:
-            glClearColor(0.862745,0.862745,0.862745,0);
+            set_bg_color(0.862745,0.862745,0.862745,0); 
+            //set_bg_color(0.862745,0.862745,0.862745,0);
             break;
 
         case BGCOLOR_LIGHTGREY:
-            glClearColor(0.827451,0.827451,0.827451,0);
+            set_bg_color(0.827451,0.827451,0.827451,0);
             break;
 
         case BGCOLOR_DARKGRAY:
-            glClearColor(0.662745,0.662745,0.662745,0);
+            set_bg_color(0.662745,0.662745,0.662745,0);
             break;
 
         case BGCOLOR_GRAY:
-            glClearColor(0.501961,0.501961,0.501961,0);
+            set_bg_color(0.501961,0.501961,0.501961,0);
             break;
 
         case BGCOLOR_SILVER:
-            glClearColor(0.7529,0.7529,0.7529,0);
+            set_bg_color(0.7529,0.7529,0.7529,0);
             break;
 
         case BGCOLOR_DIMGRAY:
-            glClearColor(0.4118,0.4118,0.4118,0);
+            set_bg_color(0.4118,0.4118,0.4118,0);
             break;
 
         case BGCOLOR_LIGHTSTEELBLUE:
-            glClearColor(0.6902,0.7686 ,0.8706,0);
+            set_bg_color(0.6902,0.7686 ,0.8706,0);
             break;
 
         case BGCOLOR_STEELBLUE:
-            glClearColor(0.2745,0.5098,0.70588,0);
+            set_bg_color(0.2745,0.5098,0.70588,0);
             break;
 
         case BGCOLOR_SEAGREEN:
-            glClearColor(0.18039,0.54509,0.34117,0);
+            set_bg_color(0.18039,0.54509,0.34117,0);
             break;
 
         case BGCOLOR_ORANGE:
-            glClearColor(1,0.647,0,0);
+            set_bg_color(1,0.647,0,0);
             break;
 
         case BGCOLOR_YELLOW:
-            glClearColor(1,1,0,0);
+            set_bg_color(1,1,0,0);
             break;
 
         case BGCOLOR_VIOLET:
-            glClearColor(0.9333,0.5098,0.9333,0);
+            set_bg_color(0.9333,0.5098,0.9333,0);
             break;
 
         case BGCOLOR_BLACK:
-            glClearColor(0,0,0,0);
+            set_bg_color(0,0,0,0);
             break;
 
         case BGCOLOR_BLUE:
-            glClearColor(0,0.2,0.4,0);
+            set_bg_color(0,0.2,0.4,0);
             break;
 
         case BGCOLOR_WHITE:
-            glClearColor(1,1,1,0);
+            set_bg_color(1,1,1,0);
             break;
 
         case BGCOLOR_USER:
-            glClearColor(userDefinedBGColor[0],userDefinedBGColor[1], userDefinedBGColor[2], userDefinedBGColor[3]);
+            set_bg_color(userDefinedBGColor[0],userDefinedBGColor[1], userDefinedBGColor[2], userDefinedBGColor[3]);
 
         case VIEW_RESET:
             //if(graphic[2] == 0){selectFromMenu(GRAFIC_PERSP); }
@@ -2294,6 +2347,9 @@ void selectFromMenu(int id){ //hauke
             loadSettings(id-LOAD1+1); 
             set_bg_color(setting.bgcolor[0],setting.bgcolor[1],setting.bgcolor[2],setting.bgcolor[3]); 
             break;
+
+        case SAVE_IMAGE:
+            screenshot("/tmp/glced.bmp");
     }
 
     reshape((int)window_width, (int)window_height);
@@ -2430,6 +2486,7 @@ int buildMenuPopup(void){ //hauke
     glutAddMenuEntry("Classic View",GRAFIC_LOW);
     glutAddMenuEntry("New View", GRAFIC_HIGH);
 //    glutAddMenuEntry("Full Screen mode", FULLSCREEN);
+
     glutAddSubMenu("Graphic details", subsubMenu1);
     glutAddSubMenu("Transparency value", subsubMenu3);
 
@@ -2470,6 +2527,8 @@ int buildMenuPopup(void){ //hauke
     glutAddSubMenu("Save settings",subSave);
 
     glutAddSubMenu("Load saved settings",subLoad);
+
+    glutAddMenuEntry("Save screenshot",SAVE_IMAGE);
     glutAddMenuEntry("Toggle help [h]",HELP);
 
 
@@ -2712,4 +2771,260 @@ int main(int argc,char *argv[]){
 
     glutMainLoop();
     return 0;
+}
+
+//from: http://www.opengl.org/discussion_boards/ubbthreads.php?ubb=showflat&Number=44286
+void screenshot(char *name)
+{
+    int HEADER_SIZE=24;
+    unsigned char *buffer_all;
+
+    unsigned char *buffer1;
+
+    unsigned char *buffer2;
+
+    unsigned char *buffer3;
+
+    unsigned char *buffer4;
+    char filename[50];
+    int w=window_width;
+    int h=window_height;
+    int buf_size_all = HEADER_SIZE + (w * h * 3) * 4;
+    int buf_size = (w * h * 3);
+    int i;
+    unsigned char temp;
+    FILE *out_file;
+
+
+     //mm.mv.y=
+     //mm.mv.z=
+  
+  
+    float grad2rad=3.141*2/360;
+    float x_factor_x =  cos(mm.ha*grad2rad);
+    float x_factor_y =  cos((mm.va-90)*grad2rad)*cos((mm.ha+90)*grad2rad);
+    float y_factor_x =  0; 
+    float y_factor_y = -cos(mm.va*grad2rad);
+    float z_factor_x =  cos((mm.ha-90)*grad2rad);
+    float z_factor_y = -cos(mm.ha*grad2rad)*cos((mm.va+90)*grad2rad);
+  
+    //float scale_factor=580/mm.sf/exp(log(window_width*window_height)/2.5) ;
+
+    float scale_factor=0.5*580/mm.sf/exp(log(window_width*window_height)/2.5);
+    float move_x=0;
+    float move_y=0;
+
+
+
+    // allocate mem to read from frame buf
+    if (!(buffer1 = (unsigned char *) calloc(1, buf_size)))
+    {
+        return;
+    }
+    if (!(buffer2 = (unsigned char *) calloc(1, buf_size)))
+    {
+        return;
+    }
+
+
+    if (!(buffer3 = (unsigned char *) calloc(1, buf_size)))
+    {
+        return;
+    }
+    if (!(buffer4 = (unsigned char *) calloc(1, buf_size)))
+    {
+        return;
+    }
+
+  
+    move_x=-w;
+    move_y=-h;
+//    x_factor_x =  cos(mm.ha*grad2rad);
+//    x_factor_y =  cos((mm.va-90)*grad2rad)*cos((mm.ha+90)*grad2rad);
+//    y_factor_x =  0; 
+//    y_factor_y = -cos(mm.va*grad2rad);
+//    z_factor_x =  cos((mm.ha-90)*grad2rad);
+//    z_factor_y = -cos(mm.ha*grad2rad)*cos((mm.va+90)*grad2rad);
+
+    mm.mv.x-= -1*scale_factor*(move_x)*x_factor_x - scale_factor*(move_y)*x_factor_y;
+    mm.mv.y-= -1*scale_factor*(move_x)*y_factor_x - scale_factor*(move_y)*y_factor_y;
+    mm.mv.z-= -1*scale_factor*(move_x)*z_factor_x - scale_factor*(move_y)*z_factor_y;
+  
+    glutPostRedisplay();
+    reshape(w,h);
+    display();
+    reshape(w,h);
+
+    glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer3);
+
+    //mm.mv.x+=1000;
+
+
+
+    move_x=+w*2;
+    move_y=0;
+
+//    x_factor_x =  cos(mm.ha*grad2rad);
+//    x_factor_y =  cos((mm.va-90)*grad2rad)*cos((mm.ha+90)*grad2rad);
+//    y_factor_x =  0; 
+//    y_factor_y = -cos(mm.va*grad2rad);
+//    z_factor_x =  cos((mm.ha-90)*grad2rad);
+//    z_factor_y = -cos(mm.ha*grad2rad)*cos((mm.va+90)*grad2rad);
+
+    mm.mv.x-=-1* scale_factor*(move_x)*x_factor_x - scale_factor*(move_y)*x_factor_y;
+    mm.mv.y-=-1* scale_factor*(move_x)*y_factor_x - scale_factor*(move_y)*y_factor_y;
+    mm.mv.z-=- 1*scale_factor*(move_x)*z_factor_x - scale_factor*(move_y)*z_factor_y;
+  
+
+    glutPostRedisplay();
+    display();
+    reshape(w,h);
+
+
+    glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer4);
+
+
+    move_x=0;
+    move_y=2*h;
+//    x_factor_x =  cos(mm.ha*grad2rad);
+//    x_factor_y =  cos((mm.va-90)*grad2rad)*cos((mm.ha+90)*grad2rad);
+//    y_factor_x =  0; 
+//    y_factor_y = -cos(mm.va*grad2rad);
+//    z_factor_x =  cos((mm.ha-90)*grad2rad);
+//    z_factor_y = -cos(mm.ha*grad2rad)*cos((mm.va+90)*grad2rad);
+
+    mm.mv.x-=- 1*scale_factor*(move_x)*x_factor_x - scale_factor*(move_y)*x_factor_y;
+    mm.mv.y-=- 1*scale_factor*(move_x)*y_factor_x - scale_factor*(move_y)*y_factor_y;
+    mm.mv.z-=- 1*scale_factor*(move_x)*z_factor_x - scale_factor*(move_y)*z_factor_y;
+  
+
+    glutPostRedisplay();
+
+    display();
+    reshape(w,h);
+
+    glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer2);
+
+
+
+    move_x=-2*w;
+    move_y=0;
+//    x_factor_x =  cos(mm.ha*grad2rad);
+//    x_factor_y =  cos((mm.va-90)*grad2rad)*cos((mm.ha+90)*grad2rad);
+//    y_factor_x =  0; 
+//    y_factor_y = -cos(mm.va*grad2rad);
+//    z_factor_x =  cos((mm.ha-90)*grad2rad);
+//    z_factor_y = -cos(mm.ha*grad2rad)*cos((mm.va+90)*grad2rad);
+
+    mm.mv.x-=-1* scale_factor*(move_x)*x_factor_x - scale_factor*(move_y)*x_factor_y;
+    mm.mv.y-=-1* scale_factor*(move_x)*y_factor_x - scale_factor*(move_y)*y_factor_y;
+    mm.mv.z-=-1* scale_factor*(move_x)*z_factor_x - scale_factor*(move_y)*z_factor_y;
+  
+
+    glutPostRedisplay();
+    display();
+    reshape(w,h);
+
+
+    glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer1);
+
+
+
+    move_x=+w;
+    move_y=-h;
+    mm.mv.x-=-1* scale_factor*(move_x)*x_factor_x - scale_factor*(move_y)*x_factor_y;
+    mm.mv.y-=-1* scale_factor*(move_x)*y_factor_x - scale_factor*(move_y)*y_factor_y;
+    mm.mv.z-=-1* scale_factor*(move_x)*z_factor_x - scale_factor*(move_y)*z_factor_y;
+    glutPostRedisplay();
+    display();
+    reshape(w,h);
+
+  
+
+
+
+    // open file for output 
+    if (!(out_file = fopen(name, "wb")))
+    {
+        return;
+    }
+
+    if (!(buffer_all = (unsigned char *) calloc(1, buf_size_all + HEADER_SIZE)))
+    {
+        return;
+    }
+
+
+
+    
+    // set header info
+    buffer_all[2] = 2;  // uncompressed
+    buffer_all[12] = (w*2) & 255;
+    buffer_all[13] = (w*2) >> 8;
+    buffer_all[14] = (h*2) & 255;
+    buffer_all[15] = (h*2) >> 8;
+    buffer_all[16] = 24;    // 24 bits per pix
+
+
+    // RGB to BGR
+    for (i = 0; i < buf_size; i += 3)
+    {
+        temp = buffer1[i];
+        buffer1[i] = buffer1[i + 2];
+        buffer1[i + 2] = temp;
+    }
+
+    for (i = 0; i < buf_size; i += 3)
+    {
+        temp = buffer2[i];
+        buffer2[i] = buffer2[i + 2];
+        buffer2[i + 2] = temp;
+    }
+
+    for (i = 0; i < buf_size; i += 3)
+    {
+        temp = buffer3[i];
+        buffer3[i] = buffer3[i + 2];
+        buffer3[i + 2] = temp;
+    }
+
+    for (i = 0; i < buf_size; i += 3)
+    {
+        temp = buffer4[i];
+        buffer4[i] = buffer4[i + 2];
+        buffer4[i + 2] = temp;
+    }
+
+
+
+
+
+    for(int l=0; l < h; l++){
+        for(int c=0; c < w*3; c++){
+                buffer_all[c+2*w*l*3+HEADER_SIZE] = buffer1[c+w*l*3];
+        }
+
+        for(int c=0; c < w*3; c++){
+                buffer_all[w*3+c+2*w*l*3+HEADER_SIZE] = buffer2[c+w*l*3];
+        }
+     }
+
+    for(int l=0; l < h; l++){
+        for(int c=0; c < w*3; c++){
+                buffer_all[c+2*w*(l+h)*3+HEADER_SIZE] = buffer3[c+w*l*3];
+        }
+
+        for(int c=0; c < w*3; c++){
+                buffer_all[w*3+c+2*w*(l+h)*3+HEADER_SIZE] = buffer4[c+w*l*3];
+        }
+     }
+
+
+
+    // write header + color buf to file
+    fwrite(buffer_all, sizeof(unsigned char), buf_size_all, out_file);
+
+    // cleanup
+    fclose(out_file);
+    free(buffer_all);
 }
