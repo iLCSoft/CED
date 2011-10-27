@@ -650,6 +650,68 @@ void printFPS(void){
     glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
 }
+
+static void write_world_into_front_buffer(void){
+ 
+
+
+    glMatrixMode(GL_PROJECTION);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  
+  
+  
+    glRotatef(mm.va,1.,0.,0.);
+    glRotatef(mm.ha,0.,1.0,0.);
+    glScalef(mm.sf,mm.sf,mm.sf); //streech the world
+
+
+
+
+
+    
+    glTranslatef(-mm.mv.x,-mm.mv.y,-mm.mv.z);
+  
+      //glMatrixMode(GL_MODELVIEW); //
+  
+    // draw static objects
+
+    glMatrixMode(GL_MODELVIEW);
+    display_world(); //only axes?
+
+
+   //glTranslatef(0,0,1000);
+
+     const GLdouble clip_plane[]={0,0,-1,setting.z_cutting};
+     if(setting.z_cutting < 6999){
+          glEnable(GL_CLIP_PLANE0);
+     }else{
+          glDisable(GL_CLIP_PLANE0);
+     }
+     glClipPlane(GL_CLIP_PLANE0,clip_plane);
+  
+  
+  
+  
+    // draw elements (hits + detector)
+    ced_prepare_objmap();
+    ced_do_draw_event();
+  
+    //cout << "mm.sf: " << mm.sf << "hinterer clipping plane: " << 5000*2.0*mm.sf << std::endl;
+    //gluPerspective(60,window_width/window_height,100*2.0*mm.sf,5000*2.0*mm.sf);
+
+//    std::cout  << "clipping planes: " << 200*2.0*mm.sf << " bis " << 5000*2.0*mm.sf << std::endl;
+//
+//    gluPerspective(60,window_width/window_height,200*2.0*mm.sf,5000*2.0*mm.sf);
+//        glMatrixMode( GL_MODELVIEW );
+//  
+//        glLoadIdentity();
+//        gluLookAt  (0,0,2000,    0,0,0,    0,1,0);
+//
+//
+
+
+    //printFPS();
+}
 static void display(void){
  
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -712,9 +774,10 @@ static void display(void){
 
     printFPS();
     
-    glPopMatrix();
   
     glutSwapBuffers();
+
+    glPopMatrix();
 }
 
 static void reshape(int w,int h){
@@ -2776,6 +2839,8 @@ int main(int argc,char *argv[]){
 //from: http://www.opengl.org/discussion_boards/ubbthreads.php?ubb=showflat&Number=44286
 void screenshot(char *name)
 {
+    //int HEADER_SIZE=24;
+
     int HEADER_SIZE=24;
     unsigned char *buffer_all;
 
@@ -2789,9 +2854,10 @@ void screenshot(char *name)
     char filename[50];
     int w=window_width;
     int h=window_height;
-    int buf_size_all = HEADER_SIZE + (w * h * 3) * 4;
     int buf_size = (w * h * 3);
-    int i;
+
+    int buf_size_all = HEADER_SIZE + buf_size * 4;
+    //int i;
     unsigned char temp;
     FILE *out_file;
 
@@ -2837,119 +2903,220 @@ void screenshot(char *name)
     }
 
   
-    move_x=-w;
-    move_y=-h;
-//    x_factor_x =  cos(mm.ha*grad2rad);
-//    x_factor_y =  cos((mm.va-90)*grad2rad)*cos((mm.ha+90)*grad2rad);
-//    y_factor_x =  0; 
-//    y_factor_y = -cos(mm.va*grad2rad);
-//    z_factor_x =  cos((mm.ha-90)*grad2rad);
-//    z_factor_y = -cos(mm.ha*grad2rad)*cos((mm.va+90)*grad2rad);
+    if(setting.persp== false){
+        move_x=-w;
+        move_y=-h;
+    //    x_factor_x =  cos(mm.ha*grad2rad);
+    //    x_factor_y =  cos((mm.va-90)*grad2rad)*cos((mm.ha+90)*grad2rad);
+    //    y_factor_x =  0; 
+    //    y_factor_y = -cos(mm.va*grad2rad);
+    //    z_factor_x =  cos((mm.ha-90)*grad2rad);
+    //    z_factor_y = -cos(mm.ha*grad2rad)*cos((mm.va+90)*grad2rad);
+    
+        mm.mv.x-= -1*scale_factor*(move_x)*x_factor_x - scale_factor*(move_y)*x_factor_y;
+        mm.mv.y-= -1*scale_factor*(move_x)*y_factor_x - scale_factor*(move_y)*y_factor_y;
+        mm.mv.z-= -1*scale_factor*(move_x)*z_factor_x - scale_factor*(move_y)*z_factor_y;
+      
+        glutPostRedisplay();
+        reshape(w,h);
+        display();
+        reshape(w,h);
+    
+        glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer3);
+    
+        //mm.mv.x+=1000;
+    
+    
+    
+        move_x=+w*2;
+        move_y=0;
+    
+    //    x_factor_x =  cos(mm.ha*grad2rad);
+    //    x_factor_y =  cos((mm.va-90)*grad2rad)*cos((mm.ha+90)*grad2rad);
+    //    y_factor_x =  0; 
+    //    y_factor_y = -cos(mm.va*grad2rad);
+    //    z_factor_x =  cos((mm.ha-90)*grad2rad);
+    //    z_factor_y = -cos(mm.ha*grad2rad)*cos((mm.va+90)*grad2rad);
+    
+        mm.mv.x-=-1* scale_factor*(move_x)*x_factor_x - scale_factor*(move_y)*x_factor_y;
+        mm.mv.y-=-1* scale_factor*(move_x)*y_factor_x - scale_factor*(move_y)*y_factor_y;
+        mm.mv.z-=- 1*scale_factor*(move_x)*z_factor_x - scale_factor*(move_y)*z_factor_y;
+      
+    
+        glutPostRedisplay();
+        display();
+        reshape(w,h);
+    
+    
+        glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer4);
+    
+    
+        move_x=0;
+        move_y=2*h;
+    //    x_factor_x =  cos(mm.ha*grad2rad);
+    //    x_factor_y =  cos((mm.va-90)*grad2rad)*cos((mm.ha+90)*grad2rad);
+    //    y_factor_x =  0; 
+    //    y_factor_y = -cos(mm.va*grad2rad);
+    //    z_factor_x =  cos((mm.ha-90)*grad2rad);
+    //    z_factor_y = -cos(mm.ha*grad2rad)*cos((mm.va+90)*grad2rad);
+    
+        mm.mv.x-=- 1*scale_factor*(move_x)*x_factor_x - scale_factor*(move_y)*x_factor_y;
+        mm.mv.y-=- 1*scale_factor*(move_x)*y_factor_x - scale_factor*(move_y)*y_factor_y;
+        mm.mv.z-=- 1*scale_factor*(move_x)*z_factor_x - scale_factor*(move_y)*z_factor_y;
+      
+    
+        glutPostRedisplay();
+    
+        display();
+        reshape(w,h);
+    
+        glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer2);
+    
+    
+    
+        move_x=-2*w;
+        move_y=0;
+    //    x_factor_x =  cos(mm.ha*grad2rad);
+    //    x_factor_y =  cos((mm.va-90)*grad2rad)*cos((mm.ha+90)*grad2rad);
+    //    y_factor_x =  0; 
+    //    y_factor_y = -cos(mm.va*grad2rad);
+    //    z_factor_x =  cos((mm.ha-90)*grad2rad);
+    //    z_factor_y = -cos(mm.ha*grad2rad)*cos((mm.va+90)*grad2rad);
+    
+        mm.mv.x-=-1* scale_factor*(move_x)*x_factor_x - scale_factor*(move_y)*x_factor_y;
+        mm.mv.y-=-1* scale_factor*(move_x)*y_factor_x - scale_factor*(move_y)*y_factor_y;
+        mm.mv.z-=-1* scale_factor*(move_x)*z_factor_x - scale_factor*(move_y)*z_factor_y;
+      
+    
+        glutPostRedisplay();
+        display();
+        reshape(w,h);
+    
+    
+        glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer1);
+    
+    
+    
+        move_x=+w;
+        move_y=-h;
+        mm.mv.x-=-1* scale_factor*(move_x)*x_factor_x - scale_factor*(move_y)*x_factor_y;
+        mm.mv.y-=-1* scale_factor*(move_x)*y_factor_x - scale_factor*(move_y)*y_factor_y;
+        mm.mv.z-=-1* scale_factor*(move_x)*z_factor_x - scale_factor*(move_y)*z_factor_y;
+        glutPostRedisplay();
+        display();
+        reshape(w,h);
+    
+      
+    
+    }else if(setting.persp == true){
+        reshape(500,500);
+        int w=window_width;
+        int h=window_height;
 
-    mm.mv.x-= -1*scale_factor*(move_x)*x_factor_x - scale_factor*(move_y)*x_factor_y;
-    mm.mv.y-= -1*scale_factor*(move_x)*y_factor_x - scale_factor*(move_y)*y_factor_y;
-    mm.mv.z-= -1*scale_factor*(move_x)*z_factor_x - scale_factor*(move_y)*z_factor_y;
-  
-    glutPostRedisplay();
-    reshape(w,h);
-    display();
-    reshape(w,h);
 
-    glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer3);
-
-    //mm.mv.x+=1000;
+        std::cout << "w" << w << "h: " << h << std::endl;
 
 
 
-    move_x=+w*2;
-    move_y=0;
-
-//    x_factor_x =  cos(mm.ha*grad2rad);
-//    x_factor_y =  cos((mm.va-90)*grad2rad)*cos((mm.ha+90)*grad2rad);
-//    y_factor_x =  0; 
-//    y_factor_y = -cos(mm.va*grad2rad);
-//    z_factor_x =  cos((mm.ha-90)*grad2rad);
-//    z_factor_y = -cos(mm.ha*grad2rad)*cos((mm.va+90)*grad2rad);
-
-    mm.mv.x-=-1* scale_factor*(move_x)*x_factor_x - scale_factor*(move_y)*x_factor_y;
-    mm.mv.y-=-1* scale_factor*(move_x)*y_factor_x - scale_factor*(move_y)*y_factor_y;
-    mm.mv.z-=- 1*scale_factor*(move_x)*z_factor_x - scale_factor*(move_y)*z_factor_y;
-  
-
-    glutPostRedisplay();
-    display();
-    reshape(w,h);
-
-
-    glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer4);
-
-
-    move_x=0;
-    move_y=2*h;
-//    x_factor_x =  cos(mm.ha*grad2rad);
-//    x_factor_y =  cos((mm.va-90)*grad2rad)*cos((mm.ha+90)*grad2rad);
-//    y_factor_x =  0; 
-//    y_factor_y = -cos(mm.va*grad2rad);
-//    z_factor_x =  cos((mm.ha-90)*grad2rad);
-//    z_factor_y = -cos(mm.ha*grad2rad)*cos((mm.va+90)*grad2rad);
-
-    mm.mv.x-=- 1*scale_factor*(move_x)*x_factor_x - scale_factor*(move_y)*x_factor_y;
-    mm.mv.y-=- 1*scale_factor*(move_x)*y_factor_x - scale_factor*(move_y)*y_factor_y;
-    mm.mv.z-=- 1*scale_factor*(move_x)*z_factor_x - scale_factor*(move_y)*z_factor_y;
-  
-
-    glutPostRedisplay();
-
-    display();
-    reshape(w,h);
-
-    glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer2);
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        glViewport(0,0,w,h);
+        gluPerspective(45./2.,window_width/window_height,100.0,50000.0*mm.sf+50000/mm.sf);
+        //gluLookAt  (0,0,2000,    -1.*2000*tan(45./4*3.141*2/360.0),-1.*2000.*tan(45./4*3.141*2/360.0),0,    0,1,0);
 
 
 
-    move_x=-2*w;
-    move_y=0;
-//    x_factor_x =  cos(mm.ha*grad2rad);
-//    x_factor_y =  cos((mm.va-90)*grad2rad)*cos((mm.ha+90)*grad2rad);
-//    y_factor_x =  0; 
-//    y_factor_y = -cos(mm.va*grad2rad);
-//    z_factor_x =  cos((mm.ha-90)*grad2rad);
-//    z_factor_y = -cos(mm.ha*grad2rad)*cos((mm.va+90)*grad2rad);
+        glTranslatef(0.0, 0.0, 2000);
+        gluLookAt  (0,0,0,    0,0,-2000,    0,1,0);
 
-    mm.mv.x-=-1* scale_factor*(move_x)*x_factor_x - scale_factor*(move_y)*x_factor_y;
-    mm.mv.y-=-1* scale_factor*(move_x)*y_factor_x - scale_factor*(move_y)*y_factor_y;
-    mm.mv.z-=-1* scale_factor*(move_x)*z_factor_x - scale_factor*(move_y)*z_factor_y;
-  
+        //gluLookAt  (0,0,2000,    0,0,0,    0,1,0);
+        //glRotatef(-45./4., 1, 0, 0);
+        //glRotatef(45./4., 0, 1, 0);
 
-    glutPostRedisplay();
-    display();
-    reshape(w,h);
-
-
-    glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer1);
+        glMatrixMode(GL_MODELVIEW);
+        write_world_into_front_buffer();
+        glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer4);
 
 
 
-    move_x=+w;
-    move_y=-h;
-    mm.mv.x-=-1* scale_factor*(move_x)*x_factor_x - scale_factor*(move_y)*x_factor_y;
-    mm.mv.y-=-1* scale_factor*(move_x)*y_factor_x - scale_factor*(move_y)*y_factor_y;
-    mm.mv.z-=-1* scale_factor*(move_x)*z_factor_x - scale_factor*(move_y)*z_factor_y;
-    glutPostRedisplay();
-    display();
-    reshape(w,h);
+        glMatrixMode(GL_MODELVIEW);
+        glutPostRedisplay();
+        display();
+        reshape(w,h);
 
-  
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        glViewport(0,0,w,h);
+        gluPerspective(45./2.,window_width/window_height,100.0,50000.0*mm.sf+50000/mm.sf);
+//        gluLookAt  (0,0,2000,    +1.*2000*tan(45./4*3.141*2/360.0),-1.*2000.*tan(45./4*3.141*2/360.0),0,    0,1,0);
 
+        glRotatef(45./4., 1, 0, 0);
+        glRotatef(-45./4., 0, 1, 0);
+
+        gluLookAt  (0,0,2000,    0,0,0,    0,1,0);
+
+
+
+        glMatrixMode(GL_MODELVIEW);
+        write_world_into_front_buffer();
+        glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer1);
+
+        glMatrixMode(GL_MODELVIEW);
+        glutPostRedisplay();
+        display();
+        reshape(w,h);
+
+
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        glViewport(0,0,w,h);
+        gluPerspective(45./2.,window_width/window_height,100.0,50000.0*mm.sf+50000/mm.sf);
+//        gluLookAt  (0,0,2000,    +1.*2000*tan(45./4*3.141*2/360.0),+1.*2000.*tan(45./4*3.141*2/360.0),0,    0,1,0);
+
+        glRotatef(-45./4., 1, 0, 0);
+        glRotatef(-45./4., 0, 1, 0);
+
+
+        gluLookAt  (0,0,2000,    0,0,0,    0,1,0);
+
+        glMatrixMode(GL_MODELVIEW);
+        write_world_into_front_buffer();
+        glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer3);
+        glMatrixMode(GL_MODELVIEW);
+        glutPostRedisplay();
+        display();
+        reshape(w,h);
+
+
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        glViewport(0,0,w,h);
+        gluPerspective(45./2.,window_width/window_height,100.0,50000.0*mm.sf+50000/mm.sf);
+//        gluLookAt  (0,0,2000,    -1.*2000*tan(45./4*3.141*2/360.0),+1.*2000.*tan(45./4*3.141*2/360.0),0,    0,1,0);
+
+
+        glRotatef(45./4., 1, 0, 0);
+        glRotatef(45./4., 0, 1, 0);
+        gluLookAt  (0,0,2000,    0,0,0,    0,1,0);
+
+
+        glMatrixMode(GL_MODELVIEW);
+        write_world_into_front_buffer();
+        glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer2);
+        glMatrixMode(GL_MODELVIEW);
+        glutPostRedisplay();
+        display();
+        reshape(w,h);
+    }
 
 
     // open file for output 
-    if (!(out_file = fopen(name, "wb")))
+    if (!(out_file = fopen(name, "w")))
     {
         return;
     }
 
-    if (!(buffer_all = (unsigned char *) calloc(1, buf_size_all + HEADER_SIZE)))
+    if (!(buffer_all = (unsigned char *) calloc(1, buf_size_all)))
     {
         return;
     }
@@ -2967,34 +3134,33 @@ void screenshot(char *name)
 
 
     // RGB to BGR
-    for (i = 0; i < buf_size; i += 3)
+    for (int i = 0; i < buf_size; i += 3)
     {
         temp = buffer1[i];
         buffer1[i] = buffer1[i + 2];
         buffer1[i + 2] = temp;
     }
 
-    for (i = 0; i < buf_size; i += 3)
+    for (int i = 0; i < buf_size; i += 3)
     {
         temp = buffer2[i];
         buffer2[i] = buffer2[i + 2];
         buffer2[i + 2] = temp;
     }
 
-    for (i = 0; i < buf_size; i += 3)
+    for (int i = 0; i < buf_size; i += 3)
     {
         temp = buffer3[i];
         buffer3[i] = buffer3[i + 2];
         buffer3[i + 2] = temp;
     }
 
-    for (i = 0; i < buf_size; i += 3)
+    for (int i = 0; i < buf_size; i += 3)
     {
         temp = buffer4[i];
         buffer4[i] = buffer4[i + 2];
         buffer4[i + 2] = temp;
     }
-
 
 
 
@@ -3027,4 +3193,13 @@ void screenshot(char *name)
     // cleanup
     fclose(out_file);
     free(buffer_all);
+
+    free(buffer1);
+
+    free(buffer2);
+
+    free(buffer3);
+
+    free(buffer4);
+    std::cout << "screenshot saved" << std::endl;
 }

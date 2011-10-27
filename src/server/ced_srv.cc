@@ -681,7 +681,7 @@ void drawPartialCylinder(double length, double R /*radius*/, double iR /*inner r
         }
 
         glTranslatef(0, 0, -length/2);
-        glPopMatrix(); //restore the matrix from the stack
+        //glPopMatrix(); //restore the matrix from the stack
         //glEnable(GL_BLEND);
     }else if(outer_face == false && inner_face==true){ //fill up vectors to draw the detector in next step
 
@@ -727,7 +727,7 @@ void drawPartialCylinder(double length, double R /*radius*/, double iR /*inner r
              //glEnd();
         //}
 
-        glPopMatrix(); //restore the matrix from the stack
+        //glPopMatrix(); //restore the matrix from the stack
 
         
     }else if(inner_face == false && outer_face == true){
@@ -860,11 +860,13 @@ void drawPartialCylinder(double length, double R /*radius*/, double iR /*inner r
         inner_side_points.clear();
         outer_side_points.clear();
         glTranslatef(0, 0, -length/2);
-        glPopMatrix(); //restore the matrix from the stack
+        //glPopMatrix(); //restore the matrix from the stack
         //glEnable(GL_BLEND);
     }
 
                 
+
+    glPopMatrix(); 
 
 }
 
