@@ -2412,7 +2412,7 @@ void selectFromMenu(int id){ //hauke
             break;
 
         case SAVE_IMAGE:
-            screenshot("/tmp/glced.bmp");
+            screenshot("/tmp/glced.tga");
     }
 
     reshape((int)window_width, (int)window_height);
@@ -2902,7 +2902,12 @@ void screenshot(char *name)
         return;
     }
 
-  
+    if (!(buffer_all = (unsigned char *) calloc(1, buf_size_all)))
+    {
+        return;
+    }
+
+
     if(setting.persp== false){
         move_x=-w;
         move_y=-h;
@@ -3009,76 +3014,115 @@ void screenshot(char *name)
       
     
     }else if(setting.persp == true){
-        reshape(500,500);
+        //reshape(500,500);
         int w=window_width;
         int h=window_height;
 
 
         std::cout << "w" << w << "h: " << h << std::endl;
 
+    //    double x=cos((90.-45./4.)*3.141*2./360.)*2000;
+    //    double y=cos((90.-45./4.)*3.141*2./360.)*2000;
+    //    double z=2000.-pow(pow(2000,2)-pow(x,2)-pow(y,2),0.5);
+    //    z=0;
+    //    std::cout << "(" << x << "," << y << "," << z << ") |x| = " << pow(pow(x,2)+pow(y,2)+pow(z,2),0.5) << endl;
 
+
+
+//        glMatrixMode(GL_PROJECTION);
+//        glLoadIdentity();
+//        glViewport(0,0,w,h);
+//        gluPerspective(45./2.,window_width/window_height,100.0,50000.0*mm.sf+50000/mm.sf);
+//        gluLookAt  (0,0,2000,    -1.*x,y,z,    0,1,0);
+//        glMatrixMode(GL_MODELVIEW);
+//        write_world_into_front_buffer();
+//        glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer3);
+//        glMatrixMode(GL_MODELVIEW);
+//        glutPostRedisplay();
+//        display();
+//        reshape(w,h);
+//
+//
+//
+//        glMatrixMode(GL_PROJECTION);
+//        glLoadIdentity();
+//        glViewport(0,0,w,h);
+//        gluPerspective(45./2.,window_width/window_height,100.0,50000.0*mm.sf+50000/mm.sf);
+//        gluLookAt  (0,0,2000,    -1.*x,-1.*y,z,    0,1,0);
+//        glMatrixMode(GL_MODELVIEW);
+//        write_world_into_front_buffer();
+//        glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer1);
+//        glMatrixMode(GL_MODELVIEW);
+//        glutPostRedisplay();
+//        display();
+//        reshape(w,h);
+//
+//
+//
+//
+//        glMatrixMode(GL_PROJECTION);
+//        glLoadIdentity();
+//        glViewport(0,0,w,h);
+//        gluPerspective(45./2.,window_width/window_height,100.0,50000.0*mm.sf+50000/mm.sf);
+//        gluLookAt  (0,0,2000,  x,y,z,    0,1,0);
+//        glMatrixMode(GL_MODELVIEW);
+//        write_world_into_front_buffer();
+//        glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer4);
+//        glMatrixMode(GL_MODELVIEW);
+//        glutPostRedisplay();
+//        display();
+//        reshape(w,h);
+//
+//        glMatrixMode(GL_PROJECTION);
+//        glLoadIdentity();
+//        glViewport(0,0,w,h);
+//        gluPerspective(45./2.,window_width/window_height,100.0,50000.0*mm.sf+50000/mm.sf);
+//        gluLookAt  (0,0,2000,    x,-1*y,z,    0,1,0);
+//        glMatrixMode(GL_MODELVIEW);
+//        write_world_into_front_buffer();
+//        glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer2);
+//        glMatrixMode(GL_MODELVIEW);
+//        glutPostRedisplay();
+//        display();
+//        reshape(w,h);
+
+
+///////////////////////
+        
 
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
+        glFrustum(-100,0,-100,0,200.,50000.0*mm.sf*2+50000/(mm.sf*2));
         glViewport(0,0,w,h);
-        gluPerspective(45./2.,window_width/window_height,100.0,50000.0*mm.sf+50000/mm.sf);
-        //gluLookAt  (0,0,2000,    -1.*2000*tan(45./4*3.141*2/360.0),-1.*2000.*tan(45./4*3.141*2/360.0),0,    0,1,0);
-
-
-
-        glTranslatef(0.0, 0.0, 2000);
-        gluLookAt  (0,0,0,    0,0,-2000,    0,1,0);
-
-        //gluLookAt  (0,0,2000,    0,0,0,    0,1,0);
-        //glRotatef(-45./4., 1, 0, 0);
-        //glRotatef(45./4., 0, 1, 0);
-
-        glMatrixMode(GL_MODELVIEW);
-        write_world_into_front_buffer();
-        glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer4);
-
-
-
-        glMatrixMode(GL_MODELVIEW);
-        glutPostRedisplay();
-        display();
-        reshape(w,h);
-
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-        glViewport(0,0,w,h);
-        gluPerspective(45./2.,window_width/window_height,100.0,50000.0*mm.sf+50000/mm.sf);
-//        gluLookAt  (0,0,2000,    +1.*2000*tan(45./4*3.141*2/360.0),-1.*2000.*tan(45./4*3.141*2/360.0),0,    0,1,0);
-
-        glRotatef(45./4., 1, 0, 0);
-        glRotatef(-45./4., 0, 1, 0);
-
         gluLookAt  (0,0,2000,    0,0,0,    0,1,0);
-
-
-
         glMatrixMode(GL_MODELVIEW);
         write_world_into_front_buffer();
         glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer1);
+        glMatrixMode(GL_MODELVIEW);
+        glutPostRedisplay();
+        display();
+        reshape(w,h);
 
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        glFrustum(0,100,-100,0,200.0,50000.0*mm.sf*2+50000/(mm.sf*2));
+        glViewport(0,0,w,h);
+        gluLookAt  (0,0,2000,    0,0,0,    0,1,0);
+        glMatrixMode(GL_MODELVIEW);
+        write_world_into_front_buffer();
+        glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer2);
         glMatrixMode(GL_MODELVIEW);
         glutPostRedisplay();
         display();
         reshape(w,h);
 
 
+
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
+        glFrustum(-100,0,0,100,200.0,50000.0*mm.sf*2+50000/(mm.sf*2));
         glViewport(0,0,w,h);
-        gluPerspective(45./2.,window_width/window_height,100.0,50000.0*mm.sf+50000/mm.sf);
-//        gluLookAt  (0,0,2000,    +1.*2000*tan(45./4*3.141*2/360.0),+1.*2000.*tan(45./4*3.141*2/360.0),0,    0,1,0);
-
-        glRotatef(-45./4., 1, 0, 0);
-        glRotatef(-45./4., 0, 1, 0);
-
-
         gluLookAt  (0,0,2000,    0,0,0,    0,1,0);
-
         glMatrixMode(GL_MODELVIEW);
         write_world_into_front_buffer();
         glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer3);
@@ -3088,26 +3132,23 @@ void screenshot(char *name)
         reshape(w,h);
 
 
+
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
+        glFrustum(0,100,0,100,200.0,50000.0*mm.sf*2+50000/(mm.sf*2));
         glViewport(0,0,w,h);
-        gluPerspective(45./2.,window_width/window_height,100.0,50000.0*mm.sf+50000/mm.sf);
-//        gluLookAt  (0,0,2000,    -1.*2000*tan(45./4*3.141*2/360.0),+1.*2000.*tan(45./4*3.141*2/360.0),0,    0,1,0);
-
-
-        glRotatef(45./4., 1, 0, 0);
-        glRotatef(45./4., 0, 1, 0);
         gluLookAt  (0,0,2000,    0,0,0,    0,1,0);
-
-
         glMatrixMode(GL_MODELVIEW);
         write_world_into_front_buffer();
-        glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer2);
+        glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer4);
         glMatrixMode(GL_MODELVIEW);
         glutPostRedisplay();
         display();
         reshape(w,h);
-    }
+
+
+
+     }
 
 
     // open file for output 
@@ -3116,10 +3157,6 @@ void screenshot(char *name)
         return;
     }
 
-    if (!(buffer_all = (unsigned char *) calloc(1, buf_size_all)))
-    {
-        return;
-    }
 
 
 
