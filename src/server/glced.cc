@@ -2836,8 +2836,141 @@ int main(int argc,char *argv[]){
     return 0;
 }
 
-//from: http://www.opengl.org/discussion_boards/ubbthreads.php?ubb=showflat&Number=44286
 void screenshot(char *name)
+{
+    int HEADER_SIZE=24;
+    unsigned char *buffer_all;
+    unsigned char *buffer[100];
+
+    char filename[50];
+    int w=window_width;
+    int h=window_height;
+    int buf_size = (w * h * 3);
+
+    int buf_size_all = HEADER_SIZE + buf_size * 10*10;
+    unsigned char temp;
+    FILE *out_file;
+
+
+    for(int i=0;i<100;i++){
+        if (!(buffer[i] = (unsigned char *) calloc(1, buf_size)))
+        {
+            return;
+        }
+    }
+    if (!(buffer_all = (unsigned char *) calloc(1, buf_size_all)))
+    {
+        return;
+    }
+
+
+    if(setting.persp == true){
+        int w=window_width;
+        int h=window_height;
+
+        std::cout << "w" << w << "h: " << h << std::endl;
+
+        double near_plane=200.;
+
+        int draw_first=0;
+        for(int i=0;i<10;i++){
+            for(int j=0;j<10;j++){
+                glMatrixMode(GL_PROJECTION);
+                glLoadIdentity();
+                //glFrustum(-100.+ 2*i*100/10,-100+(i+1)*2*100/10,-100.+ 2*j*100./10.0, -100+(j+1)*2*100/10,200. ,50000.0*mm.sf*2+50000/(mm.sf*2));
+
+                //glFrustum(-1*near_plane/2.+ 2*i*(near_plane/2.)/10,
+                //          -1*near_plane/2.+(i+1)*2*(near_plane/2.)/10,
+                //          -1.*(near_plane/2.)+ 2*j*(near_plane/2.)/10.0, 
+                //          -1*(near_plane/2.)+(j+1)*2*(near_plane/2.)/10,
+                //          near_plane ,50000.0*mm.sf*2+50000/(mm.sf*2));
+                glFrustum(-1*near_plane/2.      + 2*i*(near_plane/2.)/10,
+                          -1*near_plane/2.      +(i+1)*2*(near_plane/2.)/10,
+                          -1*(near_plane/2.)    + 2*j*(near_plane/2.)/10.0, 
+                          -1*(near_plane/2.)    +(j+1)*2*(near_plane/2.)/10,
+                          near_plane ,50000.0*mm.sf*2+50000/(mm.sf*2));
+
+ 
+                glViewport(0,0,w,h);
+                gluLookAt  (0,0,2000,    0,0,0,    0,1,0);
+                glMatrixMode(GL_MODELVIEW);
+                write_world_into_front_buffer();
+
+                //if(draw_first<10){
+                    glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer[i+j*10]);
+                //draw_first++;
+                //}
+
+
+                glMatrixMode(GL_MODELVIEW);
+                glutPostRedisplay();
+                display();
+                reshape(w,h);
+            }
+        }
+     }
+
+      std::cout << "alive" << std::endl;
+
+    // open file for output 
+    if (!(out_file = fopen(name, "w")))
+    {
+        return;
+    }
+
+    
+    // set header info
+    buffer_all[2] = 2;  // uncompressed
+    buffer_all[12] = (w*10) & 255;
+    buffer_all[13] = (w*10) >> 8;
+    buffer_all[14] = (h*10) & 255;
+    buffer_all[15] = (h*10) >> 8;
+    buffer_all[16] = 24;    // 24 bits per pix
+
+
+    // RGB to BGR
+    for(int j=0;j<100;j++){
+        for (int i=0; i<buf_size; i+=3)
+        {
+            temp = buffer[j][i];
+            buffer[j][i] = buffer[j][i + 2];
+            buffer[j][i + 2] = temp;
+        }
+    }
+
+
+    for(int k=0;k<10;k++){
+        for(int l=0;l<h;l++){
+            for(int j=0;j<10;j++){
+                for(int i=0; i < w*3; i++){
+                    buffer_all[HEADER_SIZE+i+w*3*j+l*w*3*10+k*10*buf_size]=buffer[j+10*k][i+l*w*3];
+                }
+            }
+        }
+    }
+
+    // write header + color buf to file
+    fwrite(buffer_all, sizeof(unsigned char), buf_size_all, out_file);
+
+    // cleanup
+    fclose(out_file);
+    
+
+
+    std::cout << "Screenshot saved" << std::endl;
+    std::cout << "Clean memory ";
+    for(int i=0;i<100;i++){
+        std::cout << ".";
+        free(buffer[i]);
+    }
+
+    free(buffer_all);
+
+    std::cout << "Done" << std::endl;
+}
+
+//from: http://www.opengl.org/discussion_boards/ubbthreads.php?ubb=showflat&Number=44286
+void screenshot_old(char *name)
 {
     //int HEADER_SIZE=24;
 
