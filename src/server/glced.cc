@@ -186,6 +186,12 @@ static int available_cutangles[]={0,30,90,135, 180, 270, 360};  //for new angles
 
 
 #define SAVE_IMAGE      5555
+#define SAVE_IMAGE1     5556
+#define SAVE_IMAGE4     5557
+#define SAVE_IMAGE10    5558
+#define SAVE_IMAGE20    5559
+#define SAVE_IMAGE100   5560
+
 
 #define TOGGLE_PHI_PROJECTION   5000
 #define TOGGLE_Z_PROJECTION     5001
@@ -214,6 +220,8 @@ static int subWindow=-1;
 static int layerMenu;
 static int detectorMenu;
 static int subsubMenu2;
+
+static int subscreenshot;
 
 static int subSave;
 static int subLoad;
@@ -244,7 +252,8 @@ static GLfloat axe[][3]={
 };
 
 
-void screenshot(char *name);
+void updateScreenshotMenu(void);
+void screenshot(char *name, int times);
 
 // allows to reset the visible world size
 static void set_world_size( float length) {
@@ -261,7 +270,6 @@ static void set_bg_color(float one, float two, float three, float four){
     BG_COLOR[1]=two;
     BG_COLOR[2]=three;
     BG_COLOR[3]=four;
-
 
     glClearColor(BG_COLOR[0],BG_COLOR[1],BG_COLOR[2],BG_COLOR[3]);
 }
@@ -676,7 +684,7 @@ static void write_world_into_front_buffer(void){
     // draw static objects
 
     glMatrixMode(GL_MODELVIEW);
-    display_world(); //only axes?
+    display_world(); 
 
 
    //glTranslatef(0,0,1000);
@@ -876,6 +884,9 @@ static void reshape(int w,int h){
         glutSetWindow (subWindow);
         glutReshapeWindow (int(window_width-10),int(window_height/4));
     }
+
+
+    updateScreenshotMenu();
 }
 
 void saveSettings(int slot){
@@ -1728,6 +1739,32 @@ void updateLayerEntryInPopupMenu(int id){ //id is layer id, not menu id!
     glutChangeToMenuEntry(id+2,string, id+LAYER_0);                     
 }
 
+void updateScreenshotMenu(void){
+    char tmp[200];
+
+    glutSetMenu(subscreenshot);
+    window_width=  glutGet(GLUT_WINDOW_WIDTH);
+    window_height= glutGet(GLUT_WINDOW_HEIGHT);
+
+    sprintf(tmp,"Screenshot small (%.0f x %.0f) (~ %.2f MB)",window_width, window_height, window_width*window_height*3./1000000.);
+    glutChangeToMenuEntry(1,tmp,SAVE_IMAGE1);
+
+    sprintf(tmp,"Screenshot medium (%.0f x %.0f) (~ %.2f MB)",window_width*4, window_height*4, 4*4*window_width*window_height*3./1000000.);
+    glutChangeToMenuEntry(2,tmp,SAVE_IMAGE4);
+
+
+    sprintf(tmp,"Screenshot large (%.0f x %.0f) (~ %.2f MB)",window_width*10, window_height*10, 10*10*window_width*window_height*3./1000000.);
+    glutChangeToMenuEntry(3,tmp,SAVE_IMAGE10);
+
+
+    sprintf(tmp,"Screenshot extra large (%.0f x %.0f) (~ %.2f MB)",window_width*20, window_height*20, 20*20*window_width*window_height*3./1000000.);
+    glutChangeToMenuEntry(4,tmp,SAVE_IMAGE20);
+
+
+    sprintf(tmp,"Screenshot too large (%.0f x %.0f) (~ %.2f MB)",window_width*100, window_height*100, 100*100*window_width*window_height*3./1000000.);
+    glutChangeToMenuEntry(5,tmp,SAVE_IMAGE100);
+
+}
 void updateSaveLoadMenu(int id){ //id is save id, not menu id!
     struct stat s;
 
@@ -2411,8 +2448,21 @@ void selectFromMenu(int id){ //hauke
             set_bg_color(setting.bgcolor[0],setting.bgcolor[1],setting.bgcolor[2],setting.bgcolor[3]); 
             break;
 
-        case SAVE_IMAGE:
-            screenshot("/tmp/glced.tga");
+        case SAVE_IMAGE1:
+            screenshot("/tmp/glced.tga",1);
+            break;
+        case SAVE_IMAGE4:
+            screenshot("/tmp/glced.tga",4);
+            break;
+        case SAVE_IMAGE10:
+            screenshot("/tmp/glced.tga",10);
+            break;
+        case SAVE_IMAGE20:
+            screenshot("/tmp/glced.tga",20);
+            break;
+        case SAVE_IMAGE100:
+            screenshot("/tmp/glced.tga",100);
+            break;
     }
 
     reshape((int)window_width, (int)window_height);
@@ -2576,6 +2626,21 @@ int buildMenuPopup(void){ //hauke
     }
 
 
+    subscreenshot=glutCreateMenu(selectFromMenu);
+    glutAddMenuEntry("...",SAVE_IMAGE1);
+
+    glutAddMenuEntry("...",SAVE_IMAGE4);
+
+    glutAddMenuEntry("...",SAVE_IMAGE10);
+
+    glutAddMenuEntry("...",SAVE_IMAGE20);
+
+    glutAddMenuEntry("...",SAVE_IMAGE100);
+
+    updateScreenshotMenu();
+
+
+
 
 
 
@@ -2591,7 +2656,7 @@ int buildMenuPopup(void){ //hauke
 
     glutAddSubMenu("Load saved settings",subLoad);
 
-    glutAddMenuEntry("Save screenshot",SAVE_IMAGE);
+    glutAddSubMenu("Save screenshot",subscreenshot);
     glutAddMenuEntry("Toggle help [h]",HELP);
 
 
@@ -2836,23 +2901,70 @@ int main(int argc,char *argv[]){
     return 0;
 }
 
-void screenshot(char *name)
+void screenshot(char *name, int times)
 {
+    if(times > 100){
+        std::cout << "Sorry 100x100 are the max value" << std::cout;
+        return;
+    }
+
     int HEADER_SIZE=24;
     unsigned char *buffer_all;
-    unsigned char *buffer[100];
+    unsigned char *buffer[100*100];
 
-    char filename[50];
-    int w=window_width;
-    int h=window_height;
-    int buf_size = (w * h * 3);
+    char filename[100];
 
-    int buf_size_all = HEADER_SIZE + buf_size * 10*10;
+    int w=glutGet(GLUT_WINDOW_WIDTH);
+    int h=glutGet(GLUT_WINDOW_HEIGHT);
+
+    //w=500;
+    //h=500;
+
+    //glutReshapeWindow(500,500);
+    //reshape(w,h);
+    //glutPostRedisplay();
+    //display();
+    //glutReshapeWindow(w,h);
+    //reshape(w,h);
+    //glutPostRedisplay();
+    //display();
+    //write_world_into_front_buffer();
+
+    w=glutGet(GLUT_WINDOW_WIDTH);
+    h=glutGet(GLUT_WINDOW_HEIGHT);
+    window_width=w;
+
+    window_height=h;
+
+
+
+
+
+
+    //std::cout << "current window: " << glutGet(GLUT_WINDOW_WIDTH) << " x " << glutGet(GLUT_WINDOW_HEIGHT) << std::endl;
+    //std::cout << "current window: " << w << " x " << h << std::endl;
+    
+
+    //if(h < w){
+    //    w=h;
+    //}else{
+    //    h=w; 
+    //}
+
+    int buf_size = (w*h*3);
+
+    std::cout << "Generating screenshot (" << w*times << "x" << h*times << "):" << std::endl;
+    
+
+    int buf_size_all = HEADER_SIZE + w*h*3 *times*times;
     unsigned char temp;
     FILE *out_file;
 
 
-    for(int i=0;i<100;i++){
+    std::cout << "    Requesting memory ";
+    for(int i=0;i<times*times;i++){
+        std::cout << ".";
+        std::cout.flush();
         if (!(buffer[i] = (unsigned char *) calloc(1, buf_size)))
         {
             return;
@@ -2864,53 +2976,115 @@ void screenshot(char *name)
     }
 
 
+    //for(int t=0; t < times*times; t++){
+    //    buffer[t][buf_size]='x';
+    //}
+
+
+
+    std::cout << " Done" << std::endl;
+
+    //std::cout << "before: ";
+    //for(int t=0; t < times*times; t++){
+    //    std::cout << buffer[t][buf_size];
+    //}
+    //std::cout << std::endl;
+
+
+    
+
+    std::cout << "    Generating image ";
     if(setting.persp == true){
-        int w=window_width;
-        int h=window_height;
-
-        std::cout << "w" << w << "h: " << h << std::endl;
-
         double near_plane=200.;
 
         int draw_first=0;
-        for(int i=0;i<10;i++){
-            for(int j=0;j<10;j++){
+
+ //       reshape(w,h);
+ //       glutPostRedisplay();
+ //       display();
+//for(int y=0;y<10;y++){
+        for(int i=0;i<times;i++){
+            for(int j=0;j<times;j++){
+
+                std::cout << ".";
+                std::cout.flush();
+
+
                 glMatrixMode(GL_PROJECTION);
                 glLoadIdentity();
-                //glFrustum(-100.+ 2*i*100/10,-100+(i+1)*2*100/10,-100.+ 2*j*100./10.0, -100+(j+1)*2*100/10,200. ,50000.0*mm.sf*2+50000/(mm.sf*2));
 
-                //glFrustum(-1*near_plane/2.+ 2*i*(near_plane/2.)/10,
-                //          -1*near_plane/2.+(i+1)*2*(near_plane/2.)/10,
-                //          -1.*(near_plane/2.)+ 2*j*(near_plane/2.)/10.0, 
-                //          -1*(near_plane/2.)+(j+1)*2*(near_plane/2.)/10,
-                //          near_plane ,50000.0*mm.sf*2+50000/(mm.sf*2));
-                glFrustum(-1*near_plane/2.      + 2*i*(near_plane/2.)/10,
-                          -1*near_plane/2.      +(i+1)*2*(near_plane/2.)/10,
-                          -1*(near_plane/2.)    + 2*j*(near_plane/2.)/10.0, 
-                          -1*(near_plane/2.)    +(j+1)*2*(near_plane/2.)/10,
+
+                glViewport(0,0,w,h);
+
+
+
+
+
+
+                if(w > h){
+                glFrustum((-1*near_plane/2.      + 2*i*(near_plane/2.)/times)*w*1.0/h,
+                          (-1*near_plane/2.      +(i+1)*2*(near_plane/2.)/times)*w*1.0/h,
+                          (-1*(near_plane/2.)    + 2*j*(near_plane/2.)/times), 
+                          (-1*(near_plane/2.)    +(j+1)*2*(near_plane/2.)/times),
                           near_plane ,50000.0*mm.sf*2+50000/(mm.sf*2));
+                }else{
+                glFrustum((-1*near_plane/2.      + 2*i*(near_plane/2.)/times),
+                          (-1*near_plane/2.      +(i+1)*2*(near_plane/2.)/times),
+                          (-1*(near_plane/2.)    + 2*j*(near_plane/2.)/times)*h*1.0/w, 
+                          (-1*(near_plane/2.)    +(j+1)*2*(near_plane/2.)/times)*h*1.0/w,
+                          near_plane*h*1./w ,50000.0*mm.sf*2+50000/(mm.sf*2));
 
- 
+                }
+                //glFrustum((-1*near_plane/2.      + 2*i*(near_plane/2.)/times)*w*1.0/h,
+                //          (-1*near_plane/2.      +(i+1)*2*(near_plane/2.)/times)*w*1.0/h,
+                //          (-1*(near_plane/2.)    + 2*j*(near_plane/2.)/times), 
+                //          (-1*(near_plane/2.)    +(j+1)*2*(near_plane/2.)/times),
+                //          near_plane ,50000.0*mm.sf*2+50000/(mm.sf*2));
+                
+
+                //glFrustum((-1* w/2.      + 2*i*(   w/2.)/times),
+                //          (-1* w/2.      +(i+1)*2*(w/2.)/times),
+                //          (-1*(h/2.)    + 2*j*(    h/2.)/times), 
+                //          (-1*(h/2.)    +(j+1)*2*( h/2.)/times),
+                //          near_plane ,50000.0*mm.sf*2+50000/(mm.sf*2));
+
                 glViewport(0,0,w,h);
                 gluLookAt  (0,0,2000,    0,0,0,    0,1,0);
+                glViewport(0,0,w,h);
+
+ 
                 glMatrixMode(GL_MODELVIEW);
                 write_world_into_front_buffer();
 
                 //if(draw_first<10){
-                    glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer[i+j*10]);
+
+                //std::cout << "w: " << w << "h: " << h << std::endl;
+
+                glViewport(0,0,w,h);
+
+                glPixelStorei( GL_PACK_ALIGNMENT, 1 );
+                glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer[i+j*times]);
+
                 //draw_first++;
                 //}
 
 
                 glMatrixMode(GL_MODELVIEW);
-                glutPostRedisplay();
-                display();
-                reshape(w,h);
+                //glutPostRedisplay();
+                //display();
             }
         }
      }
+//}
 
-      std::cout << "alive" << std::endl;
+    std::cout << " Done" << std::endl;
+
+    //std::cout << "after glReadPixels: ";
+    //for(int t=0; t < times*times; t++){
+    //    std::cout << buffer[t][buf_size];
+    //}
+    //std::cout << std::endl;
+
 
     // open file for output 
     if (!(out_file = fopen(name, "w")))
@@ -2921,15 +3095,15 @@ void screenshot(char *name)
     
     // set header info
     buffer_all[2] = 2;  // uncompressed
-    buffer_all[12] = (w*10) & 255;
-    buffer_all[13] = (w*10) >> 8;
-    buffer_all[14] = (h*10) & 255;
-    buffer_all[15] = (h*10) >> 8;
+    buffer_all[12] = (w*times) & 255;
+    buffer_all[13] = (w*times) >> 8;
+    buffer_all[14] = (h*times) & 255;
+    buffer_all[15] = (h*times) >> 8;
     buffer_all[16] = 24;    // 24 bits per pix
 
 
     // RGB to BGR
-    for(int j=0;j<100;j++){
+    for(int j=0;j<times*times;j++){
         for (int i=0; i<buf_size; i+=3)
         {
             temp = buffer[j][i];
@@ -2939,15 +3113,17 @@ void screenshot(char *name)
     }
 
 
-    for(int k=0;k<10;k++){
+    for(int k=0;k<times;k++){
         for(int l=0;l<h;l++){
-            for(int j=0;j<10;j++){
+            for(int j=0;j<times;j++){
                 for(int i=0; i < w*3; i++){
-                    buffer_all[HEADER_SIZE+i+w*3*j+l*w*3*10+k*10*buf_size]=buffer[j+10*k][i+l*w*3];
+                    buffer_all[HEADER_SIZE+i+w*3*j+l*w*3*times+k*times*w*h*3]=buffer[j+times*k][i+l*w*3];
                 }
             }
         }
     }
+
+
 
     // write header + color buf to file
     fwrite(buffer_all, sizeof(unsigned char), buf_size_all, out_file);
@@ -2957,16 +3133,31 @@ void screenshot(char *name)
     
 
 
-    std::cout << "Screenshot saved" << std::endl;
-    std::cout << "Clean memory ";
-    for(int i=0;i<100;i++){
+
+
+    //std::cout << "Make screenshot (" << w*times << "x" << h*times << ")" << std::endl;
+
+    //std::cout << "before free: ";
+    //for(int t=0; t < times*times; t++){
+    //    std::cout << buffer[t][buf_size];
+    //}
+    //std::cout << std::endl;
+
+
+    std::cout << "    Clean memory ";
+
+
+    for(int i=0;i<times*times;i++){
         std::cout << ".";
+        std::cout.flush();
         free(buffer[i]);
     }
 
     free(buffer_all);
 
-    std::cout << "Done" << std::endl;
+    std::cout << " Done" << std::endl;
+
+    std::cout << "    Screenshot saved as: " << name << std::endl;
 }
 
 //from: http://www.opengl.org/discussion_boards/ubbthreads.php?ubb=showflat&Number=44286
