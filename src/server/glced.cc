@@ -2917,39 +2917,11 @@ void screenshot(char *name, int times)
     int w=glutGet(GLUT_WINDOW_WIDTH);
     int h=glutGet(GLUT_WINDOW_HEIGHT);
 
-    //w=500;
-    //h=500;
-
-    //glutReshapeWindow(500,500);
-    //reshape(w,h);
-    //glutPostRedisplay();
-    //display();
-    //glutReshapeWindow(w,h);
-    //reshape(w,h);
-    //glutPostRedisplay();
-    //display();
-    //write_world_into_front_buffer();
-
     w=glutGet(GLUT_WINDOW_WIDTH);
     h=glutGet(GLUT_WINDOW_HEIGHT);
     window_width=w;
 
     window_height=h;
-
-
-
-
-
-
-    //std::cout << "current window: " << glutGet(GLUT_WINDOW_WIDTH) << " x " << glutGet(GLUT_WINDOW_HEIGHT) << std::endl;
-    //std::cout << "current window: " << w << " x " << h << std::endl;
-    
-
-    //if(h < w){
-    //    w=h;
-    //}else{
-    //    h=w; 
-    //}
 
     int buf_size = (w*h*3);
 
@@ -2974,54 +2946,24 @@ void screenshot(char *name, int times)
     {
         return;
     }
-
-
-    //for(int t=0; t < times*times; t++){
-    //    buffer[t][buf_size]='x';
-    //}
-
-
-
     std::cout << " Done" << std::endl;
-
-    //std::cout << "before: ";
-    //for(int t=0; t < times*times; t++){
-    //    std::cout << buffer[t][buf_size];
-    //}
-    //std::cout << std::endl;
-
-
     
 
     std::cout << "    Generating image ";
     if(setting.persp == true){
         double near_plane=200.;
-
-        int draw_first=0;
-
- //       reshape(w,h);
- //       glutPostRedisplay();
- //       display();
-//for(int y=0;y<10;y++){
         for(int i=0;i<times;i++){
             for(int j=0;j<times;j++){
 
                 std::cout << ".";
                 std::cout.flush();
 
-
                 glMatrixMode(GL_PROJECTION);
                 glLoadIdentity();
 
-
                 glViewport(0,0,w,h);
 
-
-
-
-
-
-                if(w > h){
+                if(w >= h){
                 glFrustum((-1*near_plane/2.      + 2*i*(near_plane/2.)/times)*w*1.0/h,
                           (-1*near_plane/2.      +(i+1)*2*(near_plane/2.)/times)*w*1.0/h,
                           (-1*(near_plane/2.)    + 2*j*(near_plane/2.)/times), 
@@ -3035,82 +2977,107 @@ void screenshot(char *name, int times)
                           near_plane*h*1./w ,50000.0*mm.sf*2+50000/(mm.sf*2));
 
                 }
-                //glFrustum((-1*near_plane/2.      + 2*i*(near_plane/2.)/times)*w*1.0/h,
-                //          (-1*near_plane/2.      +(i+1)*2*(near_plane/2.)/times)*w*1.0/h,
-                //          (-1*(near_plane/2.)    + 2*j*(near_plane/2.)/times), 
-                //          (-1*(near_plane/2.)    +(j+1)*2*(near_plane/2.)/times),
-                //          near_plane ,50000.0*mm.sf*2+50000/(mm.sf*2));
-                
-
-                //glFrustum((-1* w/2.      + 2*i*(   w/2.)/times),
-                //          (-1* w/2.      +(i+1)*2*(w/2.)/times),
-                //          (-1*(h/2.)    + 2*j*(    h/2.)/times), 
-                //          (-1*(h/2.)    +(j+1)*2*( h/2.)/times),
-                //          near_plane ,50000.0*mm.sf*2+50000/(mm.sf*2));
 
                 glViewport(0,0,w,h);
                 gluLookAt  (0,0,2000,    0,0,0,    0,1,0);
                 glViewport(0,0,w,h);
-
  
                 glMatrixMode(GL_MODELVIEW);
                 write_world_into_front_buffer();
-
-                //if(draw_first<10){
-
-                //std::cout << "w: " << w << "h: " << h << std::endl;
 
                 glViewport(0,0,w,h);
 
                 glPixelStorei( GL_PACK_ALIGNMENT, 1 );
                 glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer[i+j*times]);
 
-                //draw_first++;
-                //}
-
-
                 glMatrixMode(GL_MODELVIEW);
-                //glutPostRedisplay();
-                //display();
             }
         }
-     }
-//}
+     }else{
+
+
+        double near_plane=200./(WORLD_SIZE/10);
+
+        for(int i=0;i<times;i++){
+            for(int j=0;j<times;j++){
+
+                std::cout << ".";
+                std::cout.flush();
+
+                glMatrixMode(GL_PROJECTION);
+                glLoadIdentity();
+
+                glViewport(0,0,w,h);
+
+                if(w >= h){
+
+
+                glOrtho((-1*near_plane/2.      + 2*i*(near_plane/2.)/times)*w*1.0/h*WORLD_SIZE,
+                          (-1*near_plane/2.      +(i+1)*2*(near_plane/2.)/times)*w*1.0/h*WORLD_SIZE,
+                          (-1*(near_plane/2.)    + 2*j*(near_plane/2.)/times)*WORLD_SIZE, 
+                          (-1*(near_plane/2.)    +(j+1)*2*(near_plane/2.)/times)*WORLD_SIZE,
+                          near_plane ,(50000.0*mm.sf*2+50000/(mm.sf*2)));
+                }else{
+
+                //near_plane*=1./(h*1./w);
+                double tmp2=WORLD_SIZE;
+                WORLD_SIZE*=w*1./h;
+                glOrtho((-1*near_plane/2.      + 2*i*(near_plane/2.)/times)*WORLD_SIZE,
+                          (-1*near_plane/2.      +(i+1)*2*(near_plane/2.)/times)*WORLD_SIZE,
+                          (-1*(near_plane/2.)    + 2*j*(near_plane/2.)/times)*h*1.0/w*WORLD_SIZE, 
+                          (-1*(near_plane/2.)    +(j+1)*2*(near_plane/2.)/times)*h*1.0/w*WORLD_SIZE,
+                          near_plane,(50000.0*mm.sf*2+50000/(mm.sf*2)));
+
+                WORLD_SIZE=tmp2;
+
+                }
+
+                glViewport(0,0,w,h);
+                gluLookAt  (0,0,2000,    0,0,0,    0,1,0);
+                glViewport(0,0,w,h);
+ 
+                glMatrixMode(GL_MODELVIEW);
+                write_world_into_front_buffer();
+
+                glViewport(0,0,w,h);
+
+                glPixelStorei( GL_PACK_ALIGNMENT, 1 );
+                glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer[i+j*times]);
+
+                glMatrixMode(GL_MODELVIEW);
+            }
+        }
+
+
+    }
 
     std::cout << " Done" << std::endl;
 
-    //std::cout << "after glReadPixels: ";
-    //for(int t=0; t < times*times; t++){
-    //    std::cout << buffer[t][buf_size];
-    //}
-    //std::cout << std::endl;
 
-
-    // open file for output 
     if (!(out_file = fopen(name, "w")))
     {
         return;
     }
 
-    
-    // set header info
-    buffer_all[2] = 2;  // uncompressed
-    buffer_all[12] = (w*times) & 255;
-    buffer_all[13] = (w*times) >> 8;
-    buffer_all[14] = (h*times) & 255;
-    buffer_all[15] = (h*times) >> 8;
-    buffer_all[16] = 24;    // 24 bits per pix
+    //this block is from: http://www.opengl.org/discussion_boards/ubbthreads.php?ubb=showflat&Number=44286
+        // set header info: 
+        buffer_all[2] = 2;  // uncompressed
+        buffer_all[12] = (w*times) & 255;
+        buffer_all[13] = (w*times) >> 8;
+        buffer_all[14] = (h*times) & 255;
+        buffer_all[15] = (h*times) >> 8;
+        buffer_all[16] = 24;    // 24 bits per pix
 
 
-    // RGB to BGR
-    for(int j=0;j<times*times;j++){
-        for (int i=0; i<buf_size; i+=3)
-        {
-            temp = buffer[j][i];
-            buffer[j][i] = buffer[j][i + 2];
-            buffer[j][i + 2] = temp;
+        // RGB to BGR
+        for(int j=0;j<times*times;j++){
+            for (int i=0; i<buf_size; i+=3)
+            {
+                temp = buffer[j][i];
+                buffer[j][i] = buffer[j][i + 2];
+                buffer[j][i + 2] = temp;
+            }
         }
-    }
 
 
     for(int k=0;k<times;k++){
@@ -3124,25 +3091,9 @@ void screenshot(char *name, int times)
     }
 
 
-
-    // write header + color buf to file
     fwrite(buffer_all, sizeof(unsigned char), buf_size_all, out_file);
 
-    // cleanup
     fclose(out_file);
-    
-
-
-
-
-    //std::cout << "Make screenshot (" << w*times << "x" << h*times << ")" << std::endl;
-
-    //std::cout << "before free: ";
-    //for(int t=0; t < times*times; t++){
-    //    std::cout << buffer[t][buf_size];
-    //}
-    //std::cout << std::endl;
-
 
     std::cout << "    Clean memory ";
 
@@ -3152,9 +3103,7 @@ void screenshot(char *name, int times)
         std::cout.flush();
         free(buffer[i]);
     }
-
     free(buffer_all);
-
     std::cout << " Done" << std::endl;
 
     std::cout << "    Screenshot saved as: " << name << std::endl;
