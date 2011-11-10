@@ -110,6 +110,7 @@ struct CEDsettings{
     double bgcolor[4];
     bool show_axes;
     bool fps;
+    double screenshot_sections;
 };
 
 /*

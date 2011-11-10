@@ -1057,7 +1057,7 @@ static void ced_draw_hit(CED_Hit *h){
 
     	    if(h->type ==  CED_HIT_CROSS){
     	       	 //     printf("cross type == %d \n",(h->type & CED_HIT_CROSS));
-    	        d=h->size/2;
+    	        d=h->size/2*setting.screenshot_sections;
 
     
     	        glVertex3f(x-d,y-d,z+d);
@@ -1074,7 +1074,7 @@ static void ced_draw_hit(CED_Hit *h){
     
     	    } else {
     	       	//      printf("star type == %d \n",(h->type & CED_HIT_STAR));
-    	        d=h->size/2.;
+    	        d=h->size/2.*setting.screenshot_sections;
     	        glVertex3f(x-d,y,z);
     	        glVertex3f(x+d,y,z);
     	        glVertex3f(x,y-d,z);
@@ -1085,7 +1085,7 @@ static void ced_draw_hit(CED_Hit *h){
             glEnd();
     	    break;
     	default:
-    	    glPointSize((GLfloat)h->size);
+    	    glPointSize((GLfloat)h->size*setting.screenshot_sections);
     	    glBegin(GL_POINTS);
 
     	    //glVertex3fv(&p_new.x);

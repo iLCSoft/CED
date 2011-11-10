@@ -2685,6 +2685,7 @@ int main(int argc,char *argv[]){
             //glutEnterGameMode();
 
     loadSettings(1);  
+    setting.screenshot_sections=1;
     //set_bg_color(setting.bgcolor[0],setting.bgcolor[1],setting.bgcolor[2],setting.bgcolor[2]); //set to default (black)=0;
 
     //set_bg_color(0.0,0.0,0.0,0.0); //set to default (black)
@@ -2908,6 +2909,9 @@ void screenshot(char *name, int times)
         return;
     }
 
+    setting.screenshot_sections=times;
+
+
     int HEADER_SIZE=24;
     unsigned char *buffer_all;
     unsigned char *buffer[100*100];
@@ -2917,10 +2921,7 @@ void screenshot(char *name, int times)
     int w=glutGet(GLUT_WINDOW_WIDTH);
     int h=glutGet(GLUT_WINDOW_HEIGHT);
 
-    w=glutGet(GLUT_WINDOW_WIDTH);
-    h=glutGet(GLUT_WINDOW_HEIGHT);
     window_width=w;
-
     window_height=h;
 
     int buf_size = (w*h*3);
@@ -2929,7 +2930,7 @@ void screenshot(char *name, int times)
     
 
     int buf_size_all = HEADER_SIZE + w*h*3 *times*times;
-    unsigned char temp;
+    unsigned char tmp;
     FILE *out_file;
 
 
@@ -2951,6 +2952,7 @@ void screenshot(char *name, int times)
 
     std::cout << "    Generating image ";
     if(setting.persp == true){
+        glTranslatef(0.0, 0.0, +2000); //HOTFIX!!! TODO: find the place where this translation is made 
         double near_plane=200.;
         for(int i=0;i<times;i++){
             for(int j=0;j<times;j++){
@@ -3047,20 +3049,13 @@ void screenshot(char *name, int times)
                 glMatrixMode(GL_MODELVIEW);
             }
         }
-
-
     }
-
     std::cout << " Done" << std::endl;
 
 
-    if (!(out_file = fopen(name, "w")))
-    {
-        return;
-    }
 
-    //this block is from: http://www.opengl.org/discussion_boards/ubbthreads.php?ubb=showflat&Number=44286
-        // set header info: 
+        //this block based on: http://www.opengl.org/discussion_boards/ubbthreads.php?ubb=showflat&Number=44286
+        //write header
         buffer_all[2] = 2;  // uncompressed
         buffer_all[12] = (w*times) & 255;
         buffer_all[13] = (w*times) >> 8;
@@ -3069,15 +3064,16 @@ void screenshot(char *name, int times)
         buffer_all[16] = 24;    // 24 bits per pix
 
 
-        // RGB to BGR
-        for(int j=0;j<times*times;j++){
-            for (int i=0; i<buf_size; i+=3)
-            {
-                temp = buffer[j][i];
-                buffer[j][i] = buffer[j][i + 2];
-                buffer[j][i + 2] = temp;
-            }
-        }
+        //// RGB to BGR
+        //for(int j=0;j<times*times;j++){
+        //    for (int i=0; i<buf_size; i+=3)
+        //    {
+        //        tmp = buffer[j][i];
+        //        buffer[j][i] = buffer[j][i + 2];
+        //        buffer[j][i + 2] = tmp;
+        //    }
+        //}
+
 
 
     for(int k=0;k<times;k++){
@@ -3088,6 +3084,20 @@ void screenshot(char *name, int times)
                 }
             }
         }
+    }
+
+
+    //RGB -> BGR
+    for(int j=HEADER_SIZE;j<buf_size_all;j+=3){
+            tmp = buffer_all[j];
+            buffer_all[j] = buffer_all[j+2];
+            buffer_all[j+2] = tmp;
+    }
+ 
+
+    if (!(out_file = fopen(name, "w")))
+    {
+        return;
     }
 
 
@@ -3107,6 +3117,9 @@ void screenshot(char *name, int times)
     std::cout << " Done" << std::endl;
 
     std::cout << "    Screenshot saved as: " << name << std::endl;
+
+
+    setting.screenshot_sections=1;
 }
 
 //from: http://www.opengl.org/discussion_boards/ubbthreads.php?ubb=showflat&Number=44286
