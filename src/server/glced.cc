@@ -2902,6 +2902,127 @@ int main(int argc,char *argv[]){
     return 0;
 }
 
+int save_pixmap_as_tga(unsigned char *buffer_all,char *name,int wi, int hi){
+    //based on: http://www.opengl.org/discussion_boards/ubbthreads.php?ubb=showflat&Number=44286
+
+    int header_size=24;
+    int mem_size = wi*hi*3;
+    unsigned char tmp;
+    FILE *out_file;
+    unsigned char *header;
+
+    if (!(header = (unsigned char *) calloc(1, header_size))) { return(-1); }
+
+    //write header
+    header[2] = 2;  // uncompressed
+    header[12] = wi & 255;
+    header[13] = wi >> 8;
+    header[14] = hi & 255;
+    header[15] = hi >> 8;
+    header[16] = 24;    // 24 bits per pix
+
+//    //RGB -> BGR
+//    for(int j=0;j<mem_size;j+=3){
+//        tmp = buffer_all[j];
+//        buffer_all[j] = buffer_all[j+2];
+//        buffer_all[j+2] = tmp;
+//    }
+
+    if (!(out_file = fopen(name, "wb"))) { return(-2); }
+
+    fwrite(header, sizeof(unsigned char), header_size, out_file);
+    fwrite(buffer_all, sizeof(unsigned char), mem_size, out_file);
+
+    fclose(out_file);
+    return(0);
+}
+
+
+int save_pixmap_as_bmp(unsigned char *buffer_all,char *name,unsigned int wi, unsigned int hi){
+    unsigned int mem_size = wi*hi*3;
+    unsigned int header_size=54;
+    FILE *out_file;
+    unsigned char *header;
+
+    cout << endl << "               bmp screenshot width: " << wi << " hight: " << hi << endl;
+    if (!(header = (unsigned char *) calloc(1, header_size))) { return(-1); }
+
+    //header
+    header[0] = 'B';  
+    header[1] = 'M';  
+    header[2] = (mem_size+header_size) & 255;
+    header[3] = ((mem_size+header_size) >> 8) & 255;
+    header[4] = ((mem_size+header_size)  >> 16) & 255;
+    header[5] = ((mem_size+header_size)  >> 24) & 255;
+    header[6] = 0;
+    header[7] = 0;
+    header[8] = 0;
+    header[9] = 0;
+    header[10] = header_size & 255;
+    header[11] = (header_size >>8) & 255;
+    header[12] = (header_size >>16) & 255;
+    header[13] = (header_size >>24) & 255;
+    //info header:
+    header[14] = 40;
+    header[15] = 0;
+    header[16] = 0;
+    header[17] = 0;
+
+    header[18] = wi & 255;
+
+    header[19] = (wi >> 8) & 255;
+    header[20] = (wi >> 16) & 255;
+    header[21] = (wi >> 24) & 255;
+    header[22] =  hi & 255;
+
+    header[23] = (hi >> 8) & 255;
+    header[24] = (hi >> 16) & 255;
+    header[25] = (hi >> 24) & 255;
+    header[26] = 1;
+    header[27] = 0;
+    header[28] = 24;
+    header[29] = 0;
+    header[30] = 0;
+    header[34] =  ( mem_size) & 255;
+    header[35] =  ((mem_size) >> 8) & 255;
+    header[36] =  ((mem_size)  >> 16) & 255;
+    header[37] =  ((mem_size)  >> 24) & 255;
+    header[38] = 0;
+    header[39] = 0;
+    header[40] = 0;
+    header[41] = 0;
+    header[42] = 0;
+    header[43] = 0;
+    header[44] = 0;
+    header[45] = 0;
+    header[46] = 0;
+    header[47] = 0;
+    header[48] = 0;
+    header[49] = 0;
+    header[50] = 0;
+    header[51] = 0;
+    header[52] = 0;
+    header[53] = 0;
+
+    //cout << "size" << (header_size & 255) << endl;
+
+    if (!(out_file = fopen(name, "wb"))) { return(-2); }
+
+    char tmp;
+//    //RGB BGR
+//    for(int i=0;i<mem_size;i+=3){
+//        tmp = buffer_all[i+2];
+//        buffer_all[i+2] = buffer_all[i];
+//        buffer_all[i] = tmp;
+//    }
+
+    fwrite(header, sizeof(unsigned char), header_size, out_file);
+    fwrite(buffer_all, sizeof(unsigned char), mem_size, out_file);
+
+    fclose(out_file);
+    return(0);
+}
+
 void screenshot(char *name, int times)
 {
     if(times > 100){
@@ -2912,11 +3033,11 @@ void screenshot(char *name, int times)
     setting.screenshot_sections=times;
 
 
-    int HEADER_SIZE=24;
+    //int HEADER_SIZE=24;
     unsigned char *buffer_all;
     unsigned char *buffer[100*100];
 
-    char filename[100];
+    //char filename[100];
 
     int w=glutGet(GLUT_WINDOW_WIDTH);
     int h=glutGet(GLUT_WINDOW_HEIGHT);
@@ -2929,9 +3050,9 @@ void screenshot(char *name, int times)
     std::cout << "Generating screenshot (" << w*times << "x" << h*times << "):" << std::endl;
     
 
-    int buf_size_all = HEADER_SIZE + w*h*3 *times*times;
-    unsigned char tmp;
-    FILE *out_file;
+    //int buf_size_all = HEADER_SIZE + w*h*3 *times*times;
+
+    int buf_size_all = w*h*3 *times*times;
 
 
     std::cout << "    Requesting memory ";
@@ -3054,14 +3175,6 @@ void screenshot(char *name, int times)
 
 
 
-        //this block based on: http://www.opengl.org/discussion_boards/ubbthreads.php?ubb=showflat&Number=44286
-        //write header
-        buffer_all[2] = 2;  // uncompressed
-        buffer_all[12] = (w*times) & 255;
-        buffer_all[13] = (w*times) >> 8;
-        buffer_all[14] = (h*times) & 255;
-        buffer_all[15] = (h*times) >> 8;
-        buffer_all[16] = 24;    // 24 bits per pix
 
 
         //// RGB to BGR
@@ -3080,34 +3193,33 @@ void screenshot(char *name, int times)
         for(int l=0;l<h;l++){
             for(int j=0;j<times;j++){
                 for(int i=0; i < w*3; i++){
-                    buffer_all[HEADER_SIZE+i+w*3*j+l*w*3*times+k*times*w*h*3]=buffer[j+times*k][i+l*w*3];
+                    buffer_all[i+w*3*j+l*w*3*times+k*times*w*h*3]=buffer[j+times*k][i+l*w*3];
                 }
             }
         }
     }
 
-
     //RGB -> BGR
-    for(int j=HEADER_SIZE;j<buf_size_all;j+=3){
-            tmp = buffer_all[j];
-            buffer_all[j] = buffer_all[j+2];
-            buffer_all[j+2] = tmp;
-    }
- 
-
-    if (!(out_file = fopen(name, "w")))
-    {
-        return;
+    char tmp;
+    for(int j=0;j<buf_size_all;j+=3){
+        tmp = buffer_all[j];
+        buffer_all[j] = buffer_all[j+2];
+        buffer_all[j+2] = tmp;
     }
 
 
-    fwrite(buffer_all, sizeof(unsigned char), buf_size_all, out_file);
 
-    fclose(out_file);
+
+    std::cout << "    Save screenshot as: ..." << name ;
+    cout.flush();
+    //save_pixmap_as_tga(buffer_all, name, w*times, h*times);
+
+    save_pixmap_as_bmp(buffer_all, "/tmp/glced.bmp", w*times, h*times);
+
+    save_pixmap_as_tga(buffer_all, "/tmp/glced.tga", w*times, h*times);
+    std::cout << " Done" << endl ;
 
     std::cout << "    Clean memory ";
-
-
     for(int i=0;i<times*times;i++){
         std::cout << ".";
         std::cout.flush();
@@ -3116,210 +3228,300 @@ void screenshot(char *name, int times)
     free(buffer_all);
     std::cout << " Done" << std::endl;
 
-    std::cout << "    Screenshot saved as: " << name << std::endl;
-
-
     setting.screenshot_sections=1;
 }
 
-//from: http://www.opengl.org/discussion_boards/ubbthreads.php?ubb=showflat&Number=44286
-void screenshot_old(char *name)
-{
-    //int HEADER_SIZE=24;
-
-    int HEADER_SIZE=24;
-    unsigned char *buffer_all;
-
-    unsigned char *buffer1;
-
-    unsigned char *buffer2;
-
-    unsigned char *buffer3;
-
-    unsigned char *buffer4;
-    char filename[50];
-    int w=window_width;
-    int h=window_height;
-    int buf_size = (w * h * 3);
-
-    int buf_size_all = HEADER_SIZE + buf_size * 4;
-    //int i;
-    unsigned char temp;
-    FILE *out_file;
-
-
-     //mm.mv.y=
-     //mm.mv.z=
-  
-  
-    float grad2rad=3.141*2/360;
-    float x_factor_x =  cos(mm.ha*grad2rad);
-    float x_factor_y =  cos((mm.va-90)*grad2rad)*cos((mm.ha+90)*grad2rad);
-    float y_factor_x =  0; 
-    float y_factor_y = -cos(mm.va*grad2rad);
-    float z_factor_x =  cos((mm.ha-90)*grad2rad);
-    float z_factor_y = -cos(mm.ha*grad2rad)*cos((mm.va+90)*grad2rad);
-  
-    //float scale_factor=580/mm.sf/exp(log(window_width*window_height)/2.5) ;
-
-    float scale_factor=0.5*580/mm.sf/exp(log(window_width*window_height)/2.5);
-    float move_x=0;
-    float move_y=0;
 
 
 
-    // allocate mem to read from frame buf
-    if (!(buffer1 = (unsigned char *) calloc(1, buf_size)))
-    {
-        return;
-    }
-    if (!(buffer2 = (unsigned char *) calloc(1, buf_size)))
-    {
-        return;
-    }
 
-
-    if (!(buffer3 = (unsigned char *) calloc(1, buf_size)))
-    {
-        return;
-    }
-    if (!(buffer4 = (unsigned char *) calloc(1, buf_size)))
-    {
-        return;
-    }
-
-    if (!(buffer_all = (unsigned char *) calloc(1, buf_size_all)))
-    {
-        return;
-    }
-
-
-    if(setting.persp== false){
-        move_x=-w;
-        move_y=-h;
-    //    x_factor_x =  cos(mm.ha*grad2rad);
-    //    x_factor_y =  cos((mm.va-90)*grad2rad)*cos((mm.ha+90)*grad2rad);
-    //    y_factor_x =  0; 
-    //    y_factor_y = -cos(mm.va*grad2rad);
-    //    z_factor_x =  cos((mm.ha-90)*grad2rad);
-    //    z_factor_y = -cos(mm.ha*grad2rad)*cos((mm.va+90)*grad2rad);
-    
-        mm.mv.x-= -1*scale_factor*(move_x)*x_factor_x - scale_factor*(move_y)*x_factor_y;
-        mm.mv.y-= -1*scale_factor*(move_x)*y_factor_x - scale_factor*(move_y)*y_factor_y;
-        mm.mv.z-= -1*scale_factor*(move_x)*z_factor_x - scale_factor*(move_y)*z_factor_y;
-      
-        glutPostRedisplay();
-        reshape(w,h);
-        display();
-        reshape(w,h);
-    
-        glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer3);
-    
-        //mm.mv.x+=1000;
-    
-    
-    
-        move_x=+w*2;
-        move_y=0;
-    
-    //    x_factor_x =  cos(mm.ha*grad2rad);
-    //    x_factor_y =  cos((mm.va-90)*grad2rad)*cos((mm.ha+90)*grad2rad);
-    //    y_factor_x =  0; 
-    //    y_factor_y = -cos(mm.va*grad2rad);
-    //    z_factor_x =  cos((mm.ha-90)*grad2rad);
-    //    z_factor_y = -cos(mm.ha*grad2rad)*cos((mm.va+90)*grad2rad);
-    
-        mm.mv.x-=-1* scale_factor*(move_x)*x_factor_x - scale_factor*(move_y)*x_factor_y;
-        mm.mv.y-=-1* scale_factor*(move_x)*y_factor_x - scale_factor*(move_y)*y_factor_y;
-        mm.mv.z-=- 1*scale_factor*(move_x)*z_factor_x - scale_factor*(move_y)*z_factor_y;
-      
-    
-        glutPostRedisplay();
-        display();
-        reshape(w,h);
-    
-    
-        glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer4);
-    
-    
-        move_x=0;
-        move_y=2*h;
-    //    x_factor_x =  cos(mm.ha*grad2rad);
-    //    x_factor_y =  cos((mm.va-90)*grad2rad)*cos((mm.ha+90)*grad2rad);
-    //    y_factor_x =  0; 
-    //    y_factor_y = -cos(mm.va*grad2rad);
-    //    z_factor_x =  cos((mm.ha-90)*grad2rad);
-    //    z_factor_y = -cos(mm.ha*grad2rad)*cos((mm.va+90)*grad2rad);
-    
-        mm.mv.x-=- 1*scale_factor*(move_x)*x_factor_x - scale_factor*(move_y)*x_factor_y;
-        mm.mv.y-=- 1*scale_factor*(move_x)*y_factor_x - scale_factor*(move_y)*y_factor_y;
-        mm.mv.z-=- 1*scale_factor*(move_x)*z_factor_x - scale_factor*(move_y)*z_factor_y;
-      
-    
-        glutPostRedisplay();
-    
-        display();
-        reshape(w,h);
-    
-        glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer2);
-    
-    
-    
-        move_x=-2*w;
-        move_y=0;
-    //    x_factor_x =  cos(mm.ha*grad2rad);
-    //    x_factor_y =  cos((mm.va-90)*grad2rad)*cos((mm.ha+90)*grad2rad);
-    //    y_factor_x =  0; 
-    //    y_factor_y = -cos(mm.va*grad2rad);
-    //    z_factor_x =  cos((mm.ha-90)*grad2rad);
-    //    z_factor_y = -cos(mm.ha*grad2rad)*cos((mm.va+90)*grad2rad);
-    
-        mm.mv.x-=-1* scale_factor*(move_x)*x_factor_x - scale_factor*(move_y)*x_factor_y;
-        mm.mv.y-=-1* scale_factor*(move_x)*y_factor_x - scale_factor*(move_y)*y_factor_y;
-        mm.mv.z-=-1* scale_factor*(move_x)*z_factor_x - scale_factor*(move_y)*z_factor_y;
-      
-    
-        glutPostRedisplay();
-        display();
-        reshape(w,h);
-    
-    
-        glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer1);
-    
-    
-    
-        move_x=+w;
-        move_y=-h;
-        mm.mv.x-=-1* scale_factor*(move_x)*x_factor_x - scale_factor*(move_y)*x_factor_y;
-        mm.mv.y-=-1* scale_factor*(move_x)*y_factor_x - scale_factor*(move_y)*y_factor_y;
-        mm.mv.z-=-1* scale_factor*(move_x)*z_factor_x - scale_factor*(move_y)*z_factor_y;
-        glutPostRedisplay();
-        display();
-        reshape(w,h);
-    
-      
-    
-    }else if(setting.persp == true){
-        //reshape(500,500);
-        int w=window_width;
-        int h=window_height;
-
-
-        std::cout << "w" << w << "h: " << h << std::endl;
-
-    //    double x=cos((90.-45./4.)*3.141*2./360.)*2000;
-    //    double y=cos((90.-45./4.)*3.141*2./360.)*2000;
-    //    double z=2000.-pow(pow(2000,2)-pow(x,2)-pow(y,2),0.5);
-    //    z=0;
-    //    std::cout << "(" << x << "," << y << "," << z << ") |x| = " << pow(pow(x,2)+pow(y,2)+pow(z,2),0.5) << endl;
-
-
-
+////from: http://www.opengl.org/discussion_boards/ubbthreads.php?ubb=showflat&Number=44286
+//void screenshot_old(char *name)
+//{
+//    //int HEADER_SIZE=24;
+//
+//    int HEADER_SIZE=24;
+//    unsigned char *buffer_all;
+//
+//    unsigned char *buffer1;
+//
+//    unsigned char *buffer2;
+//
+//    unsigned char *buffer3;
+//
+//    unsigned char *buffer4;
+//    char filename[50];
+//    int w=window_width;
+//    int h=window_height;
+//    int buf_size = (w * h * 3);
+//
+//    int buf_size_all = HEADER_SIZE + buf_size * 4;
+//    //int i;
+//    unsigned char temp;
+//    FILE *out_file;
+//
+//
+//     //mm.mv.y=
+//     //mm.mv.z=
+//  
+//  
+//    float grad2rad=3.141*2/360;
+//    float x_factor_x =  cos(mm.ha*grad2rad);
+//    float x_factor_y =  cos((mm.va-90)*grad2rad)*cos((mm.ha+90)*grad2rad);
+//    float y_factor_x =  0; 
+//    float y_factor_y = -cos(mm.va*grad2rad);
+//    float z_factor_x =  cos((mm.ha-90)*grad2rad);
+//    float z_factor_y = -cos(mm.ha*grad2rad)*cos((mm.va+90)*grad2rad);
+//  
+//    //float scale_factor=580/mm.sf/exp(log(window_width*window_height)/2.5) ;
+//
+//    float scale_factor=0.5*580/mm.sf/exp(log(window_width*window_height)/2.5);
+//    float move_x=0;
+//    float move_y=0;
+//
+//
+//
+//    // allocate mem to read from frame buf
+//    if (!(buffer1 = (unsigned char *) calloc(1, buf_size)))
+//    {
+//        return;
+//    }
+//    if (!(buffer2 = (unsigned char *) calloc(1, buf_size)))
+//    {
+//        return;
+//    }
+//
+//
+//    if (!(buffer3 = (unsigned char *) calloc(1, buf_size)))
+//    {
+//        return;
+//    }
+//    if (!(buffer4 = (unsigned char *) calloc(1, buf_size)))
+//    {
+//        return;
+//    }
+//
+//    if (!(buffer_all = (unsigned char *) calloc(1, buf_size_all)))
+//    {
+//        return;
+//    }
+//
+//
+//    if(setting.persp== false){
+//        move_x=-w;
+//        move_y=-h;
+//    //    x_factor_x =  cos(mm.ha*grad2rad);
+//    //    x_factor_y =  cos((mm.va-90)*grad2rad)*cos((mm.ha+90)*grad2rad);
+//    //    y_factor_x =  0; 
+//    //    y_factor_y = -cos(mm.va*grad2rad);
+//    //    z_factor_x =  cos((mm.ha-90)*grad2rad);
+//    //    z_factor_y = -cos(mm.ha*grad2rad)*cos((mm.va+90)*grad2rad);
+//    
+//        mm.mv.x-= -1*scale_factor*(move_x)*x_factor_x - scale_factor*(move_y)*x_factor_y;
+//        mm.mv.y-= -1*scale_factor*(move_x)*y_factor_x - scale_factor*(move_y)*y_factor_y;
+//        mm.mv.z-= -1*scale_factor*(move_x)*z_factor_x - scale_factor*(move_y)*z_factor_y;
+//      
+//        glutPostRedisplay();
+//        reshape(w,h);
+//        display();
+//        reshape(w,h);
+//    
+//        glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer3);
+//    
+//        //mm.mv.x+=1000;
+//    
+//    
+//    
+//        move_x=+w*2;
+//        move_y=0;
+//    
+//    //    x_factor_x =  cos(mm.ha*grad2rad);
+//    //    x_factor_y =  cos((mm.va-90)*grad2rad)*cos((mm.ha+90)*grad2rad);
+//    //    y_factor_x =  0; 
+//    //    y_factor_y = -cos(mm.va*grad2rad);
+//    //    z_factor_x =  cos((mm.ha-90)*grad2rad);
+//    //    z_factor_y = -cos(mm.ha*grad2rad)*cos((mm.va+90)*grad2rad);
+//    
+//        mm.mv.x-=-1* scale_factor*(move_x)*x_factor_x - scale_factor*(move_y)*x_factor_y;
+//        mm.mv.y-=-1* scale_factor*(move_x)*y_factor_x - scale_factor*(move_y)*y_factor_y;
+//        mm.mv.z-=- 1*scale_factor*(move_x)*z_factor_x - scale_factor*(move_y)*z_factor_y;
+//      
+//    
+//        glutPostRedisplay();
+//        display();
+//        reshape(w,h);
+//    
+//    
+//        glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer4);
+//    
+//    
+//        move_x=0;
+//        move_y=2*h;
+//    //    x_factor_x =  cos(mm.ha*grad2rad);
+//    //    x_factor_y =  cos((mm.va-90)*grad2rad)*cos((mm.ha+90)*grad2rad);
+//    //    y_factor_x =  0; 
+//    //    y_factor_y = -cos(mm.va*grad2rad);
+//    //    z_factor_x =  cos((mm.ha-90)*grad2rad);
+//    //    z_factor_y = -cos(mm.ha*grad2rad)*cos((mm.va+90)*grad2rad);
+//    
+//        mm.mv.x-=- 1*scale_factor*(move_x)*x_factor_x - scale_factor*(move_y)*x_factor_y;
+//        mm.mv.y-=- 1*scale_factor*(move_x)*y_factor_x - scale_factor*(move_y)*y_factor_y;
+//        mm.mv.z-=- 1*scale_factor*(move_x)*z_factor_x - scale_factor*(move_y)*z_factor_y;
+//      
+//    
+//        glutPostRedisplay();
+//    
+//        display();
+//        reshape(w,h);
+//    
+//        glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer2);
+//    
+//    
+//    
+//        move_x=-2*w;
+//        move_y=0;
+//    //    x_factor_x =  cos(mm.ha*grad2rad);
+//    //    x_factor_y =  cos((mm.va-90)*grad2rad)*cos((mm.ha+90)*grad2rad);
+//    //    y_factor_x =  0; 
+//    //    y_factor_y = -cos(mm.va*grad2rad);
+//    //    z_factor_x =  cos((mm.ha-90)*grad2rad);
+//    //    z_factor_y = -cos(mm.ha*grad2rad)*cos((mm.va+90)*grad2rad);
+//    
+//        mm.mv.x-=-1* scale_factor*(move_x)*x_factor_x - scale_factor*(move_y)*x_factor_y;
+//        mm.mv.y-=-1* scale_factor*(move_x)*y_factor_x - scale_factor*(move_y)*y_factor_y;
+//        mm.mv.z-=-1* scale_factor*(move_x)*z_factor_x - scale_factor*(move_y)*z_factor_y;
+//      
+//    
+//        glutPostRedisplay();
+//        display();
+//        reshape(w,h);
+//    
+//    
+//        glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer1);
+//    
+//    
+//    
+//        move_x=+w;
+//        move_y=-h;
+//        mm.mv.x-=-1* scale_factor*(move_x)*x_factor_x - scale_factor*(move_y)*x_factor_y;
+//        mm.mv.y-=-1* scale_factor*(move_x)*y_factor_x - scale_factor*(move_y)*y_factor_y;
+//        mm.mv.z-=-1* scale_factor*(move_x)*z_factor_x - scale_factor*(move_y)*z_factor_y;
+//        glutPostRedisplay();
+//        display();
+//        reshape(w,h);
+//    
+//      
+//    
+//    }else if(setting.persp == true){
+//        //reshape(500,500);
+//        int w=window_width;
+//        int h=window_height;
+//
+//
+//        std::cout << "w" << w << "h: " << h << std::endl;
+//
+//    //    double x=cos((90.-45./4.)*3.141*2./360.)*2000;
+//    //    double y=cos((90.-45./4.)*3.141*2./360.)*2000;
+//    //    double z=2000.-pow(pow(2000,2)-pow(x,2)-pow(y,2),0.5);
+//    //    z=0;
+//    //    std::cout << "(" << x << "," << y << "," << z << ") |x| = " << pow(pow(x,2)+pow(y,2)+pow(z,2),0.5) << endl;
+//
+//
+//
+////        glMatrixMode(GL_PROJECTION);
+////        glLoadIdentity();
+////        glViewport(0,0,w,h);
+////        gluPerspective(45./2.,window_width/window_height,100.0,50000.0*mm.sf+50000/mm.sf);
+////        gluLookAt  (0,0,2000,    -1.*x,y,z,    0,1,0);
+////        glMatrixMode(GL_MODELVIEW);
+////        write_world_into_front_buffer();
+////        glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer3);
+////        glMatrixMode(GL_MODELVIEW);
+////        glutPostRedisplay();
+////        display();
+////        reshape(w,h);
+////
+////
+////
+////        glMatrixMode(GL_PROJECTION);
+////        glLoadIdentity();
+////        glViewport(0,0,w,h);
+////        gluPerspective(45./2.,window_width/window_height,100.0,50000.0*mm.sf+50000/mm.sf);
+////        gluLookAt  (0,0,2000,    -1.*x,-1.*y,z,    0,1,0);
+////        glMatrixMode(GL_MODELVIEW);
+////        write_world_into_front_buffer();
+////        glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer1);
+////        glMatrixMode(GL_MODELVIEW);
+////        glutPostRedisplay();
+////        display();
+////        reshape(w,h);
+////
+////
+////
+////
+////        glMatrixMode(GL_PROJECTION);
+////        glLoadIdentity();
+////        glViewport(0,0,w,h);
+////        gluPerspective(45./2.,window_width/window_height,100.0,50000.0*mm.sf+50000/mm.sf);
+////        gluLookAt  (0,0,2000,  x,y,z,    0,1,0);
+////        glMatrixMode(GL_MODELVIEW);
+////        write_world_into_front_buffer();
+////        glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer4);
+////        glMatrixMode(GL_MODELVIEW);
+////        glutPostRedisplay();
+////        display();
+////        reshape(w,h);
+////
+////        glMatrixMode(GL_PROJECTION);
+////        glLoadIdentity();
+////        glViewport(0,0,w,h);
+////        gluPerspective(45./2.,window_width/window_height,100.0,50000.0*mm.sf+50000/mm.sf);
+////        gluLookAt  (0,0,2000,    x,-1*y,z,    0,1,0);
+////        glMatrixMode(GL_MODELVIEW);
+////        write_world_into_front_buffer();
+////        glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer2);
+////        glMatrixMode(GL_MODELVIEW);
+////        glutPostRedisplay();
+////        display();
+////        reshape(w,h);
+//
+//
+/////////////////////////
+//        
+//
 //        glMatrixMode(GL_PROJECTION);
 //        glLoadIdentity();
+//        glFrustum(-100,0,-100,0,200.,50000.0*mm.sf*2+50000/(mm.sf*2));
 //        glViewport(0,0,w,h);
-//        gluPerspective(45./2.,window_width/window_height,100.0,50000.0*mm.sf+50000/mm.sf);
-//        gluLookAt  (0,0,2000,    -1.*x,y,z,    0,1,0);
+//        gluLookAt  (0,0,2000,    0,0,0,    0,1,0);
+//        glMatrixMode(GL_MODELVIEW);
+//        write_world_into_front_buffer();
+//        glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer1);
+//        glMatrixMode(GL_MODELVIEW);
+//        glutPostRedisplay();
+//        display();
+//        reshape(w,h);
+//
+//        glMatrixMode(GL_PROJECTION);
+//        glLoadIdentity();
+//        glFrustum(0,100,-100,0,200.0,50000.0*mm.sf*2+50000/(mm.sf*2));
+//        glViewport(0,0,w,h);
+//        gluLookAt  (0,0,2000,    0,0,0,    0,1,0);
+//        glMatrixMode(GL_MODELVIEW);
+//        write_world_into_front_buffer();
+//        glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer2);
+//        glMatrixMode(GL_MODELVIEW);
+//        glutPostRedisplay();
+//        display();
+//        reshape(w,h);
+//
+//
+//
+//        glMatrixMode(GL_PROJECTION);
+//        glLoadIdentity();
+//        glFrustum(-100,0,0,100,200.0,50000.0*mm.sf*2+50000/(mm.sf*2));
+//        glViewport(0,0,w,h);
+//        gluLookAt  (0,0,2000,    0,0,0,    0,1,0);
 //        glMatrixMode(GL_MODELVIEW);
 //        write_world_into_front_buffer();
 //        glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer3);
@@ -3332,25 +3534,9 @@ void screenshot_old(char *name)
 //
 //        glMatrixMode(GL_PROJECTION);
 //        glLoadIdentity();
+//        glFrustum(0,100,0,100,200.0,50000.0*mm.sf*2+50000/(mm.sf*2));
 //        glViewport(0,0,w,h);
-//        gluPerspective(45./2.,window_width/window_height,100.0,50000.0*mm.sf+50000/mm.sf);
-//        gluLookAt  (0,0,2000,    -1.*x,-1.*y,z,    0,1,0);
-//        glMatrixMode(GL_MODELVIEW);
-//        write_world_into_front_buffer();
-//        glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer1);
-//        glMatrixMode(GL_MODELVIEW);
-//        glutPostRedisplay();
-//        display();
-//        reshape(w,h);
-//
-//
-//
-//
-//        glMatrixMode(GL_PROJECTION);
-//        glLoadIdentity();
-//        glViewport(0,0,w,h);
-//        gluPerspective(45./2.,window_width/window_height,100.0,50000.0*mm.sf+50000/mm.sf);
-//        gluLookAt  (0,0,2000,  x,y,z,    0,1,0);
+//        gluLookAt  (0,0,2000,    0,0,0,    0,1,0);
 //        glMatrixMode(GL_MODELVIEW);
 //        write_world_into_front_buffer();
 //        glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer4);
@@ -3359,170 +3545,97 @@ void screenshot_old(char *name)
 //        display();
 //        reshape(w,h);
 //
-//        glMatrixMode(GL_PROJECTION);
-//        glLoadIdentity();
-//        glViewport(0,0,w,h);
-//        gluPerspective(45./2.,window_width/window_height,100.0,50000.0*mm.sf+50000/mm.sf);
-//        gluLookAt  (0,0,2000,    x,-1*y,z,    0,1,0);
-//        glMatrixMode(GL_MODELVIEW);
-//        write_world_into_front_buffer();
-//        glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer2);
-//        glMatrixMode(GL_MODELVIEW);
-//        glutPostRedisplay();
-//        display();
-//        reshape(w,h);
-
-
-///////////////////////
-        
-
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-        glFrustum(-100,0,-100,0,200.,50000.0*mm.sf*2+50000/(mm.sf*2));
-        glViewport(0,0,w,h);
-        gluLookAt  (0,0,2000,    0,0,0,    0,1,0);
-        glMatrixMode(GL_MODELVIEW);
-        write_world_into_front_buffer();
-        glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer1);
-        glMatrixMode(GL_MODELVIEW);
-        glutPostRedisplay();
-        display();
-        reshape(w,h);
-
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-        glFrustum(0,100,-100,0,200.0,50000.0*mm.sf*2+50000/(mm.sf*2));
-        glViewport(0,0,w,h);
-        gluLookAt  (0,0,2000,    0,0,0,    0,1,0);
-        glMatrixMode(GL_MODELVIEW);
-        write_world_into_front_buffer();
-        glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer2);
-        glMatrixMode(GL_MODELVIEW);
-        glutPostRedisplay();
-        display();
-        reshape(w,h);
-
-
-
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-        glFrustum(-100,0,0,100,200.0,50000.0*mm.sf*2+50000/(mm.sf*2));
-        glViewport(0,0,w,h);
-        gluLookAt  (0,0,2000,    0,0,0,    0,1,0);
-        glMatrixMode(GL_MODELVIEW);
-        write_world_into_front_buffer();
-        glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer3);
-        glMatrixMode(GL_MODELVIEW);
-        glutPostRedisplay();
-        display();
-        reshape(w,h);
-
-
-
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-        glFrustum(0,100,0,100,200.0,50000.0*mm.sf*2+50000/(mm.sf*2));
-        glViewport(0,0,w,h);
-        gluLookAt  (0,0,2000,    0,0,0,    0,1,0);
-        glMatrixMode(GL_MODELVIEW);
-        write_world_into_front_buffer();
-        glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer4);
-        glMatrixMode(GL_MODELVIEW);
-        glutPostRedisplay();
-        display();
-        reshape(w,h);
-
-
-
-     }
-
-
-    // open file for output 
-    if (!(out_file = fopen(name, "w")))
-    {
-        return;
-    }
-
-
-
-
-    
-    // set header info
-    buffer_all[2] = 2;  // uncompressed
-    buffer_all[12] = (w*2) & 255;
-    buffer_all[13] = (w*2) >> 8;
-    buffer_all[14] = (h*2) & 255;
-    buffer_all[15] = (h*2) >> 8;
-    buffer_all[16] = 24;    // 24 bits per pix
-
-
-    // RGB to BGR
-    for (int i = 0; i < buf_size; i += 3)
-    {
-        temp = buffer1[i];
-        buffer1[i] = buffer1[i + 2];
-        buffer1[i + 2] = temp;
-    }
-
-    for (int i = 0; i < buf_size; i += 3)
-    {
-        temp = buffer2[i];
-        buffer2[i] = buffer2[i + 2];
-        buffer2[i + 2] = temp;
-    }
-
-    for (int i = 0; i < buf_size; i += 3)
-    {
-        temp = buffer3[i];
-        buffer3[i] = buffer3[i + 2];
-        buffer3[i + 2] = temp;
-    }
-
-    for (int i = 0; i < buf_size; i += 3)
-    {
-        temp = buffer4[i];
-        buffer4[i] = buffer4[i + 2];
-        buffer4[i + 2] = temp;
-    }
-
-
-
-
-    for(int l=0; l < h; l++){
-        for(int c=0; c < w*3; c++){
-                buffer_all[c+2*w*l*3+HEADER_SIZE] = buffer1[c+w*l*3];
-        }
-
-        for(int c=0; c < w*3; c++){
-                buffer_all[w*3+c+2*w*l*3+HEADER_SIZE] = buffer2[c+w*l*3];
-        }
-     }
-
-    for(int l=0; l < h; l++){
-        for(int c=0; c < w*3; c++){
-                buffer_all[c+2*w*(l+h)*3+HEADER_SIZE] = buffer3[c+w*l*3];
-        }
-
-        for(int c=0; c < w*3; c++){
-                buffer_all[w*3+c+2*w*(l+h)*3+HEADER_SIZE] = buffer4[c+w*l*3];
-        }
-     }
-
-
-
-    // write header + color buf to file
-    fwrite(buffer_all, sizeof(unsigned char), buf_size_all, out_file);
-
-    // cleanup
-    fclose(out_file);
-    free(buffer_all);
-
-    free(buffer1);
-
-    free(buffer2);
-
-    free(buffer3);
-
-    free(buffer4);
-    std::cout << "screenshot saved" << std::endl;
-}
+//
+//
+//     }
+//
+//
+//    // open file for output 
+//    if (!(out_file = fopen(name, "w")))
+//    {
+//        return;
+//    }
+//
+//
+//
+//
+//    
+//    // set header info
+//    buffer_all[2] = 2;  // uncompressed
+//    buffer_all[12] = (w*2) & 255;
+//    buffer_all[13] = (w*2) >> 8;
+//    buffer_all[14] = (h*2) & 255;
+//    buffer_all[15] = (h*2) >> 8;
+//    buffer_all[16] = 24;    // 24 bits per pix
+//
+//
+//    // RGB to BGR
+//    for (int i = 0; i < buf_size; i += 3)
+//    {
+//        temp = buffer1[i];
+//        buffer1[i] = buffer1[i + 2];
+//        buffer1[i + 2] = temp;
+//    }
+//
+//    for (int i = 0; i < buf_size; i += 3)
+//    {
+//        temp = buffer2[i];
+//        buffer2[i] = buffer2[i + 2];
+//        buffer2[i + 2] = temp;
+//    }
+//
+//    for (int i = 0; i < buf_size; i += 3)
+//    {
+//        temp = buffer3[i];
+//        buffer3[i] = buffer3[i + 2];
+//        buffer3[i + 2] = temp;
+//    }
+//
+//    for (int i = 0; i < buf_size; i += 3)
+//    {
+//        temp = buffer4[i];
+//        buffer4[i] = buffer4[i + 2];
+//        buffer4[i + 2] = temp;
+//    }
+//
+//
+//
+//
+//    for(int l=0; l < h; l++){
+//        for(int c=0; c < w*3; c++){
+//                buffer_all[c+2*w*l*3+HEADER_SIZE] = buffer1[c+w*l*3];
+//        }
+//
+//        for(int c=0; c < w*3; c++){
+//                buffer_all[w*3+c+2*w*l*3+HEADER_SIZE] = buffer2[c+w*l*3];
+//        }
+//     }
+//
+//    for(int l=0; l < h; l++){
+//        for(int c=0; c < w*3; c++){
+//                buffer_all[c+2*w*(l+h)*3+HEADER_SIZE] = buffer3[c+w*l*3];
+//        }
+//
+//        for(int c=0; c < w*3; c++){
+//                buffer_all[w*3+c+2*w*(l+h)*3+HEADER_SIZE] = buffer4[c+w*l*3];
+//        }
+//     }
+//
+//
+//
+//    // write header + color buf to file
+//    fwrite(buffer_all, sizeof(unsigned char), buf_size_all, out_file);
+//
+//    // cleanup
+//    fclose(out_file);
+//    free(buffer_all);
+//
+//    free(buffer1);
+//
+//    free(buffer2);
+//
+//    free(buffer3);
+//
+//    free(buffer4);
+//    std::cout << "screenshot saved" << std::endl;
+//}

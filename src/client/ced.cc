@@ -46,21 +46,23 @@ static char ced_host[30];
   time_t ct;
   struct sockaddr_in addr;
 
-  if(ced_fd>=0)
+  if(ced_fd>=0){
     return 0; // already connected;
+  }
   time(&ct);
-  if(ct-last_attempt<5)
+  if(ct-last_attempt<5){
     return -1; // don't try reconnect all the time
+  }
   addr.sin_family=AF_INET;
   addr.sin_port=htons(ced_port);
-  //addr.sin_addr.s_addr=inet_addr("127.0.0.1"); 
   addr.sin_addr.s_addr=inet_addr(ced_host); 
+  memset(&addr.sin_zero, 0, sizeof(addr.sin_zero)); //not nessesary because sin_zero is not used!
 
-  //addr.sin_addr.s_addr=htonl(0x7f000001); // 127.0.0.1
   ced_fd=socket(PF_INET,SOCK_STREAM,0);
   if(connect(ced_fd,(struct sockaddr *)&addr,sizeof(addr)) != 0){
-    if(!last_attempt)
-      perror("WARNING:CED: can't connect to CED");
+    if(!last_attempt){
+        perror("WARNING:CED: can't connect to CED");
+    }
     time(&last_attempt);
     close(ced_fd);
     ced_fd=-1;
