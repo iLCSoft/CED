@@ -2472,20 +2472,16 @@ void selectFromMenu(int id){ //hauke
 }
 
 int buildMenuPopup(void){ //hauke
-    int menu;
-    int subMenu1;
-    int subMenu2;
+    //int menu;
+    //int subMenu1;
+    //int subMenu2;
     int subMenu3;
     int subMenu4;
     int subsubMenu1;
-    int subsubMenu3;
+    //int subsubMenu3;
     int DetectorComponents;
-    //int subsubMenu2; //extern
 
-
-
-
-    subMenu1 = glutCreateMenu(selectFromMenu);
+    int bgColorMenu = glutCreateMenu(selectFromMenu);
     glutAddMenuEntry("White",BGCOLOR_WHITE);
     glutAddMenuEntry("Gainsboro", BGCOLOR_GAINSBORO);
     glutAddMenuEntry("Lightgrey", BGCOLOR_LIGHTGREY);
@@ -2494,29 +2490,18 @@ int buildMenuPopup(void){ //hauke
     glutAddMenuEntry("Gray", BGCOLOR_GRAY);
     glutAddMenuEntry("Dimgray", BGCOLOR_DIMGRAY);
     glutAddMenuEntry("Black",BGCOLOR_BLACK);
-
-
     glutAddMenuEntry("Lightsteelblue",BGCOLOR_LIGHTSTEELBLUE);
     glutAddMenuEntry("Steelblue",BGCOLOR_STEELBLUE);
     glutAddMenuEntry("Blue",BGCOLOR_BLUE);
-
     glutAddMenuEntry("Seagreen",BGCOLOR_SEAGREEN);
-
     glutAddMenuEntry("Orange",BGCOLOR_ORANGE);
-
     glutAddMenuEntry("Yellow",BGCOLOR_YELLOW);
-
     glutAddMenuEntry("Violet",BGCOLOR_VIOLET);
-
     if(userDefinedBGColor[0] >= 0){ //is set
         glutAddMenuEntry("User defined",BGCOLOR_USER);
     }
 
-
-
-
-
-    subMenu2 = glutCreateMenu(selectFromMenu);
+    int cameraMenu = glutCreateMenu(selectFromMenu);
     glutAddMenuEntry("Reset view [r]", VIEW_RESET);
     glutAddMenuEntry("Front view [f]", VIEW_FRONT);
     glutAddMenuEntry("Side view [s]", VIEW_SIDE);
@@ -2528,13 +2513,10 @@ int buildMenuPopup(void){ //hauke
     //glutAddMenuEntry("Center [c]", VIEW_CENTER);
 
 
-
     //set up detector components and data layer menu
     int i;
     subMenu3 = glutCreateMenu(selectFromMenu);
     layerMenu=subMenu3;
-
-
     glutAddMenuEntry("Show/Hide all data Layers [`]", LAYER_ALL);
     for(i=0;i<NUMBER_POPUP_LAYER;i++){
         //sprintf(string,"[%s] Layer %s%i [%c]: %s",isLayerVisible(i)?"X":"   ", (i < 10)?"0":"" ,i, layer_keys[i], layerDescription[i]);
@@ -2567,14 +2549,7 @@ int buildMenuPopup(void){ //hauke
     #endif
 
 
-
-
-
-
-
-
     subsubMenu2 = glutCreateMenu(selectFromMenu);
-
     for(i=0; (unsigned) i < sizeof(available_cutangles) / sizeof(available_cutangles[0]); i++){
         glutAddMenuEntry(" ",  CUT_ANGLE0+i);
     }
@@ -2582,7 +2557,7 @@ int buildMenuPopup(void){ //hauke
     update_cut_angle_menu();
 
 
-    subsubMenu3=glutCreateMenu(selectFromMenu);
+    int transMenu=glutCreateMenu(selectFromMenu);
     glutAddMenuEntry("  0%",TRANS0);
     glutAddMenuEntry("40%",TRANS40);
     glutAddMenuEntry("60%",TRANS60);
@@ -2601,7 +2576,7 @@ int buildMenuPopup(void){ //hauke
 //    glutAddMenuEntry("Full Screen mode", FULLSCREEN);
 
     glutAddSubMenu("Graphic details", subsubMenu1);
-    glutAddSubMenu("Transparency value", subsubMenu3);
+    glutAddSubMenu("Transparency value", transMenu);
 
 
 
@@ -2620,7 +2595,6 @@ int buildMenuPopup(void){ //hauke
     glutAddMenuEntry("Slot 4",LOAD4);
     glutAddMenuEntry("Slot 5",LOAD5);
 
-
     for(int i=1;i<=5;i++){
         updateSaveLoadMenu(i);
     }
@@ -2628,36 +2602,66 @@ int buildMenuPopup(void){ //hauke
 
     subscreenshot=glutCreateMenu(selectFromMenu);
     glutAddMenuEntry("...",SAVE_IMAGE1);
-
     glutAddMenuEntry("...",SAVE_IMAGE4);
-
     glutAddMenuEntry("...",SAVE_IMAGE10);
-
     glutAddMenuEntry("...",SAVE_IMAGE20);
-
     glutAddMenuEntry("...",SAVE_IMAGE100);
-
     updateScreenshotMenu();
 
 
+    int graphicDetailsMenu=glutCreateMenu(selectFromMenu);
+    glutAddMenuEntry("Toggle 2D/3D",GRAFIC_PERSP);
+    glutAddMenuEntry("Toggle detector model",GRAFIC_TRANS);
+    glutAddMenuEntry("Fade far objects into background color",GRAFIC_FOG);
 
 
 
+    int graphicMenu=glutCreateMenu(selectFromMenu);
+    glutAddMenuEntry("Graphic low",GRAFIC_LOW);
+    glutAddMenuEntry("Graphic high",GRAFIC_HIGH);
+    glutAddSubMenu("Details",graphicDetailsMenu);
 
-    menu=glutCreateMenu(selectFromMenu);
-    glutAddSubMenu("View", subMenu2);
-    glutAddSubMenu("Data layers", subMenu3);
-    glutAddSubMenu("Detector components", DetectorComponents);
-    glutAddSubMenu("Detector cuts", subsubMenu2);
-    glutAddSubMenu("Background Color", subMenu1);
-    glutAddSubMenu("Graphic options", subMenu4);
 
-    glutAddSubMenu("Save settings",subSave);
 
-    glutAddSubMenu("Load saved settings",subLoad);
+    int toolMenu=glutCreateMenu(selectFromMenu);
+    glutAddSubMenu("Screenshot",subscreenshot);
+    glutAddMenuEntry("Show FPS",FPS);
 
-    glutAddSubMenu("Save screenshot",subscreenshot);
-    glutAddMenuEntry("Toggle help [h]",HELP);
+
+    int visiMenu=glutCreateMenu(selectFromMenu);
+    glutAddSubMenu("Data layer",subMenu3);
+    glutAddSubMenu("Detector components",detectorMenu);
+    glutAddSubMenu("Detector cuts",subsubMenu2);
+    glutAddSubMenu("Detector transparency",transMenu);
+    glutAddMenuEntry("Toggle axes",AXES);
+
+
+    int optionMenu=glutCreateMenu(selectFromMenu);
+    glutAddSubMenu("Camera",cameraMenu);
+    glutAddSubMenu("Visibility of objects",visiMenu);
+    glutAddSubMenu("Change background color",bgColorMenu);
+    glutAddSubMenu("Graphic settings",graphicMenu);
+    glutAddSubMenu("Save current settings",subSave);
+    glutAddSubMenu("Load settings",subLoad);
+
+    int menu=glutCreateMenu(selectFromMenu);
+    glutAddSubMenu("Options",optionMenu);
+    glutAddMenuEntry("Show Keybinding", HELP);
+    glutAddSubMenu("Tools",toolMenu);
+
+//    glutAddSubMenu("View", subMenu2);
+//    glutAddSubMenu("Data layers", subMenu3);
+//    glutAddSubMenu("Detector components", DetectorComponents);
+//    glutAddSubMenu("Detector cuts", subsubMenu2);
+//    glutAddSubMenu("Background Color", subMenu1);
+//    glutAddSubMenu("Graphic options", subMenu4);
+//
+//    glutAddSubMenu("Save settings",subSave);
+//
+//    glutAddSubMenu("Load saved settings",subLoad);
+//
+//    glutAddSubMenu("Save screenshot",subscreenshot);
+//    glutAddMenuEntry("Toggle help [h]",HELP);
 
 
     return menu;
@@ -2907,7 +2911,7 @@ int save_pixmap_as_tga(unsigned char *buffer_all,char *name,int wi, int hi){
 
     int header_size=24;
     int mem_size = wi*hi*3;
-    unsigned char tmp;
+    //unsigned char tmp;
     FILE *out_file;
     unsigned char *header;
 
@@ -2940,75 +2944,110 @@ int save_pixmap_as_tga(unsigned char *buffer_all,char *name,int wi, int hi){
 
 int save_pixmap_as_bmp(unsigned char *buffer_all,char *name,unsigned int wi, unsigned int hi){
     unsigned int mem_size = wi*hi*3;
-    unsigned int header_size=54;
     FILE *out_file;
     unsigned char *header;
+
+    unsigned int header_size=26;
 
     cout << endl << "               bmp screenshot width: " << wi << " hight: " << hi << endl;
     if (!(header = (unsigned char *) calloc(1, header_size))) { return(-1); }
 
-    //header
-    header[0] = 'B';  
-    header[1] = 'M';  
-    header[2] = (mem_size+header_size) & 255;
-    header[3] = ((mem_size+header_size) >> 8) & 255;
-    header[4] = ((mem_size+header_size)  >> 16) & 255;
-    header[5] = ((mem_size+header_size)  >> 24) & 255;
-    header[6] = 0;
-    header[7] = 0;
-    header[8] = 0;
-    header[9] = 0;
-    header[10] = header_size & 255;
-    header[11] = (header_size >>8) & 255;
-    header[12] = (header_size >>16) & 255;
-    header[13] = (header_size >>24) & 255;
-    //info header:
-    header[14] = 40;
+    header[0]  = 'B';
+    header[1]  = 'M';
+    header[2]  = (mem_size+header_size)          & 255;
+    header[3]  = ((mem_size+header_size)  >> 8)  & 255;
+    header[4]  = ((mem_size+header_size)  >> 16) & 255;
+    header[5]  = ((mem_size+header_size)  >> 24) & 255;
+    header[6]  = 0;
+    header[7]  = 0;
+    header[8]  = 0;
+    header[9]  = 0;
+    header[10] = header_size;
+    header[11] = 0;
+    header[12] = 0;
+    header[13] = 0;
+    header[14] = 12;
     header[15] = 0;
     header[16] = 0;
     header[17] = 0;
+    header[18] = (unsigned char)(wi & 255);      
+    header[19] = (unsigned char)((wi >> 8) & 255);
+    header[20] = (unsigned char)(hi & 255);      
+    header[21] = (unsigned char)((hi >> 8) & 255);
+    header[22] = 1;
+    header[23] = 0;
+    header[24] = 24;
+    header[25] = 0;
 
-    header[18] = wi & 255;
+    std::cout << "hight: " << int((header[21] << 8) + header[20]) << endl;
+    std::cout << "wight: " << int((header[19] << 8)+  header[18]) << endl;
 
-    header[19] = (wi >> 8) & 255;
-    header[20] = (wi >> 16) & 255;
-    header[21] = (wi >> 24) & 255;
-    header[22] =  hi & 255;
 
-    header[23] = (hi >> 8) & 255;
-    header[24] = (hi >> 16) & 255;
-    header[25] = (hi >> 24) & 255;
-    header[26] = 1;
-    header[27] = 0;
-    header[28] = 24;
-    header[29] = 0;
-    header[30] = 0;
-    header[34] =  ( mem_size) & 255;
-    header[35] =  ((mem_size) >> 8) & 255;
-    header[36] =  ((mem_size)  >> 16) & 255;
-    header[37] =  ((mem_size)  >> 24) & 255;
-    header[38] = 0;
-    header[39] = 0;
-    header[40] = 0;
-    header[41] = 0;
-    header[42] = 0;
-    header[43] = 0;
-    header[44] = 0;
-    header[45] = 0;
-    header[46] = 0;
-    header[47] = 0;
-    header[48] = 0;
-    header[49] = 0;
-    header[50] = 0;
-    header[51] = 0;
-    header[52] = 0;
-    header[53] = 0;
+
+
+
+//    unsigned int header_size=54;
+//    //header
+//    header[0] = 'B';  
+//    header[1] = 'M';  
+//    header[2] = (mem_size+header_size) & 255;
+//    header[3] = ((mem_size+header_size) >> 8) & 255;
+//    header[4] = ((mem_size+header_size)  >> 16) & 255;
+//    header[5] = ((mem_size+header_size)  >> 24) & 255;
+//    header[6] = 0;
+//    header[7] = 0;
+//    header[8] = 0;
+//    header[9] = 0;
+//    header[10] = header_size & 255;
+//    header[11] = (header_size >>8) & 255;
+//    header[12] = (header_size >>16) & 255;
+//    header[13] = (header_size >>24) & 255;
+//    //info header:
+//    header[14] = 40;
+//    header[15] = 0;
+//    header[16] = 0;
+//    header[17] = 0;
+//
+//    header[18] = wi & 255;
+//    header[19] = (wi >> 8) & 255;
+//    header[20] = (wi >> 16) & 255;
+//    header[21] = (wi >> 24) & 255;
+//    header[22] =  hi & 255;
+//
+//    header[23] = (hi >> 8) & 255;
+//    header[24] = (hi >> 16) & 255;
+//    header[25] = (hi >> 24) & 255;
+//    header[26] = 1;
+//    header[27] = 0;
+//    header[28] = 24;
+//    header[29] = 0;
+//    header[30] = 0;
+//    header[34] =  ( mem_size) & 255;
+//    header[35] =  ((mem_size) >> 8) & 255;
+//    header[36] =  ((mem_size)  >> 16) & 255;
+//    header[37] =  ((mem_size)  >> 24) & 255;
+//    header[38] = 0;
+//    header[39] = 0;
+//    header[40] = 0;
+//    header[41] = 0;
+//    header[42] = 0;
+//    header[43] = 0;
+//    header[44] = 0;
+//    header[45] = 0;
+//    header[46] = 0;
+//    header[47] = 0;
+//    header[48] = 0;
+//    header[49] = 0;
+//    header[50] = 0;
+//    header[51] = 0;
+//    header[52] = 0;
+//    header[53] = 0;
 
     //cout << "size" << (header_size & 255) << endl;
 
     if (!(out_file = fopen(name, "wb"))) { return(-2); }
 
-    char tmp;
+    //char tmp;
 //    //RGB BGR
 //    for(int i=0;i<mem_size;i+=3){
 //        tmp = buffer_all[i+2];
