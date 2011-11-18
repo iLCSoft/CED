@@ -49,7 +49,7 @@ static int mouse_x, mouse_y;
 /** This defines what is visible */
 //unsigned ced_visible_layers=0x00000FFF;
 //unsigned long ced_visible_layers=0xFFFFFFFF;
-//bool ced_visible_layers[MAX_LAYER]={1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
+//bool ced_visible_layers[CED_MAX_LAYER]={1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
 
 int SELECTED_ID = -1;
 
@@ -59,9 +59,9 @@ int SELECTED_Y=0;
 
 extern double fisheye_alpha;
 //#define IS_VISIBLE(x) ((1<<((x>>8)&0xff))&ced_visible_layers)
-//#define IS_VISIBLE(x) ((x < (MAX_LAYER-1) && x >= 0)?ced_visible_layers[x]:false)
+//#define IS_VISIBLE(x) ((x < (CED_MAX_LAYER-1) && x >= 0)?ced_visible_layers[x]:false)
 
-#define IS_VISIBLE(x) ((x < (MAX_LAYER-1) && x >= 0)?setting.layer[x]:false)
+#define IS_VISIBLE(x) ((x < (CED_MAX_LAYER-1) && x >= 0)?setting.layer[x]:false)
 
 
 /*

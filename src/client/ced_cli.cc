@@ -349,7 +349,7 @@ static unsigned TEXT_ID=0;
 void ced_describe_layer(const char *message, int id) {
     //printf("ced_describe layer id=%i text: %s\n", id, message);
 
-    if(id >= MAX_LAYER){
+    if(id >= CED_MAX_LAYER){
         printf("WARNING: ced_describe_layer: Index out of range!\n");
         return;
     }
@@ -360,8 +360,8 @@ void ced_describe_layer(const char *message, int id) {
         return;
     }
 
-    strncpy(text->text,message,MAX_LAYER_CHAR-1);
-    text->text[MAX_LAYER_CHAR-1] = 0;
+    strncpy(text->text,message,CED_MAX_LAYER_CHAR-1);
+    text->text[CED_MAX_LAYER_CHAR-1] = 0;
     text->id=id;
     //text->x=xCordinate;
     //text->y=yCordinate;
@@ -376,7 +376,7 @@ void ced_layer_text(char *message, int id) {
         printf("ced_layer_text FAILED\n"); 
         return;
     }
-    strncpy(obj->str,message,MAX_LAYER_CHAR-1);
+    strncpy(obj->str,message,CED_MAX_LAYER_CHAR-1);
     obj->id=id;
     //printf("ced_layer_text\n");
 }
@@ -393,7 +393,7 @@ void ced_picking_text(const char *message, int id) {
 
     strncpy(text->text,message,999);
     text->id=id;
-    //text->text[MAX_LAYER_CHAR-1] = 0;
+    //text->text[CED_MAX_LAYER_CHAR-1] = 0;
     //text->id=id;
     //text->x=xCordinate;
     //text->y=yCordinate;

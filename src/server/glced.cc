@@ -212,7 +212,7 @@ extern CEDsettings setting;
 
 int ced_picking(int x,int y,GLfloat *wx,GLfloat *wy,GLfloat *wz); //from ced_srv.c, need header files!
 
-static char layerDescription[MAX_LAYER][MAX_LAYER_CHAR]; 
+static char layerDescription[CED_MAX_LAYER][CED_MAX_LAYER_CHAR]; 
 const char layer_keys[] = {'0','1', '2','3','4','5','6','7','8','9',')', '!', '@', '#', '$', '%', '^', '&', '*', '(', 't', 'y', 'u', 'i', 'o'};
 
 static int mainWindow=-1;
@@ -930,7 +930,7 @@ void saveSettings(int slot){
         file<<"#Light:"<<std::endl<<setting.light<< std::endl;
         file<<"#Cut angle:"<<std::endl<<setting.cut_angle<< std::endl;
         file<<"#Trans value:"<<std::endl<<setting.trans_value<< std::endl;
-        for(int i=0;i<MAX_LAYER;i++){
+        for(int i=0;i<CED_MAX_LAYER;i++){
             file<<"#Visibility Layer " << i << ":" <<std::endl<<setting.layer[i]<< std::endl;
         }
         file<<"#Phi projection:"<<std::endl<<setting.phi_projection<< std::endl;
@@ -982,7 +982,7 @@ void defaultSettings(void){
         setting.ha=mm.ha;
     
         
-        for(int i=0; i < MAX_LAYER; i++){
+        for(int i=0; i < CED_MAX_LAYER; i++){
             setting.layer[i]=true; // turn all layers on
         }
         for(int i=0;i < 4; i++){
@@ -1033,7 +1033,7 @@ void loadSettings(int slot){
             getline(file,line);getline(file,line);
             setting.trans_value=atof(line.c_str());
 
-            for(int i=0;i<MAX_LAYER;i++){
+            for(int i=0;i<CED_MAX_LAYER;i++){
                 getline(file,line);getline(file,line);
                 setting.layer[i]=atoi(line.c_str());
             }
@@ -1258,7 +1258,7 @@ static void toggle_layer(unsigned l){
 }
 */
 static void toggle_layer(unsigned l){
-    if(l > MAX_LAYER-1){ return; }
+    if(l > CED_MAX_LAYER-1){ return; }
 
 //    if(ced_visible_layers[l]){
 //        ced_visible_layers[l]=false;
@@ -1571,7 +1571,7 @@ void drawHelpString (const string & str, float x,float y){ //format help strings
 
 
 void subDisplay(void){
-    char label[MAX_LAYER_CHAR];
+    char label[CED_MAX_LAYER_CHAR];
     int i;
 
     glutSetWindow(subWindow);
@@ -1638,7 +1638,7 @@ void subDisplay(void){
 
     int aline=0;
     int j=0;
-    char tmp[MAX_LAYER_CHAR];
+    char tmp[CED_MAX_LAYER_CHAR];
     int jj=0;
 
     glColor3f(1.0, 1.0, 1.0);
@@ -1647,7 +1647,7 @@ void subDisplay(void){
     drawStringBig(label);
 
     for(i=0;i<NUMBER_DATA_LAYER;i++){
-        for(j=0;j<MAX_LAYER_CHAR-1;j++){
+        for(j=0;j<CED_MAX_LAYER_CHAR-1;j++){
             if(layerDescription[i][j] != ','){
                 tmp[j]=layerDescription[i][j];
             }else{
@@ -1664,7 +1664,7 @@ void subDisplay(void){
 
         jj=j;
 
-        for(;j<MAX_LAYER_CHAR-1;j++){
+        for(;j<CED_MAX_LAYER_CHAR-1;j++){
             if(layerDescription[i][j] == ',' || layerDescription[i][j] == 0){
                 tmp[j-jj]=0;
                 j++; //scrip ", "
@@ -1794,7 +1794,7 @@ void updateSaveLoadMenu(int id){ //id is save id, not menu id!
 void updateLayerEntryDetector(int id){ //id is layer id, not menu id!
     char string[200];
     char tmp[41];
-    if(id < NUMBER_DATA_LAYER || id > NUMBER_DETECTOR_LAYER+NUMBER_DATA_LAYER-1 || id > MAX_LAYER-1 || id < 0){
+    if(id < NUMBER_DATA_LAYER || id > NUMBER_DETECTOR_LAYER+NUMBER_DATA_LAYER-1 || id > CED_MAX_LAYER-1 || id < 0){
         return;
     }
     strncpy(tmp, layerDescription[id], 40); 
@@ -1809,11 +1809,11 @@ void updateLayerEntryDetector(int id){ //id is layer id, not menu id!
 
 
 void addLayerDescriptionToMenu(int id, char * str){
-    if(id < 0 || id >= MAX_LAYER){
+    if(id < 0 || id >= CED_MAX_LAYER){
         printf("Warning: Layer id out of range\n");
         return;
     }
-    strncpy(layerDescription[id], str,MAX_LAYER_CHAR-1);
+    strncpy(layerDescription[id], str,CED_MAX_LAYER_CHAR-1);
     updateLayerEntryInPopupMenu(id);
     updateLayerEntryDetector(id);
 

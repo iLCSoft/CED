@@ -10,13 +10,13 @@
 //          - sum of all layers must be smaler than max_layer!
 //          - number_popup_layer must be smaler than number_data_layer
 
-#define MAX_LAYER       100
+#define CED_MAX_LAYER       100
 #define NUMBER_POPUP_LAYER      20
 #define NUMBER_DATA_LAYER       25
 #define NUMBER_DETECTOR_LAYER   20
 
 
-#define MAX_LAYER_CHAR 400
+#define CED_MAX_LAYER_CHAR 400
 
 
 //#ifdef __cplusplus
