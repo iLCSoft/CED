@@ -363,6 +363,7 @@ void ced_describe_layer(const char *message, int id) {
     strncpy(text->text,message,CED_MAX_LAYER_CHAR-1);
     text->text[CED_MAX_LAYER_CHAR-1] = 0;
     text->id=id;
+
     //text->x=xCordinate;
     //text->y=yCordinate;
 }

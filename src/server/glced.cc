@@ -720,12 +720,215 @@ static void write_world_into_front_buffer(void){
 
     //printFPS();
 }
+
+void drawStringBig (char *s){
+    unsigned int i;
+    for (i = 0; i[s]; i++){
+        glutBitmapCharacter (GLUT_BITMAP_HELVETICA_18, s[i]);
+    }
+}
+
+void drawHelpString (const string & str, float x,float y){ //format help strings strings: "[<key>] <description>"
+    unsigned int i;
+    glRasterPos2f(x,y);
+  
+    int monospace = 0;
+    for (i = 0; str[i]; i++){
+        if(str[i] == '['){ 
+            monospace = 1;
+            glutBitmapCharacter (GLUT_BITMAP_HELVETICA_10, '[');
+            i++;
+        }
+        else if(str[i] == ']'){
+             monospace = 0;
+        }
+        if(monospace){
+            glutBitmapCharacter(GLUT_BITMAP_8_BY_13, str[i]);
+        }else{
+            glutBitmapCharacter (GLUT_BITMAP_HELVETICA_10, str[i]);
+        }
+    }
+}
+
+
+void printShortcuts(void){
+
+
+//    glDisable(GL_DEPTH_TEST); //activate 'depth-test'
+//
+//    //    glDisable(GL_BLEND);
+//    glClear(GL_DEPTH_BUFFER_BIT ); 
+//    std::cout << "show help" << std::endl;
+    //saves the matrices on the stack
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+
+
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+
+    GLfloat w=glutGet(GLUT_SCREEN_WIDTH);
+    GLfloat h=glutGet(GLUT_SCREEN_HEIGHT); ;
+
+//    GLfloat w=glutGet(GLUT_WINDOW_WIDTH);
+//    GLfloat h=glutGet(GLUT_WINDOW_HEIGHT); ;
+
+    int  WORLD_SIZE=1000; //static worldsize maybe will get problems in the future...
+    //glOrtho(-WORLD_SIZE*w/h,WORLD_SIZE*w/h,-WORLD_SIZE,WORLD_SIZE, -15*WORLD_SIZE,15*WORLD_SIZE);
+
+    //glOrtho(0,w,h, 0,-15*WORLD_SIZE,15*WORLD_SIZE);
+
+    glOrtho(0,w,h, 0,0,15*WORLD_SIZE);
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    
+
+
+    double border_factor_line=0.005;
+    double border_factor_quad=0.0052;
+
+
+    glColor4f(1.0,1.0,1.0,0.5);
+
+    glBegin(GL_QUADS); 
+    glVertex3f(border_factor_quad*w, border_factor_quad*h,0);
+    glVertex3f(w-border_factor_quad*w,border_factor_quad*h,0);
+    glVertex3f(w-border_factor_quad*w, h/3.-border_factor_quad*h,0);
+    glVertex3f(border_factor_quad*w, h/3.-border_factor_quad*h,0);
+    glEnd();
+
+    glColor4f(0.0,1.0,1.0,1);
+
+    glBegin(GL_LINES); 
+    glVertex3f(border_factor_line*w, border_factor_line*h,0);
+    glVertex3f(w-border_factor_line*w,border_factor_line*h,0);
+
+
+    glVertex3f(w-border_factor_line*w, h/3-border_factor_line*h,0);
+    glVertex3f(border_factor_line*w, h/3.-border_factor_line*h,0);
+
+    glVertex3f(border_factor_line*w, border_factor_line*h,0);
+    glVertex3f(border_factor_line*w, h/3.-border_factor_line*h,0);
+
+    glVertex3f(w-border_factor_line*w,border_factor_line*h,0);
+    glVertex3f(w-border_factor_line*w, h/3.-border_factor_line*h,0);
+    glEnd();
+
+
+
+
+//----------------
+
+    glColor3f(0.0,0.0,0.0);
+    
+
+
+    glRasterPos2f(0+100,h/6);
+    drawStringBig("Work in process....");
+
+/*
+    char label[CED_MAX_LAYER_CHAR];
+
+//    float line = 45/(h/3.0); //height of one line
+//    float column = 200/w; //width of one line
+    float line = 32; //height of one line
+    float column = 100; //width of one line
+
+    const int ITEMS_PER_COLUMN=int((w/3.0)/60.0); //how many lines per column?
+ 
+
+    vector<string> shortcuts;
+    shortcuts.push_back( "[h] Toggle shortcut frame" );
+    shortcuts.push_back( "[r] Reset view" );
+    shortcuts.push_back( "[f] Font view" );
+    shortcuts.push_back( "[s] Side view" );
+    shortcuts.push_back( "[F] Front projection" );
+    shortcuts.push_back( "[S] Side projection" );
+    shortcuts.push_back( "[v] Fisheye projection" );
+    shortcuts.push_back( "[b] Change background color" );
+    shortcuts.push_back( "[+] Zoom in" );
+    shortcuts.push_back( "[-] Zoom out" );
+    shortcuts.push_back( "[c] Center" );
+    shortcuts.push_back( "[Z] Cut in z-axe direction" );
+    shortcuts.push_back( "[z] Cut in -z-axe direction" );
+    shortcuts.push_back( "[`] Toggle all layers" );
+    shortcuts.push_back( "[Esc] Quit CED" );
+
+    sprintf (label, "Control keys");
+    glRasterPos2f(((int)(0/ITEMS_PER_COLUMN))*column+0.02, 0.80F);
+    drawStringBig(label);
+
+
+    int i;
+    for(i=0;(unsigned) i<shortcuts.size();i++){
+       drawHelpString(shortcuts[i], ((int)(i/ITEMS_PER_COLUMN))*column+0.02, (ITEMS_PER_COLUMN+(i%ITEMS_PER_COLUMN))*line );
+
+       std::cout << "pos: " <<  ((int)(i/ITEMS_PER_COLUMN))*column+0.02 <<  "," <<  (ITEMS_PER_COLUMN-(i%ITEMS_PER_COLUMN))*line << endl;
+    }
+
+    int actual_column=(int)((i-1)/ITEMS_PER_COLUMN)+1;
+
+    int aline=0;
+    int j=0;
+    char tmp[CED_MAX_LAYER_CHAR];
+    int jj=0;
+
+    glColor3f(1.0, 1.0, 1.0);
+    sprintf (label, "Layers");
+    glRasterPos2f(((int)(aline/ITEMS_PER_COLUMN)+actual_column)*column, 0.80F);
+    drawStringBig(label);
+
+    for(i=0;i<NUMBER_DATA_LAYER;i++){
+        for(j=0;j<CED_MAX_LAYER_CHAR-1;j++){
+            if(layerDescription[i][j] != ','){
+                tmp[j]=layerDescription[i][j];
+            }else{
+                tmp[j]=0;
+                j+=2;
+                break;
+            }
+        }
+        
+        sprintf(label,"[%c] %s%i: %s", layer_keys[i], (i<10)?"0":"", i, tmp);
+        drawHelpString(label, ((int)(aline/ITEMS_PER_COLUMN)+actual_column)*column,(ITEMS_PER_COLUMN-(aline%ITEMS_PER_COLUMN))*line);
+        aline++;
+
+        jj=j;
+
+        for(;j<CED_MAX_LAYER_CHAR-1;j++){
+            if(layerDescription[i][j] == ',' || layerDescription[i][j] == 0){
+                tmp[j-jj]=0;
+                j++; //scrip ", "
+                jj=j+1;
+                sprintf(label,"[%c] %s%i: %s", layer_keys[i], (i<10)?"0":"", i, tmp);
+                drawHelpString(label, ((int)(aline/ITEMS_PER_COLUMN)+actual_column)*column,-1*(ITEMS_PER_COLUMN-(aline%ITEMS_PER_COLUMN))*line);
+
+                aline++;
+                if(layerDescription[i][j] == 0){ break; }
+            }else{
+                tmp[j-jj]=layerDescription[i][j];
+            }
+        }
+    }
+*/
+//---------------
+
+    glMatrixMode(GL_PROJECTION);
+    glPopMatrix();
+    glMatrixMode(GL_MODELVIEW);
+    glPopMatrix();
+
+}
 static void display(void){
  
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   
     glPushMatrix();
   
+    
   
     // TODO: fix it! 
     // in case of no rotate, in some cases it could get strange 
@@ -779,9 +982,14 @@ static void display(void){
 //
 //
 
+    if(showHelp == 1){
+        printShortcuts();
+    }
+
 
     printFPS();
     
+
   
     glutSwapBuffers();
 
@@ -879,11 +1087,11 @@ static void reshape(int w,int h){
     }
   
   
-    //hauke
-    if(showHelp == 1){
-        glutSetWindow (subWindow);
-        glutReshapeWindow (int(window_width-10),int(window_height/4));
-    }
+ //   //hauke
+ //   if(showHelp == 1){
+ //       glutSetWindow (subWindow);
+ //       glutReshapeWindow (int(window_width-10),int(window_height/4));
+ //   }
 
 
     updateScreenshotMenu();
@@ -1540,35 +1748,6 @@ void drawString (char *s){
     }
 }
 
-void drawStringBig (char *s){
-    unsigned int i;
-    for (i = 0; i[s]; i++){
-        glutBitmapCharacter (GLUT_BITMAP_HELVETICA_18, s[i]);
-    }
-}
-
-void drawHelpString (const string & str, float x,float y){ //format help strings strings: "[<key>] <description>"
-    unsigned int i;
-    glRasterPos2f(x,y);
-  
-    int monospace = 0;
-    for (i = 0; str[i]; i++){
-        if(str[i] == '['){ 
-            monospace = 1;
-            glutBitmapCharacter (GLUT_BITMAP_HELVETICA_10, '[');
-            i++;
-        }
-        else if(str[i] == ']'){
-             monospace = 0;
-        }
-        if(monospace){
-            glutBitmapCharacter(GLUT_BITMAP_8_BY_13, str[i]);
-        }else{
-            glutBitmapCharacter (GLUT_BITMAP_HELVETICA_10, str[i]);
-        }
-    }
-}
-
 
 void subDisplay(void){
     char label[CED_MAX_LAYER_CHAR];
@@ -1703,26 +1882,32 @@ void writeString(char *str,int x,int y){
     //glPopMatrix();
 }
 void toggleHelpWindow(void){ //hauke
-    mainWindow=glutGetWindow();
-    
     if(showHelp == 1){
-        glutDestroyWindow(subWindow);
         showHelp=0;
-    }else if(showHelp == 0){
-        subWindow=glutCreateSubWindow(mainWindow,5,5,int(window_width-10),int(window_height/4.0));
-
-        glutDisplayFunc(subDisplay);
-        glutReshapeFunc(subReshape);
-            
-        glutKeyboardFunc(keypressed);
-        glutSpecialFunc(SpecialKey);
-
-        glutPostRedisplay();
-
-        glutSetWindow(mainWindow);
+    }else{
         showHelp=1;
-    }    
-    glutSetWindow(mainWindow);
+    }
+    glutPostRedisplay();
+//    mainWindow=glutGetWindow();
+//    
+//    if(showHelp == 1){
+//        glutDestroyWindow(subWindow);
+//        showHelp=0;
+//    }else if(showHelp == 0){
+//        subWindow=glutCreateSubWindow(mainWindow,5,5,int(window_width-10),int(window_height/4.0));
+//
+//        glutDisplayFunc(subDisplay);
+//        glutReshapeFunc(subReshape);
+//            
+//        glutKeyboardFunc(keypressed);
+//        glutSpecialFunc(SpecialKey);
+//
+//        glutPostRedisplay();
+//
+//        glutSetWindow(mainWindow);
+//        showHelp=1;
+//    }    
+//    glutSetWindow(mainWindow);
 }
 
 void updateLayerEntryInPopupMenu(int id){ //id is layer id, not menu id!
@@ -2610,8 +2795,8 @@ int buildMenuPopup(void){ //hauke
 
 
     int graphicDetailsMenu=glutCreateMenu(selectFromMenu);
-    glutAddMenuEntry("Toggle 2D/3D",GRAFIC_PERSP);
-    glutAddMenuEntry("Toggle detector model",GRAFIC_TRANS);
+    glutAddMenuEntry("Toggle perspective",GRAFIC_PERSP);
+    glutAddMenuEntry("Toggle wireframe",GRAFIC_TRANS);
     glutAddMenuEntry("Fade far objects into background color",GRAFIC_FOG);
 
 
@@ -2620,6 +2805,7 @@ int buildMenuPopup(void){ //hauke
     glutAddMenuEntry("Graphic low",GRAFIC_LOW);
     glutAddMenuEntry("Graphic high",GRAFIC_HIGH);
     glutAddSubMenu("Details",graphicDetailsMenu);
+    glutAddSubMenu("Change background color",bgColorMenu);
 
 
 
@@ -2628,25 +2814,21 @@ int buildMenuPopup(void){ //hauke
     glutAddMenuEntry("Show FPS",FPS);
 
 
-    int visiMenu=glutCreateMenu(selectFromMenu);
+
+
+    int menu=glutCreateMenu(selectFromMenu);
+
+    //int visiMenu=glutCreateMenu(selectFromMenu);
     glutAddSubMenu("Data layer",subMenu3);
     glutAddSubMenu("Detector components",detectorMenu);
     glutAddSubMenu("Detector cuts",subsubMenu2);
     glutAddSubMenu("Detector transparency",transMenu);
     glutAddMenuEntry("Toggle axes",AXES);
-
-
-    int optionMenu=glutCreateMenu(selectFromMenu);
-    glutAddSubMenu("Camera",cameraMenu);
-    glutAddSubMenu("Visibility of objects",visiMenu);
-    glutAddSubMenu("Change background color",bgColorMenu);
     glutAddSubMenu("Graphic settings",graphicMenu);
     glutAddSubMenu("Save current settings",subSave);
     glutAddSubMenu("Load settings",subLoad);
-
-    int menu=glutCreateMenu(selectFromMenu);
-    glutAddSubMenu("Options",optionMenu);
-    glutAddMenuEntry("Show Keybinding", HELP);
+    glutAddSubMenu("Camera",cameraMenu);
+    glutAddMenuEntry("Show Keybinding [h]", HELP);
     glutAddSubMenu("Tools",toolMenu);
 
 //    glutAddSubMenu("View", subMenu2);
