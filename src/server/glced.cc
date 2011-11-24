@@ -1922,7 +1922,7 @@ void selectFromMenu(int id){ //hauke
 
         case VIEW_RESET:
             //if(graphic[2] == 0){selectFromMenu(GRAFIC_PERSP); }
-            if(setting.trans == true && setting.persp == false || setting.trans == false && setting.persp == true){
+            if((setting.trans == true && setting.persp == false) || (setting.trans == false && setting.persp == true)){
                 selectFromMenu(GRAFIC_PERSP); //switch persp on in new view, switch persp off in classic view
             }
             setting.z_cutting=7000; //no z cutting
@@ -2506,7 +2506,7 @@ int buildMenuPopup(void){ //hauke
     glutAddMenuEntry("Front view [f]", VIEW_FRONT);
     glutAddMenuEntry("Side view [s]", VIEW_SIDE);
     glutAddMenuEntry("Toggle side view projection [S]", TOGGLE_PHI_PROJECTION);
-    glutAddMenuEntry("Toggle front view projection [S]", TOGGLE_Z_PROJECTION);
+    glutAddMenuEntry("Toggle front view projection [F]", TOGGLE_Z_PROJECTION);
     glutAddMenuEntry("Toggle fisheye projection [v]",VIEW_FISHEYE);
     glutAddMenuEntry("Zoom in [+]", VIEW_ZOOM_IN);
     glutAddMenuEntry("Zoom out [-]", VIEW_ZOOM_OUT);
