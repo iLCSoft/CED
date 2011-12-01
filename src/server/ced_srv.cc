@@ -1476,21 +1476,21 @@ static void ced_draw_geotube(CED_GeoTube *c){
     }
     //end trans drawing
     }else{ 
-        //int maxEdges=20; //how many edges should be drawn in classic view maximal
-        glLineWidth(1.);
-        //glLineWidth(detector_lines_wide);
+       //int maxEdges=20; //how many edges should be drawn in classic view maximal
+       glLineWidth(1.);
+       //glLineWidth(detector_lines_wide);
 
-        GLUquadricObj *q1 = gluNewQuadric();
-        ced_color(c->color);
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);    
-      
-        glTranslatef(0.0, 0.0, transformed_shift);
+       GLUquadricObj *q1 = gluNewQuadric();
+       ced_color(c->color);
+       glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);    
+     
+       glTranslatef(0.0, 0.0, transformed_shift);
 
-        if(c->rotate_o > 0.01 ) glRotatef(c->rotate_o, 0, 0, 1);
+       if(c->rotate_o > 0.01 ) glRotatef(c->rotate_o, 0, 0, 1);
 
-        gluQuadricNormals(q1, GL_SMOOTH);
-        gluQuadricTexture(q1, GL_TRUE);
-        
+       gluQuadricNormals(q1, GL_SMOOTH);
+       gluQuadricTexture(q1, GL_TRUE);
+       
         if(c->classic_outer){
             //gluCylinder(q1, d_o, d_o, z*2, c->edges_o > maxEdges?maxEdges:c->edges_o, 1);
 
@@ -1503,6 +1503,7 @@ static void ced_draw_geotube(CED_GeoTube *c){
         }
 
         gluDeleteQuadric(q1);
+
     }
     glPopMatrix();
 }

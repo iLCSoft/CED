@@ -403,6 +403,11 @@ static void makeGeometry(void) {
 //    return true;    
 //}
 
+int isLayerVisible(int x){
+    //return(ced_visible_layers[x]);
+
+    return(setting.layer[x]);
+}
 static void init(void){
     //Set background color
     glClearColor(BG_COLOR[0],BG_COLOR[1], BG_COLOR[2], BG_COLOR[3]);
@@ -753,94 +758,14 @@ void drawHelpString (const string & str, float x,float y){ //format help strings
 
 void printShortcuts(void){
 
+    const unsigned int MAX_STR_LEN=30;
+    int i;
+    float line = 12; //height of one line
+    float column = MAX_STR_LEN*5; //width of one line
 
-//    glDisable(GL_DEPTH_TEST); //activate 'depth-test'
-//
-//    //    glDisable(GL_BLEND);
-//    glClear(GL_DEPTH_BUFFER_BIT ); 
-//    std::cout << "show help" << std::endl;
-    //saves the matrices on the stack
-    glMatrixMode(GL_PROJECTION);
-    glPushMatrix();
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
-
-
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-
-    GLfloat w=glutGet(GLUT_SCREEN_WIDTH);
-    GLfloat h=glutGet(GLUT_SCREEN_HEIGHT); ;
-
-//    GLfloat w=glutGet(GLUT_WINDOW_WIDTH);
-//    GLfloat h=glutGet(GLUT_WINDOW_HEIGHT); ;
-
-    int  WORLD_SIZE=1000; //static worldsize maybe will get problems in the future...
-    //glOrtho(-WORLD_SIZE*w/h,WORLD_SIZE*w/h,-WORLD_SIZE,WORLD_SIZE, -15*WORLD_SIZE,15*WORLD_SIZE);
-
-    //glOrtho(0,w,h, 0,-15*WORLD_SIZE,15*WORLD_SIZE);
-
-    glOrtho(0,w,h, 0,0,15*WORLD_SIZE);
-
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
     
-
-
-    double border_factor_line=0.005;
-    double border_factor_quad=0.0052;
-
-
-    glColor4f(1.0,1.0,1.0,0.5);
-
-    glBegin(GL_QUADS); 
-    glVertex3f(border_factor_quad*w, border_factor_quad*h,0);
-    glVertex3f(w-border_factor_quad*w,border_factor_quad*h,0);
-    glVertex3f(w-border_factor_quad*w, h/3.-border_factor_quad*h,0);
-    glVertex3f(border_factor_quad*w, h/3.-border_factor_quad*h,0);
-    glEnd();
-
-    glColor4f(0.0,1.0,1.0,1);
-
-    glBegin(GL_LINES); 
-    glVertex3f(border_factor_line*w, border_factor_line*h,0);
-    glVertex3f(w-border_factor_line*w,border_factor_line*h,0);
-
-
-    glVertex3f(w-border_factor_line*w, h/3-border_factor_line*h,0);
-    glVertex3f(border_factor_line*w, h/3.-border_factor_line*h,0);
-
-    glVertex3f(border_factor_line*w, border_factor_line*h,0);
-    glVertex3f(border_factor_line*w, h/3.-border_factor_line*h,0);
-
-    glVertex3f(w-border_factor_line*w,border_factor_line*h,0);
-    glVertex3f(w-border_factor_line*w, h/3.-border_factor_line*h,0);
-    glEnd();
-
-
-
-
-//----------------
-
-    glColor3f(0.0,0.0,0.0);
-    
-
-
-    glRasterPos2f(0+100,h/6);
-    drawStringBig("Work in process....");
-
-/*
-    char label[CED_MAX_LAYER_CHAR];
-
-//    float line = 45/(h/3.0); //height of one line
-//    float column = 200/w; //width of one line
-    float line = 32; //height of one line
-    float column = 100; //width of one line
-
-    const int ITEMS_PER_COLUMN=int((w/3.0)/60.0); //how many lines per column?
- 
-
     vector<string> shortcuts;
+    shortcuts.push_back( "GENERAL SHORTCUTS:" );
     shortcuts.push_back( "[h] Toggle shortcut frame" );
     shortcuts.push_back( "[r] Reset view" );
     shortcuts.push_back( "[f] Font view" );
@@ -857,10 +782,213 @@ void printShortcuts(void){
     shortcuts.push_back( "[`] Toggle all layers" );
     shortcuts.push_back( "[Esc] Quit CED" );
 
-    sprintf (label, "Control keys");
-    glRasterPos2f(((int)(0/ITEMS_PER_COLUMN))*column+0.02, 0.80F);
-    drawStringBig(label);
+    shortcuts.push_back( "  " );
+    shortcuts.push_back( "DATA LAYERS:" );
 
+
+    char label[MAX_STR_LEN+1];
+
+    for(i=0;i<NUMBER_DATA_LAYER;i++){
+        snprintf(label,MAX_STR_LEN+1, "(%s) [%c] %s%i: %s", isLayerVisible(i)?"X":"_",layer_keys[i], (i<10)?"0":"", i, layerDescription[i]);
+        if(strlen(label) >= MAX_STR_LEN){
+            label[MAX_STR_LEN-3]='.';
+            label[MAX_STR_LEN-2]='.';
+            label[MAX_STR_LEN-1]='.';
+            label[MAX_STR_LEN]=0;
+        }
+        shortcuts.push_back(label);
+    }
+        
+//        drawHelpString(label, ((int)(aline/ITEMS_PER_COLUMN)+actual_column)*column,(ITEMS_PER_COLUMN-(aline%ITEMS_PER_COLUMN))*line);
+//        aline++;
+//
+//        jj=j;
+//
+//        for(;j<CED_MAX_LAYER_CHAR-1;j++){
+//            if(layerDescription[i][j] == ',' || layerDescription[i][j] == 0){
+//                tmp[j-jj]=0;
+//                j++; //scrip ", "
+//                jj=j+1;
+//                sprintf(label,"[%c] %s%i: %s", layer_keys[i], (i<10)?"0":"", i, tmp);
+//                drawHelpString(label, ((int)(aline/ITEMS_PER_COLUMN)+actual_column)*column,-1*(ITEMS_PER_COLUMN-(aline%ITEMS_PER_COLUMN))*line);
+//
+//                aline++;
+//                if(layerDescription[i][j] == 0){ break; }
+//            }else{
+//                tmp[j-jj]=layerDescription[i][j];
+//            }
+//        }
+
+
+    shortcuts.push_back( " " );
+    shortcuts.push_back( "DETECTOR LAYERS: " );
+
+    for(i=NUMBER_DATA_LAYER;i<NUMBER_DETECTOR_LAYER+NUMBER_DATA_LAYER;i++){
+        snprintf(label,MAX_STR_LEN+1, "(%s) [%c] %s%i: %s", isLayerVisible(i)?"X":"_",' ', ((i)<10)?"0":"", (i), layerDescription[i]);
+        if(strlen(label) >= MAX_STR_LEN){
+            label[MAX_STR_LEN-3]='.';
+            label[MAX_STR_LEN-2]='.';
+            label[MAX_STR_LEN-1]='.';
+            label[MAX_STR_LEN]=0;
+        }
+        shortcuts.push_back(label);
+    }
+
+
+    //sprintf (label, "Control keys");
+    //glRasterPos2f(((int)(0/ITEMS_PER_COLUMN))*column+0.02, 0.80F);
+    //drawStringBig(label);
+
+
+ 
+
+
+
+//    glDisable(GL_DEPTH_TEST); //activate 'depth-test'
+//
+//    //    glDisable(GL_BLEND);
+//    glClear(GL_DEPTH_BUFFER_BIT ); 
+//    std::cout << "show help" << std::endl;
+    //saves the matrices on the stack
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+
+
+    glMatrixMode(GL_PROJECTION);
+    glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+    glDisable(GL_DEPTH_TEST);
+
+
+    glLoadIdentity();
+
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+ 
+    //GLfloat w=glutGet(GLUT_SCREEN_WIDTH);
+    //GLfloat h=glutGet(GLUT_SCREEN_HEIGHT); ;
+
+    GLfloat w=glutGet(GLUT_WINDOW_WIDTH);
+    GLfloat h=glutGet(GLUT_WINDOW_HEIGHT); ;
+
+    int  WORLD_SIZE=1000; //static worldsize maybe will get problems in the future...
+    //glOrtho(-WORLD_SIZE*w/h,WORLD_SIZE*w/h,-WORLD_SIZE,WORLD_SIZE, -15*WORLD_SIZE,15*WORLD_SIZE);
+
+    //glOrtho(0,w,h, 0,-15*WORLD_SIZE,15*WORLD_SIZE);
+
+    glOrtho(0,w,h, 0,0,15*WORLD_SIZE);
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    
+
+    //glEnable(GL_LINE_SMOOTH);
+    //glHint(GL_LINE_SMOOTH,GL_NICEST);
+    //glDepthMask(GL_TRUE);
+
+
+
+    double border_factor_line=0.005;
+    double border_factor_quad=0.0052;
+
+
+
+
+    double boarder_quad = 1000*border_factor_quad;
+    double boarder_line = 1000*border_factor_line;
+
+
+    if(int(w/column) > 1){
+        //h=boarder_quad*2+(shortcuts.size()*line)/(int(w/column))*3;
+
+        //h=(boarder_quad*2.+(shortcuts.size()*column*1./w + 1.)*line)*3.;
+
+        h=(boarder_quad*2.+(shortcuts.size()*1./int((w-3.*boarder_quad)/column) + 1.)*line)*3.+5;
+    }else{
+        h*=3;
+    }
+
+
+    //glColor4f(1.0,1.0,1.0,0.5);
+
+    //glColor4f(1.0,1.0,1.0,0.5);
+
+    //glColor4f(0.0,1.0,1.0,0.5);
+
+    glColor4f(0.5,1,1,0.8);
+
+    const int ITEMS_PER_COLUMN=int((h/3.0-boarder_quad*2)/(line)); //how many lines per column?
+    //const int ITEMS_PER_COLUMN=int((h/3.0)/(line)); //how many lines per column?
+
+//    glBegin(GL_QUADS); 
+//    glVertex3f(boarder_quad, boarder_quad,0);
+//    glVertex3f(w-boarder_quad,boarder_quad,0);
+//    glVertex3f(w-boarder_quad, h/3.-boarder_quad,0);
+//    glVertex3f(boarder_quad, h/3.-boarder_quad,0);
+//    glEnd();
+    glBegin(GL_QUADS); 
+    glVertex3f(boarder_quad, boarder_quad,0);
+    glVertex3f(w-boarder_quad,boarder_quad,0);
+    glVertex3f(w-boarder_quad, h/3.-boarder_quad,0);
+    glVertex3f(boarder_quad, h/3.-boarder_quad,0);
+    glEnd();
+
+
+    //glColor4f(0.0,1.0,1.0,1);
+
+    glColor4f(0.1,0.8,1.0,0.8);
+
+    glLineWidth(3.);
+    glBegin(GL_LINES); 
+    glVertex3f(boarder_line, boarder_line,0);
+    glVertex3f(w-boarder_line,boarder_line,0);
+
+
+    glVertex3f(w-boarder_line, h/3-boarder_line,0);
+    glVertex3f(boarder_line, h/3.-boarder_line,0);
+
+    glVertex3f(boarder_line, boarder_line,0);
+    glVertex3f(boarder_line, h/3. - boarder_line,0);
+
+    glVertex3f(w-boarder_line,boarder_line,0);
+    glVertex3f(w-boarder_line, h/3.-boarder_line,0);
+    glEnd();
+
+
+
+
+//----------------
+
+    glColor3f(0.0,0.0,0.0);
+    
+
+
+//    glRasterPos2f(0+100,h/6);
+//    drawStringBig("Work in process....");
+
+
+//    float line = 45/(h/3.0); //height of one line
+//    float column = 200/w; //width of one line
+
+
+    //cout << " w = " << w << "h = " << h << endl;
+
+
+//    int i;
+    for(i=0;(unsigned) i<shortcuts.size();i++){
+       //drawHelpString(shortcuts[i], ((int)(i/ITEMS_PER_COLUMN))*column+0.02, (ITEMS_PER_COLUMN+(i%ITEMS_PER_COLUMN))*line );
+       drawHelpString(shortcuts[i],  int(i/ITEMS_PER_COLUMN)*column+boarder_quad+5, (i%ITEMS_PER_COLUMN)*line+boarder_quad+10);
+       //cout << "x " << int(i/ITEMS_PER_COLUMN)*column+boarder_quad+5 << "y: " << (i%ITEMS_PER_COLUMN)*line+boarder_quad+15<< endl;
+       //cout << "point: " <<  int(i/ITEMS_PER_COLUMN)*column+border_factor_quad*w+10 << ", " << (i%ITEMS_PER_COLUMN)*line+border_factor_quad*h+40 << endl;
+
+ //      std::cout << "pos: " <<  ((int)(i/ITEMS_PER_COLUMN))*column+0.02 <<  "," <<  (ITEMS_PER_COLUMN-(i%ITEMS_PER_COLUMN))*line << endl;
+    }
+
+
+
+
+/*
 
     int i;
     for(i=0;(unsigned) i<shortcuts.size();i++){
@@ -916,6 +1044,8 @@ void printShortcuts(void){
 */
 //---------------
 
+
+    glEnable(GL_DEPTH_TEST);
     glMatrixMode(GL_PROJECTION);
     glPopMatrix();
     glMatrixMode(GL_MODELVIEW);
@@ -1447,11 +1577,7 @@ int isLayerVisible(int x){
 }
 */
 
-int isLayerVisible(int x){
-    //return(ced_visible_layers[x]);
 
-    return(setting.layer[x]);
-}
 
 
 /*
