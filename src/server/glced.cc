@@ -215,6 +215,8 @@ int ced_picking(int x,int y,GLfloat *wx,GLfloat *wy,GLfloat *wz); //from ced_srv
 static char layerDescription[CED_MAX_LAYER][CED_MAX_LAYER_CHAR]; 
 const char layer_keys[] = {'0','1', '2','3','4','5','6','7','8','9',')', '!', '@', '#', '$', '%', '^', '&', '*', '(', 't', 'y', 'u', 'i', 'o'};
 
+const char detec_layer_keys[] = {'t','y','u','i','o','p','[',']','\\', 'T', 'Y','U','I','O','P','{','}','|'};
+
 static int mainWindow=-1;
 static int subWindow=-1;
 static int layerMenu;
@@ -766,6 +768,9 @@ void printShortcuts(void){
     
     vector<string> shortcuts;
     shortcuts.push_back( "GENERAL SHORTCUTS:" );
+
+
+    shortcuts.push_back( "[Esc] Quit CED" );
     shortcuts.push_back( "[h] Toggle shortcut frame" );
     shortcuts.push_back( "[r] Reset view" );
     shortcuts.push_back( "[f] Font view" );
@@ -779,8 +784,13 @@ void printShortcuts(void){
     shortcuts.push_back( "[c] Center" );
     shortcuts.push_back( "[Z] Cut in z-axe direction" );
     shortcuts.push_back( "[z] Cut in -z-axe direction" );
-    shortcuts.push_back( "[`] Toggle all layers" );
-    shortcuts.push_back( "[Esc] Quit CED" );
+    shortcuts.push_back( "[>] Increase transparency" );
+    shortcuts.push_back( "[<] Decrease transparency" );
+    shortcuts.push_back( "[m] Increase detector cut angle" );
+    shortcuts.push_back( "[m] Decrease detector cut angle" );
+    shortcuts.push_back( "[`] Toggle all data layers" );
+    shortcuts.push_back( "[~] Toggle all detector layers" );
+
 
     shortcuts.push_back( "  " );
     shortcuts.push_back( "DATA LAYERS:" );
@@ -824,7 +834,7 @@ void printShortcuts(void){
     shortcuts.push_back( "DETECTOR LAYERS: " );
 
     for(i=NUMBER_DATA_LAYER;i<NUMBER_DETECTOR_LAYER+NUMBER_DATA_LAYER;i++){
-        snprintf(label,MAX_STR_LEN+1, "(%s) [%c] %s%i: %s", isLayerVisible(i)?"X":"_",' ', ((i)<10)?"0":"", (i), layerDescription[i]);
+        snprintf(label,MAX_STR_LEN+1, "(%s) [%c] %s%i: %s", isLayerVisible(i)?"X":"_",detec_layer_keys[-1*NUMBER_DATA_LAYER+i], ((i)<10)?"0":"", (i), layerDescription[i]);
         if(strlen(label) >= MAX_STR_LEN){
             label[MAX_STR_LEN-3]='.';
             label[MAX_STR_LEN-2]='.';
@@ -1663,6 +1673,44 @@ static void keypressed(unsigned char key,int x,int y){
           selectFromMenu(LAYER_19);
     } else if(key=='`'){
           selectFromMenu(LAYER_ALL);
+    } else if(key=='t'){
+          selectFromMenu(DETECTOR1);
+    } else if(key=='y'){
+          selectFromMenu(DETECTOR2);
+    } else if(key=='u'){
+          selectFromMenu(DETECTOR3);
+    } else if(key=='i'){
+          selectFromMenu(DETECTOR4);
+    } else if(key=='o'){
+          selectFromMenu(DETECTOR5);
+    } else if(key=='p'){
+          selectFromMenu(DETECTOR6);
+    } else if(key=='['){
+          selectFromMenu(DETECTOR7);
+    } else if(key==']'){
+          selectFromMenu(DETECTOR8);
+    } else if(key=='\\'){
+          selectFromMenu(DETECTOR9);
+    } else if(key=='T'){
+          selectFromMenu(DETECTOR10);
+    } else if(key=='Y'){
+          selectFromMenu(DETECTOR11);
+    } else if(key=='U'){
+          selectFromMenu(DETECTOR12);
+    } else if(key=='I'){
+          selectFromMenu(DETECTOR13);
+    } else if(key=='O'){
+          selectFromMenu(DETECTOR14);
+    } else if(key=='P'){
+          selectFromMenu(DETECTOR15);
+    } else if(key=='{'){
+          selectFromMenu(DETECTOR16);
+    } else if(key=='}'){
+          selectFromMenu(DETECTOR17);
+    } else if(key=='|'){
+          selectFromMenu(DETECTOR18);
+    } else if(key=='~'){
+          selectFromMenu(DETECTOR_ALL);
     } else if(key == '+'|| key == '='){
           selectFromMenu(VIEW_ZOOM_IN);
     } else if(key == '-'|| key == '_'){
@@ -1712,6 +1760,18 @@ static void keypressed(unsigned char key,int x,int y){
     }else if(key == '>'){
           if(setting.trans_value < 1-0.005){
             setting.trans_value+=0.005;
+            //std::cout << "decrease trans" << setting.trans_value <<endl;
+            glutPostRedisplay();
+          }
+    }else if(key == 'm'){
+          if(setting.cut_angle > 0){
+            setting.cut_angle-=0.5;
+            //std::cout << "decrease trans" << setting.trans_value <<endl;
+            glutPostRedisplay();
+          }
+    } else if(key == 'M'){
+          if(setting.cut_angle < 360){
+            setting.cut_angle+=0.5;
             //std::cout << "decrease trans" << setting.trans_value <<endl;
             glutPostRedisplay();
           }
@@ -1920,7 +1980,10 @@ void subDisplay(void){
     shortcuts.push_back( "[c] Center" );
     shortcuts.push_back( "[Z] Cut in z-axe direction" );
     shortcuts.push_back( "[z] Cut in -z-axe direction" );
-    shortcuts.push_back( "[`] Toggle all layers" );
+    shortcuts.push_back( "[>] Increase transparency" );
+    shortcuts.push_back( "[<] Decrease transparency" );
+    shortcuts.push_back( "[`] Toggle all data layers" );
+    shortcuts.push_back( "[~] Toggle all detector layers" );
     shortcuts.push_back( "[Esc] Quit CED" );
 
     glColor3f(1.0, 1.0, 1.0);
@@ -2112,7 +2175,7 @@ void updateLayerEntryDetector(int id){ //id is layer id, not menu id!
     tmp[40]=0;
     
     //sprintf(string,"[%s] Layer %s%i [%c]: %s%s",isLayerVisible(id)?"X":"   ", (id < 10)?"0":"" ,id, layer_keys[id], tmp, (strlen(layerDescription[id]) > 40)?"...":"");
-    sprintf(string,"[%s] Layer %s%i: %s%s",isLayerVisible(id)?"X":"   ", (id < 10)?"0":"" ,id,tmp, (strlen(layerDescription[id]) > 40)?"...":"");
+    sprintf(string,"[%s] Layer %s%i [%c]: %s%s",isLayerVisible(id)?"X":"   ", (id < 10)?"0":"" ,id,detec_layer_keys[id-NUMBER_DATA_LAYER],tmp, (strlen(layerDescription[id]) > 40)?"...":"");
 
     glutSetMenu(detectorMenu);
     glutChangeToMenuEntry(id-NUMBER_DATA_LAYER+2,string, id-NUMBER_DATA_LAYER+DETECTOR1);                     
