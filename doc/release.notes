@@ -6,7 +6,7 @@
 ##################################################
 
  --------
-|  HEAD  |
+| v01-04 |
  --------
 
     - New features (H. Hoelbe, DESY):
@@ -17,18 +17,15 @@
             - Detector and data layer now also have a visibility field which is shown
             - Help frame now change its size in hight so that always all elements fit into it
     
-    - Changes/Bugfixes (H. Hoelbe, DESY):
+    - Changes/Bugfixes
         * Removed grafical artifact in detector components who have differ amount of inner and outer edges
         * Outer line of detector are now smooth and are drawn at least to remove a grafical artifact
         * Add fading into the background color for bigger distance as a menu feature.
         * New order of popup menu items
         * Add some new shortcut keys
         * Add 4 extra slots to save user settings
-
-
-
-
-
+        * fixed typo S for F and added brackets for ((a && b) || (c && d))  if condition
+        * renamed MAX_LAYER to CED_MAX_LAYER in order to avoid name clashes with other tools (e.g. calice event display )
 
 
 
