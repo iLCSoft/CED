@@ -9,6 +9,27 @@
 |  HEAD  |
  --------
 
+    - New features (H. Hoelbe, DESY):
+        * Add screenshot function
+        * New help frame
+            - New concept: not a extra window. Insteat a orthogonal projection inside of the original ced window
+              this should fix: focus problems, crashes, and its transparence now
+            - Detector and data layer now also have a visibility field which is shown
+            - Help frame now change its size in hight so that always all elements fit into it
+    
+    - Changes/Bugfixes (H. Hoelbe, DESY):
+        * Removed grafical artifact in detector components who have differ amount of inner and outer edges
+        * Outer line of detector are now smooth and are drawn at least to remove a grafical artifact
+        * Add fading into the background color for bigger distance as a menu feature.
+        * New order of popup menu items
+        * Add some new shortcut keys
+        * Add 4 extra slots to save user settings
+
+
+
+
+
+
 
 
  --------
