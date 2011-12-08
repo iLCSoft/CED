@@ -7,6 +7,7 @@
 #include <ced_cli.h>
 #include <ced.h>
 #include <stdio.h>
+#include <iostream>
 
 #include <math.h>
 
@@ -65,6 +66,7 @@ void ced_line_ID(float x0,float y0,float z0,
   //printf("CEDLINE length: %f\n x0 %f y0 %f z0 %f, x1 %f, y1 %f z1 %f", length, x0, y0, z0, x1, y1, z1);
 
   if(length > 500.0){
+      //std::cout << "devide line (length=" << length << ")" <<   std::endl;
       ced_line_ID(x0,y0,z0,
           (x1-x0)/2.0+x0,(y1-y0)/2.0+y0,(z1-z0)/2.0+z0,
           layer, width, color, lcioID);

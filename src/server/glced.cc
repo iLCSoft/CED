@@ -3620,11 +3620,11 @@ void screenshot(char *name, int times)
 
 
 
-    std::cout << "    Save screenshot as: ..." << name ;
+    std::cout << "    Save screenshot as: " << name ;
     cout.flush();
     //save_pixmap_as_tga(buffer_all, name, w*times, h*times);
 
-    save_pixmap_as_bmp(buffer_all, "/tmp/glced.bmp", w*times, h*times);
+//    save_pixmap_as_bmp(buffer_all, "/tmp/glced.bmp", w*times, h*times);
 
     save_pixmap_as_tga(buffer_all, "/tmp/glced.tga", w*times, h*times);
     std::cout << " Done" << endl ;

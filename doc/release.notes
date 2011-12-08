@@ -11,6 +11,9 @@
 
     - New features (H. Hoelbe, DESY):
         * Add screenshot function
+            - Select screenshot from popup menu, resolution options depending on the size of your glced window. 
+              This will save a screenshot under /tmp/glced.tga. 
+              To convert the screenshot into a compressed format Use for example "convert /tmp/glced.tga screenshot.png".
         * New help frame
             - New concept: not a extra window. Insteat a orthogonal projection inside of the original ced window
               this should fix: focus problems, crashes, and its transparence now
