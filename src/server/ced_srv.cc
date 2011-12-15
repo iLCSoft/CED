@@ -1119,13 +1119,8 @@ static void ced_draw_line(CED_Line *h){
 
   	ced_color(h->color);
 
-    //hauke
-    GLUquadricObj *Sphere;
-    Sphere = gluNewQuadric();
-    gluQuadricNormals(Sphere, GLU_SMOOTH);
-    gluQuadricTexture(Sphere, GL_TRUE);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    glMatrixMode(GL_MODELVIEW);
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    //glMatrixMode(GL_MODELVIEW);
 
     //TODO
     //glEnable(GL_BLEND);
@@ -1136,7 +1131,7 @@ static void ced_draw_line(CED_Line *h){
     //glColor3f((h->color>>16)&0xff,(h->color>>8)&0xff,(h->color)&0xff);
 
 
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     //end hauke
 
   	glLineWidth(h->width);
@@ -1166,6 +1161,33 @@ static void ced_draw_line(CED_Line *h){
   	glEnd();
     //glEnable(GL_BLEND);
     ced_add_objmap(&h->p0,5,h->lcioID);
+    ced_add_objmap(&h->p1,5,h->lcioID);
+
+    double length=pow(pow(h->p0.x-h->p1.x,2)+pow(h->p0.y-h->p1.y,2)+pow(h->p0.z-h->p1.z,2),0.5);
+
+
+    CED_Point p;
+    double picking_point_space=5;
+    int steps;
+
+    if(int(length/picking_point_space) < 100){
+      steps=int(length/picking_point_space);
+    }else{
+        steps=100;
+    }
+
+    for(int i=0;i<steps;i++){
+        p.x=fabs(h->p0.x-h->p1.x)/steps*i+h->p0.x;
+        p.y=fabs(h->p0.y-h->p1.y)/steps*i+h->p0.y;
+        p.z=fabs(h->p0.z-h->p1.z)/steps*i+h->p0.z;
+        ced_add_objmap(&p,5,h->lcioID);
+        //display picking points for testing
+        //glPointSize(5);
+        //glBegin(GL_POINTS);
+        //glVertex3f(p.x,p.y,p.z);
+        //glEnd();
+    }
+    
 }
 
 

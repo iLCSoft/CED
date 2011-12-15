@@ -36,6 +36,8 @@ struct __glutSocketList {
 } *__glutSockets=0;
 
 
+bool client_connected=false;
+
 static void add_socket(struct __glutSocketList *sock){
   sock->next=__glutSockets;
   __glutSockets=sock;
@@ -103,6 +105,7 @@ static void tcp_server_read(struct __glutSocketList *list){
     fprintf(stderr,"INFO: client is disconnected\n");
     close(list->fd);
     delete_socket(list);
+    client_connected=false;
     return;
   }
   (*(((tcp_srv_sock *)list)->user_func))(buf);
@@ -139,9 +142,11 @@ static void tcp_server_accept(struct __glutSocketList *list){
         return;
     }
     printf("CED: Accepted trusted connection from ip %s\n", inet_ntoa(myclient.sin_addr));
+    client_connected=true;
 
   }else{
       printf("CED: Accepted connection from localhost\n");
+      client_connected=true;
   }
 
   if(fd<0){

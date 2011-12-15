@@ -300,6 +300,7 @@ extern struct __glutSocketList {
   void  (*read_func)(struct __glutSocketList *sock);
 } *__glutSockets;
 
+extern bool client_connected;
 
 // from ced_srv.c
 void ced_prepare_objmap(void);
@@ -1524,7 +1525,9 @@ static void mouse(int btn,int state,int x,int y){
                sock=__glutSockets;
                int id = SELECTED_ID;
                //printf(" ced_get_selected : socket connected: %d", sock->fd );	
-               send( sock->fd , &id , sizeof(int) , 0 );
+               if(client_connected){
+                    send( sock->fd , &id , sizeof(int) , 0 );
+                }
             }
         }else{
             //printf("Single Click\n");

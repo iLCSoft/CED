@@ -24,6 +24,7 @@
 
 #include <netdb.h>
 #include <sys/socket.h> /* for AF_INET */
+#include <iostream>
 
 
 //http://www.rhyolite.com/pipermail/dcc/2004/001986.html
@@ -87,7 +88,10 @@ typedef struct {
   unsigned      e_count;
 } ced_event;
 
+//static ced_event eve = {0,0};
+
 static ced_event eve = {0,0};
+
 // NOT used in CED client
 static ced_event ceve = {0,0}; // current event on screen
 
@@ -109,13 +113,20 @@ unsigned ced_register_element(unsigned item_size,ced_draw_cb draw_func){
 
 static void ced_reset(void){
   unsigned i;
-  for(i=0;i<eve.e_count;i++)
+  
+  for(i=0;i<eve.e_count;i++){
     eve.e[i].count=0;
+   // if( eve.e[i].alloced > 0){
+   //     eve.e[i].alloced=0; //hauke: 15.12.11
+   //     //free(eve.e[i].b-HDR_SIZE);
+   // }
+  }
 }
 
 static void ced_buf_alloc(ced_element *pe,unsigned count){
-  //if(!pe->b){
   if(!pe->b){
+
+    //std::cout << "malloc  requestet: " << count*pe->size+HDR_SIZE << "bytes" << std::endl;
     pe->b=(unsigned char *) malloc(count*pe->size+HDR_SIZE);
     //printf("malloc: ask for NEW %lu bytes pointer: %p\n ", count*pe->size+HDR_SIZE, pe->b); //hauke
     if(pe->b==NULL){ //hauke
@@ -123,7 +134,10 @@ static void ced_buf_alloc(ced_element *pe,unsigned count){
         exit(1);
     }
   }else{
-    pe->b=(unsigned char *) realloc(pe->b-HDR_SIZE,count*pe->size+HDR_SIZE);
+    free(pe->b-HDR_SIZE);
+    pe->b=(unsigned char *) malloc(count*pe->size+HDR_SIZE);
+    //std::cout << "realloc requestet: " << count*pe->size+HDR_SIZE << "bytes" << std::endl;
+    //pe->b=(unsigned char *) realloc(pe->b-HDR_SIZE,count*pe->size+HDR_SIZE);
     //printf("malloc: ask for %lu bytes, pointer: %p\n", count*pe->size+HDR_SIZE,pe->b);//hauke
     if(pe->b==NULL){ //hauke
         printf("ERROR: malloc failed!\n");
@@ -141,27 +155,46 @@ void *ced_add(unsigned id){
     return 0;
   }
   pe=eve.e+id;
-  if(pe->count==pe->alloced)
+
+  if(pe->count==pe->alloced){
     ced_buf_alloc(pe,pe->alloced+256);
+  }
   return (pe->b+(pe->count++)*pe->size);
 }
 
 static void ced_event_copy(ced_event *trg){
   unsigned i;
   ced_element *pe;
-  if(trg->e_count<eve.e_count)
+  //std::cout << "trg->e_count: " << trg->e_count << std::endl;
+  //std::cout << "eve.e_count: " << eve.e_count << std::endl;
+  if(trg->e_count<eve.e_count){
+    //free(trg->e);
     trg->e=(ced_element*) realloc(trg->e,eve.e_count*sizeof(ced_element));
+
+    //trg->e=(ced_element*) malloc(eve.e_count*sizeof(ced_element));
+  }
+
   for(i=0;i<eve.e_count;i++){
+    
     pe=trg->e+i;
     if(i<trg->e_count){
-      if(pe->alloced<eve.e[i].alloced)
-	ced_buf_alloc(pe,eve.e[i].alloced);
+        //if(pe->alloced > 0){
+        //  free(pe->b);
+        //  pe->b=NULL;
+        //  pe->alloced=0;
+        //}
+
+
+
+      if(pe->alloced<eve.e[i].alloced){
+	    ced_buf_alloc(pe,eve.e[i].alloced);
+      }
       pe->count=eve.e[i].count;
     } else {
       memcpy(pe,eve.e+i,sizeof(ced_element));
       if(pe->b){
-	pe->b=0;
-	ced_buf_alloc(pe,pe->alloced);
+	        pe->b=0;
+	        ced_buf_alloc(pe,pe->alloced);
       }
     }
     if(pe->count)
