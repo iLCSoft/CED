@@ -5,6 +5,17 @@
 #   original author A.Zhelezov, DESY
 ##################################################
 
+
+ -----------
+| v01-04-01 |
+ -----------
+
+    - fixed memory leak
+    - changes method of adding pickable points to lines from splitting lines to add more points to.
+    - add new flag client_connected to avoid crashes after picking when client ist disconnected 
+
+
+
  --------
 | v01-04 |
  --------
