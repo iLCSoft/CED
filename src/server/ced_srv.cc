@@ -30,8 +30,9 @@
 #include<iostream>
 
 #include <ced.h>
+#include <ced_config.h>
 
-#define PORT        0x1234
+#define PORT  0x1234
 #define PI 3.14159265358979323846f 
 
 
@@ -1282,14 +1283,15 @@ static void ced_draw_geotube(CED_GeoTube *c){
     
             //float detector_lines_wide=0.3;
 
-            float detector_lines_wide=0.3;
+            float detector_lines_wide=CED_GEOTUBE_LINE_WIDTH;
+            
     
             //GLfloat line_color[4]={0.5,0.5,0.5, 0.4}; //lines in gray
             //GLfloat line_color[4]={((c->color>>16)&0xff)/255.0,((c->color>>8)&0xff)/255.0,((c->color)&0xff)/255.0, 0.5}; //lines in detector color
             glGetDoublev(GL_COLOR_CLEAR_VALUE, setting.bgcolor);
             //GLfloat line_color[4]={((c->color>>16)&0xff)/255.0/2.0+(1.0-setting.bgcolor[0])/2.0,((c->color>>8)&0xff)/255.0/2.0+(1.0-setting.bgcolor[1])/2.0,((c->color)&0xff)/255.0/2.0+(1.0-setting.bgcolor[2])/2.0, 0.6}; //lines in detector color mixed with anti background color
     
-            GLfloat line_color[4]={((c->color>>16)&0xff)/255.0/2.0+(1.0-setting.bgcolor[0])/2.0,((c->color>>8)&0xff)/255.0/2.0+(1.0-setting.bgcolor[1])/2.0,((c->color)&0xff)/255.0/2.0+(1.0-setting.bgcolor[2])/2.0, (1-setting.trans_value)+0.2}; //lines in detector color mixed with anti background color
+            GLfloat line_color[4]={((c->color>>16)&0xff)/255.0/2.0+(1.0-setting.bgcolor[0])/2.0,((c->color>>8)&0xff)/255.0/2.0+(1.0-setting.bgcolor[1])/2.0,((c->color)&0xff)/255.0/2.0+(1.0-setting.bgcolor[2])/2.0, (1-setting.trans_value)+CED_GEOTUBE_LINE_MAX_TRANS}; //lines in detector color mixed with anti background color
     
     
             //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //default
@@ -1300,8 +1302,22 @@ static void ced_draw_geotube(CED_GeoTube *c){
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     
             if(setting.cut_angle < 360){
+                //std::cout << setting.z_cutting << " vs " << transformed_shift-z << std::endl;
+               // if(-2*setting.z_cutting > transformed_shift+z+z){
+
+               //if(-2*setting.z_cutting < transformed_shift){
+               // if(fabs((-2*setting.z_cutting-transformed_shift)) < z){
+               //     z-=fabs((-2*setting.z_cutting-transformed_shift));
+               // }else{
+               //     z=0;
+               // }
+               // transformed_shift-=fabs(-2*setting.z_cutting-transformed_shift)/2. ;
+               // //z=-2*setting.z_cutting-transformed_shift+2*z;
+               // }
+                
                 glTranslatef(0.0, 0.0, transformed_shift);
                 if(c->rotate_o > 0.01 ) glRotatef(c->rotate_o, 0, 0, 1);
+    
                 if(c->rotate_o <= setting.cut_angle){ //dont cut if rotate angle is to big
                     if(c->edges_o != c->edges_i || c->rotate_i != 0){
                         //glColor4f((c->color>>16)&0xff,(c->color>>8)&0xff,(c->color)&0xff, 0.8);

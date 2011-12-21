@@ -39,6 +39,7 @@
 
 #include <ced.h>
 #include <ced_cli.h>
+#include <ced_config.h>
 
 #include <errno.h>
 #include <sys/select.h>
@@ -134,10 +135,25 @@ static int available_cutangles[]={0,30,90,135, 180, 270, 360};  //for new angles
 #define BGCOLOR_YELLOW          1009
 #define BGCOLOR_VIOLET          1010
 
-#define BGCOLOR_GAINSBORO       1011
-#define BGCOLOR_LIGHTGREY       1012
-#define BGCOLOR_DARKGRAY        1013
-#define BGCOLOR_GRAY            1014
+//#define BGCOLOR_GAINSBORO       1011
+//#define BGCOLOR_LIGHTGREY       1012
+//#define BGCOLOR_DARKGRAY        1013
+//#define BGCOLOR_GRAY            1014
+#define BGCOLOR_OPTION1         1015
+#define BGCOLOR_OPTION2         1016
+#define BGCOLOR_OPTION3         1017
+#define BGCOLOR_OPTION4         1018
+#define BGCOLOR_OPTION5         1019
+#define BGCOLOR_OPTION6         1020
+#define BGCOLOR_OPTION7         1021
+#define BGCOLOR_OPTION8         1022
+#define BGCOLOR_OPTION9         1023
+#define BGCOLOR_OPTION10        1024
+#define BGCOLOR_OPTION11        1025
+#define BGCOLOR_OPTION12        1026
+#define BGCOLOR_OPTION13        1027
+#define BGCOLOR_OPTION14        1028
+#define BGCOLOR_OPTION15        1029
 
 #define BGCOLOR_USER            1100
 
@@ -218,7 +234,7 @@ const char layer_keys[] = {'0','1', '2','3','4','5','6','7','8','9',')', '!', '@
 const char detec_layer_keys[] = {'t','y','u','i','o','p','[',']','\\', 'T', 'Y','U','I','O','P','{','}','|'};
 
 static int mainWindow=-1;
-static int subWindow=-1;
+//static int subWindow=-1;
 static int layerMenu;
 static int detectorMenu;
 static int subsubMenu2;
@@ -527,9 +543,9 @@ static void display_world(void){
         return;
     }
 
-    glColor3f(0.2,0.2,0.8);
+    glColor3f(AXES_COLOR);
     //glLineWidth(2.);
-    glLineWidth(0.5);
+    glLineWidth(AXES_LINE_SIZE);
 
     glBegin(GL_LINES);
     glVertex3fv(axe[0]);
@@ -810,27 +826,6 @@ void printShortcuts(void){
         shortcuts.push_back(label);
     }
         
-//        drawHelpString(label, ((int)(aline/ITEMS_PER_COLUMN)+actual_column)*column,(ITEMS_PER_COLUMN-(aline%ITEMS_PER_COLUMN))*line);
-//        aline++;
-//
-//        jj=j;
-//
-//        for(;j<CED_MAX_LAYER_CHAR-1;j++){
-//            if(layerDescription[i][j] == ',' || layerDescription[i][j] == 0){
-//                tmp[j-jj]=0;
-//                j++; //scrip ", "
-//                jj=j+1;
-//                sprintf(label,"[%c] %s%i: %s", layer_keys[i], (i<10)?"0":"", i, tmp);
-//                drawHelpString(label, ((int)(aline/ITEMS_PER_COLUMN)+actual_column)*column,-1*(ITEMS_PER_COLUMN-(aline%ITEMS_PER_COLUMN))*line);
-//
-//                aline++;
-//                if(layerDescription[i][j] == 0){ break; }
-//            }else{
-//                tmp[j-jj]=layerDescription[i][j];
-//            }
-//        }
-
-
     shortcuts.push_back( " " );
     shortcuts.push_back( "DETECTOR LAYERS: " );
 
@@ -845,22 +840,6 @@ void printShortcuts(void){
         shortcuts.push_back(label);
     }
 
-
-    //sprintf (label, "Control keys");
-    //glRasterPos2f(((int)(0/ITEMS_PER_COLUMN))*column+0.02, 0.80F);
-    //drawStringBig(label);
-
-
- 
-
-
-
-//    glDisable(GL_DEPTH_TEST); //activate 'depth-test'
-//
-//    //    glDisable(GL_BLEND);
-//    glClear(GL_DEPTH_BUFFER_BIT ); 
-//    std::cout << "show help" << std::endl;
-    //saves the matrices on the stack
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
     glMatrixMode(GL_MODELVIEW);
@@ -876,17 +855,10 @@ void printShortcuts(void){
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
- 
-    //GLfloat w=glutGet(GLUT_SCREEN_WIDTH);
-    //GLfloat h=glutGet(GLUT_SCREEN_HEIGHT); ;
-
     GLfloat w=glutGet(GLUT_WINDOW_WIDTH);
     GLfloat h=glutGet(GLUT_WINDOW_HEIGHT); ;
 
     int  WORLD_SIZE=1000; //static worldsize maybe will get problems in the future...
-    //glOrtho(-WORLD_SIZE*w/h,WORLD_SIZE*w/h,-WORLD_SIZE,WORLD_SIZE, -15*WORLD_SIZE,15*WORLD_SIZE);
-
-    //glOrtho(0,w,h, 0,-15*WORLD_SIZE,15*WORLD_SIZE);
 
     glOrtho(0,w,h, 0,0,15*WORLD_SIZE);
 
@@ -894,16 +866,8 @@ void printShortcuts(void){
     glLoadIdentity();
     
 
-    //glEnable(GL_LINE_SMOOTH);
-    //glHint(GL_LINE_SMOOTH,GL_NICEST);
-    //glDepthMask(GL_TRUE);
-
-
-
     double border_factor_line=0.005;
     double border_factor_quad=0.0052;
-
-
 
 
     double boarder_quad = 1000*border_factor_quad;
@@ -911,33 +875,14 @@ void printShortcuts(void){
 
 
     if(int(w/column) > 1){
-        //h=boarder_quad*2+(shortcuts.size()*line)/(int(w/column))*3;
-
-        //h=(boarder_quad*2.+(shortcuts.size()*column*1./w + 1.)*line)*3.;
-
         h=(boarder_quad*2.+(shortcuts.size()*1./int((w-3.*boarder_quad)/column) + 1.)*line)*3.+5;
     }else{
         h*=3;
     }
 
-
-    //glColor4f(1.0,1.0,1.0,0.5);
-
-    //glColor4f(1.0,1.0,1.0,0.5);
-
-    //glColor4f(0.0,1.0,1.0,0.5);
-
-    glColor4f(0.5,1,1,0.8);
+    glColor4f(HELP_FRAME_FILL_COLOR);
 
     const int ITEMS_PER_COLUMN=int((h/3.0-boarder_quad*2)/(line)); //how many lines per column?
-    //const int ITEMS_PER_COLUMN=int((h/3.0)/(line)); //how many lines per column?
-
-//    glBegin(GL_QUADS); 
-//    glVertex3f(boarder_quad, boarder_quad,0);
-//    glVertex3f(w-boarder_quad,boarder_quad,0);
-//    glVertex3f(w-boarder_quad, h/3.-boarder_quad,0);
-//    glVertex3f(boarder_quad, h/3.-boarder_quad,0);
-//    glEnd();
     glBegin(GL_QUADS); 
     glVertex3f(boarder_quad, boarder_quad,0);
     glVertex3f(w-boarder_quad,boarder_quad,0);
@@ -946,11 +891,8 @@ void printShortcuts(void){
     glEnd();
 
 
-    //glColor4f(0.0,1.0,1.0,1);
-
-    glColor4f(0.1,0.8,1.0,0.8);
-
-    glLineWidth(3.);
+    glColor4f(HELP_FRAME_BOARDER_COLOR);
+    glLineWidth(HELP_FRAME_BOARDER_LINE_SIZE);
     glBegin(GL_LINES); 
     glVertex3f(boarder_line, boarder_line,0);
     glVertex3f(w-boarder_line,boarder_line,0);
@@ -966,95 +908,13 @@ void printShortcuts(void){
     glVertex3f(w-boarder_line, h/3.-boarder_line,0);
     glEnd();
 
-
-
-
-//----------------
-
-    glColor3f(0.0,0.0,0.0);
+    glColor3f(HELP_FRAME_TEXT_COLOR);
     
 
 
-//    glRasterPos2f(0+100,h/6);
-//    drawStringBig("Work in process....");
-
-
-//    float line = 45/(h/3.0); //height of one line
-//    float column = 200/w; //width of one line
-
-
-    //cout << " w = " << w << "h = " << h << endl;
-
-
-//    int i;
     for(i=0;(unsigned) i<shortcuts.size();i++){
-       //drawHelpString(shortcuts[i], ((int)(i/ITEMS_PER_COLUMN))*column+0.02, (ITEMS_PER_COLUMN+(i%ITEMS_PER_COLUMN))*line );
        drawHelpString(shortcuts[i],  int(i/ITEMS_PER_COLUMN)*column+boarder_quad+5, (i%ITEMS_PER_COLUMN)*line+boarder_quad+10);
-       //cout << "x " << int(i/ITEMS_PER_COLUMN)*column+boarder_quad+5 << "y: " << (i%ITEMS_PER_COLUMN)*line+boarder_quad+15<< endl;
-       //cout << "point: " <<  int(i/ITEMS_PER_COLUMN)*column+border_factor_quad*w+10 << ", " << (i%ITEMS_PER_COLUMN)*line+border_factor_quad*h+40 << endl;
-
- //      std::cout << "pos: " <<  ((int)(i/ITEMS_PER_COLUMN))*column+0.02 <<  "," <<  (ITEMS_PER_COLUMN-(i%ITEMS_PER_COLUMN))*line << endl;
     }
-
-
-
-
-/*
-
-    int i;
-    for(i=0;(unsigned) i<shortcuts.size();i++){
-       drawHelpString(shortcuts[i], ((int)(i/ITEMS_PER_COLUMN))*column+0.02, (ITEMS_PER_COLUMN+(i%ITEMS_PER_COLUMN))*line );
-
-       std::cout << "pos: " <<  ((int)(i/ITEMS_PER_COLUMN))*column+0.02 <<  "," <<  (ITEMS_PER_COLUMN-(i%ITEMS_PER_COLUMN))*line << endl;
-    }
-
-    int actual_column=(int)((i-1)/ITEMS_PER_COLUMN)+1;
-
-    int aline=0;
-    int j=0;
-    char tmp[CED_MAX_LAYER_CHAR];
-    int jj=0;
-
-    glColor3f(1.0, 1.0, 1.0);
-    sprintf (label, "Layers");
-    glRasterPos2f(((int)(aline/ITEMS_PER_COLUMN)+actual_column)*column, 0.80F);
-    drawStringBig(label);
-
-    for(i=0;i<NUMBER_DATA_LAYER;i++){
-        for(j=0;j<CED_MAX_LAYER_CHAR-1;j++){
-            if(layerDescription[i][j] != ','){
-                tmp[j]=layerDescription[i][j];
-            }else{
-                tmp[j]=0;
-                j+=2;
-                break;
-            }
-        }
-        
-        sprintf(label,"[%c] %s%i: %s", layer_keys[i], (i<10)?"0":"", i, tmp);
-        drawHelpString(label, ((int)(aline/ITEMS_PER_COLUMN)+actual_column)*column,(ITEMS_PER_COLUMN-(aline%ITEMS_PER_COLUMN))*line);
-        aline++;
-
-        jj=j;
-
-        for(;j<CED_MAX_LAYER_CHAR-1;j++){
-            if(layerDescription[i][j] == ',' || layerDescription[i][j] == 0){
-                tmp[j-jj]=0;
-                j++; //scrip ", "
-                jj=j+1;
-                sprintf(label,"[%c] %s%i: %s", layer_keys[i], (i<10)?"0":"", i, tmp);
-                drawHelpString(label, ((int)(aline/ITEMS_PER_COLUMN)+actual_column)*column,-1*(ITEMS_PER_COLUMN-(aline%ITEMS_PER_COLUMN))*line);
-
-                aline++;
-                if(layerDescription[i][j] == 0){ break; }
-            }else{
-                tmp[j-jj]=layerDescription[i][j];
-            }
-        }
-    }
-*/
-//---------------
-
 
     glEnable(GL_DEPTH_TEST);
     glMatrixMode(GL_PROJECTION);
@@ -1190,7 +1050,9 @@ static void reshape(int w,int h){
         //gluPerspective(60,window_width/window_height,plane1,plane2);
         //gluPerspective(60,window_width/window_height,100.0,50000.0*mm.sf+50000/mm.sf);
 
-        gluPerspective(45,window_width/window_height,100.0,50000.0*mm.sf+50000/mm.sf);
+        //gluPerspective(45,window_width/window_height,100.0,50000.0*mm.sf+50000/mm.sf);
+        gluPerspective(CAMERA_FIELD_OF_VIEW,window_width/window_height,CAMERA_MIN_DISTANCE,CAMERA_MAX_DISTANCE);
+
 
         //gluPerspective(170,window_width/window_height,100.0,50000.0*mm.sf+50000/mm.sf);
 
@@ -1224,7 +1086,7 @@ static void reshape(int w,int h){
         //glBlendFunc(GL_ONE, GL_ZERO);
         //glEnable(GL_BLEND);
       
-        gluLookAt  (0,0,2000,    0,0,0,    0,1,0);
+        gluLookAt  (CAMERA_POSITION,    0,0,0,    0,1,0);
     }
   
   
@@ -1938,121 +1800,122 @@ void drawString (char *s){
 }
 
 
-void subDisplay(void){
-    char label[CED_MAX_LAYER_CHAR];
-    int i;
+//void subDisplay(void){
+//    char label[CED_MAX_LAYER_CHAR];
+//    int i;
+//
+//    glutSetWindow(subWindow);
+//    //glClearColor(0.5, 0.5, 0.5, 100);
+//    glClearColor(0.5, 0.5, 0.5, 0.5);
+//
+//
+//    //std::cout << glutGet(GLUT_WINDOW_WIDTH) << " vs " << window_width << std::endl; 
+//    glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//
+//    float line = 45/window_height; //height of one line
+//    //float column = 200/window_width;
+//    float column = 200/window_width; //width of one line
+//
+//    const int ITEMS_PER_COLUMN=int(window_height/60.0); //how many lines per column?
+//    //const int MAX_COLUMN= window_width/100;
+//    //border
+//    glColor3f(0,0.9,.9);
+//    glBegin(GL_LINE_LOOP);
+//    glVertex2f(0.001, 0.01);
+//    glVertex2f(0.001, 0.99);
+//    glVertex2f(0.999, 0.99);
+//    glVertex2f(0.999, 0.01);
+//    glEnd();
+//
+//    glColor3f(1.0, 1.0, 1.0); //white
+//
+//    //printf("window_height %f\nwindow width %f\n", window_height, window_width);
+//
+//    vector<string> shortcuts;
+//    shortcuts.push_back( "[h] Toggle shortcut frame" );
+//    shortcuts.push_back( "[r] Reset view" );
+//    shortcuts.push_back( "[f] Font view" );
+//    shortcuts.push_back( "[s] Side view" );
+//    shortcuts.push_back( "[F] Front projection" );
+//    shortcuts.push_back( "[S] Side projection" );
+//    shortcuts.push_back( "[v] Fisheye projection" );
+//    shortcuts.push_back( "[b] Change background color" );
+//    shortcuts.push_back( "[+] Zoom in" );
+//    shortcuts.push_back( "[-] Zoom out" );
+//    shortcuts.push_back( "[c] Center" );
+//    shortcuts.push_back( "[Z] Cut in z-axe direction" );
+//    shortcuts.push_back( "[z] Cut in -z-axe direction" );
+//    shortcuts.push_back( "[>] Increase transparency" );
+//    shortcuts.push_back( "[<] Decrease transparency" );
+//    shortcuts.push_back( "[`] Toggle all data layers" );
+//    shortcuts.push_back( "[~] Toggle all detector layers" );
+//    shortcuts.push_back( "[Esc] Quit CED" );
+//
+//    glColor3f(1.0, 1.0, 1.0);
+//    sprintf (label, "Control keys");
+//    glRasterPos2f(((int)(0/ITEMS_PER_COLUMN))*column+0.02, 0.80F);
+//    drawStringBig(label);
+//
+//    //for(i=0;(unsigned) i<sizeof(shortcuts)/sizeof(shortcuts[0]);i++){
+//
+//    for(i=0;(unsigned) i<shortcuts.size();i++){
+//       //if((i/ITEMS_PER_COLUMN) > MAX_COLUMN) break;
+//       //sprintf(label,"%s", shortcuts[i]);
+//       //glRasterPos2f(((int)(i/ITEMS_PER_COLUMN))*column+0.02,(ITEMS_PER_COLUMN-(i%ITEMS_PER_COLUMN))*line);
+//       //printf("i=%i  lineposition=%i\n",i, (ITEMS_PER_COLUMN-(i%ITEMS_PER_COLUMN)));
+//       drawHelpString(shortcuts[i], ((int)(i/ITEMS_PER_COLUMN))*column+0.02, (ITEMS_PER_COLUMN-(i%ITEMS_PER_COLUMN))*line );
+//        //drawString(label);
+//    }
+//
+//    int actual_column=(int)((i-1)/ITEMS_PER_COLUMN)+1;
+//
+//    int aline=0;
+//    int j=0;
+//    char tmp[CED_MAX_LAYER_CHAR];
+//    int jj=0;
+//
+//    glColor3f(1.0, 1.0, 1.0);
+//    sprintf (label, "Layers");
+//    glRasterPos2f(((int)(aline/ITEMS_PER_COLUMN)+actual_column)*column, 0.80F);
+//    drawStringBig(label);
+//
+//    for(i=0;i<NUMBER_DATA_LAYER;i++){
+//        for(j=0;j<CED_MAX_LAYER_CHAR-1;j++){
+//            if(layerDescription[i][j] != ','){
+//                tmp[j]=layerDescription[i][j];
+//            }else{
+//                tmp[j]=0;
+//                j+=2;
+//                break;
+//            }
+//        }
+//        
+//       //sprintf(label,"[%c] %s%i: %s", layer_keys[i], (i<10)?"0":"", i, layerDescription[i]);
+//        sprintf(label,"[%c] %s%i: %s", layer_keys[i], (i<10)?"0":"", i, tmp);
+//        drawHelpString(label, ((int)(aline/ITEMS_PER_COLUMN)+actual_column)*column,(ITEMS_PER_COLUMN-(aline%ITEMS_PER_COLUMN))*line);
+//        aline++;
+//
+//        jj=j;
+//
+//        for(;j<CED_MAX_LAYER_CHAR-1;j++){
+//            if(layerDescription[i][j] == ',' || layerDescription[i][j] == 0){
+//                tmp[j-jj]=0;
+//                j++; //scrip ", "
+//                jj=j+1;
+//                //drawHelpString(tmp, ((int)(aline/ITEMS_PER_COLUMN)+actual_column+.18)*column,(ITEMS_PER_COLUMN-(aline%ITEMS_PER_COLUMN))*line);
+//                sprintf(label,"[%c] %s%i: %s", layer_keys[i], (i<10)?"0":"", i, tmp);
+//                drawHelpString(label, ((int)(aline/ITEMS_PER_COLUMN)+actual_column)*column,(ITEMS_PER_COLUMN-(aline%ITEMS_PER_COLUMN))*line);
+//
+//                aline++;
+//                if(layerDescription[i][j] == 0){ break; }
+//            }else{
+//                tmp[j-jj]=layerDescription[i][j];
+//            }
+//        }
+//    }
+//    glutSwapBuffers ();
+//}
 
-    glutSetWindow(subWindow);
-    //glClearColor(0.5, 0.5, 0.5, 100);
-    glClearColor(0.5, 0.5, 0.5, 0.5);
-
-
-    //std::cout << glutGet(GLUT_WINDOW_WIDTH) << " vs " << window_width << std::endl; 
-    glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    float line = 45/window_height; //height of one line
-    //float column = 200/window_width;
-    float column = 200/window_width; //width of one line
-
-    const int ITEMS_PER_COLUMN=int(window_height/60.0); //how many lines per column?
-    //const int MAX_COLUMN= window_width/100;
-    //border
-    glColor3f(0,0.9,.9);
-    glBegin(GL_LINE_LOOP);
-    glVertex2f(0.001, 0.01);
-    glVertex2f(0.001, 0.99);
-    glVertex2f(0.999, 0.99);
-    glVertex2f(0.999, 0.01);
-    glEnd();
-
-    glColor3f(1.0, 1.0, 1.0); //white
-
-    //printf("window_height %f\nwindow width %f\n", window_height, window_width);
-
-    vector<string> shortcuts;
-    shortcuts.push_back( "[h] Toggle shortcut frame" );
-    shortcuts.push_back( "[r] Reset view" );
-    shortcuts.push_back( "[f] Font view" );
-    shortcuts.push_back( "[s] Side view" );
-    shortcuts.push_back( "[F] Front projection" );
-    shortcuts.push_back( "[S] Side projection" );
-    shortcuts.push_back( "[v] Fisheye projection" );
-    shortcuts.push_back( "[b] Change background color" );
-    shortcuts.push_back( "[+] Zoom in" );
-    shortcuts.push_back( "[-] Zoom out" );
-    shortcuts.push_back( "[c] Center" );
-    shortcuts.push_back( "[Z] Cut in z-axe direction" );
-    shortcuts.push_back( "[z] Cut in -z-axe direction" );
-    shortcuts.push_back( "[>] Increase transparency" );
-    shortcuts.push_back( "[<] Decrease transparency" );
-    shortcuts.push_back( "[`] Toggle all data layers" );
-    shortcuts.push_back( "[~] Toggle all detector layers" );
-    shortcuts.push_back( "[Esc] Quit CED" );
-
-    glColor3f(1.0, 1.0, 1.0);
-    sprintf (label, "Control keys");
-    glRasterPos2f(((int)(0/ITEMS_PER_COLUMN))*column+0.02, 0.80F);
-    drawStringBig(label);
-
-    //for(i=0;(unsigned) i<sizeof(shortcuts)/sizeof(shortcuts[0]);i++){
-
-    for(i=0;(unsigned) i<shortcuts.size();i++){
-       //if((i/ITEMS_PER_COLUMN) > MAX_COLUMN) break;
-       //sprintf(label,"%s", shortcuts[i]);
-       //glRasterPos2f(((int)(i/ITEMS_PER_COLUMN))*column+0.02,(ITEMS_PER_COLUMN-(i%ITEMS_PER_COLUMN))*line);
-       //printf("i=%i  lineposition=%i\n",i, (ITEMS_PER_COLUMN-(i%ITEMS_PER_COLUMN)));
-       drawHelpString(shortcuts[i], ((int)(i/ITEMS_PER_COLUMN))*column+0.02, (ITEMS_PER_COLUMN-(i%ITEMS_PER_COLUMN))*line );
-        //drawString(label);
-    }
-
-    int actual_column=(int)((i-1)/ITEMS_PER_COLUMN)+1;
-
-    int aline=0;
-    int j=0;
-    char tmp[CED_MAX_LAYER_CHAR];
-    int jj=0;
-
-    glColor3f(1.0, 1.0, 1.0);
-    sprintf (label, "Layers");
-    glRasterPos2f(((int)(aline/ITEMS_PER_COLUMN)+actual_column)*column, 0.80F);
-    drawStringBig(label);
-
-    for(i=0;i<NUMBER_DATA_LAYER;i++){
-        for(j=0;j<CED_MAX_LAYER_CHAR-1;j++){
-            if(layerDescription[i][j] != ','){
-                tmp[j]=layerDescription[i][j];
-            }else{
-                tmp[j]=0;
-                j+=2;
-                break;
-            }
-        }
-        
-       //sprintf(label,"[%c] %s%i: %s", layer_keys[i], (i<10)?"0":"", i, layerDescription[i]);
-        sprintf(label,"[%c] %s%i: %s", layer_keys[i], (i<10)?"0":"", i, tmp);
-        drawHelpString(label, ((int)(aline/ITEMS_PER_COLUMN)+actual_column)*column,(ITEMS_PER_COLUMN-(aline%ITEMS_PER_COLUMN))*line);
-        aline++;
-
-        jj=j;
-
-        for(;j<CED_MAX_LAYER_CHAR-1;j++){
-            if(layerDescription[i][j] == ',' || layerDescription[i][j] == 0){
-                tmp[j-jj]=0;
-                j++; //scrip ", "
-                jj=j+1;
-                //drawHelpString(tmp, ((int)(aline/ITEMS_PER_COLUMN)+actual_column+.18)*column,(ITEMS_PER_COLUMN-(aline%ITEMS_PER_COLUMN))*line);
-                sprintf(label,"[%c] %s%i: %s", layer_keys[i], (i<10)?"0":"", i, tmp);
-                drawHelpString(label, ((int)(aline/ITEMS_PER_COLUMN)+actual_column)*column,(ITEMS_PER_COLUMN-(aline%ITEMS_PER_COLUMN))*line);
-
-                aline++;
-                if(layerDescription[i][j] == 0){ break; }
-            }else{
-                tmp[j-jj]=layerDescription[i][j];
-            }
-        }
-    }
-    glutSwapBuffers ();
-}
 void subReshape (int w, int h)
 {
   glViewport (0, 0, w, h);
@@ -2060,6 +1923,7 @@ void subReshape (int w, int h)
   glLoadIdentity ();
   gluOrtho2D (0.0F, 1.0F, 0.0F, 1.0F);
 };
+
 void writeString(char *str,int x,int y){
     int i;
     glColor3f(0, 0.0, 0.0);//print timer in red
@@ -2073,6 +1937,7 @@ void writeString(char *str,int x,int y){
     }
     //glPopMatrix();
 }
+
 void toggleHelpWindow(void){ //hauke
     if(showHelp == 1){
         showHelp=0;
@@ -2129,14 +1994,11 @@ void updateScreenshotMenu(void){
     sprintf(tmp,"Screenshot medium (%.0f x %.0f) (~ %.2f MB)",window_width*4, window_height*4, 4*4*window_width*window_height*3./1000000.);
     glutChangeToMenuEntry(2,tmp,SAVE_IMAGE4);
 
-
     sprintf(tmp,"Screenshot large (%.0f x %.0f) (~ %.2f MB)",window_width*10, window_height*10, 10*10*window_width*window_height*3./1000000.);
     glutChangeToMenuEntry(3,tmp,SAVE_IMAGE10);
 
-
     sprintf(tmp,"Screenshot extra large (%.0f x %.0f) (~ %.2f MB)",window_width*20, window_height*20, 20*20*window_width*window_height*3./1000000.);
     glutChangeToMenuEntry(4,tmp,SAVE_IMAGE20);
-
 
     sprintf(tmp,"Screenshot too large (%.0f x %.0f) (~ %.2f MB)",window_width*100, window_height*100, 100*100*window_width*window_height*3./1000000.);
     glutChangeToMenuEntry(5,tmp,SAVE_IMAGE100);
@@ -2233,66 +2095,131 @@ void selectFromMenu(int id){ //hauke
 
 
     switch(id){
-        case BGCOLOR_GAINSBORO:
-            set_bg_color(0.862745,0.862745,0.862745,0); 
-            //set_bg_color(0.862745,0.862745,0.862745,0);
+        case BGCOLOR_OPTION1:
+            set_bg_color(CED_BGCOLOR_OPTION1_COLORCODE); 
             break;
 
-        case BGCOLOR_LIGHTGREY:
-            set_bg_color(0.827451,0.827451,0.827451,0);
+        case BGCOLOR_OPTION2:
+            set_bg_color(CED_BGCOLOR_OPTION2_COLORCODE); 
             break;
 
-        case BGCOLOR_DARKGRAY:
-            set_bg_color(0.662745,0.662745,0.662745,0);
+        case BGCOLOR_OPTION3:
+            set_bg_color(CED_BGCOLOR_OPTION3_COLORCODE); 
             break;
 
-        case BGCOLOR_GRAY:
-            set_bg_color(0.501961,0.501961,0.501961,0);
+        case BGCOLOR_OPTION4:
+            set_bg_color(CED_BGCOLOR_OPTION4_COLORCODE); 
             break;
 
-        case BGCOLOR_SILVER:
-            set_bg_color(0.7529,0.7529,0.7529,0);
+        case BGCOLOR_OPTION5:
+            set_bg_color(CED_BGCOLOR_OPTION5_COLORCODE); 
             break;
 
-        case BGCOLOR_DIMGRAY:
-            set_bg_color(0.4118,0.4118,0.4118,0);
+        case BGCOLOR_OPTION6:
+            set_bg_color(CED_BGCOLOR_OPTION6_COLORCODE); 
             break;
 
-        case BGCOLOR_LIGHTSTEELBLUE:
-            set_bg_color(0.6902,0.7686 ,0.8706,0);
+        case BGCOLOR_OPTION7:
+            set_bg_color(CED_BGCOLOR_OPTION7_COLORCODE); 
             break;
 
-        case BGCOLOR_STEELBLUE:
-            set_bg_color(0.2745,0.5098,0.70588,0);
+        case BGCOLOR_OPTION8:
+            set_bg_color(CED_BGCOLOR_OPTION8_COLORCODE); 
             break;
 
-        case BGCOLOR_SEAGREEN:
-            set_bg_color(0.18039,0.54509,0.34117,0);
+        case BGCOLOR_OPTION9:
+            set_bg_color(CED_BGCOLOR_OPTION9_COLORCODE); 
             break;
 
-        case BGCOLOR_ORANGE:
-            set_bg_color(1,0.647,0,0);
+        case BGCOLOR_OPTION10:
+            set_bg_color(CED_BGCOLOR_OPTION10_COLORCODE); 
             break;
 
-        case BGCOLOR_YELLOW:
-            set_bg_color(1,1,0,0);
+        case BGCOLOR_OPTION11:
+            set_bg_color(CED_BGCOLOR_OPTION11_COLORCODE); 
             break;
 
-        case BGCOLOR_VIOLET:
-            set_bg_color(0.9333,0.5098,0.9333,0);
+        case BGCOLOR_OPTION12:
+            set_bg_color(CED_BGCOLOR_OPTION12_COLORCODE); 
             break;
 
-        case BGCOLOR_BLACK:
-            set_bg_color(0,0,0,0);
+        case BGCOLOR_OPTION13:
+            set_bg_color(CED_BGCOLOR_OPTION13_COLORCODE); 
             break;
 
-        case BGCOLOR_BLUE:
-            set_bg_color(0,0.2,0.4,0);
+        case BGCOLOR_OPTION14:
+            set_bg_color(CED_BGCOLOR_OPTION14_COLORCODE); 
             break;
 
-        case BGCOLOR_WHITE:
-            set_bg_color(1,1,1,0);
+        case BGCOLOR_OPTION15:
+            set_bg_color(CED_BGCOLOR_OPTION15_COLORCODE); 
             break;
+
+
+
+
+
+
+//        case BGCOLOR_GAINSBORO:
+//            set_bg_color(0.862745,0.862745,0.862745,0); 
+//            //set_bg_color(0.862745,0.862745,0.862745,0);
+//            break;
+//
+//        case BGCOLOR_LIGHTGREY:
+//            set_bg_color(0.827451,0.827451,0.827451,0);
+//            break;
+//
+//        case BGCOLOR_DARKGRAY:
+//            set_bg_color(0.662745,0.662745,0.662745,0);
+//            break;
+//
+//        case BGCOLOR_GRAY:
+//            set_bg_color(0.501961,0.501961,0.501961,0);
+//            break;
+//
+//        case BGCOLOR_SILVER:
+//            set_bg_color(0.7529,0.7529,0.7529,0);
+//            break;
+//
+//        case BGCOLOR_DIMGRAY:
+//            set_bg_color(0.4118,0.4118,0.4118,0);
+//            break;
+//
+//        case BGCOLOR_LIGHTSTEELBLUE:
+//            set_bg_color(0.6902,0.7686 ,0.8706,0);
+//            break;
+//
+//        case BGCOLOR_STEELBLUE:
+//            set_bg_color(0.2745,0.5098,0.70588,0);
+//            break;
+//
+//        case BGCOLOR_SEAGREEN:
+//            set_bg_color(0.18039,0.54509,0.34117,0);
+//            break;
+//
+//        case BGCOLOR_ORANGE:
+//            set_bg_color(1,0.647,0,0);
+//            break;
+//
+//        case BGCOLOR_YELLOW:
+//            set_bg_color(1,1,0,0);
+//            break;
+//
+//        case BGCOLOR_VIOLET:
+//            set_bg_color(0.9333,0.5098,0.9333,0);
+//            break;
+//
+//        case BGCOLOR_BLACK:
+//            set_bg_color(0,0,0,0);
+//            break;
+//
+//        case BGCOLOR_BLUE:
+//            set_bg_color(0,0.2,0.4,0);
+//            break;
+//
+//        case BGCOLOR_WHITE:
+//            set_bg_color(1,1,1,0);
+//            break;
 
         case BGCOLOR_USER:
             set_bg_color(userDefinedBGColor[0],userDefinedBGColor[1], userDefinedBGColor[2], userDefinedBGColor[3]);
@@ -2447,6 +2374,7 @@ void selectFromMenu(int id){ //hauke
 
         case VIEW_ZOOM_IN:
             mm.sf += mm.sf*50.0/window_height;
+            //cout << "mm.sf: " << mm.sf << endl;
             //reshape((int)window_width, (int)window_height);
 
             //if(mm.sf>50){ mm.sf=50; }
@@ -2454,6 +2382,13 @@ void selectFromMenu(int id){ //hauke
 
         case VIEW_ZOOM_OUT:
             mm.sf -= mm.sf*50.0/window_height;
+            //cout << "mm.sf: " << mm.sf << endl;
+
+            //if(mm.sf > 0.05){
+            //    mm.sf -= 0.05;
+            //}else{
+            //    mm.sf=0.00001;
+            //}
             //reshape((int)window_width, (int)window_height);
 
             //if(mm.sf<0.01){ mm.sf=0.01; }
@@ -2712,23 +2647,51 @@ void selectFromMenu(int id){ //hauke
                 setting.light=false;
                 glDisable(GL_LIGHTING); 
             }else{
+
                  //printf("Light is now on\n");
                  //graphic[0] = 1;
-                setting.light = true;
+                 setting.light = true;
 
-                 break; //do nothing...
+                // break; //do nothing...
 
                  //TODO: CHANGE IT
                  GLfloat light0_spec[] = {1, 1, 1, 0.5};
-                 GLfloat light0_pos[] = {0, 0, 8000};
+                 GLfloat light0_ambi[] = {1, 1, 1, 0.5};
+                 GLfloat light0_diff[] = {1, 1, 1, 0.5};
+//      mm.ha=mm.ha_start+(x-mouse_x)*180./window_width;
+//      mm.va=mm.va_start+(y-mouse_y)*180./window_height;
+ 
+                 GLfloat light0_pos[] = {200, 0, 0};
+                 GLfloat light0_dir[] = {0, -1, 0};
+
+                 GLfloat angle[] = {30};
                  //GLfloat light0_ambi[]= {0.5, 0.5, 0.5, 0.5};     
 
-                 //glLightfv(GL_LIGHT0, GL_DIFFUSE, light0_ambi);
-                 //glLightfv(GL_LIGHT0, GL_AMBIENT, light0_ambi);
+/////////////////
+
+
+
+///////////////////
+
+
                  glLightfv(GL_LIGHT0, GL_SPECULAR, light0_spec);
+                 glLightfv(GL_LIGHT1, GL_DIFFUSE, light0_ambi);
+                 glLightfv(GL_LIGHT2, GL_AMBIENT, light0_diff);
+
+                 glLightfv(GL_LIGHT0, GL_SPOT_CUTOFF, angle);
+                 glLightfv(GL_LIGHT1, GL_SPOT_CUTOFF, angle);
+                 glLightfv(GL_LIGHT2, GL_SPOT_CUTOFF, angle);
+
 
 
                  glLightfv(GL_LIGHT0, GL_POSITION, light0_pos);
+                 glLightfv(GL_LIGHT1, GL_POSITION, light0_pos);
+                 glLightfv(GL_LIGHT2, GL_POSITION, light0_pos);
+
+                 glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, light0_dir);
+                 glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, light0_dir);
+                 glLightfv(GL_LIGHT2, GL_SPOT_DIRECTION, light0_dir);
+ 
                  
                  ////glClearColor (0.0, 0.0, 0.0, 0.0);
                  //glShadeModel (GL_SMOOTH);
@@ -2846,6 +2809,8 @@ void selectFromMenu(int id){ //hauke
     glutPostRedisplay();
     //printf("bgcolor = %f %f %f %f\n",setting.bgcolor[0],setting.bgcolor[1],setting.bgcolor[2],setting.bgcolor[2]); 
 
+
+
 }
 
 int buildMenuPopup(void){ //hauke
@@ -2854,26 +2819,44 @@ int buildMenuPopup(void){ //hauke
     //int subMenu2;
     int subMenu3;
     int subMenu4;
-    int subsubMenu1;
+    //int subsubMenu1;
     //int subsubMenu3;
     int DetectorComponents;
 
     int bgColorMenu = glutCreateMenu(selectFromMenu);
-    glutAddMenuEntry("White",BGCOLOR_WHITE);
-    glutAddMenuEntry("Gainsboro", BGCOLOR_GAINSBORO);
-    glutAddMenuEntry("Lightgrey", BGCOLOR_LIGHTGREY);
-    glutAddMenuEntry("Silver", BGCOLOR_SILVER);
-    glutAddMenuEntry("Darkgray", BGCOLOR_DARKGRAY);
-    glutAddMenuEntry("Gray", BGCOLOR_GRAY);
-    glutAddMenuEntry("Dimgray", BGCOLOR_DIMGRAY);
-    glutAddMenuEntry("Black",BGCOLOR_BLACK);
-    glutAddMenuEntry("Lightsteelblue",BGCOLOR_LIGHTSTEELBLUE);
-    glutAddMenuEntry("Steelblue",BGCOLOR_STEELBLUE);
-    glutAddMenuEntry("Blue",BGCOLOR_BLUE);
-    glutAddMenuEntry("Seagreen",BGCOLOR_SEAGREEN);
-    glutAddMenuEntry("Orange",BGCOLOR_ORANGE);
-    glutAddMenuEntry("Yellow",BGCOLOR_YELLOW);
-    glutAddMenuEntry("Violet",BGCOLOR_VIOLET);
+
+    glutAddMenuEntry(CED_BGCOLOR_OPTION1_NAME,BGCOLOR_OPTION1);
+    glutAddMenuEntry(CED_BGCOLOR_OPTION2_NAME,BGCOLOR_OPTION2);
+    glutAddMenuEntry(CED_BGCOLOR_OPTION3_NAME,BGCOLOR_OPTION3);
+    glutAddMenuEntry(CED_BGCOLOR_OPTION4_NAME,BGCOLOR_OPTION4);
+    glutAddMenuEntry(CED_BGCOLOR_OPTION5_NAME,BGCOLOR_OPTION5);
+    glutAddMenuEntry(CED_BGCOLOR_OPTION6_NAME,BGCOLOR_OPTION6);
+    glutAddMenuEntry(CED_BGCOLOR_OPTION7_NAME,BGCOLOR_OPTION7);
+    glutAddMenuEntry(CED_BGCOLOR_OPTION8_NAME,BGCOLOR_OPTION8);
+    glutAddMenuEntry(CED_BGCOLOR_OPTION9_NAME,BGCOLOR_OPTION9);
+    glutAddMenuEntry(CED_BGCOLOR_OPTION10_NAME,BGCOLOR_OPTION10);
+    glutAddMenuEntry(CED_BGCOLOR_OPTION11_NAME,BGCOLOR_OPTION11);
+    glutAddMenuEntry(CED_BGCOLOR_OPTION12_NAME,BGCOLOR_OPTION12);
+    glutAddMenuEntry(CED_BGCOLOR_OPTION13_NAME,BGCOLOR_OPTION13);
+    glutAddMenuEntry(CED_BGCOLOR_OPTION14_NAME,BGCOLOR_OPTION14);
+    glutAddMenuEntry(CED_BGCOLOR_OPTION15_NAME,BGCOLOR_OPTION15);
+
+
+//    glutAddMenuEntry("White",BGCOLOR_WHITE);
+//    glutAddMenuEntry("Gainsboro", BGCOLOR_GAINSBORO);
+//    glutAddMenuEntry("Lightgrey", BGCOLOR_LIGHTGREY);
+//    glutAddMenuEntry("Silver", BGCOLOR_SILVER);
+//    glutAddMenuEntry("Darkgray", BGCOLOR_DARKGRAY);
+//    glutAddMenuEntry("Gray", BGCOLOR_GRAY);
+//    glutAddMenuEntry("Dimgray", BGCOLOR_DIMGRAY);
+//    glutAddMenuEntry("Black",BGCOLOR_BLACK);
+//    glutAddMenuEntry("Lightsteelblue",BGCOLOR_LIGHTSTEELBLUE);
+//    glutAddMenuEntry("Steelblue",BGCOLOR_STEELBLUE);
+//    glutAddMenuEntry("Blue",BGCOLOR_BLUE);
+//    glutAddMenuEntry("Seagreen",BGCOLOR_SEAGREEN);
+//    glutAddMenuEntry("Orange",BGCOLOR_ORANGE);
+//    glutAddMenuEntry("Yellow",BGCOLOR_YELLOW);
+//    glutAddMenuEntry("Violet",BGCOLOR_VIOLET);
     if(userDefinedBGColor[0] >= 0){ //is set
         glutAddMenuEntry("User defined",BGCOLOR_USER);
     }
@@ -2913,18 +2896,18 @@ int buildMenuPopup(void){ //hauke
 
 
 
-    subsubMenu1 = glutCreateMenu(selectFromMenu);
-    glutAddMenuEntry("Perspective",GRAFIC_PERSP);
-    //glutAddMenuEntry("Deepbuffer", GRAFIC_BUFFER);
-    glutAddMenuEntry("Transparency/mesh", GRAFIC_TRANS);
-    //glutAddMenuEntry("Light", GRAFIC_LIGHT);
-    //glutAddMenuEntry("Anti Aliasing", GRAFIC_ALIAS);
-    glutAddMenuEntry("Fade far objects to current background color", GRAFIC_FOG);
-    glutAddMenuEntry("Toggle visible of axes", AXES);
-    #ifndef __APPLE__
-        glutAddMenuEntry("Show FPS", FPS);
-    #endif
-
+//    subsubMenu1 = glutCreateMenu(selectFromMenu);
+//    glutAddMenuEntry("Perspective",GRAFIC_PERSP);
+//    //glutAddMenuEntry("Deepbuffer", GRAFIC_BUFFER);
+//    glutAddMenuEntry("Transparency/mesh", GRAFIC_TRANS);
+//    glutAddMenuEntry("Light", GRAFIC_LIGHT);
+//    //glutAddMenuEntry("Anti Aliasing", GRAFIC_ALIAS);
+//    glutAddMenuEntry("Fade far objects to current background color", GRAFIC_FOG);
+//    glutAddMenuEntry("Toggle visible of axes", AXES);
+//    #ifndef __APPLE__
+//        glutAddMenuEntry("Show FPS", FPS);
+//    #endif
+//
 
     subsubMenu2 = glutCreateMenu(selectFromMenu);
     for(i=0; (unsigned) i < sizeof(available_cutangles) / sizeof(available_cutangles[0]); i++){
@@ -2947,13 +2930,13 @@ int buildMenuPopup(void){ //hauke
 
 
 
-    subMenu4 = glutCreateMenu(selectFromMenu);
-    glutAddMenuEntry("Classic View",GRAFIC_LOW);
-    glutAddMenuEntry("New View", GRAFIC_HIGH);
-//    glutAddMenuEntry("Full Screen mode", FULLSCREEN);
-
-    glutAddSubMenu("Graphic details", subsubMenu1);
-    glutAddSubMenu("Transparency value", transMenu);
+//    subMenu4 = glutCreateMenu(selectFromMenu);
+//    glutAddMenuEntry("Classic View",GRAFIC_LOW);
+//    glutAddMenuEntry("New View", GRAFIC_HIGH);
+////    glutAddMenuEntry("Full Screen mode", FULLSCREEN);
+//
+//    glutAddSubMenu("Graphic details", subsubMenu1);
+//    glutAddSubMenu("Transparency value", transMenu);
 
 
 
@@ -2990,6 +2973,11 @@ int buildMenuPopup(void){ //hauke
     glutAddMenuEntry("Toggle perspective",GRAFIC_PERSP);
     glutAddMenuEntry("Toggle wireframe",GRAFIC_TRANS);
     glutAddMenuEntry("Fade far objects into background color",GRAFIC_FOG);
+    glutAddMenuEntry("Deepbuffer", GRAFIC_BUFFER);
+    glutAddMenuEntry("Transparency/mesh", GRAFIC_TRANS);
+    glutAddMenuEntry("Light", GRAFIC_LIGHT);
+    glutAddMenuEntry("Anti Aliasing", GRAFIC_ALIAS);
+
 
 
 
