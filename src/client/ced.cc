@@ -134,10 +134,12 @@ static void ced_buf_alloc(ced_element *pe,unsigned count){
         exit(1);
     }
   }else{
-    free(pe->b-HDR_SIZE);
-    pe->b=(unsigned char *) malloc(count*pe->size+HDR_SIZE);
+    //free(pe->b-HDR_SIZE);
+    //pe->b=(unsigned char *) malloc(count*pe->size+HDR_SIZE);
+
     //std::cout << "realloc requestet: " << count*pe->size+HDR_SIZE << "bytes" << std::endl;
-    //pe->b=(unsigned char *) realloc(pe->b-HDR_SIZE,count*pe->size+HDR_SIZE);
+    pe->b=(unsigned char *) realloc(pe->b-HDR_SIZE,count*pe->size+HDR_SIZE);
+
     //printf("malloc: ask for %lu bytes, pointer: %p\n", count*pe->size+HDR_SIZE,pe->b);//hauke
     if(pe->b==NULL){ //hauke
         printf("ERROR: malloc failed!\n");
