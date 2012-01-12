@@ -424,6 +424,7 @@ void drawPartialLineCylinder(double length, double R /*radius*/, double iR /*inn
     glDisable(GL_LINE_SMOOTH);
 
     glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
+
 }
 
 /*
@@ -1262,7 +1263,6 @@ static void ced_draw_geotube(CED_GeoTube *c){
         return;
     }
 
-    glPushMatrix();
 
     double transformed_shift = single_fisheye_transform(c->shift, fisheye_alpha);
 
@@ -1273,6 +1273,31 @@ static void ced_draw_geotube(CED_GeoTube *c){
     double z0 = transformed_shift;
     double z1 = single_fisheye_transform(c->z+c->shift, fisheye_alpha);
     double z = z1-z0;
+
+
+   //z cutting
+   //glColor4f(0.5, 0, 0, 0.5);
+   //glBegin(GL_QUADS);
+   //glVertex3f( -10000, 10000,-1*setting.z_cutting);
+   //glVertex3f(  10000, 10000,-1*setting.z_cutting); 
+   //glVertex3f(  10000,-10000,-1*setting.z_cutting); 
+   //glVertex3f( -10000,-10000,-1*setting.z_cutting); 
+   //glEnd();
+
+   if(-1*setting.z_cutting > (transformed_shift+2*z)){
+        //component is completly in outside range
+      return; 
+   }else if(-1*setting.z_cutting > (transformed_shift)){
+      //some part of component is in cutting range
+      double backup_transformed_shift=transformed_shift;
+      transformed_shift=transformed_shift+(-1*setting.z_cutting-transformed_shift)/2.;
+      z=z-(-1*setting.z_cutting-transformed_shift);
+      transformed_shift=backup_transformed_shift+(-1*setting.z_cutting-backup_transformed_shift);
+   }
+
+
+
+    glPushMatrix();
     //hauke
     //if(graphic[1] == 1){
     if(setting.trans == 1){
@@ -1301,6 +1326,9 @@ static void ced_draw_geotube(CED_GeoTube *c){
             glMatrixMode(GL_MODELVIEW);
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     
+
+            
+
             if(setting.cut_angle < 360){
                 //std::cout << setting.z_cutting << " vs " << transformed_shift-z << std::endl;
                // if(-2*setting.z_cutting > transformed_shift+z+z){
@@ -1314,6 +1342,8 @@ static void ced_draw_geotube(CED_GeoTube *c){
                // transformed_shift-=fabs(-2*setting.z_cutting-transformed_shift)/2. ;
                // //z=-2*setting.z_cutting-transformed_shift+2*z;
                // }
+
+                
                 
                 glTranslatef(0.0, 0.0, transformed_shift);
                 if(c->rotate_o > 0.01 ) glRotatef(c->rotate_o, 0, 0, 1);
@@ -2040,6 +2070,12 @@ static void ced_draw_geobox(CED_GeoBox * box )  {
   
   
     ced_color(box->color);
+
+    glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_LINE_SMOOTH);
+    glHint(GL_LINE_SMOOTH,GL_NICEST);
+    glDepthMask(GL_FALSE);
+
     glLineWidth(2.);
   
     face[0][0][0] = box->center[0] + (0.5 * box->sizes[0]);
@@ -2074,6 +2110,7 @@ static void ced_draw_geobox(CED_GeoBox * box )  {
     face[1][3][1] = box->center[1] + (0.5 * box->sizes[1]);
     face[1][3][2] = box->center[2] + (0.5 * box->sizes[2]);
  
+
     glBegin(GL_LINES);
     // drawing the first (i=0) and second (i=1) faces
     for(i = 0; i < 2; i++){
@@ -2093,6 +2130,12 @@ static void ced_draw_geobox(CED_GeoBox * box )  {
   
     glEnd();
   
+    glDepthMask(GL_TRUE);
+    glDisable(GL_LINE_SMOOTH);
+
+    glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
+
+
 }
 
 /*
@@ -2167,7 +2210,9 @@ static void ced_draw_geobox_r(CED_GeoBoxR * box )  {
     face[1][3][1] =  + (0.5 * box->sizes[1]);
     face[1][3][2] =  + (0.5 * box_z);
   
-    glBegin(GL_LINES);
+//    glBegin(GL_LINES);
+
+    glBegin(GL_TRIANGLE_STRIP);
     // drawing the first (i=0) and second (i=1) faces
     for(i = 0; i < 2; i++){
         glVertex3f( (float) face[i][0][0], (float) face[i][0][1],  (float) face[i][0][2] );
@@ -2256,8 +2301,8 @@ static void ced_draw_geobox_r_solid(CED_GeoBoxR * box )  {
 	//  unsigned int iDim, iPoint, iFace;
 	
 	
-	ced_color(box->color);
-	glLineWidth(2);
+	//ced_color(box->color);
+	//glLineWidth(2);
 	
 	glPushMatrix(); // push the matrix onto the matrix stack and pop it off (preserving the original matrix)
 	
@@ -2299,8 +2344,23 @@ static void ced_draw_geobox_r_solid(CED_GeoBoxR * box )  {
 	face[1][3][1] =  + (0.5 * box->sizes[1]);
 	face[1][3][2] =  + (0.5 * box->sizes[2]);
 	
+
 	//  drawing the first face
+
+
+	//ced_color(box->color);
+    GLfloat face_color[4]={((box->color>>16)&0xff)/255.0,((box->color>>8)&0xff)/255.0,((box->color)&0xff)/255.0, setting.trans_value};  
+    //GLfloat line_color[4]={((c->color>>16)&0xff)/255.0/2.0+(1.0-setting.bgcolor[0])/2.0,((c->color>>8)&0xff)/255.0/2.0+(1.0-setting.bgcolor[1])/2.0,((c->color)&0xff)/255.0/2.0+(1.0-setting.bgcolor[2])/2.0, (1-setting.trans_value)+CED_GEOTUBE_LINE_MAX_TRANS}; //lines in detector color mixed with anti background color
+    glColor4f(face_color[0], face_color[1], face_color[2], face_color[3]);
+    glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
+
+    
+    glMatrixMode(GL_MODELVIEW);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+ 
 	glBegin(GL_POLYGON);
+
+   // glBegin(GL_QUADS);
 	
 	glVertex3f( (float) face[0][0][0], (float) face[0][0][1],  (float) face[0][0][2] );
 	glVertex3f( (float) face[0][1][0], (float) face[0][1][1],  (float) face[0][1][2] );
@@ -2357,6 +2417,7 @@ static void ced_draw_geobox_r_solid(CED_GeoBoxR * box )  {
 	glEnd();
 	
 	glPopMatrix();
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //default
 }
 
 

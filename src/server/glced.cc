@@ -713,13 +713,13 @@ static void write_world_into_front_buffer(void){
 
    //glTranslatef(0,0,1000);
 
-     const GLdouble clip_plane[]={0,0,-1,setting.z_cutting};
-     if(setting.z_cutting < 6999){
-          glEnable(GL_CLIP_PLANE0);
-     }else{
-          glDisable(GL_CLIP_PLANE0);
-     }
-     glClipPlane(GL_CLIP_PLANE0,clip_plane);
+     //const GLdouble clip_plane[]={0,0,-1,setting.z_cutting};
+     //if(setting.z_cutting < 6999){
+     //     glEnable(GL_CLIP_PLANE0);
+     //}else{
+     //     glDisable(GL_CLIP_PLANE0);
+     //}
+     //glClipPlane(GL_CLIP_PLANE0,clip_plane);
   
   
   
@@ -955,13 +955,14 @@ static void display(void){
   
      //glTranslatef(0,0,1000);
   
-     const GLdouble clip_plane[]={0,0,-1,setting.z_cutting};
-     if(setting.z_cutting < 6999){
-          glEnable(GL_CLIP_PLANE0);
-     }else{
-          glDisable(GL_CLIP_PLANE0);
-     }
-     glClipPlane(GL_CLIP_PLANE0,clip_plane);
+     //z cutting with clipping plane
+     //const GLdouble clip_plane[]={0,0,-1,setting.z_cutting};
+     //if(setting.z_cutting < 6999){
+     //     glEnable(GL_CLIP_PLANE0);
+     //}else{
+     //     glDisable(GL_CLIP_PLANE0);
+     //}
+     //glClipPlane(GL_CLIP_PLANE0,clip_plane);
   
   
   
@@ -2245,13 +2246,13 @@ void selectFromMenu(int id){ //hauke
 
         case VIEW_FISHEYE:
             if(fisheye_alpha==0.0){
-                mm.sf *= 8.0; //zoom in to hold the same detector size
-                fisheye_alpha = 1e-3;
+                mm.sf *= FISHEYE_ZOOM; //zoom in to hold the same detector size
+                fisheye_alpha = FISHEYE_ALPHA;
                 FISHEYE_WORLD_SIZE = WORLD_SIZE/(WORLD_SIZE*fisheye_alpha); //<-- new
                 set_world_size(WORLD_SIZE); // <-- old
             }
             else{
-                mm.sf *= 1.0/8.0; //zoom out for the same look
+                mm.sf *= 1.0/FISHEYE_ZOOM; //zoom out for the same look
                 fisheye_alpha = 0.0;
                 set_world_size(FISHEYE_WORLD_SIZE); //<-- old
             }
@@ -2263,7 +2264,7 @@ void selectFromMenu(int id){ //hauke
 
             if(setting.fixed_view){ break;}
 
-            mm.ha=0.;
+            mm.ha=180.;
             mm.va=0.;
             break;
 
@@ -2346,7 +2347,7 @@ void selectFromMenu(int id){ //hauke
 
                 setting.z_projection=true;
                 setting.cut_angle=0;
-                setting.z_cutting=10;
+                setting.z_cutting=-10;
 
 
                 //graphic_2_backup=graphic[2];
@@ -2360,7 +2361,7 @@ void selectFromMenu(int id){ //hauke
                 mm_ha_backup=mm.ha;
                 mm_va_backup = mm.va;
 
-                mm.ha=0.;
+                mm.ha=180.;
                 mm.va=0.;
 
 
