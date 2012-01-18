@@ -6,6 +6,22 @@
 ##################################################
 
 
+ --------
+| v01-05 |
+ --------
+
+    - Z-cutting now only affects the detector components, not the hits,tracks etc
+      this change has been made to be consistency with phi-cutting
+
+    - Fisheye options are now in the ced_config file 
+
+    - Improve the look of geocylinder objects
+
+    (- Front view and front projection now shows the detector from the different side)
+
+    - Add ced_config.h: collects all options which can be set before build CED
+
+
  -----------
 | v01-04-01 |
  -----------
