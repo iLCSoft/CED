@@ -919,7 +919,8 @@ int ced_get_selected(int x,int y,GLfloat *wx,GLfloat *wy,GLfloat *wz){
     *wx=best->p.x;
     *wy=best->p.y;
     *wz=best->p.z;
-    printf("Will center in: %.1f %.1f %.1f for HIT %d\n",*wx,*wy,*wz,best->ID);
+    //printf("Will center in: %.1f %.1f %.1f for HIT %d\n",*wx,*wy,*wz,best->ID);
+    std::cout << "Center selected hit (ID: " << best->ID << ")" << std::endl;
 
     SELECTED_ID = best->ID;
     return 0;
@@ -1302,6 +1303,8 @@ static void ced_draw_geotube(CED_GeoTube *c){
     //if(graphic[1] == 1){
     if(setting.trans == 1){
         for(int k=0;k<2;k++){        
+
+        //for(int k=1;k>=0;k--){        
             GLfloat face_color[4]={((c->color>>16)&0xff)/255.0,((c->color>>8)&0xff)/255.0,((c->color)&0xff)/255.0, setting.trans_value};  
             //GLfloat face_color[4]={((c->color>>16)&0xff)/255.0/2.0+(1.0-setting.bgcolor[0])/2.0,((c->color>>8)&0xff)/255.0/2.0+(1.0-setting.bgcolor[1])/2.0,((c->color)&0xff)/255.0/2.0+(1.0-setting.bgcolor[2])/2.0, setting.trans_value}; //shape in detector color mixed with anti background color
     
@@ -1708,6 +1711,7 @@ static void ced_draw_ellipsoid_r(CED_EllipsoidR * eli )  {
 	gluSphere(Sphere, 1.0, slices, stacks);
 
     //glDisable(GL_BLEND); //hauke test
+    gluDeleteQuadric(Sphere);
     glPopMatrix();
   	glEndList();	
 }
@@ -1951,7 +1955,10 @@ static void ced_draw_legend(CED_Legend *legend){
 	
 	/**
 	 *  Legend header: GeV */
-	glColor3f(1.0,1.0,1.0);
+	//glColor3f(1.0,1.0,1.0);
+    double dark=1.0-(setting.bgcolor[0]+setting.bgcolor[1]+setting.bgcolor[2])/3.0; //ever readable color
+    glColor3f(dark,dark,dark);
+
 	renderBitmapString(x_min-x_offset_legend,y_min+stripeThickness*color_steps-y_offset_legend, font, header);
 	glEnd();
 	//glPopMatrix();
@@ -1997,7 +2004,11 @@ static void ced_draw_legend(CED_Legend *legend){
 			
 			/**
 		 	 * Spectrum max & min value display */
-			glColor3f(1.0f,1.0f,1.0f);
+			//glColor3f(1.0f,1.0f,1.0f);
+            //double dark=1.0-(setting.bgcolor[0]+setting.bgcolor[1]+setting.bgcolor[2])/3.0; //ever readable color
+            glColor3f(dark,dark,dark);
+
+
 			
 			if (i==0){
 				snprintf(string, 6,  "%.1f", ene_min);
@@ -2040,6 +2051,9 @@ static void ced_draw_legend(CED_Legend *legend){
 			}
 			
 			snprintf(string, 6, "%.1f", num);
+
+    
+            glColor3f(dark,dark,dark);
 			renderBitmapString(x_min+x_offset,y_min+stripeThickness*pos+y_offset, font, string);
 
 			++tickNumber;
@@ -2265,17 +2279,26 @@ static void ced_draw_cone_r(CED_ConeR * cone )  {
   	glRotated(cone->rotate[0], 1.0, 0.0, 0.0);
   	
   	/** Swap the vertex with the base, so that the cone has a vertex centered at center[] */
-  	glRotated(180, 1.0, 0.0, 0.0);
-  	glTranslated(0.0, 0.0, -(cone->height));
 
 	/** Draw the cone */
     //TODO
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glColor4f(cone->RGBAcolor[0], cone->RGBAcolor[1], cone->RGBAcolor[2], cone->RGBAcolor[3]);
+
+
+  	glRotated(180, 1.0, 0.0, 0.0);
+  	glTranslated(0.0, 0.0, -(cone->height));
 	glutSolidCone(base, height, slices, stacks);
-	//glDisable(GL_BLEND); //hauke test
-	
+
+    
+
+	//glLineWidth(0.5);
+	//glutWireCone(base, height, slices*10, stacks*10);
+
+    //GLUquadricObj *q1 = gluNewQuadric();
+    //gluCylinder(q1, 0,base , height, slices, stacks);
+    //gluDeleteQuadric(q1);
 	glEnd();
 	glPopMatrix();
 }

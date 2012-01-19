@@ -562,12 +562,14 @@ static void display_world(void){
   
     glColor3f(0.5,0.5,0.8);
     glPushMatrix();
+    //glTranslatef(mm.mv.x,mm.mv.y,mm.mv.z);
     glTranslatef(WORLD_SIZE/2.-WORLD_SIZE/100.,0.,0.);
     glRotatef(90.,0.0,1.0,0.0);
     axe_arrow();
     glPopMatrix();
   
     glPushMatrix();
+    //glTranslatef(mm.mv.x,mm.mv.y,mm.mv.z);
     glTranslatef(0.,WORLD_SIZE/2.-WORLD_SIZE/100.,0.);
     glRotatef(-90.,1.0,0.,0.);
     axe_arrow();
@@ -575,6 +577,7 @@ static void display_world(void){
   
   
     glPushMatrix();
+    //glTranslatef(mm.mv.x,mm.mv.y,mm.mv.z);
     glTranslatef(0.,0.,WORLD_SIZE/2.-WORLD_SIZE/100.);
     axe_arrow();
     glPopMatrix();
@@ -803,6 +806,8 @@ void printShortcuts(void){
     shortcuts.push_back( "[z] Cut in -z-axe direction" );
     shortcuts.push_back( "[>] Increase transparency" );
     shortcuts.push_back( "[<] Decrease transparency" );
+    shortcuts.push_back( "[->] Move in z-direction" );
+    shortcuts.push_back( "[<-] Move in -z-direction" );
     shortcuts.push_back( "[m] Increase detector cut angle" );
     shortcuts.push_back( "[m] Decrease detector cut angle" );
     shortcuts.push_back( "[`] Toggle all data layers" );
@@ -945,13 +950,13 @@ static void display(void){
 
 
     
-    glTranslatef(-mm.mv.x,-mm.mv.y,-mm.mv.z);
   
       //glMatrixMode(GL_MODELVIEW); //
   
     // draw static objects
     display_world(); //only axes?
   
+    glTranslatef(-mm.mv.x,-mm.mv.y,-mm.mv.z);
   
      //glTranslatef(0,0,1000);
   
@@ -1513,7 +1518,12 @@ static void keypressed(unsigned char key,int x,int y){
     } else if(key=='c' || key=='C'){
       //selectFromMenu(VIEW_CENTER);
       if(!ced_get_selected(x,y,&mm.mv.x,&mm.mv.y,&mm.mv.z)) glutPostRedisplay();
-    } else if(key=='v' || key=='V'){
+    }/*else if(key=='w'){
+      mm.mv.x+=5; 
+      //mm.mv.y=y;
+      //mm.mv.z)) 
+        glutPostRedisplay();
+    }*/  else if(key=='v' || key=='V'){
           selectFromMenu(VIEW_FISHEYE);
     } else if((key>='0') && (key<='9')){
           selectFromMenu(LAYER_0+key-'0');
@@ -1621,14 +1631,19 @@ static void keypressed(unsigned char key,int x,int y){
           if(setting.trans_value > 0.005){
             //std::cout << "increase trans: " << setting.trans_value << endl;
             setting.trans_value-=0.005;
-            glutPostRedisplay();
+          }else{
+            setting.trans_value=0;
           }
+         glutPostRedisplay();
     }else if(key == '>'){
           if(setting.trans_value < 1-0.005){
             setting.trans_value+=0.005;
             //std::cout << "decrease trans" << setting.trans_value <<endl;
-            glutPostRedisplay();
+          }else{
+            setting.trans_value=1.;
           }
+          glutPostRedisplay();
+
     }else if(key == 'm'){
           if(setting.cut_angle > 0){
             setting.cut_angle-=0.5;
@@ -1648,12 +1663,20 @@ static void keypressed(unsigned char key,int x,int y){
 
 static void SpecialKey( int key, int x, int y ){
    switch (key) {
-   case GLUT_KEY_UP:
+   case GLUT_KEY_RIGHT:
        mm.mv.z+=50.;
       break;
-   case GLUT_KEY_DOWN:
+   case GLUT_KEY_LEFT:
        mm.mv.z-=50.;
       break;
+
+   case GLUT_KEY_UP:
+       mm.mv.y+=50.;
+      break;
+   case GLUT_KEY_DOWN:
+       mm.mv.y-=50.;
+      break;
+
    default:
       return;
    }
@@ -2819,7 +2842,7 @@ int buildMenuPopup(void){ //hauke
     //int subMenu1;
     //int subMenu2;
     int subMenu3;
-    int subMenu4;
+    //int subMenu4;
     //int subsubMenu1;
     //int subsubMenu3;
     int DetectorComponents;
