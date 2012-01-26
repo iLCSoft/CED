@@ -248,6 +248,8 @@ static int subLoad;
 //static int helpWindow=-1;
 static int showHelp=0;
 
+
+
 #define DEFAULT_WORLD_SIZE 1000.  //SJA:FIXED Reduce world size to give better scale
 
 static float WORLD_SIZE;
@@ -317,6 +319,391 @@ extern struct __glutSocketList {
 } *__glutSockets;
 
 extern bool client_connected;
+
+
+void drawHelpString (const string & str, float x,float y);
+
+class CED_SubSubMenu{
+    public: 
+        void setTitle(string new_title){
+            title=new_title;        
+        }
+        void draw(){
+                if(isExtend || isMouseOver){
+                    glColor3f(0.662745,0.662745,0.662745);
+                    glBegin(GL_QUADS);
+                    glVertex3f(x_start,y_start,0);
+                    glVertex3f(x_start,y_end,0);
+                    glVertex3f(x_end,y_end,0);
+                    glVertex3f(x_end,y_start,0);
+                    glEnd();
+
+                    //glColor3f(1,1,1);
+                    //glLineWidth(1.);
+                    //glBegin(GL_LINES); 
+
+                    //glVertex3f(x_start,y_start,0);
+                    //glVertex3f(x_start,y_end,0);
+
+                    //glVertex3f(x_start,y_end,0);
+                    //glVertex3f(x_end,y_end,0);
+
+                    //glVertex3f(x_end,y_end,0);
+                    //glVertex3f(x_end,y_start,0);
+
+                    //glVertex3f(x_end,y_start,0);
+                    //glVertex3f(x_start,y_start,0);
+                    //glEnd();
+                    glColor3f(0.662745,0.662745,0.662745);
+                    glBegin(GL_LINES); 
+
+                    glVertex3f(x_start,y_start,0);
+                    glVertex3f(x_start,y_end,0);
+
+                    glVertex3f(x_end,y_end,0);
+                    glVertex3f(x_end,y_start,0);
+
+                    glVertex3f(x_start,y_end,0);
+                    glVertex3f(x_end,y_end,0);
+
+
+                    //glVertex3f(x_end,y_start,0);
+                    //glVertex3f(x_start,y_start,0);
+                    glEnd();
+ 
+
+                    glColor3f(1,1,1);
+                }else{
+
+                    glColor3f(0.827451,0.827451,0.827451);
+                    glBegin(GL_QUADS);
+                    glVertex3f(x_start,y_start,0);
+                    glVertex3f(x_start,y_end,0);
+                    glVertex3f(x_end,y_end,0);
+                    glVertex3f(x_end,y_start,0);
+                    glEnd();
+
+                    glColor3f(0.662745,0.662745,0.662745);
+                    glBegin(GL_LINES); 
+
+                    glVertex3f(x_start,y_start,0);
+                    glVertex3f(x_start,y_end,0);
+                    glVertex3f(x_end,y_end,0);
+                    glVertex3f(x_end,y_start,0);
+
+
+                    //glVertex3f(x_start,y_end,0);
+                    //glVertex3f(x_end,y_end,0);
+
+
+                    //glVertex3f(x_end,y_start,0);
+                    //glVertex3f(x_start,y_start,0);
+                    glEnd();
+                    glColor3f(0,0,0);
+
+
+                }
+                drawHelpString(title, x_start+3, y_start+8);
+        }
+
+        void clickAt(int x,int y){
+            //cout << "x = " << x << " y == " << y << endl;
+            //cout << "x_start = " << x_start << " y == " << y << endl;
+
+            if(x_start < x && x_end > x && y_start < y && y_end > y){
+                //cout << "submenu clicked!" << endl;
+                if(isExtend){
+                    isExtend=false;
+                }else{
+                    if(subsubMenus.size() > 0){
+                        isExtend=true;
+                    }else{
+                        isExtend=false;
+                        isMouseOver=false;
+                    }
+                    selectFromMenu(optionNr);
+                }
+            }else{
+                isExtend=false;
+            }
+        }
+
+        void mouseMove(int x,int y){
+            if(x_start < x && x_end > x && y_start < y && y_end > y){
+                isMouseOver=true;
+                glutPostRedisplay();
+            } else if(isMouseOver==true){
+                isMouseOver=false;
+                glutPostRedisplay();
+            }
+
+            
+        }
+
+
+        void addItem(CED_SubSubMenu *subsub){
+            subsub->x_start=x_start;
+            subsub->x_end  =x_start+50;
+            subsub->y_start=y_start+10;
+            subsub->y_end  =y_end + 10;
+            subsubMenus.push_back(subsub); 
+        }
+        CED_SubSubMenu(string t, int nr=0){
+            title=t;
+            optionNr=nr;
+            isExtend=false;
+            isMouseOver=false;
+        }
+
+        string title; 
+        int optionNr;
+        bool isExtend;
+        bool isMouseOver;
+        int x_start;
+        int x_end;
+        int y_start;
+        int y_end;
+
+    private: 
+        vector<CED_SubSubMenu *> subsubMenus;   
+};
+
+
+class CED_SubMenu{
+    public: 
+        void setTitle(string new_title){
+            title=new_title;        
+        }
+        void draw(){
+                if(isExtend || isMouseOver){
+                    glColor3f(0.662745,0.662745,0.662745);
+                    glBegin(GL_QUADS);
+                    glVertex3f(x_start,y_start,0);
+                    glVertex3f(x_start,y_end,0);
+                    glVertex3f(x_end,y_end,0);
+                    glVertex3f(x_end,y_start,0);
+                    glEnd();
+
+                    //glColor3f(1,1,1);
+                    //glLineWidth(1.);
+                    //glBegin(GL_LINES); 
+
+                    //glVertex3f(x_start,y_start,0);
+                    //glVertex3f(x_start,y_end,0);
+
+                    //glVertex3f(x_start,y_end,0);
+                    //glVertex3f(x_end,y_end,0);
+
+                    //glVertex3f(x_end,y_end,0);
+                    //glVertex3f(x_end,y_start,0);
+
+                    //glVertex3f(x_end,y_start,0);
+                    //glVertex3f(x_start,y_start,0);
+                    //glEnd();
+
+                    glColor3f(1,1,1);
+                }else{
+                    glColor3f(0,0,0);
+                }
+                drawHelpString(title, x_start+3, y_start+8);
+                if(isExtend){
+                    unsigned i;
+                    //cout << "draw " << subsubMenus.size() << " subsubmenu items" << endl;
+                    for(i=0;(unsigned) i<subsubMenus.size();i++){
+                        subsubMenus.at(i)->x_start=x_start;
+                        subsubMenus.at(i)->x_end  =x_start+200;
+                        subsubMenus.at(i)->y_start=y_start+11+10*i;
+                        subsubMenus.at(i)->y_end  =y_end + 11+10*i;
+
+                        subsubMenus.at(i)->draw();
+                    }
+                }
+        }
+
+        void clickAt(int x,int y){
+            //cout << "x = " << x << " y == " << y << endl;
+            //cout << "x_start = " << x_start << " y == " << y << endl;
+            if(isExtend){
+                unsigned i;
+                for(i=0;(unsigned) i<subsubMenus.size();i++){
+                    subsubMenus.at(i)->clickAt(x,y);
+                }
+            }
+
+            if(x_start < x && x_end > x && y_start < y && y_end > y){
+                //cout << "submenu clicked!" << endl;
+                if(isExtend){
+                    isExtend=false;
+                }else{
+                    isExtend=true;
+                    selectFromMenu(optionNr);
+                }
+
+            }else{
+                isExtend=false;
+            }
+
+        }
+
+        void mouseMove(int x,int y){
+            if(isExtend){
+                unsigned i;
+                for(i=0;(unsigned) i<subsubMenus.size();i++){
+                    subsubMenus.at(i)->mouseMove(x,y);
+                }
+            }
+            if(x_start < x && x_end > x && y_start < y && y_end > y){
+                isMouseOver=true;
+                glutPostRedisplay();
+            }else if(isMouseOver==true){
+                isMouseOver=false;
+                glutPostRedisplay();
+            }
+
+        }
+
+
+
+        void addItem(CED_SubSubMenu *subsub){
+            subsubMenus.push_back(subsub); 
+
+        }
+        CED_SubMenu(string t, int nr=0){
+            title=t;
+            optionNr=nr;
+            isExtend=false;
+            isMouseOver=false;
+        }
+
+
+        string title; 
+        int optionNr;
+        bool isExtend;
+        bool isMouseOver;
+        int x_start;
+        int x_end;
+        int y_start;
+        int y_end;
+    
+
+    private: 
+        vector<CED_SubSubMenu *> subsubMenus;   
+};
+
+class CED_Menu{
+    public:
+        void draw(void){
+            //cout << "menu draw" << endl;
+            glMatrixMode(GL_PROJECTION);
+            glPushMatrix();
+            glMatrixMode(GL_MODELVIEW);
+            glPushMatrix();
+
+
+            glMatrixMode(GL_PROJECTION);
+            glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+            glDisable(GL_DEPTH_TEST);
+
+
+            glLoadIdentity();
+
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+            GLfloat w=glutGet(GLUT_WINDOW_WIDTH);
+            GLfloat h=glutGet(GLUT_WINDOW_HEIGHT); ;
+
+            int  WORLD_SIZE=1000; //static worldsize maybe will get problems in the future...
+
+            glOrtho(0,w,h, 0,0,15*WORLD_SIZE);
+
+            glMatrixMode(GL_MODELVIEW);
+            glLoadIdentity();
+            
+            //glColor3f(0,0,0);
+
+            glColor3f(0.827451,0.827451,0.827451);
+
+            glBegin(GL_QUADS); 
+            glVertex3f(0, 0,0);
+            glVertex3f(0,10,0);
+            glVertex3f(w,10,0);
+            glVertex3f(w,0,0);
+            glEnd();
+
+
+            glColor3f(0.501961,0.501961,0.501961);
+            glLineWidth(1.);
+            glBegin(GL_LINES); 
+
+            //glVertex3f(1,1,0);
+            //glVertex3f(1,10,0);
+
+            glVertex3f(1,11,0);
+            glVertex3f(w-1,11,0);
+
+            //glVertex3f(w-1,8,0);
+            //glVertex3f(w-1,1,0);
+
+
+            //glVertex3f(w-1,1,0);
+            //glVertex3f(1,1,0);
+            glEnd();
+
+            glColor3f(0,0,0);
+
+            unsigned i;
+            unsigned x_offset=1;
+            for(i=0;(unsigned) i<subMenus.size();i++){
+               //drawHelpString(shortcuts[i],  R_COLUMN)*column+boarder_quad+5, (i%ITEMS_PER_COLUMN)*line+boarder_quad+10);
+                subMenus.at(i)->draw();
+                //x_offset+=subMenus.at(i)->title.length()*6;
+            }
+
+            glEnable(GL_DEPTH_TEST);
+            glMatrixMode(GL_PROJECTION);
+            glPopMatrix();
+            glMatrixMode(GL_MODELVIEW);
+            glPopMatrix();
+
+
+        }
+        void clickAt(int x, int y){
+            //cout << "isClicked" << endl;
+            unsigned i;
+            for(i=0;(unsigned) i<subMenus.size();i++){
+                subMenus.at(i)->clickAt(x,y);
+            }
+
+        }
+
+        void mouseMove(int x, int y){
+            unsigned i;
+            for(i=0;(unsigned) i<subMenus.size();i++){
+                subMenus.at(i)->mouseMove(x,y);
+            }
+
+        }
+
+        void addSubMenu(CED_SubMenu *sub){
+
+            sub->x_start=x_offset;
+            sub->y_start=1;
+            sub->y_end=11;
+            x_offset+=sub->title.length()*4.8+15;
+            sub->x_end=x_offset;
+            subMenus.push_back(sub);
+            x_offset+=5;
+        }
+        CED_Menu(){
+            x_offset=1;
+        }
+        
+    private:
+        vector<CED_SubMenu *> subMenus;   
+        unsigned x_offset;
+};
+
+CED_Menu *ced_menu;
 
 // from ced_srv.c
 void ced_prepare_objmap(void);
@@ -865,7 +1252,9 @@ void printShortcuts(void){
 
     int  WORLD_SIZE=1000; //static worldsize maybe will get problems in the future...
 
-    glOrtho(0,w,h, 0,0,15*WORLD_SIZE);
+    //glOrtho(0,w,h, 0,0,15*WORLD_SIZE);
+
+    glOrtho(0,w,h,-10,0,15*WORLD_SIZE);
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
@@ -994,6 +1383,8 @@ static void display(void){
     }
 
 
+
+    ced_menu->draw();
     printFPS();
     
 
@@ -1349,11 +1740,20 @@ void mouseWheel(int button, int dir, int x, int y){ //hauke
         selectFromMenu(VIEW_ZOOM_OUT);
     }
 }
+
+static void mouse_passive(int x,int y){
+    //hier ced_menu 
+    ced_menu->mouseMove(x,y);
+    //cout << "x = " << x <<  endl;
+}
+
 static void mouse(int btn,int state,int x,int y){
     //hauke
     struct timeval tv;
 
     struct __glutSocketList *sock;
+
+
 
     //#ifdef __APPLE__
     //hauke
@@ -1384,6 +1784,12 @@ static void mouse(int btn,int state,int x,int y){
     mm.mv_start=mm.mv;
     switch(btn){
     case GLUT_LEFT_BUTTON:
+        ced_menu->clickAt(mouse_x,mouse_y);
+        //reshape((int)window_width, (int)window_height);
+        glutPostRedisplay();
+
+
+
         //hauke
         gettimeofday(&tv, 0); 
         //FIX IT: get the system double click time
@@ -1685,7 +2091,9 @@ static void SpecialKey( int key, int x, int y ){
 
 
 static void motion(int x,int y){
-  
+
+
+
     // printf("Mouse moved: %dx%d %f\n",x,y,angle_z);
     if((move_mode == NO_MOVE) || !window_width || !window_height)
       return;
@@ -2836,7 +3244,130 @@ void selectFromMenu(int id){ //hauke
 
 
 }
+void buildMainMenu(void){
+    ced_menu=new CED_Menu();
 
+
+    char str[200];
+    unsigned i;
+
+    //layers
+    CED_SubMenu *layers=new CED_SubMenu("Layers");
+    layers->addItem(new CED_SubSubMenu("Show/Hide all data Layers [`]", LAYER_ALL));
+    for(i=0;i<NUMBER_POPUP_LAYER;i++){
+        sprintf(str,"Data Layer %s%i [%c]: %s", (i < 10)?"  ":"" ,i, layer_keys[i], layerDescription[i]);
+        layers->addItem(new CED_SubSubMenu(str,LAYER_0+i));
+    }
+
+    layers->addItem(new CED_SubSubMenu("Show/Hide all detector components", DETECTOR_ALL));
+    for(i=NUMBER_DATA_LAYER;i<NUMBER_DETECTOR_LAYER+NUMBER_DATA_LAYER;i++){
+        //sprintf(str,"Detector Layer %s%i [%c]: %s", (i < 10)?"  ":"" ,i, layer_keys[i], layerDescription[i]);
+        sprintf(str,"Detector Layer %s%i: %s", (i < 10)?"  ":"" ,i, layerDescription[i]);
+        layers->addItem(new CED_SubSubMenu(str,DETECTOR1+i-NUMBER_DATA_LAYER));
+    }
+    ced_menu->addSubMenu(layers);
+
+
+
+    //CED_SubMenu *submenu1=new CED_SubMenu("test 1");
+    //CED_SubSubMenu *subsubmenus[40];
+    //for(i=0;i<40;i++){
+    //   subsubmenus[i]=new CED_SubSubMenu("test entry");
+    //   submenu1->addItem(subsubmenus[i]);
+    //   
+    //}
+    //ced_menu->addSubMenu(submenu1);
+
+    CED_SubMenu *trans=new CED_SubMenu("Transparency");
+    trans->addItem(new CED_SubSubMenu("    0%",TRANS0));
+    trans->addItem(new CED_SubSubMenu("  40%",TRANS40));
+    trans->addItem(new CED_SubSubMenu("  60%",TRANS60));
+    trans->addItem(new CED_SubSubMenu("  70%",TRANS70));
+    trans->addItem(new CED_SubSubMenu("  80%",TRANS80));
+    trans->addItem(new CED_SubSubMenu("  90%",TRANS90));
+    trans->addItem(new CED_SubSubMenu("  95%",TRANS95));
+    trans->addItem(new CED_SubSubMenu("100%",TRANS95));
+    ced_menu->addSubMenu(trans);
+
+    CED_SubMenu *camera=new CED_SubMenu("Camera");
+    camera->addItem(new CED_SubSubMenu("Reset view [r]", VIEW_RESET));
+    camera->addItem(new CED_SubSubMenu("Front view [f]", VIEW_FRONT));
+    camera->addItem(new CED_SubSubMenu("Side view [s]", VIEW_SIDE));
+    camera->addItem(new CED_SubSubMenu("Toggle side view projection [S]", TOGGLE_PHI_PROJECTION));
+    camera->addItem(new CED_SubSubMenu("Toggle front view projection [F]", TOGGLE_Z_PROJECTION));
+    camera->addItem(new CED_SubSubMenu("Toggle fisheye projection [v]",VIEW_FISHEYE));
+    camera->addItem(new CED_SubSubMenu("Zoom in [+]", VIEW_ZOOM_IN));
+    camera->addItem(new CED_SubSubMenu("Zoom out [-]", VIEW_ZOOM_OUT));
+    ced_menu->addSubMenu(camera);
+
+
+
+    CED_SubMenu *cuts=new CED_SubMenu("Cuts");
+    for(i=0; (unsigned)i < sizeof(available_cutangles)/sizeof(available_cutangles[0]); i++){
+            sprintf(str,"Cut of %i degree in phi", available_cutangles[i]);
+            cuts->addItem(new CED_SubSubMenu(str,  CUT_ANGLE0+i));
+            //glutChangeToMenuEntry(i+1, str,  CUT_ANGLE0+i);
+    }
+    cuts->addItem(new CED_SubSubMenu("Cut at z=0",  0));
+    cuts->addItem(new CED_SubSubMenu("Cut at z=3000",  0));
+    cuts->addItem(new CED_SubSubMenu("Cut at z=5000",  0));
+    ced_menu->addSubMenu(cuts);
+
+
+    CED_SubMenu *settings=new CED_SubMenu("Graphic");
+    settings->addItem(new CED_SubSubMenu("Graphic low",GRAFIC_LOW));
+    settings->addItem(new CED_SubSubMenu("Graphic high",GRAFIC_HIGH));
+    settings->addItem(new CED_SubSubMenu("Toggle perspective",GRAFIC_PERSP));
+    settings->addItem(new CED_SubSubMenu("Toggle wireframe",GRAFIC_TRANS));
+    settings->addItem(new CED_SubSubMenu("Fade far objects into background color",GRAFIC_FOG));
+    settings->addItem(new CED_SubSubMenu("Deepbuffer", GRAFIC_BUFFER));
+    settings->addItem(new CED_SubSubMenu("Transparency/mesh", GRAFIC_TRANS));
+    settings->addItem(new CED_SubSubMenu("Light", GRAFIC_LIGHT));
+    settings->addItem(new CED_SubSubMenu("Anti Aliasing", GRAFIC_ALIAS));
+    sprintf(str,"Change background color to: %s",CED_BGCOLOR_OPTION1_NAME);
+    settings->addItem(new CED_SubSubMenu(str,BGCOLOR_OPTION1));
+    sprintf(str,"Change background color to: %s",CED_BGCOLOR_OPTION2_NAME);
+    settings->addItem(new CED_SubSubMenu(str,BGCOLOR_OPTION2));
+    sprintf(str,"Change background color to: %s",CED_BGCOLOR_OPTION3_NAME);
+    settings->addItem(new CED_SubSubMenu(str,BGCOLOR_OPTION3));
+    sprintf(str,"Change background color to: %s",CED_BGCOLOR_OPTION4_NAME);
+    settings->addItem(new CED_SubSubMenu(str,BGCOLOR_OPTION4));
+    sprintf(str,"Change background color to: %s",CED_BGCOLOR_OPTION5_NAME);
+    settings->addItem(new CED_SubSubMenu(str,BGCOLOR_OPTION5));
+    sprintf(str,"Change background color to: %s",CED_BGCOLOR_OPTION6_NAME);
+    settings->addItem(new CED_SubSubMenu(str,BGCOLOR_OPTION6));
+    sprintf(str,"Change background color to: %s",CED_BGCOLOR_OPTION7_NAME);
+    settings->addItem(new CED_SubSubMenu(str,BGCOLOR_OPTION7));
+    sprintf(str,"Change background color to: %s",CED_BGCOLOR_OPTION8_NAME);
+    settings->addItem(new CED_SubSubMenu(str,BGCOLOR_OPTION8));
+    sprintf(str,"Change background color to: %s",CED_BGCOLOR_OPTION9_NAME);
+    settings->addItem(new CED_SubSubMenu(str,BGCOLOR_OPTION9));
+    sprintf(str,"Change background color to: %s",CED_BGCOLOR_OPTION10_NAME);
+    settings->addItem(new CED_SubSubMenu(str,BGCOLOR_OPTION10));
+    sprintf(str,"Change background color to: %s",CED_BGCOLOR_OPTION11_NAME);
+    settings->addItem(new CED_SubSubMenu(str,BGCOLOR_OPTION11));
+    sprintf(str,"Change background color to: %s",CED_BGCOLOR_OPTION12_NAME);
+    settings->addItem(new CED_SubSubMenu(str,BGCOLOR_OPTION12));
+    sprintf(str,"Change background color to: %s",CED_BGCOLOR_OPTION13_NAME);
+    settings->addItem(new CED_SubSubMenu(str,BGCOLOR_OPTION13));
+    sprintf(str,"Change background color to: %s",CED_BGCOLOR_OPTION14_NAME);
+    settings->addItem(new CED_SubSubMenu(str,BGCOLOR_OPTION14));
+    sprintf(str,"Change background color to: %s",CED_BGCOLOR_OPTION15_NAME);
+    settings->addItem(new CED_SubSubMenu(str,BGCOLOR_OPTION15));
+
+
+    if(userDefinedBGColor[0] >= 0){ //is set
+        settings->addItem(new CED_SubSubMenu("User defined",BGCOLOR_USER));
+    }
+
+
+    ced_menu->addSubMenu(settings);
+
+
+
+
+
+}
 int buildMenuPopup(void){ //hauke
     //int menu;
     //int subMenu1;
@@ -3248,6 +3779,8 @@ int main(int argc,char *argv[]){
 
   
     glutMouseFunc(mouse);
+    glutPassiveMotionFunc(mouse_passive);
+
     glutDisplayFunc(display);
     if(setting.fps){
         glutIdleFunc(idle); //to show fps
@@ -3264,6 +3797,11 @@ int main(int argc,char *argv[]){
   
 
     buildMenuPopup(); //hauke
+    
+    buildMainMenu();
+
+
+
     glutAttachMenu(GLUT_RIGHT_BUTTON); 
 
   
