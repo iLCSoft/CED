@@ -92,11 +92,28 @@ typedef enum {
 */
 
 
-typedef struct {
+//typedef struct {
+//  float x;
+//  float y;
+//  float z;
+//}; 
+//CED_Point;
+
+class CED_Point{
+  public:
+  CED_Point(float _x, float _y, float _z){
+       x=_x;
+       y=_y;
+       z=_z;
+   }
+
+  CED_Point(void){
+  }
   float x;
   float y;
   float z;
-} CED_Point;
+}; 
+
 
 /*
  * Hit element
