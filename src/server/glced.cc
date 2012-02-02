@@ -375,6 +375,16 @@ class CED_SubSubMenu{
  
 
                     glColor3f(1,1,1);
+                    unsigned i;
+                    for(i=0;(unsigned) i<subsubMenus.size();i++){
+                            subsubMenus.at(i)->x_start=x_start+200;
+                            subsubMenus.at(i)->x_end  =x_start+400;
+                            subsubMenus.at(i)->y_start=y_start+10*i;
+                            subsubMenus.at(i)->y_end  =y_end + 10*i;
+                            subsubMenus.at(i)->draw();
+                    }
+
+
                 }else{
 
                     glColor3f(0.827451,0.827451,0.827451);
@@ -408,12 +418,14 @@ class CED_SubSubMenu{
                 drawHelpString(title, x_start+3, y_start+8);
         }
 
-        void clickAt(int x,int y){
+        int clickAt(int x,int y){
             //cout << "x = " << x << " y == " << y << endl;
             //cout << "x_start = " << x_start << " y == " << y << endl;
 
             if(x_start < x && x_end > x && y_start < y && y_end > y){
                 //cout << "submenu clicked!" << endl;
+
+                selectFromMenu(optionNr);
                 if(isExtend){
                     isExtend=false;
                 }else{
@@ -422,15 +434,21 @@ class CED_SubSubMenu{
                     }else{
                         isExtend=false;
                         isMouseOver=false;
+
                     }
-                    selectFromMenu(optionNr);
+
                 }
             }else{
                 isExtend=false;
             }
+            unsigned i;
+            for(i=0;(unsigned) i<subsubMenus.size();i++){
+                subsubMenus.at(i)->clickAt(x,y);
+            }
+
         }
 
-        void mouseMove(int x,int y){
+        int mouseMove(int x,int y){
             if(x_start < x && x_end > x && y_start < y && y_end > y){
                 isMouseOver=true;
                 glutPostRedisplay();
@@ -438,8 +456,17 @@ class CED_SubSubMenu{
                 isMouseOver=false;
                 glutPostRedisplay();
             }
-
-            
+            unsigned i;
+            for(i=0;(unsigned) i<subsubMenus.size();i++){
+                if( subsubMenus.at(i)->mouseMove(x,y)){
+                   // if(selected_submenu != NULL){
+                   //     selected_submenu->isExtend=false;
+                   // }
+                   // selected_submenu=subsubMenus.at(i);
+                }
+            }
+ 
+            return(isMouseOver);
         }
 
 
@@ -478,8 +505,6 @@ class CED_SubMenu{
         }
         void draw(){
                 if(isExtend || isMouseOver){
-
-
                     glColor3f(0.662745,0.662745,0.662745);
                     glBegin(GL_QUADS);
                     glVertex3f(x_start,y_start,0);
@@ -513,12 +538,16 @@ class CED_SubMenu{
                 if(isExtend){
                     unsigned i;
                     //cout << "draw " << subsubMenus.size() << " subsubmenu items" << endl;
+                   if( selected_submenu != NULL){
+                        selected_submenu->isExtend=true;
+                        //selected_submenu->mouseOver();
+                    }
+
                     for(i=0;(unsigned) i<subsubMenus.size();i++){
                         subsubMenus.at(i)->x_start=x_start;
                         subsubMenus.at(i)->x_end  =x_start+200;
                         subsubMenus.at(i)->y_start=y_start+11+10*i;
                         subsubMenus.at(i)->y_end  =y_end + 11+10*i;
-
                         subsubMenus.at(i)->draw();
                     }
                 }
@@ -542,18 +571,24 @@ class CED_SubMenu{
                     isExtend=true;
                     selectFromMenu(optionNr);
                 }
-
             }else{
                 isExtend=false;
             }
 
+
+            selected_submenu=NULL;
         }
 
         void mouseMove(int x,int y){
             if(isExtend){
                 unsigned i;
                 for(i=0;(unsigned) i<subsubMenus.size();i++){
-                    subsubMenus.at(i)->mouseMove(x,y);
+                    if( subsubMenus.at(i)->mouseMove(x,y)){
+                        if(selected_submenu != NULL){
+                            selected_submenu->isExtend=false;
+                        }
+                        selected_submenu=subsubMenus.at(i);
+                    }
                 }
             }
             if(x_start < x && x_end > x && y_start < y && y_end > y){
@@ -577,6 +612,7 @@ class CED_SubMenu{
             optionNr=nr;
             isExtend=false;
             isMouseOver=false;
+            selected_submenu=NULL;
         }
 
 
@@ -591,6 +627,7 @@ class CED_SubMenu{
     
 
     private: 
+        CED_SubSubMenu *selected_submenu;
         vector<CED_SubSubMenu *> subsubMenus;   
 };
 
@@ -1182,6 +1219,13 @@ void printFPS(void){
     static int old_fps=0;
     static double startTime;
     struct timeval tv;
+
+
+    if(setting.fps == false){
+        return;
+    }
+
+
     gettimeofday(&tv, 0); 
 
     if(tv.tv_sec+tv.tv_usec/1000000.0-startTime < 1.0){
@@ -1193,9 +1237,6 @@ void printFPS(void){
         fps=1;
     }
 
-    if(setting.fps == false){
-        return;
-    }
     //print on screen: 
     //----------------------
 
@@ -1552,11 +1593,13 @@ static void display(void){
 
 
 
+
     ced_menu->draw();
 
     popupmenu->draw();
-    printFPS();
     
+
+    printFPS();
 
   
     glutSwapBuffers();
@@ -1991,6 +2034,7 @@ static void mouse(int btn,int state,int x,int y){
           move_mode=ZOOM;
           return;
         case GLUT_MIDDLE_BUTTON:
+          popupmenu->isExtend=false;
           //cout << "middle button clicked" << endl;
           //#ifdef __APPLE__
           //    move_mode=ZOOM;
@@ -2006,13 +2050,17 @@ static void mouse(int btn,int state,int x,int y){
 
     //hauke
     if (btn == mouseWheelUp || btn == 3 ){ // 3 is mouse-wheel-up under ubuntu
-    
+
+          popupmenu->isExtend=false;
         selectFromMenu(VIEW_ZOOM_IN);
       //  mm.mv.z+=150./mm.sf;
       //  glutPostRedisplay();
         return;
     }
     if (btn == mouseWheelDown || btn == 4 ){ // 4 is mouse-wheel-down under ubuntu
+
+          popupmenu->isExtend=false;
+
         selectFromMenu(VIEW_ZOOM_OUT);
         return;
     
@@ -3195,6 +3243,7 @@ void selectFromMenu(int id){ //hauke
             break;
 
         case FPS:  
+            //cout << "call fps" << endl;
             if(setting.fps){
                 glutIdleFunc(NULL);
                 setting.fps=false;
@@ -3439,7 +3488,9 @@ void buildPopUpMenu(int x, int y){
         popupmenu->addItem(new CED_SubSubMenu(tmp,0));
         sprintf(tmp,"Center object");
         popupmenu->addItem(new CED_SubSubMenu(tmp,0));
-        sprintf(tmp,"Hide Layer (layer: %i)",layer);
+        sprintf(tmp,"Pick object");
+        popupmenu->addItem(new CED_SubSubMenu(tmp,0));
+        sprintf(tmp,"Hide layer (layer: %i)",layer);
         popupmenu->addItem(new CED_SubSubMenu(tmp,LAYER_0+layer));
 
         p_pre_x=p_x; 
@@ -3591,42 +3642,71 @@ void buildMainMenu(void){
     settings->addItem(new CED_SubSubMenu("Transparency/mesh", GRAFIC_TRANS));
     settings->addItem(new CED_SubSubMenu("Light", GRAFIC_LIGHT));
     settings->addItem(new CED_SubSubMenu("Anti Aliasing", GRAFIC_ALIAS));
-    sprintf(str,"Change background color to: %s",CED_BGCOLOR_OPTION1_NAME);
-    settings->addItem(new CED_SubSubMenu(str,BGCOLOR_OPTION1));
-    sprintf(str,"Change background color to: %s",CED_BGCOLOR_OPTION2_NAME);
-    settings->addItem(new CED_SubSubMenu(str,BGCOLOR_OPTION2));
-    sprintf(str,"Change background color to: %s",CED_BGCOLOR_OPTION3_NAME);
-    settings->addItem(new CED_SubSubMenu(str,BGCOLOR_OPTION3));
-    sprintf(str,"Change background color to: %s",CED_BGCOLOR_OPTION4_NAME);
-    settings->addItem(new CED_SubSubMenu(str,BGCOLOR_OPTION4));
-    sprintf(str,"Change background color to: %s",CED_BGCOLOR_OPTION5_NAME);
-    settings->addItem(new CED_SubSubMenu(str,BGCOLOR_OPTION5));
-    sprintf(str,"Change background color to: %s",CED_BGCOLOR_OPTION6_NAME);
-    settings->addItem(new CED_SubSubMenu(str,BGCOLOR_OPTION6));
-    sprintf(str,"Change background color to: %s",CED_BGCOLOR_OPTION7_NAME);
-    settings->addItem(new CED_SubSubMenu(str,BGCOLOR_OPTION7));
-    sprintf(str,"Change background color to: %s",CED_BGCOLOR_OPTION8_NAME);
-    settings->addItem(new CED_SubSubMenu(str,BGCOLOR_OPTION8));
-    sprintf(str,"Change background color to: %s",CED_BGCOLOR_OPTION9_NAME);
-    settings->addItem(new CED_SubSubMenu(str,BGCOLOR_OPTION9));
-    sprintf(str,"Change background color to: %s",CED_BGCOLOR_OPTION10_NAME);
-    settings->addItem(new CED_SubSubMenu(str,BGCOLOR_OPTION10));
-    sprintf(str,"Change background color to: %s",CED_BGCOLOR_OPTION11_NAME);
-    settings->addItem(new CED_SubSubMenu(str,BGCOLOR_OPTION11));
-    sprintf(str,"Change background color to: %s",CED_BGCOLOR_OPTION12_NAME);
-    settings->addItem(new CED_SubSubMenu(str,BGCOLOR_OPTION12));
-    sprintf(str,"Change background color to: %s",CED_BGCOLOR_OPTION13_NAME);
-    settings->addItem(new CED_SubSubMenu(str,BGCOLOR_OPTION13));
-    sprintf(str,"Change background color to: %s",CED_BGCOLOR_OPTION14_NAME);
-    settings->addItem(new CED_SubSubMenu(str,BGCOLOR_OPTION14));
-    sprintf(str,"Change background color to: %s",CED_BGCOLOR_OPTION15_NAME);
-    settings->addItem(new CED_SubSubMenu(str,BGCOLOR_OPTION15));
+
+
+    CED_SubSubMenu *background=new CED_SubSubMenu("Change background color");
+    //sprintf(str,"Change background color to: %s",CED_BGCOLOR_OPTION1_NAME);
+    //background->addItem(new CED_SubSubMenu(str,BGCOLOR_OPTION1));
+    sprintf(str,"%s",CED_BGCOLOR_OPTION2_NAME);
+    background->addItem(new CED_SubSubMenu(str,BGCOLOR_OPTION2));
+    sprintf(str,"%s",CED_BGCOLOR_OPTION3_NAME);
+    background->addItem(new CED_SubSubMenu(str,BGCOLOR_OPTION3));
+    sprintf(str,"%s",CED_BGCOLOR_OPTION4_NAME);
+    background->addItem(new CED_SubSubMenu(str,BGCOLOR_OPTION4));
+    sprintf(str,"%s",CED_BGCOLOR_OPTION5_NAME);
+    background->addItem(new CED_SubSubMenu(str,BGCOLOR_OPTION5));
+    sprintf(str,"%s",CED_BGCOLOR_OPTION6_NAME);
+    background->addItem(new CED_SubSubMenu(str,BGCOLOR_OPTION6));
+    sprintf(str,"%s",CED_BGCOLOR_OPTION7_NAME);
+    background->addItem(new CED_SubSubMenu(str,BGCOLOR_OPTION7));
+    sprintf(str,"%s",CED_BGCOLOR_OPTION8_NAME);
+    background->addItem(new CED_SubSubMenu(str,BGCOLOR_OPTION8));
+    sprintf(str,"%s",CED_BGCOLOR_OPTION9_NAME);
+    background->addItem(new CED_SubSubMenu(str,BGCOLOR_OPTION9));
+    sprintf(str,"%s",CED_BGCOLOR_OPTION10_NAME);
+    background->addItem(new CED_SubSubMenu(str,BGCOLOR_OPTION10));
+    sprintf(str,"%s",CED_BGCOLOR_OPTION11_NAME);
+    background->addItem(new CED_SubSubMenu(str,BGCOLOR_OPTION11));
+    sprintf(str,"%s",CED_BGCOLOR_OPTION12_NAME);
+    background->addItem(new CED_SubSubMenu(str,BGCOLOR_OPTION12));
+    sprintf(str,"%s",CED_BGCOLOR_OPTION13_NAME);
+    background->addItem(new CED_SubSubMenu(str,BGCOLOR_OPTION13));
+    sprintf(str,"%s",CED_BGCOLOR_OPTION14_NAME);
+    background->addItem(new CED_SubSubMenu(str,BGCOLOR_OPTION14));
+    sprintf(str,"%s",CED_BGCOLOR_OPTION15_NAME);
+    background->addItem(new CED_SubSubMenu(str,BGCOLOR_OPTION15));
 
 
     if(userDefinedBGColor[0] >= 0){ //is set
-        settings->addItem(new CED_SubSubMenu("User defined",BGCOLOR_USER));
+        background->addItem(new CED_SubSubMenu("User defined",BGCOLOR_USER));
     }
+    
+
+    settings->addItem(background);
     ced_menu->addSubMenu(settings);
+
+
+
+
+    CED_SubSubMenu *screenshot=new CED_SubSubMenu("Save screenshot");
+    screenshot->addItem(new CED_SubSubMenu("original size",SAVE_IMAGE1));
+    screenshot->addItem(new CED_SubSubMenu("large",SAVE_IMAGE4));
+    screenshot->addItem(new CED_SubSubMenu("very large",SAVE_IMAGE10));
+    screenshot->addItem(new CED_SubSubMenu("very very large",SAVE_IMAGE20));
+    screenshot->addItem(new CED_SubSubMenu("extrem large",SAVE_IMAGE100));
+
+    CED_SubMenu *tools=new CED_SubMenu("Tools");
+    tools->addItem(screenshot);
+    tools->addItem(new CED_SubSubMenu("Show FPS",FPS));
+    ced_menu->addSubMenu(tools);
+
+
+    CED_SubMenu *help=new CED_SubMenu("Help");
+    help->addItem(new CED_SubSubMenu("Show keyboard shortcuts",HELP));
+    help->addItem(new CED_SubSubMenu("Contact team (hauke.hoelbe@desy.de)",0));
+    ced_menu->addSubMenu(help);
+
+
 
 }
 int buildMenuPopup(void){ //hauke
