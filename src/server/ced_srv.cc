@@ -75,6 +75,7 @@ static GLint    viewport[4];
 
 typedef struct {
     unsigned int ID;
+    unsigned int layer;
     int x; // in window
     int y;
     int max_dxy; // after this distance, ignore this object
@@ -926,6 +927,37 @@ int ced_get_selected(int x,int y,GLfloat *wx,GLfloat *wy,GLfloat *wz){
     return 0;
 }
 
+int find_selected_object(int x,int y,GLfloat *wx,GLfloat *wy,GLfloat *wz, int *id, int *layer){
+    CED_ObjMap *p,*best;
+    unsigned i;
+    int dx,dy;
+    int d,dist=0; // calculate dist as |x-x'|+|y-y'|
+    
+    y=viewport[3]-y-1; // to get correct direction
+    for(i=0,p=omap,best=0;i<omap_count;i++,p++){
+        dx=abs(p->x-x);
+        dy=abs(p->y-y);
+        if((dx>p->max_dxy) || (dy>p->max_dxy)){
+            continue;
+        }
+        d=dx+dy;
+        if(!best || (d<dist)){
+            best=p;
+            dist=d;
+        }
+    }
+    if(!best){
+        return 1;
+    }
+    *wx=best->p.x;
+    *wy=best->p.y;
+    *wz=best->p.z;
+
+    *id = best->ID;
+    *layer = best->layer;
+    return 0;
+}
+
 /**
  * Enables to print string as 2D bitmaps in OpenGL 
  * @author: SD
@@ -987,7 +1019,7 @@ inline int ced_selected() {
 /*
  * To be called from drawing functions
  */
-static void ced_add_objmap(CED_Point *p,int max_dxy, unsigned int ID){
+static void ced_add_objmap(CED_Point *p,int max_dxy, unsigned int ID, unsigned int layer){
     GLdouble winx,winy,winz;
 
     if(omap_count==omap_alloced){
@@ -998,6 +1030,8 @@ static void ced_add_objmap(CED_Point *p,int max_dxy, unsigned int ID){
         return;
     }
     omap[omap_count].ID=ID;
+
+    omap[omap_count].layer=layer;
     omap[omap_count].x=(int)winx;
     omap[omap_count].y=(int)winy;
     omap[omap_count].max_dxy=max_dxy;
@@ -1098,7 +1132,7 @@ static void ced_draw_hit(CED_Hit *h){
     }
     //glEnd();
     glEnable(GL_BLEND);
-    ced_add_objmap(&h->p,5,h->lcioID);
+    ced_add_objmap(&h->p,5,h->lcioID,h->layer);
 }
 
 /*
@@ -1163,8 +1197,8 @@ static void ced_draw_line(CED_Line *h){
   	//glDisable(GL_BLEND);
   	glEnd();
     //glEnable(GL_BLEND);
-    ced_add_objmap(&h->p0,5,h->lcioID);
-    ced_add_objmap(&h->p1,5,h->lcioID);
+    ced_add_objmap(&h->p0,5,h->lcioID,h->type );
+    ced_add_objmap(&h->p1,5,h->lcioID,h->type);
 
     double length=pow(pow(h->p0.x-h->p1.x,2)+pow(h->p0.y-h->p1.y,2)+pow(h->p0.z-h->p1.z,2),0.5);
 
@@ -1183,7 +1217,7 @@ static void ced_draw_line(CED_Line *h){
         p.x=fabs(h->p0.x-h->p1.x)/steps*i+h->p0.x;
         p.y=fabs(h->p0.y-h->p1.y)/steps*i+h->p0.y;
         p.z=fabs(h->p0.z-h->p1.z)/steps*i+h->p0.z;
-        ced_add_objmap(&p,5,h->lcioID);
+        ced_add_objmap(&p,5,h->lcioID, h->type);
         //display picking points for testing
         //glPointSize(5);
         //glBegin(GL_POINTS);

@@ -250,6 +250,8 @@ static int showHelp=0;
 
 
 
+
+
 #define DEFAULT_WORLD_SIZE 1000.  //SJA:FIXED Reduce world size to give better scale
 
 static float WORLD_SIZE;
@@ -476,6 +478,8 @@ class CED_SubMenu{
         }
         void draw(){
                 if(isExtend || isMouseOver){
+
+
                     glColor3f(0.662745,0.662745,0.662745);
                     glBegin(GL_QUADS);
                     glVertex3f(x_start,y_start,0);
@@ -703,11 +707,175 @@ class CED_Menu{
         unsigned x_offset;
 };
 
+class CED_PopUpMenu{
+    public: 
+        void setTitle(string new_title){
+            title=new_title;        
+        }
+        void draw(){
+
+            glMatrixMode(GL_PROJECTION);
+            glPushMatrix();
+            glMatrixMode(GL_MODELVIEW);
+            glPushMatrix();
+
+
+            glMatrixMode(GL_PROJECTION);
+            glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+            glDisable(GL_DEPTH_TEST);
+
+
+            glLoadIdentity();
+
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+            GLfloat w=glutGet(GLUT_WINDOW_WIDTH);
+            GLfloat h=glutGet(GLUT_WINDOW_HEIGHT); ;
+
+            int  WORLD_SIZE=1000; //static worldsize maybe will get problems in the future...
+
+            glOrtho(0,w,h, 0,0,15*WORLD_SIZE);
+
+            glMatrixMode(GL_MODELVIEW);
+            glLoadIdentity();
+ 
+                if(isExtend || isMouseOver){
+
+
+                    glColor3f(0.662745,0.662745,0.662745);
+                    glBegin(GL_QUADS);
+                    glVertex3f(x_start,y_start,0);
+                    glVertex3f(x_start,y_end,0);
+                    glVertex3f(x_end,y_end,0);
+                    glVertex3f(x_end,y_start,0);
+                    glEnd();
+
+                    //glColor3f(1,1,1);
+                    //glLineWidth(1.);
+                    //glBegin(GL_LINES); 
+
+                    //glVertex3f(x_start,y_start,0);
+                    //glVertex3f(x_start,y_end,0);
+
+                    //glVertex3f(x_start,y_end,0);
+                    //glVertex3f(x_end,y_end,0);
+
+                    //glVertex3f(x_end,y_end,0);
+                    //glVertex3f(x_end,y_start,0);
+
+                    //glVertex3f(x_end,y_start,0);
+                    //glVertex3f(x_start,y_start,0);
+                    //glEnd();
+
+                    glColor3f(1,1,1);
+                }else{
+                    glColor3f(0,0,0);
+                }
+
+                if(isExtend){
+                    drawHelpString(title, x_start+3, y_start+8);
+                    unsigned i;
+                    //cout << "draw " << subsubMenus.size() << " subsubmenu items" << endl;
+                    for(i=0;(unsigned) i<subsubMenus.size();i++){
+                        subsubMenus.at(i)->x_start=x_start;
+                        subsubMenus.at(i)->x_end  =x_start+200;
+                        subsubMenus.at(i)->y_start=y_start+11+10*i;
+                        subsubMenus.at(i)->y_end  =y_end + 11+10*i;
+
+                        subsubMenus.at(i)->draw();
+                    }
+                }
+            glEnable(GL_DEPTH_TEST);
+            glMatrixMode(GL_PROJECTION);
+            glPopMatrix();
+            glMatrixMode(GL_MODELVIEW);
+            glPopMatrix();
+
+        }
+
+        void clickAt(int x,int y){
+            //cout << "x = " << x << " y == " << y << endl;
+            //cout << "x_start = " << x_start << " y == " << y << endl;
+            if(isExtend){
+                unsigned i;
+                for(i=0;(unsigned) i<subsubMenus.size();i++){
+                    subsubMenus.at(i)->clickAt(x,y);
+                }
+            }
+
+            if(x_start < x && x_end > x && y_start < y && y_end > y){
+                //cout << "submenu clicked!" << endl;
+                if(isExtend){
+                    isExtend=false;
+                }else{
+                    isExtend=true;
+                    selectFromMenu(optionNr);
+                }
+
+            }else{
+                isExtend=false;
+            }
+
+        }
+
+        void mouseMove(int x,int y){
+            if(isExtend){
+                unsigned i;
+                for(i=0;(unsigned) i<subsubMenus.size();i++){
+                    subsubMenus.at(i)->mouseMove(x,y);
+                }
+                if(x_start < x && x_end > x && y_start < y && y_end > y){
+                    isMouseOver=true;
+                    glutPostRedisplay();
+                }else if(isMouseOver==true){
+                    isMouseOver=false;
+                    glutPostRedisplay();
+                }
+            }
+
+        }
+
+
+
+        void addItem(CED_SubSubMenu *subsub){
+            subsubMenus.push_back(subsub); 
+
+        }
+        CED_PopUpMenu(string t, int nr=0){
+            title=t;
+            optionNr=nr;
+            isExtend=false;
+            isMouseOver=false;
+        }
+
+        int size(void){
+            return(subsubMenus.size());
+        }
+        string title; 
+        int optionNr;
+        bool isExtend;
+        bool isMouseOver;
+        int x_start;
+        int x_end;
+        int y_start;
+        int y_end;
+    
+
+    private: 
+        vector<CED_SubSubMenu *> subsubMenus;   
+};
+
+CED_PopUpMenu *popupmenu;
+void buildPopUpMenu(int x, int y);
+
+
 CED_Menu *ced_menu;
 
 // from ced_srv.c
 void ced_prepare_objmap(void);
 int ced_get_selected(int x,int y,GLfloat *wx,GLfloat *wy,GLfloat *wz);
+int find_selected_object(int x,int y,GLfloat *wx,GLfloat *wy,GLfloat *wz, int *id, int *layer);
+
 //SJA:FIXED set this to extern as it is a global from ced_srv.c
 //extern unsigned long ced_visible_layers; 
 //extern bool ced_visible_layers[100];
@@ -1385,6 +1553,8 @@ static void display(void){
 
 
     ced_menu->draw();
+
+    popupmenu->draw();
     printFPS();
     
 
@@ -1744,6 +1914,7 @@ void mouseWheel(int button, int dir, int x, int y){ //hauke
 static void mouse_passive(int x,int y){
     //hier ced_menu 
     ced_menu->mouseMove(x,y);
+    popupmenu->mouseMove(x,y);
     //cout << "x = " << x <<  endl;
 }
 
@@ -1785,6 +1956,7 @@ static void mouse(int btn,int state,int x,int y){
     switch(btn){
     case GLUT_LEFT_BUTTON:
         ced_menu->clickAt(mouse_x,mouse_y);
+        popupmenu->clickAt(mouse_x,mouse_y);
         //reshape((int)window_width, (int)window_height);
         glutPostRedisplay();
 
@@ -1812,9 +1984,14 @@ static void mouse(int btn,int state,int x,int y){
         doubleClickTime=tv.tv_sec*1000000+tv.tv_usec;
         return;
         case GLUT_RIGHT_BUTTON:
+          //cout << "right button clicked" << endl;
+          ced_menu->clickAt(mouse_x,mouse_y);
+          buildPopUpMenu(x,y);
+          glutPostRedisplay();
           move_mode=ZOOM;
           return;
         case GLUT_MIDDLE_BUTTON:
+          //cout << "middle button clicked" << endl;
           //#ifdef __APPLE__
           //    move_mode=ZOOM;
           //#else
@@ -2091,9 +2268,6 @@ static void SpecialKey( int key, int x, int y ){
 
 
 static void motion(int x,int y){
-
-
-
     // printf("Mouse moved: %dx%d %f\n",x,y,angle_z);
     if((move_mode == NO_MOVE) || !window_width || !window_height)
       return;
@@ -2112,8 +2286,8 @@ static void motion(int x,int y){
   	  mm.sf=0.001;
         else if(mm.sf>2000.)
   	  mm.sf=2000.;
-     
     } else if (move_mode == ORIGIN){
+        //cout << "move" << endl;
         /* 
         //old code: do not work with rotate 
         mm.mv.x=mm.mv_start.x-(x-mouse_x)*WORLD_SIZE/window_width
@@ -3244,6 +3418,99 @@ void selectFromMenu(int id){ //hauke
 
 
 }
+
+void buildPopUpMenu(int x, int y){
+    static GLfloat p_pre_x=0, p_pre_y=0, p_pre_z=0;
+    char tmp[200];
+
+    GLfloat p_x, p_y, p_z;
+    int id, layer;
+    
+    //delete the old one first!!!
+
+    if(!find_selected_object(x,y,&p_x,&p_y,&p_z, &id, &layer)){ //if ==1 found hit, else clicked on background
+
+        popupmenu=new CED_PopUpMenu("Object");
+        sprintf(tmp,"Coordinates: (%.1f, %.1f, %1.f)",p_x,p_y,p_z);
+        popupmenu->addItem(new CED_SubSubMenu(tmp,0));
+        sprintf(tmp,"ID: %i",id);
+        popupmenu->addItem(new CED_SubSubMenu(tmp,0));
+        sprintf(tmp,"Distance previous selected hit: %.2f",pow(pow(p_pre_x-p_x,2)+pow(p_pre_y-p_y,2)+pow(p_pre_z-p_z,2),0.5));
+        popupmenu->addItem(new CED_SubSubMenu(tmp,0));
+        sprintf(tmp,"Center object");
+        popupmenu->addItem(new CED_SubSubMenu(tmp,0));
+        sprintf(tmp,"Hide Layer (layer: %i)",layer);
+        popupmenu->addItem(new CED_SubSubMenu(tmp,LAYER_0+layer));
+
+        p_pre_x=p_x; 
+        p_pre_y=p_y; 
+        p_pre_z=p_z;
+    }else{
+
+        popupmenu=new CED_PopUpMenu("Change background color to:");
+        sprintf(tmp,"%s",CED_BGCOLOR_OPTION1_NAME);
+        popupmenu->addItem(new CED_SubSubMenu(tmp,BGCOLOR_OPTION1));
+
+        sprintf(tmp,"%s",CED_BGCOLOR_OPTION2_NAME);
+        popupmenu->addItem(new CED_SubSubMenu(tmp,BGCOLOR_OPTION2));
+
+        sprintf(tmp,"%s",CED_BGCOLOR_OPTION3_NAME);
+        popupmenu->addItem(new CED_SubSubMenu(tmp,BGCOLOR_OPTION3));
+
+        sprintf(tmp,"%s",CED_BGCOLOR_OPTION4_NAME);
+        popupmenu->addItem(new CED_SubSubMenu(tmp,BGCOLOR_OPTION4));
+
+        sprintf(tmp,"%s",CED_BGCOLOR_OPTION5_NAME);
+        popupmenu->addItem(new CED_SubSubMenu(tmp,BGCOLOR_OPTION5));
+
+        sprintf(tmp,"%s",CED_BGCOLOR_OPTION6_NAME);
+        popupmenu->addItem(new CED_SubSubMenu(tmp,BGCOLOR_OPTION6));
+
+        sprintf(tmp,"%s",CED_BGCOLOR_OPTION7_NAME);
+        popupmenu->addItem(new CED_SubSubMenu(tmp,BGCOLOR_OPTION7));
+
+        sprintf(tmp,"%s",CED_BGCOLOR_OPTION8_NAME);
+        popupmenu->addItem(new CED_SubSubMenu(tmp,BGCOLOR_OPTION8));
+
+        sprintf(tmp,"%s",CED_BGCOLOR_OPTION9_NAME);
+        popupmenu->addItem(new CED_SubSubMenu(tmp,BGCOLOR_OPTION9));
+
+        sprintf(tmp,"%s",CED_BGCOLOR_OPTION10_NAME);
+        popupmenu->addItem(new CED_SubSubMenu(tmp,BGCOLOR_OPTION10));
+
+        sprintf(tmp,"%s",CED_BGCOLOR_OPTION11_NAME);
+        popupmenu->addItem(new CED_SubSubMenu(tmp,BGCOLOR_OPTION11));
+
+        sprintf(tmp,"%s",CED_BGCOLOR_OPTION12_NAME);
+        popupmenu->addItem(new CED_SubSubMenu(tmp,BGCOLOR_OPTION12));
+
+        sprintf(tmp,"%s",CED_BGCOLOR_OPTION13_NAME);
+        popupmenu->addItem(new CED_SubSubMenu(tmp,BGCOLOR_OPTION13));
+
+        sprintf(tmp,"%s",CED_BGCOLOR_OPTION14_NAME);
+        popupmenu->addItem(new CED_SubSubMenu(tmp,BGCOLOR_OPTION14));
+
+        sprintf(tmp,"%s",CED_BGCOLOR_OPTION15_NAME);
+        popupmenu->addItem(new CED_SubSubMenu(tmp,BGCOLOR_OPTION15));
+
+
+//
+//
+//      if(userDefinedBGColor[0] >= 0){ //is set
+//          settings->addItem(new CED_SubSubMenu("User defined",BGCOLOR_USER));
+//      }
+
+    }
+
+    popupmenu->isExtend=true;
+    popupmenu->x_start=x;
+    popupmenu->x_end=x+200;
+    popupmenu->y_start=y;
+    //popupmenu->y_end=y+popupmenu->size()*2;
+
+    popupmenu->y_end=y+11;
+
+}
 void buildMainMenu(void){
     ced_menu=new CED_Menu();
 
@@ -3359,13 +3626,7 @@ void buildMainMenu(void){
     if(userDefinedBGColor[0] >= 0){ //is set
         settings->addItem(new CED_SubSubMenu("User defined",BGCOLOR_USER));
     }
-
-
     ced_menu->addSubMenu(settings);
-
-
-
-
 
 }
 int buildMenuPopup(void){ //hauke
@@ -3796,23 +4057,24 @@ int main(int argc,char *argv[]){
     //glutTimerFunc(500,timer,23);
   
 
-    buildMenuPopup(); //hauke
-    
-    buildMainMenu();
+    //buildMenuPopup(); //hauke
+    buildMainMenu(); //hauke
+    popupmenu=new CED_PopUpMenu("");
 
 
 
-    glutAttachMenu(GLUT_RIGHT_BUTTON); 
+
+    //glutAttachMenu(GLUT_RIGHT_BUTTON); 
 
   
-    for(i=0;i<NUMBER_POPUP_LAYER;i++){ //fill the layer section
-      updateLayerEntryInPopupMenu(i);
-    }
+    //for(i=0;i<NUMBER_POPUP_LAYER;i++){ //fill the layer section
+    //  updateLayerEntryInPopupMenu(i);
+    //}
 
 
-    for(i=NUMBER_DATA_LAYER;i<NUMBER_DETECTOR_LAYER+NUMBER_DATA_LAYER;i++){ //fill the layer section
-      updateLayerEntryDetector(i);
-    }
+    //for(i=NUMBER_DATA_LAYER;i<NUMBER_DETECTOR_LAYER+NUMBER_DATA_LAYER;i++){ //fill the layer section
+    //  updateLayerEntryDetector(i);
+    //}
 
 
 
