@@ -61,28 +61,8 @@ using namespace std;
 
     //#include<jpeglib.h>
 
-#define DETECTOR1               4001
-#define DETECTOR2               4002
-#define DETECTOR3               4003
-#define DETECTOR4               4004
-#define DETECTOR5               4005
-#define DETECTOR6               4006
-#define DETECTOR7               4007
-#define DETECTOR8               4008
-#define DETECTOR9               4009
-#define DETECTOR10              4010
-#define DETECTOR11              4011
-#define DETECTOR12              4012
-#define DETECTOR13               4013
-#define DETECTOR14               4014
-#define DETECTOR15               4015
-#define DETECTOR16               4016
-#define DETECTOR17               4017
-#define DETECTOR18               4018
-#define DETECTOR19               4019
-#define DETECTOR20              4020
-
-#define DETECTOR_ALL            4100
+#define PICK_HIT               24974
+#define CENTER_HIT             24975
 
 
 #define GRAFIC_HIGH             2000            
@@ -188,6 +168,31 @@ static int available_cutangles[]={0,30,90,135, 180, 270, 360};  //for new angles
 #define LAYER_19        49
 #define LAYER_ALL       60
 
+#define DETECTOR1               4001
+#define DETECTOR2               4002
+#define DETECTOR3               4003
+#define DETECTOR4               4004
+#define DETECTOR5               4005
+#define DETECTOR6               4006
+#define DETECTOR7               4007
+#define DETECTOR8               4008
+#define DETECTOR9               4009
+#define DETECTOR10              4010
+#define DETECTOR11              4011
+#define DETECTOR12              4012
+#define DETECTOR13               4013
+#define DETECTOR14               4014
+#define DETECTOR15               4015
+#define DETECTOR16               4016
+#define DETECTOR17               4017
+#define DETECTOR18               4018
+#define DETECTOR19               4019
+#define DETECTOR20              4020
+
+#define DETECTOR_ALL            4100
+
+
+
 #define HELP            100
 #define SAVE1           101
 #define SAVE2           102
@@ -225,6 +230,8 @@ extern CEDsettings setting;
 
 //extern bool phi_projection;
 //extern bool z_projection;
+
+//double POPUPMENU_X, POPUPMENU_Y;
 
 int ced_picking(int x,int y,GLfloat *wx,GLfloat *wy,GLfloat *wz); //from ced_srv.c, need header files!
 
@@ -387,7 +394,7 @@ class CED_SubSubMenu{
 
                 }else{
 
-                    glColor3f(0.827451,0.827451,0.827451);
+                    glColor4f(0.827451,0.827451,0.827451,1);
                     glBegin(GL_QUADS);
                     glVertex3f(x_start,y_start,0);
                     glVertex3f(x_start,y_end,0);
@@ -505,7 +512,7 @@ class CED_SubMenu{
         }
         void draw(){
                 if(isExtend || isMouseOver){
-                    glColor3f(0.662745,0.662745,0.662745);
+                    glColor4f(0.662745,0.662745,0.662745,1);
                     glBegin(GL_QUADS);
                     glVertex3f(x_start,y_start,0);
                     glVertex3f(x_start,y_end,0);
@@ -662,7 +669,7 @@ class CED_Menu{
             
             //glColor3f(0,0,0);
 
-            glColor3f(0.827451,0.827451,0.827451);
+            glColor4f(0.827451,0.827451,0.827451,1);
 
             glBegin(GL_QUADS); 
             glVertex3f(0, 0,0);
@@ -777,9 +784,7 @@ class CED_PopUpMenu{
             glLoadIdentity();
  
                 if(isExtend || isMouseOver){
-
-
-                    glColor3f(0.662745,0.662745,0.662745);
+                    glColor4f(0.662745,0.662745,0.662745,1);
                     glBegin(GL_QUADS);
                     glVertex3f(x_start,y_start,0);
                     glVertex3f(x_start,y_end,0);
@@ -911,7 +916,7 @@ CED_Menu *ced_menu;
 // from ced_srv.c
 void ced_prepare_objmap(void);
 int ced_get_selected(int x,int y,GLfloat *wx,GLfloat *wy,GLfloat *wz);
-int find_selected_object(int x,int y,GLfloat *wx,GLfloat *wy,GLfloat *wz, int *id, int *layer);
+int find_selected_object(int x,int y,GLfloat *wx,GLfloat *wy,GLfloat *wz, int *id, int *layer, int *type);
 
 //SJA:FIXED set this to extern as it is a global from ced_srv.c
 //extern unsigned long ced_visible_layers; 
@@ -1483,7 +1488,14 @@ void printShortcuts(void){
         h*=3;
     }
 
-    glColor4f(HELP_FRAME_FILL_COLOR);
+    //glColor4f(HELP_FRAME_FILL_COLOR);
+
+    if((setting.bgcolor[0] + setting.bgcolor[1] + setting.bgcolor[2]) < 0.5*3){
+        glColor4f(0.1,0.1,0.1,0.5);
+    }else{
+        glColor4f(0.9,0.9,0.9,0.5);
+    }
+   
 
     const int ITEMS_PER_COLUMN=int((h/3.0-boarder_quad*2)/(line)); //how many lines per column?
     glBegin(GL_QUADS); 
@@ -1494,7 +1506,14 @@ void printShortcuts(void){
     glEnd();
 
 
-    glColor4f(HELP_FRAME_BOARDER_COLOR);
+
+    //glColor4f(HELP_FRAME_BOARDER_COLOR);
+    if((setting.bgcolor[0] + setting.bgcolor[1] + setting.bgcolor[2]) < 0.5*3){
+        glColor4f(0.2,0.2,0.2,0.5);
+    }else{
+        glColor4f(0.8,0.8,0.8,0.5);
+    }
+ 
     glLineWidth(HELP_FRAME_BOARDER_LINE_SIZE);
     glBegin(GL_LINES); 
     glVertex3f(boarder_line, boarder_line,0);
@@ -1511,7 +1530,14 @@ void printShortcuts(void){
     glVertex3f(w-boarder_line, h/3.-boarder_line,0);
     glEnd();
 
-    glColor3f(HELP_FRAME_TEXT_COLOR);
+    //glColor3f(HELP_FRAME_TEXT_COLOR);
+    if((setting.bgcolor[0] + setting.bgcolor[1] + setting.bgcolor[2]) < 0.5*3){
+        glColor3f(1,1,1);
+    }else{
+        glColor3f(0,0,0);
+    }
+ 
+
     
 
 
@@ -2749,6 +2775,22 @@ void selectFromMenu(int id){ //hauke
 
 
     switch(id){
+        case PICK_HIT:
+            if(!ced_picking(popupmenu->x_start,popupmenu->y_start ,&mm.mv.x,&mm.mv.y,&mm.mv.z)){
+               struct __glutSocketList *sock;
+               sock=__glutSockets;
+               int id = SELECTED_ID;
+               //printf(" ced_get_selected : socket connected: %d", sock->fd );	
+               if(client_connected){
+                    send( sock->fd , &id , sizeof(int) , 0 );
+                }
+            }
+            break;
+
+        case CENTER_HIT:
+            if(!ced_get_selected(popupmenu->x_start,popupmenu->y_start,&mm.mv.x,&mm.mv.y,&mm.mv.z)) glutPostRedisplay();
+            break;
+
         case BGCOLOR_OPTION1:
             set_bg_color(CED_BGCOLOR_OPTION1_COLORCODE); 
             break;
@@ -3473,29 +3515,48 @@ void buildPopUpMenu(int x, int y){
     char tmp[200];
 
     GLfloat p_x, p_y, p_z;
-    int id, layer;
+    int id, layer, type;
     
     //delete the old one first!!!
 
-    if(!find_selected_object(x,y,&p_x,&p_y,&p_z, &id, &layer)){ //if ==1 found hit, else clicked on background
+    if(!find_selected_object(x,y,&p_x,&p_y,&p_z, &id, &layer, &type)){ //if ==1 found hit, else clicked on background
+        if(type == 0){
+            popupmenu=new CED_PopUpMenu("Select datapoint");
+            sprintf(tmp,"Coordinates: (%.1f, %.1f, %1.f)",p_x,p_y,p_z);
+            popupmenu->addItem(new CED_SubSubMenu(tmp,0));
+            sprintf(tmp,"ID: %i",id);
+            popupmenu->addItem(new CED_SubSubMenu(tmp,0));
+            sprintf(tmp,"Distance previous selected hit: %.2f",pow(pow(p_pre_x-p_x,2)+pow(p_pre_y-p_y,2)+pow(p_pre_z-p_z,2),0.5));
+            popupmenu->addItem(new CED_SubSubMenu(tmp,0));
+            sprintf(tmp,"Center object");
+            popupmenu->addItem(new CED_SubSubMenu(tmp,CENTER_HIT));
+            sprintf(tmp,"Pick object");
+            popupmenu->addItem(new CED_SubSubMenu(tmp,PICK_HIT));
+            sprintf(tmp,"Hide layer (layer: %i)",layer);
+            popupmenu->addItem(new CED_SubSubMenu(tmp,LAYER_0+layer));
 
-        popupmenu=new CED_PopUpMenu("Object");
-        sprintf(tmp,"Coordinates: (%.1f, %.1f, %1.f)",p_x,p_y,p_z);
-        popupmenu->addItem(new CED_SubSubMenu(tmp,0));
-        sprintf(tmp,"ID: %i",id);
-        popupmenu->addItem(new CED_SubSubMenu(tmp,0));
-        sprintf(tmp,"Distance previous selected hit: %.2f",pow(pow(p_pre_x-p_x,2)+pow(p_pre_y-p_y,2)+pow(p_pre_z-p_z,2),0.5));
-        popupmenu->addItem(new CED_SubSubMenu(tmp,0));
-        sprintf(tmp,"Center object");
-        popupmenu->addItem(new CED_SubSubMenu(tmp,0));
-        sprintf(tmp,"Pick object");
-        popupmenu->addItem(new CED_SubSubMenu(tmp,0));
-        sprintf(tmp,"Hide layer (layer: %i)",layer);
-        popupmenu->addItem(new CED_SubSubMenu(tmp,LAYER_0+layer));
+            p_pre_x=p_x; 
+            p_pre_y=p_y; 
+            p_pre_z=p_z;
+        }else if(type == 1){
+            popupmenu=new CED_PopUpMenu("Select detector component");
+            sprintf(tmp,"Coordinates: (%.1f, %.1f, %1.f)",p_x,p_y,p_z);
+            popupmenu->addItem(new CED_SubSubMenu(tmp,0));
+            sprintf(tmp,"ID: %i",id);
+            popupmenu->addItem(new CED_SubSubMenu(tmp,0));
+            sprintf(tmp,"Distance previous selected object: %.2f",pow(pow(p_pre_x-p_x,2)+pow(p_pre_y-p_y,2)+pow(p_pre_z-p_z,2),0.5));
+            popupmenu->addItem(new CED_SubSubMenu(tmp,0));
+            sprintf(tmp,"Center object");
+            popupmenu->addItem(new CED_SubSubMenu(tmp,CENTER_HIT));
+            sprintf(tmp,"Pick object");
+            popupmenu->addItem(new CED_SubSubMenu(tmp,PICK_HIT));
+            sprintf(tmp,"Hide layer (layer: %i)",layer);
+            popupmenu->addItem(new CED_SubSubMenu(tmp, layer-NUMBER_DATA_LAYER+DETECTOR1));
 
-        p_pre_x=p_x; 
-        p_pre_y=p_y; 
-        p_pre_z=p_z;
+            p_pre_x=p_x; 
+            p_pre_y=p_y; 
+            p_pre_z=p_z;
+        }
     }else{
 
         popupmenu=new CED_PopUpMenu("Change background color to:");
