@@ -339,6 +339,7 @@ class CED_SubSubMenu{
         }
         void draw(){
                 if(isExtend || isMouseOver){
+                    isAktive=true;
                     glColor3f(0.662745,0.662745,0.662745);
                     glBegin(GL_QUADS);
                     glVertex3f(x_start,y_start,0);
@@ -393,7 +394,7 @@ class CED_SubSubMenu{
 
 
                 }else{
-
+                    isAktive=false;
                     glColor4f(0.827451,0.827451,0.827451,1);
                     glBegin(GL_QUADS);
                     glVertex3f(x_start,y_start,0);
@@ -432,7 +433,9 @@ class CED_SubSubMenu{
             if(x_start < x && x_end > x && y_start < y && y_end > y){
                 //cout << "submenu clicked!" << endl;
 
-                selectFromMenu(optionNr);
+                if(isAktive){
+                    selectFromMenu(optionNr);
+                }
                 if(isExtend){
                     isExtend=false;
                 }else{
@@ -441,7 +444,6 @@ class CED_SubSubMenu{
                     }else{
                         isExtend=false;
                         isMouseOver=false;
-
                     }
 
                 }
@@ -450,7 +452,10 @@ class CED_SubSubMenu{
             }
             unsigned i;
             for(i=0;(unsigned) i<subsubMenus.size();i++){
-                subsubMenus.at(i)->clickAt(x,y);
+                if(subsubMenus.at(i)->isExtend || subsubMenus.at(i)->isMouseOver){
+                    //cout << "send clickat to: " << subsubMenus.at(i)->title << endl;
+                    subsubMenus.at(i)->clickAt(x,y);
+                }
             }
 
         }
@@ -491,6 +496,7 @@ class CED_SubSubMenu{
             isMouseOver=false;
         }
 
+        bool isAktive;
         string title; 
         int optionNr;
         bool isExtend;
