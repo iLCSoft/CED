@@ -1575,6 +1575,8 @@ static void display(void){
     glRotatef(mm.ha,0.,1.0,0.);
     glScalef(mm.sf,mm.sf,mm.sf); //streech the world
 
+    setting.zoom=mm.sf;
+
 
 
 

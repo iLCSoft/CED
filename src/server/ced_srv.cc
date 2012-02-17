@@ -31,6 +31,9 @@
 
 #include <ced.h>
 #include <ced_config.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <malloc.h>
 
 #define PORT  0x1234
 #define PI 3.14159265358979323846f 
@@ -79,6 +82,7 @@ typedef struct {
     unsigned int type;
     int x; // in window
     int y;
+    int z;
     int max_dxy; // after this distance, ignore this object
     CED_Point p; // object real coordinates (can't use pointer...)
 } CED_ObjMap;
@@ -128,13 +132,15 @@ inline float single_fisheye_transform(float c, const double scale_factor) {
  * To be called from drawing functions
  */
 static void ced_add_objmap(CED_Point *p,int max_dxy, unsigned int ID, unsigned int layer=0, int type=0){
+    double my_max_dxy =  5*max_dxy*setting.zoom;
     //glColor3f(0,1,0); 
-    //glPointSize(max_dxy);
+    //glPointSize(my_max_dxy);
     //glBegin(GL_POINTS);
     //glVertex3f(p->x,p->y,p->z);
     //glEnd();
 
 
+    //return;
     GLdouble winx,winy,winz;
 
     if(omap_count==omap_alloced){
@@ -149,7 +155,8 @@ static void ced_add_objmap(CED_Point *p,int max_dxy, unsigned int ID, unsigned i
     omap[omap_count].layer=layer;
     omap[omap_count].x=(int)winx;
     omap[omap_count].y=(int)winy;
-    omap[omap_count].max_dxy=max_dxy;
+    omap[omap_count].z=(int)(1000. * winz);
+    omap[omap_count].max_dxy=my_max_dxy;
     omap[omap_count++].p=*p;
 }
 
@@ -194,9 +201,6 @@ void drawPartialLineCylinder(double length, double R /*radius*/, double iR /*inn
             glVertex2d(iR*xl*sin((angle_cut_off_left)*2*PI/360.0),iR*xl*cos((angle_cut_off_left)*2*PI/360.0));
             glEnd();
 
-            //ced_add_objmap(new CED_Point(iR*sin(360.0/edges*(i)*2*PI/360.0),iR*cos(360.0/edges*(i)*2*PI/360.0),-1.*j*length),5,0,0 );
-            //ced_add_objmap(new CED_Point(iR*xl*sin((angle_cut_off_left)*2*PI/360.0),iR*xl*cos((angle_cut_off_left)*2*PI/360.0),-1.*j*length),5,0,0 );
-
         }
         
         if(outer_face){
@@ -204,10 +208,6 @@ void drawPartialLineCylinder(double length, double R /*radius*/, double iR /*inn
             glVertex2d(R*xl*sin((angle_cut_off_left)*2*PI/360.0),R*xl*cos(angle_cut_off_left*2*PI/360.0));
             glVertex2d(R*sin(360.0/edges*(i)*2*PI/360.0),R*cos(360.0/edges*(i)*2*PI/360.0));
             glEnd();
-
-            //ced_add_objmap(new CED_Point(R*xl*sin((angle_cut_off_left)*2*PI/360.0),R*xl*cos(angle_cut_off_left*2*PI/360.0),-1*j*length),5,0,0 );
-            //ced_add_objmap(new CED_Point(R*sin(360.0/edges*(i)*2*PI/360.0),R*cos(360.0/edges*(i)*2*PI/360.0),-1*j*length),5,0,0 );
-
         }
 
         glBegin(GL_LINE_STRIP );
@@ -224,10 +224,6 @@ void drawPartialLineCylinder(double length, double R /*radius*/, double iR /*inn
                 if(outer_face){
                     glVertex2d(R*x*sin((360.0-angle_cut_off)*2*PI/360.0), R*x*cos((360.0-angle_cut_off)*2*PI/360.0));
                     glVertex2d(R*x*sin((360.0-angle_cut_off)*2*PI/360.0), R*x*cos((360.0-angle_cut_off)*2*PI/360.0));
-
-                    //ced_add_objmap(new CED_Point(R*x*sin((360.0-angle_cut_off)*2*PI/360.0), R*x*cos((360.0-angle_cut_off)*2*PI/360.0),-1*j*length),5,0,0 );
-                    //ced_add_objmap(new CED_Point(R*x*sin((360.0-angle_cut_off)*2*PI/360.0), R*x*cos((360.0-angle_cut_off)*2*PI/360.0),-1*j*length),5,0,0 );
-
                 }
                 break;
             }else{
@@ -266,9 +262,6 @@ void drawPartialLineCylinder(double length, double R /*radius*/, double iR /*inn
                 if(inner_face){
                     glVertex2d(iR*sin(360.0/edges*(i-1)*2.0*PI/360.0), iR*cos(360.0/edges*(i-1)*2.0*PI/360.0));
                     glVertex2d(iR*x*sin((360.0-angle_cut_off)*2*PI/360.0), iR*x*cos((360.0-angle_cut_off)*2*PI/360.0));
-
-                    //ced_add_objmap(new CED_Point(iR*sin(360.0/edges*(i-1)*2.0*PI/360.0), iR*cos(360.0/edges*(i-1)*2.0*PI/360.0), -1*j*length),5,0,0 );
-                    //ced_add_objmap(new CED_Point(R*x*sin((360.0-angle_cut_off)*2*PI/360.0), iR*x*cos((360.0-angle_cut_off)*2*PI/360.0), -1*j*length),5,0,0 );
                 } 
                 break; 
             }else{
@@ -277,9 +270,6 @@ void drawPartialLineCylinder(double length, double R /*radius*/, double iR /*inn
                     if(i != 0){
                         glVertex2d(iR*sin(360.0/edges*(i-1)*2.0*PI/360.0), iR*cos(360.0/edges*(i-1)*2.0*PI/360.0));
                         glVertex2d(iR*sin(phi*2.0*PI/360.0), iR*cos(phi*2.0*PI/360.0));
-
-                        //ced_add_objmap(new CED_Point(iR*sin(360.0/edges*(i-1)*2.0*PI/360.0), iR*cos(360.0/edges*(i-1)*2.0*PI/360.0),-1*j*length),5,0,0 );
-                        //ced_add_objmap(new CED_Point(iR*sin(360.0/edges*(i-1)*2.0*PI/360.0), iR*cos(360.0/edges*(i-1)*2.0*PI/360.0),-1*j*length),5,0,0 );
                     }
                 }
             }
@@ -296,9 +286,6 @@ void drawPartialLineCylinder(double length, double R /*radius*/, double iR /*inn
         glVertex2d(R*sin(360.0/edges*(i)*2*PI/360.0),R*cos(360.0/edges*(i)*2*PI/360.0));
         glEnd();
 
-        //ced_add_objmap(new CED_Point(R*xl*sin((angle_cut_off_left)*2*PI/360.0), R*xl*cos((angle_cut_off_left)*2*PI/360.0), -1*j*length),5,0,0 );
-        //ced_add_objmap(new CED_Point(R*sin(360.0/edges*(i)*2*PI/360.0),R*cos(360.0/edges*(i)*2*PI/360.0), -1*j*length),5,0,0 );
-
     }
 
 
@@ -309,9 +296,6 @@ void drawPartialLineCylinder(double length, double R /*radius*/, double iR /*inn
             glVertex2d(iR*xl*sin((angle_cut_off_left)*2*PI/360.0),iR*xl*cos((angle_cut_off_left)*2*PI/360.0));
             glVertex2d(iR*sin(360.0/edges*(i)*2*PI/360.0),iR*cos(360.0/edges*(i)*2*PI/360.0));
             glEnd();
-
-            //ced_add_objmap(new CED_Point(iR*xl*sin((angle_cut_off_left)*2*PI/360.0),iR*xl*cos((angle_cut_off_left)*2*PI/360.0), -1*j*length),5,0,0 );
-            //ced_add_objmap(new CED_Point(iR*sin(360.0/edges*(i)*2*PI/360.0),iR*cos(360.0/edges*(i)*2*PI/360.0), -1*j*length),5,0,0 );
         }
     }
 
@@ -500,6 +484,7 @@ typedef struct T {double a; int b;};
 
 void drawPartialCylinder(double length, double R /*radius*/, double iR /*inner radius*/, int edges, double angle_cut_off, double angle_cut_off_left, bool outer_face=1, bool inner_face=1, double irotate=0){
     //glDisable(GL_BLEND);
+    //return;
     using namespace std;
    // cout << "inside drawPartialCylinder: outer" << outer_face << " inner: " << inner_face << endl;
 
@@ -934,6 +919,8 @@ void drawPartialCylinder(double length, double R /*radius*/, double iR /*inner r
 
 
 
+
+
 /*
  * Fill matrixes with current world coordinates
  * !!! Must be called just before ced_do_draw_event() !!!
@@ -942,6 +929,19 @@ void ced_prepare_objmap(void){
     glGetIntegerv(GL_VIEWPORT,viewport);
     glGetDoublev(GL_MODELVIEW_MATRIX,modelM);
     glGetDoublev(GL_PROJECTION_MATRIX,projM);
+
+
+//    CED_ObjMap *p;
+//    int i;
+//    std::cout <<"begin to delete omap" << std::endl;
+//    for(i=0,p=omap;i<omap_count;i++,p++){
+//        std::cout <<"delete element: "  << i  << " (from: " << omap_count << "elements )" << std::endl;
+//        //delete[] &(p->p);
+//        delete p;
+//
+//        std::cout <<"next" << std::endl;
+//    }
+//    std::cout<<"end to delete omap" << std::endl;
     omap_count=0;
 }
 
@@ -998,7 +998,10 @@ int find_selected_object(int x,int y,GLfloat *wx,GLfloat *wy,GLfloat *wz, int *i
         if((dx>p->max_dxy) || (dy>p->max_dxy)){
             continue;
         }
-        d=dx+dy;
+        
+        //d=dx+dy;
+
+        d=pow(pow(dx,2)+pow(dy,2)+pow(p->z,2),0.5);
         if(!best || (d<dist)){
             best=p;
             dist=d;
@@ -1007,6 +1010,7 @@ int find_selected_object(int x,int y,GLfloat *wx,GLfloat *wy,GLfloat *wz, int *i
     if(!best){
         return 1;
     }
+    std::cout << "best has z: " <<  p->z << std::endl;
     *wx=best->p.x;
     *wy=best->p.y;
     *wz=best->p.z;
@@ -1358,20 +1362,64 @@ static void ced_draw_geotube(CED_GeoTube *c){
 //
 
 
+    double tmpz, tmpr;
 
-   double tmpz=z0;
+
+    if(-1*setting.z_cutting < (transformed_shift)){
+        //make 1line in the middle
+
+        double tmpz=z1; //make 1line in the middle
+        double tmpr=(d_i+d_o)/2.;
+        for(double y=0;y<2*3.14-2*3.14*setting.cut_angle/360.;y+=0.1){
+             //CED_Point tmp1;
+             //tmp1.x = d_o*sin(y);
+             //tmp1.y = d_o*cos(y);
+             //tmp1.z = z0;
+             //ced_add_objmap(&tmp1,5,0,0 );
+             ////ced_add_objmap(new CED_Point(d_o*sin(y), d_o*cos(y), z0),5,0,0 );
+
+             //z0 left end
+
+              ////z1 middle
+             //right z0-2*(z0-z1)
+             //ced_add_objmap(new CED_Point(tmpr*sin(y), tmpr*cos(y), tmpz),5,0,c->type,1);
+             CED_Point tmp2;
+             tmp2.x = tmpr*sin(y);
+             tmp2.y = tmpr*cos(y);
+             tmp2.z = tmpz;
+             ced_add_objmap(&tmp2,20,0,c->type,1 );
+
+        } 
+   }
+
+
+
+   tmpz=z0;
    if(-1*setting.z_cutting > (transformed_shift)){
         tmpz=-1*setting.z_cutting;
    }
-   for(; tmpz < z0-2*(z0-z1); tmpz+=500){
+
+   for(; tmpz <= z0-2*(z0-z1); tmpz+=500){
         for(double tmpr=d_i; tmpr < d_o; tmpr+=500){
             for(double y=0;y<2*3.14-2*3.14*setting.cut_angle/360.;y+=0.1){
-                 //ced_add_objmap(new CED_Point(d_o*sin(y), d_o*cos(y), z0),5,0,0 );
+                 //CED_Point tmp1;
+                 //tmp1.x = d_o*sin(y);
+                 //tmp1.y = d_o*cos(y);
+                 //tmp1.z = z0;
+                 //ced_add_objmap(&tmp1,5,0,0 );
+                 ////ced_add_objmap(new CED_Point(d_o*sin(y), d_o*cos(y), z0),5,0,0 );
+
                  //z0 left end
 
                   ////z1 middle
                  //right z0-2*(z0-z1)
-                 ced_add_objmap(new CED_Point(tmpr*sin(y), tmpr*cos(y), tmpz),5,0,c->type,1);
+                 //ced_add_objmap(new CED_Point(tmpr*sin(y), tmpr*cos(y), tmpz),5,0,c->type,1);
+                 CED_Point tmp2;
+                 tmp2.x = tmpr*sin(y);
+                 tmp2.y = tmpr*cos(y);
+                 tmp2.z = tmpz;
+                 ced_add_objmap(&tmp2,20,0,c->type,1 );
+
             } 
         }
    }

@@ -161,6 +161,7 @@ void *ced_add(unsigned id){
   if(pe->count==pe->alloced){
     ced_buf_alloc(pe,pe->alloced+256);
   }
+
   return (pe->b+(pe->count++)*pe->size);
 }
 
@@ -169,6 +170,8 @@ static void ced_event_copy(ced_event *trg){
   ced_element *pe;
   //std::cout << "trg->e_count: " << trg->e_count << std::endl;
   //std::cout << "eve.e_count: " << eve.e_count << std::endl;
+
+  //eve.e_count = 0;
   if(trg->e_count<eve.e_count){
     //free(trg->e);
     trg->e=(ced_element*) realloc(trg->e,eve.e_count*sizeof(ced_element));
@@ -176,31 +179,41 @@ static void ced_event_copy(ced_event *trg){
     //trg->e=(ced_element*) malloc(eve.e_count*sizeof(ced_element));
   }
 
+
   for(i=0;i<eve.e_count;i++){
-    
-    pe=trg->e+i;
-    if(i<trg->e_count){
-        //if(pe->alloced > 0){
-        //  free(pe->b);
-        //  pe->b=NULL;
-        //  pe->alloced=0;
-        //}
+        pe=trg->e+i;
+        if(i<trg->e_count){
+            //if(pe->alloced > 0){
+            //  free(pe->b);
+            //  pe->b=NULL;
+            //  pe->alloced=0;
+            //}
 
 
+            //if(pe->alloced > 0){
+            //    std::cout << "try to free" << std::endl;
+            //    free(pe->b-HDR_SIZE);
+            //    pe->alloced = 0;
+            //    std::cout << "finished" << std::endl;
+            //}
 
-      if(pe->alloced<eve.e[i].alloced){
-	    ced_buf_alloc(pe,eve.e[i].alloced);
-      }
-      pe->count=eve.e[i].count;
-    } else {
-      memcpy(pe,eve.e+i,sizeof(ced_element));
-      if(pe->b){
-	        pe->b=0;
-	        ced_buf_alloc(pe,pe->alloced);
-      }
-    }
-    if(pe->count)
-      memcpy(pe->b,eve.e[i].b,pe->count*pe->size);
+            if(pe->alloced<eve.e[i].alloced) {
+	          ced_buf_alloc(pe,eve.e[i].alloced);
+                //std::cout << "test1 " << std::endl;
+            }
+            pe->count=eve.e[i].count;
+
+        }else{
+            memcpy(pe,eve.e+i,sizeof(ced_element));
+            if(pe->b){
+	              pe->b=0;
+                  //  std::cout << "test2 " << std::endl;
+	              ced_buf_alloc(pe,pe->alloced);
+            }
+        }
+        if(pe->count){
+            memcpy(pe->b,eve.e[i].b,pe->count*pe->size);
+        }
   }
   trg->e_count=eve.e_count;
 }
