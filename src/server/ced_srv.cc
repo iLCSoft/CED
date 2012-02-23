@@ -33,7 +33,7 @@
 #include <ced_config.h>
 #include <unistd.h>
 #include <stdio.h>
-#include <malloc.h>
+//#include <malloc.h> // obsolete header file
 
 #define PORT  0x1234
 #define PI 3.14159265358979323846f 
