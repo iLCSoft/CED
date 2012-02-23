@@ -111,6 +111,7 @@ struct CEDsettings{
     bool show_axes;
     bool fps;
     double screenshot_sections;
+    int font; //size of text (menu, shortcuts, text in ced window)
 };
 
 /*

@@ -133,7 +133,7 @@ inline float single_fisheye_transform(float c, const double scale_factor) {
  */
 static void ced_add_objmap(CED_Point *p,int max_dxy, unsigned int ID, unsigned int layer=0, int type=0){
     double my_max_dxy =  5*max_dxy*setting.zoom;
-    //glColor3f(0,1,0); 
+    //glColor3f(0.5,0.5,0); 
     //glPointSize(my_max_dxy);
     //glBegin(GL_POINTS);
     //glVertex3f(p->x,p->y,p->z);
@@ -1010,7 +1010,7 @@ int find_selected_object(int x,int y,GLfloat *wx,GLfloat *wy,GLfloat *wz, int *i
     if(!best){
         return 1;
     }
-    std::cout << "best has z: " <<  p->z << std::endl;
+    //std::cout << "best has z: " <<  p->z << std::endl;
     *wx=best->p.x;
     *wy=best->p.y;
     *wz=best->p.z;
@@ -1244,7 +1244,7 @@ static void ced_draw_line(CED_Line *h){
     double length=pow(pow(h->p0.x-h->p1.x,2)+pow(h->p0.y-h->p1.y,2)+pow(h->p0.z-h->p1.z,2),0.5);
 
 
-    CED_Point p;
+    CED_Point p[100];
     double picking_point_space=5;
     int steps;
 
@@ -1254,11 +1254,13 @@ static void ced_draw_line(CED_Line *h){
         steps=100;
     }
 
+
     for(int i=0;i<steps;i++){
-        p.x=fabs(h->p0.x-h->p1.x)/steps*i+h->p0.x;
-        p.y=fabs(h->p0.y-h->p1.y)/steps*i+h->p0.y;
-        p.z=fabs(h->p0.z-h->p1.z)/steps*i+h->p0.z;
-        ced_add_objmap(&p,5,h->lcioID, h->type,0);
+        p[i].x=(h->p1.x - h->p0.x)/steps*i+h->p0.x;
+        p[i].y=(h->p1.y - h->p0.y)/steps*i+h->p0.y;
+        p[i].z=(h->p1.z - h->p0.z)/steps*i+h->p0.z;
+        ced_add_objmap(&p[i],5,h->lcioID, h->type,0);
+
         //display picking points for testing
         //glPointSize(5);
         //glBegin(GL_POINTS);
@@ -1399,21 +1401,12 @@ static void ced_draw_geotube(CED_GeoTube *c){
         tmpz=-1*setting.z_cutting;
    }
 
-   for(; tmpz <= z0-2*(z0-z1); tmpz+=500){
-        for(double tmpr=d_i; tmpr < d_o; tmpr+=500){
-            for(double y=0;y<2*3.14-2*3.14*setting.cut_angle/360.;y+=0.1){
-                 //CED_Point tmp1;
-                 //tmp1.x = d_o*sin(y);
-                 //tmp1.y = d_o*cos(y);
-                 //tmp1.z = z0;
-                 //ced_add_objmap(&tmp1,5,0,0 );
-                 ////ced_add_objmap(new CED_Point(d_o*sin(y), d_o*cos(y), z0),5,0,0 );
-
+   for(; tmpz <= z0-2*(z0-z1); tmpz+=200){
+        for(double tmpr=d_i; tmpr < d_o; tmpr+=600){
+            for(double y=0;y<2*3.14-2*3.14*setting.cut_angle/360.;y+=0.20){
                  //z0 left end
-
-                  ////z1 middle
+                 //z1 middle
                  //right z0-2*(z0-z1)
-                 //ced_add_objmap(new CED_Point(tmpr*sin(y), tmpr*cos(y), tmpz),5,0,c->type,1);
                  CED_Point tmp2;
                  tmp2.x = tmpr*sin(y);
                  tmp2.y = tmpr*cos(y);
@@ -1422,6 +1415,21 @@ static void ced_draw_geotube(CED_GeoTube *c){
 
             } 
         }
+
+        for(double tmpr=d_i+300; tmpr < d_o; tmpr+=600){
+            for(double y=0.1;y<2*3.14-2*3.14*setting.cut_angle/360.;y+=0.20){
+                 //z0 left end
+                 //z1 middle
+                 //right z0-2*(z0-z1)
+                 CED_Point tmp2;
+                 tmp2.x = tmpr*sin(y);
+                 tmp2.y = tmpr*cos(y);
+                 tmp2.z = tmpz;
+                 ced_add_objmap(&tmp2,20,0,c->type,1 );
+
+            } 
+        }
+
    }
 
    if(-1*setting.z_cutting > (transformed_shift+2*z)){

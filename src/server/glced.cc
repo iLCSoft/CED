@@ -64,6 +64,9 @@ using namespace std;
 #define PICK_HIT               24974
 #define CENTER_HIT             24975
 
+#define FONT0                   2010            
+#define FONT1                   2011
+#define FONT2                   2012
 
 #define GRAFIC_HIGH             2000            
 #define GRAFIC_LOW              2001
@@ -331,6 +334,7 @@ extern bool client_connected;
 
 
 void drawHelpString (const string & str, float x,float y);
+void buildMainMenu(void);
 
 class CED_SubSubMenu{
     public: 
@@ -338,6 +342,22 @@ class CED_SubSubMenu{
             title=new_title;        
         }
         void draw(){
+                int height=10;
+                int width=2;
+                if(setting.font==0){
+                    height=10;
+                    width=6;
+                }
+                if(setting.font==1){
+                    height=12;
+                    width=8;
+                }
+                if(setting.font==2){
+                    height=20;
+                    width=11;
+                }
+
+
                 if(isExtend || isMouseOver){
                     isAktive=true;
                     glColor3f(0.662745,0.662745,0.662745);
@@ -384,11 +404,19 @@ class CED_SubSubMenu{
 
                     glColor3f(1,1,1);
                     unsigned i;
+
+
+                    int maxlength=0;
                     for(i=0;(unsigned) i<subsubMenus.size();i++){
-                            subsubMenus.at(i)->x_start=x_start+200;
-                            subsubMenus.at(i)->x_end  =x_start+400;
-                            subsubMenus.at(i)->y_start=y_start+10*i;
-                            subsubMenus.at(i)->y_end  =y_end + 10*i;
+                        if(subsubMenus.at(i)->title.length() > maxlength){
+                            maxlength=subsubMenus.at(i)->title.length();
+                        }
+                    }
+                    for(i=0;(unsigned) i<subsubMenus.size();i++){
+                            subsubMenus.at(i)->x_start=x_end;
+                            subsubMenus.at(i)->x_end  =x_end+maxlength*width;
+                            subsubMenus.at(i)->y_start=y_start+height*i;
+                            subsubMenus.at(i)->y_end  =y_end + height*i;
                             subsubMenus.at(i)->draw();
                     }
 
@@ -423,7 +451,7 @@ class CED_SubSubMenu{
 
 
                 }
-                drawHelpString(title, x_start+3, y_start+8);
+                drawHelpString(title, x_start+3, y_start+height-height/5);
         }
 
         int clickAt(int x,int y){
@@ -483,10 +511,26 @@ class CED_SubSubMenu{
 
 
         void addItem(CED_SubSubMenu *subsub){
+           int height=10;
+           int width=6;
+           if(setting.font==0){
+               height=10;
+               width=6;
+           }
+           if(setting.font==1){
+               height=12;
+               width=8;
+           }
+           if(setting.font==2){
+               height=20;
+               width=11;
+           }
+
+
             subsub->x_start=x_start;
-            subsub->x_end  =x_start+50;
-            subsub->y_start=y_start+10;
-            subsub->y_end  =y_end + 10;
+            subsub->x_end  =x_start+50; //TODO
+            subsub->y_start=y_start+height;
+            subsub->y_end  =y_end + height;
             subsubMenus.push_back(subsub); 
         }
         CED_SubSubMenu(string t, int nr=0){
@@ -517,6 +561,22 @@ class CED_SubMenu{
             title=new_title;        
         }
         void draw(){
+                int height=10;
+                int width=6;
+                if(setting.font==0){
+                    height=10;
+                    width=6;
+                }
+                if(setting.font==1){
+                    height=12;
+                    width=8;
+                }
+                if(setting.font==2){
+                    height=20;
+                    width=11;
+                }
+
+
                 if(isExtend || isMouseOver){
                     glColor4f(0.662745,0.662745,0.662745,1);
                     glBegin(GL_QUADS);
@@ -547,7 +607,9 @@ class CED_SubMenu{
                 }else{
                     glColor3f(0,0,0);
                 }
-                drawHelpString(title, x_start+3, y_start+8);
+                //drawHelpString(title, x_start+3, y_start+8);
+
+                drawHelpString(title, x_start+3, y_start+height-height/5);
                 if(isExtend){
                     unsigned i;
                     //cout << "draw " << subsubMenus.size() << " subsubmenu items" << endl;
@@ -556,11 +618,19 @@ class CED_SubMenu{
                         //selected_submenu->mouseOver();
                     }
 
+                    int maxlength=0;
+                    for(i=0;(unsigned) i<subsubMenus.size();i++){
+                        if(subsubMenus.at(i)->title.length() > maxlength){
+                            maxlength=subsubMenus.at(i)->title.length();
+                        }
+                    }
+
+
                     for(i=0;(unsigned) i<subsubMenus.size();i++){
                         subsubMenus.at(i)->x_start=x_start;
-                        subsubMenus.at(i)->x_end  =x_start+200;
-                        subsubMenus.at(i)->y_start=y_start+11+10*i;
-                        subsubMenus.at(i)->y_end  =y_end + 11+10*i;
+                        subsubMenus.at(i)->x_end  =x_start+maxlength*width;
+                        subsubMenus.at(i)->y_start=y_start+height+1+height*i;
+                        subsubMenus.at(i)->y_end  =y_end + height+1+height*i;
                         subsubMenus.at(i)->draw();
                     }
                 }
@@ -677,10 +747,23 @@ class CED_Menu{
 
             glColor4f(0.827451,0.827451,0.827451,1);
 
+            int height=10;
+            if(setting.font==0){
+                height=10;
+            }
+            if(setting.font==1){
+                height=12;
+            }
+            if(setting.font==2){
+                height=20;
+            }
+
+
+
             glBegin(GL_QUADS); 
             glVertex3f(0, 0,0);
-            glVertex3f(0,10,0);
-            glVertex3f(w,10,0);
+            glVertex3f(0,height,0);
+            glVertex3f(w,height,0);
             glVertex3f(w,0,0);
             glEnd();
 
@@ -692,8 +775,8 @@ class CED_Menu{
             //glVertex3f(1,1,0);
             //glVertex3f(1,10,0);
 
-            glVertex3f(1,11,0);
-            glVertex3f(w-1,11,0);
+            glVertex3f(1,height+1,0);
+            glVertex3f(w-1,height+1,0);
 
             //glVertex3f(w-1,8,0);
             //glVertex3f(w-1,1,0);
@@ -739,11 +822,25 @@ class CED_Menu{
         }
 
         void addSubMenu(CED_SubMenu *sub){
-
+            double length=10;
+            int height=10;
+            if(setting.font==0){
+                length=4.8;
+                height=10;
+            }
+            if(setting.font==1){
+                length=5.2;
+                height=12;
+            }
+            if(setting.font==2){
+                length=10.0;
+                height=20;
+            }
+            //cout << "length: " << length << endl;
             sub->x_start=x_offset;
             sub->y_start=1;
-            sub->y_end=11;
-            x_offset+=sub->title.length()*4.8+15;
+            sub->y_end=height+1;
+            x_offset+=sub->title.length()*length+3*length;
             sub->x_end=x_offset;
             subMenus.push_back(sub);
             x_offset+=5;
@@ -763,6 +860,30 @@ class CED_PopUpMenu{
             title=new_title;        
         }
         void draw(){
+            int height=10;
+            int width=6;
+            if(setting.font==0){
+                height=10;
+                width=6;
+            }
+            if(setting.font==1){
+                height=12;
+                width=8;
+            }
+            if(setting.font==2){
+                height=20;
+                width=11;
+            }
+
+            int maxlength=title.length();
+            unsigned i;
+            for(i=0;(unsigned) i<subsubMenus.size();i++){
+                if(subsubMenus.at(i)->title.length() > maxlength){
+                    maxlength=subsubMenus.at(i)->title.length();
+                }
+            }
+            x_end=x_start+maxlength*width;
+
 
             glMatrixMode(GL_PROJECTION);
             glPushMatrix();
@@ -820,16 +941,18 @@ class CED_PopUpMenu{
                     glColor3f(0,0,0);
                 }
 
-                if(isExtend){
-                    drawHelpString(title, x_start+3, y_start+8);
+                  if(isExtend){
+                    drawHelpString(title, x_start+3, y_start+height-height/5.);
                     unsigned i;
                     //cout << "draw " << subsubMenus.size() << " subsubmenu items" << endl;
+
+
                     for(i=0;(unsigned) i<subsubMenus.size();i++){
                         subsubMenus.at(i)->x_start=x_start;
-                        subsubMenus.at(i)->x_end  =x_start+200;
-                        subsubMenus.at(i)->y_start=y_start+11+10*i;
-                        subsubMenus.at(i)->y_end  =y_end + 11+10*i;
-
+                        //subsubMenus.at(i)->x_end  =x_start+maxlength*width;
+                        subsubMenus.at(i)->x_end  =x_end;
+                        subsubMenus.at(i)->y_start=y_start+height+1+height*i;
+                        subsubMenus.at(i)->y_end  =y_end + height+1+height*i;
                         subsubMenus.at(i)->draw();
                     }
                 }
@@ -1270,7 +1393,6 @@ void printFPS(void){
     glLoadIdentity();
 
     char text[400];
-    void *font=GLUT_BITMAP_TIMES_ROMAN_10; //default font
 
     sprintf(text, "FPS: %i", old_fps);
 
@@ -1279,11 +1401,15 @@ void printFPS(void){
     double dark=1.0-(setting.bgcolor[0]+setting.bgcolor[1]+setting.bgcolor[2])/3.0;
     glColor3f(dark,dark,dark);
 
-    glRasterPos2f(-1200,-950);
-    char *c;
-    for (c=text; *c != '\0'; c++) {
-        glutBitmapCharacter(font, *c);
-    }
+
+    //void *font=GLUT_BITMAP_TIMES_ROMAN_10; //default font
+    //glRasterPos2f(-1200,-950);
+    //char *c;
+    //for (c=text; *c != '\0'; c++) {
+    //    glutBitmapCharacter(font, *c);
+    //}
+    
+    drawHelpString(text,-1200,-950);
 
     glEnd();
 
@@ -1370,16 +1496,37 @@ void drawHelpString (const string & str, float x,float y){ //format help strings
     for (i = 0; str[i]; i++){
         if(str[i] == '['){ 
             monospace = 1;
-            glutBitmapCharacter (GLUT_BITMAP_HELVETICA_10, '[');
+            if(setting.font == 0){
+                glutBitmapCharacter (GLUT_BITMAP_HELVETICA_10, '[');
+            }else if(setting.font == 1){
+                glutBitmapCharacter (GLUT_BITMAP_HELVETICA_12, '[');
+            }else if(setting.font == 2){
+                glutBitmapCharacter (GLUT_BITMAP_HELVETICA_18, '[');
+            }
             i++;
         }
         else if(str[i] == ']'){
              monospace = 0;
         }
         if(monospace){
-            glutBitmapCharacter(GLUT_BITMAP_8_BY_13, str[i]);
+            if(setting.font == 0){
+                glutBitmapCharacter(GLUT_BITMAP_8_BY_13, str[i]);
+            }else if(setting.font == 1){
+                glutBitmapCharacter(GLUT_BITMAP_8_BY_13, str[i]);
+            }else if(setting.font == 2){
+                glutBitmapCharacter(GLUT_BITMAP_9_BY_15, str[i]);
+            }
         }else{
-            glutBitmapCharacter (GLUT_BITMAP_HELVETICA_10, str[i]);
+            //glutBitmapCharacter (GLUT_BITMAP_HELVETICA_10, str[i]);
+            //glutBitmapCharacter ( GLUT_BITMAP_HELVETICA_12 , str[i]);
+            //glutBitmapCharacter ( GLUT_BITMAP_HELVETICA_18 , str[i]);
+            if(setting.font == 0){
+                glutBitmapCharacter (GLUT_BITMAP_HELVETICA_10, str[i]);
+            }else if(setting.font == 1){
+                glutBitmapCharacter (GLUT_BITMAP_HELVETICA_12, str[i]);
+            }else if(setting.font == 2){
+                glutBitmapCharacter (GLUT_BITMAP_HELVETICA_18, str[i]);
+            }
         }
     }
 }
@@ -1833,6 +1980,7 @@ void defaultSettings(void){
         setting.show_axes=true;
         setting.fps=false;
 
+
         setting.va=mm.va;
         setting.ha=mm.ha;
     
@@ -1843,6 +1991,9 @@ void defaultSettings(void){
         for(int i=0;i < 4; i++){
             setting.bgcolor[i]=0; //black
         }
+
+
+        setting.font=0;
 
         std::cout << "Set to default settings" << std::endl;
 }
@@ -3076,6 +3227,22 @@ void selectFromMenu(int id){ //hauke
             update_cut_angle_menu();
             break;
 
+        case FONT0:
+            setting.font=0;
+            buildMainMenu();
+            break;
+
+        case FONT1:
+            setting.font=1;
+            buildMainMenu();
+            break;
+
+        case FONT2:
+            setting.font=2;
+            buildMainMenu();
+            break;
+
+
         case VIEW_ZOOM_IN:
             mm.sf += mm.sf*50.0/window_height;
             //cout << "mm.sf: " << mm.sf << endl;
@@ -3622,14 +3789,27 @@ void buildPopUpMenu(int x, int y){
 
     }
 
+    int height=10;
+    int width=200;
+    if(setting.font==0){
+        height=10;
+        width=150;
+    }
+    if(setting.font==1){
+        height=12;
+        width=200;
+    }
+    if(setting.font==2){
+        height=20;
+        width=300;
+    }
+
     popupmenu->isExtend=true;
     popupmenu->x_start=x;
-    popupmenu->x_end=x+200;
+    popupmenu->x_end=x+width;
     popupmenu->y_start=y;
     //popupmenu->y_end=y+popupmenu->size()*2;
-
-    popupmenu->y_end=y+11;
-
+    popupmenu->y_end=y+height+1;
 }
 void buildMainMenu(void){
     ced_menu=new CED_Menu();
@@ -3646,7 +3826,7 @@ void buildMainMenu(void){
         layers->addItem(new CED_SubSubMenu(str,LAYER_0+i));
     }
 
-    layers->addItem(new CED_SubSubMenu("Show/Hide all detector components", DETECTOR_ALL));
+    layers->addItem(new CED_SubSubMenu("Show/Hide complete detector", DETECTOR_ALL));
     for(i=NUMBER_DATA_LAYER;i<NUMBER_DETECTOR_LAYER+NUMBER_DATA_LAYER;i++){
         //sprintf(str,"Detector Layer %s%i [%c]: %s", (i < 10)?"  ":"" ,i, layer_keys[i], layerDescription[i]);
         sprintf(str,"Detector Layer %s%i: %s", (i < 10)?"  ":"" ,i, layerDescription[i]);
@@ -3706,11 +3886,19 @@ void buildMainMenu(void){
     settings->addItem(new CED_SubSubMenu("Graphic high",GRAFIC_HIGH));
     settings->addItem(new CED_SubSubMenu("Toggle perspective",GRAFIC_PERSP));
     settings->addItem(new CED_SubSubMenu("Toggle wireframe",GRAFIC_TRANS));
-    settings->addItem(new CED_SubSubMenu("Fade far objects into background color",GRAFIC_FOG));
+    settings->addItem(new CED_SubSubMenu("Fade far objects",GRAFIC_FOG));
     settings->addItem(new CED_SubSubMenu("Deepbuffer", GRAFIC_BUFFER));
     settings->addItem(new CED_SubSubMenu("Transparency/mesh", GRAFIC_TRANS));
     settings->addItem(new CED_SubSubMenu("Light", GRAFIC_LIGHT));
     settings->addItem(new CED_SubSubMenu("Anti Aliasing", GRAFIC_ALIAS));
+
+    CED_SubSubMenu *font=new CED_SubSubMenu("Text font size ");
+    font->addItem(new CED_SubSubMenu("Tiny",FONT0));
+    font->addItem(new CED_SubSubMenu("Normal",FONT1));
+    font->addItem(new CED_SubSubMenu("Big",FONT2));
+    settings->addItem(font);
+
+
 
 
     CED_SubSubMenu *background=new CED_SubSubMenu("Change background color");
@@ -3792,7 +3980,7 @@ void buildMainMenu(void){
 
     CED_SubMenu *help=new CED_SubMenu("Help");
     help->addItem(new CED_SubSubMenu("Show keyboard shortcuts",HELP));
-    help->addItem(new CED_SubSubMenu("Contact team (hauke.hoelbe@desy.de)",0));
+    help->addItem(new CED_SubSubMenu("Contact CED team (hauke.hoelbe@desy.de)",0));
     ced_menu->addSubMenu(help);
 
 
@@ -4304,7 +4492,7 @@ int save_pixmap_as_bmp(unsigned char *buffer_all,char *name,unsigned int wi, uns
 
     unsigned int header_size=26;
 
-    cout << endl << "               bmp screenshot width: " << wi << " hight: " << hi << endl;
+    cout << endl << "               bmp screenshot width: " << wi << " height: " << hi << endl;
     if (!(header = (unsigned char *) calloc(1, header_size))) { return(-1); }
 
     header[0]  = 'B';
@@ -4334,7 +4522,7 @@ int save_pixmap_as_bmp(unsigned char *buffer_all,char *name,unsigned int wi, uns
     header[24] = 24;
     header[25] = 0;
 
-    std::cout << "hight: " << int((header[21] << 8) + header[20]) << endl;
+    std::cout << "height: " << int((header[21] << 8) + header[20]) << endl;
     std::cout << "wight: " << int((header[19] << 8)+  header[18]) << endl;
 
 
