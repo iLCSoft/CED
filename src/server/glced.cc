@@ -68,6 +68,9 @@ using namespace std;
 #define FONT1                   2011
 #define FONT2                   2012
 
+
+#define UNDO                    2312
+
 #define GRAFIC_HIGH             2000            
 #define GRAFIC_LOW              2001
 #define GRAFIC_PERSP            2002
@@ -225,6 +228,8 @@ static int available_cutangles[]={0,30,90,135, 180, 270, 360};  //for new angles
 
 extern CEDsettings setting;
 
+CEDsettings setting_old[5];
+
 //extern int graphic[];  //= {0,0,0,0}; //light, transparence, perspective, anti aliasing
 //extern double cut_angle;
 //extern double trans_value;
@@ -241,7 +246,7 @@ int ced_picking(int x,int y,GLfloat *wx,GLfloat *wy,GLfloat *wz); //from ced_srv
 static char layerDescription[CED_MAX_LAYER][CED_MAX_LAYER_CHAR]; 
 const char layer_keys[] = {'0','1', '2','3','4','5','6','7','8','9',')', '!', '@', '#', '$', '%', '^', '&', '*', '(', 't', 'y', 'u', 'i', 'o'};
 
-const char detec_layer_keys[] = {'t','y','u','i','o','p','[',']','\\', 'T', 'Y','U','I','O','P','{','}','|'};
+const char detec_layer_keys[] = {'t','y','u','i','o','p','[',']','\\', 'T', 'Y','U','I','O','P','{','}','|',' ',' ',' '};
 
 static int mainWindow=-1;
 //static int subWindow=-1;
@@ -406,7 +411,7 @@ class CED_SubSubMenu{
                     unsigned i;
 
 
-                    int maxlength=0;
+                    unsigned maxlength=0;
                     for(i=0;(unsigned) i<subsubMenus.size();i++){
                         if(subsubMenus.at(i)->title.length() > maxlength){
                             maxlength=subsubMenus.at(i)->title.length();
@@ -448,13 +453,21 @@ class CED_SubSubMenu{
                     //glVertex3f(x_start,y_start,0);
                     glEnd();
                     glColor3f(0,0,0);
+                    if(subsubMenus.size() > 0){
+                        //cout << "draw triangle"  << endl;
+                        glBegin(GL_TRIANGLES); 
+                        glVertex3f(x_end-8,y_start+1,0);
+                        glVertex3f(x_end-8,y_end-1,0);
+                        glVertex3f(x_end-1,y_start+(y_end-y_start)/2,0);
+                        glEnd();
+                    }
 
 
                 }
                 drawHelpString(title, x_start+3, y_start+height-height/5);
         }
 
-        int clickAt(int x,int y){
+        void clickAt(int x,int y){
             //cout << "x = " << x << " y == " << y << endl;
             //cout << "x_start = " << x_start << " y == " << y << endl;
 
@@ -618,7 +631,7 @@ class CED_SubMenu{
                         //selected_submenu->mouseOver();
                     }
 
-                    int maxlength=0;
+                    unsigned maxlength=0;
                     for(i=0;(unsigned) i<subsubMenus.size();i++){
                         if(subsubMenus.at(i)->title.length() > maxlength){
                             maxlength=subsubMenus.at(i)->title.length();
@@ -789,7 +802,7 @@ class CED_Menu{
             glColor3f(0,0,0);
 
             unsigned i;
-            unsigned x_offset=1;
+            //unsigned x_offset=1;
             for(i=0;(unsigned) i<subMenus.size();i++){
                //drawHelpString(shortcuts[i],  R_COLUMN)*column+boarder_quad+5, (i%ITEMS_PER_COLUMN)*line+boarder_quad+10);
                 subMenus.at(i)->draw();
@@ -840,7 +853,7 @@ class CED_Menu{
             sub->x_start=x_offset;
             sub->y_start=1;
             sub->y_end=height+1;
-            x_offset+=sub->title.length()*length+3*length;
+            x_offset+=(unsigned)(sub->title.length()*length+3*length);
             sub->x_end=x_offset;
             subMenus.push_back(sub);
             x_offset+=5;
@@ -875,7 +888,7 @@ class CED_PopUpMenu{
                 width=11;
             }
 
-            int maxlength=title.length();
+            unsigned  maxlength=title.length();
             unsigned i;
             for(i=0;(unsigned) i<subsubMenus.size();i++){
                 if(subsubMenus.at(i)->title.length() > maxlength){
@@ -919,23 +932,6 @@ class CED_PopUpMenu{
                     glVertex3f(x_end,y_start,0);
                     glEnd();
 
-                    //glColor3f(1,1,1);
-                    //glLineWidth(1.);
-                    //glBegin(GL_LINES); 
-
-                    //glVertex3f(x_start,y_start,0);
-                    //glVertex3f(x_start,y_end,0);
-
-                    //glVertex3f(x_start,y_end,0);
-                    //glVertex3f(x_end,y_end,0);
-
-                    //glVertex3f(x_end,y_end,0);
-                    //glVertex3f(x_end,y_start,0);
-
-                    //glVertex3f(x_end,y_start,0);
-                    //glVertex3f(x_start,y_start,0);
-                    //glEnd();
-
                     glColor3f(1,1,1);
                 }else{
                     glColor3f(0,0,0);
@@ -943,13 +939,15 @@ class CED_PopUpMenu{
 
                   if(isExtend){
                     drawHelpString(title, x_start+3, y_start+height-height/5.);
+
+                    if( selected_submenu != NULL){
+                         selected_submenu->isExtend=true;
+                         //selected_submenu->mouseOver();
+                     }
+
                     unsigned i;
-                    //cout << "draw " << subsubMenus.size() << " subsubmenu items" << endl;
-
-
                     for(i=0;(unsigned) i<subsubMenus.size();i++){
                         subsubMenus.at(i)->x_start=x_start;
-                        //subsubMenus.at(i)->x_end  =x_start+maxlength*width;
                         subsubMenus.at(i)->x_end  =x_end;
                         subsubMenus.at(i)->y_start=y_start+height+1+height*i;
                         subsubMenus.at(i)->y_end  =y_end + height+1+height*i;
@@ -987,13 +985,23 @@ class CED_PopUpMenu{
                 isExtend=false;
             }
 
+            selected_submenu=NULL;
+
+
         }
 
         void mouseMove(int x,int y){
             if(isExtend){
                 unsigned i;
                 for(i=0;(unsigned) i<subsubMenus.size();i++){
-                    subsubMenus.at(i)->mouseMove(x,y);
+                    if( subsubMenus.at(i)->mouseMove(x,y)){
+                        if(selected_submenu != NULL){
+                            selected_submenu->isExtend=false;
+                        }
+                        selected_submenu=subsubMenus.at(i);
+                    }
+ 
+                    //subsubMenus.at(i)->mouseMove(x,y);
                 }
                 if(x_start < x && x_end > x && y_start < y && y_end > y){
                     isMouseOver=true;
@@ -1017,6 +1025,7 @@ class CED_PopUpMenu{
             optionNr=nr;
             isExtend=false;
             isMouseOver=false;
+            selected_submenu=NULL;
         }
 
         int size(void){
@@ -1034,6 +1043,8 @@ class CED_PopUpMenu{
 
     private: 
         vector<CED_SubSubMenu *> subsubMenus;   
+        CED_SubSubMenu *selected_submenu;
+
 };
 
 CED_PopUpMenu *popupmenu;
@@ -1536,8 +1547,30 @@ void printShortcuts(void){
 
     const unsigned int MAX_STR_LEN=30;
     int i;
-    float line = 12; //height of one line
-    float column = MAX_STR_LEN*5; //width of one line
+    
+    int height=10;
+    int width=2;
+    if(setting.font==0){
+        height=10+2;
+        width=6;
+    }
+    if(setting.font==1){
+        height=12+2;
+        width=8;
+    }
+    if(setting.font==2){
+        height=20+2;
+        width=11;
+    }
+
+
+    //float line = 12; //height of one line
+    //float column = MAX_STR_LEN*5; //width of one line
+
+    float line = height; //height of one line
+    float column = MAX_STR_LEN*width; //width of one line
+
+
 
     
     vector<string> shortcuts;
@@ -1621,7 +1654,9 @@ void printShortcuts(void){
 
     //glOrtho(0,w,h, 0,0,15*WORLD_SIZE);
 
-    glOrtho(0,w,h,-10,0,15*WORLD_SIZE);
+    //glOrtho(0,w,h,-10,0,15*WORLD_SIZE);
+
+    glOrtho(0,w,h,-1*height,0,15*WORLD_SIZE);
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
@@ -2126,6 +2161,11 @@ void loadSettings(int slot){
         defaultSettings();
     }
 
+    setting_old[0]=setting;
+    setting_old[1]=setting;
+    setting_old[2]=setting;
+    setting_old[3]=setting;
+    setting_old[4]=setting;
 }
 
 
@@ -2183,8 +2223,8 @@ static void mouse(int btn,int state,int x,int y){
     mm.mv_start=mm.mv;
     switch(btn){
     case GLUT_LEFT_BUTTON:
-        ced_menu->clickAt(mouse_x,mouse_y);
-        popupmenu->clickAt(mouse_x,mouse_y);
+        ced_menu->clickAt((int)mouse_x,(int)mouse_y);
+        popupmenu->clickAt((int)mouse_x,(int)mouse_y);
         //reshape((int)window_width, (int)window_height);
         glutPostRedisplay();
 
@@ -2213,7 +2253,7 @@ static void mouse(int btn,int state,int x,int y){
         return;
         case GLUT_RIGHT_BUTTON:
           //cout << "right button clicked" << endl;
-          ced_menu->clickAt(mouse_x,mouse_y);
+          ced_menu->clickAt((int)mouse_x,(int)mouse_y);
           buildPopUpMenu(x,y);
           glutPostRedisplay();
           move_mode=ZOOM;
@@ -2318,8 +2358,11 @@ static void keypressed(unsigned char key,int x,int y){
     //struct __glutSocketList *sock;
   
     glutSetWindow(mainWindow); //hauke
-  
-    if(key=='r' || key=='R'){ 
+    //if(key==0x1A ){ //ctrl+z
+
+    if(key=='u' ){ //ctrl+z
+        selectFromMenu(UNDO);
+    } else if(key=='r' || key=='R'){ 
         selectFromMenu(VIEW_RESET);
     } else if(key=='f'){     
        selectFromMenu(VIEW_FRONT);
@@ -2932,6 +2975,13 @@ void selectFromMenu(int id){ //hauke
 
     glutSetWindow(mainWindow); //hauke
 
+    if(id != UNDO){
+        setting_old[4]=setting_old[3];
+        setting_old[3]=setting_old[2];
+        setting_old[2]=setting_old[1];
+        setting_old[1]=setting_old[0];
+        setting_old[0]=setting;
+    }
 
     switch(id){
         case PICK_HIT:
@@ -3240,6 +3290,16 @@ void selectFromMenu(int id){ //hauke
         case FONT2:
             setting.font=2;
             buildMainMenu();
+            break;
+
+
+        case UNDO:
+            setting=setting_old[0];
+            setting_old[0]=setting_old[1];
+            setting_old[1]=setting_old[2];
+            setting_old[2]=setting_old[3];
+            setting_old[3]=setting_old[4];
+            setting_old[4]=setting_old[4];
             break;
 
 
@@ -3707,7 +3767,7 @@ void buildPopUpMenu(int x, int y){
             popupmenu->addItem(new CED_SubSubMenu(tmp,CENTER_HIT));
             sprintf(tmp,"Pick object");
             popupmenu->addItem(new CED_SubSubMenu(tmp,PICK_HIT));
-            sprintf(tmp,"Hide layer (layer: %i)",layer);
+            sprintf(tmp,"Hide layer %i: %s)",layer,layerDescription[layer] );
             popupmenu->addItem(new CED_SubSubMenu(tmp,LAYER_0+layer));
 
             p_pre_x=p_x; 
@@ -3725,8 +3785,23 @@ void buildPopUpMenu(int x, int y){
             popupmenu->addItem(new CED_SubSubMenu(tmp,CENTER_HIT));
             sprintf(tmp,"Pick object");
             popupmenu->addItem(new CED_SubSubMenu(tmp,PICK_HIT));
-            sprintf(tmp,"Hide layer (layer: %i)",layer);
+            sprintf(tmp,"Hide layer %i: %s",layer, layerDescription[layer]);
             popupmenu->addItem(new CED_SubSubMenu(tmp, layer-NUMBER_DATA_LAYER+DETECTOR1));
+
+            CED_SubSubMenu *phicuts=new CED_SubSubMenu("Cuts");
+            unsigned i;
+            char str[200];
+            for(i=0; (unsigned)i < sizeof(available_cutangles)/sizeof(available_cutangles[0]); i++){
+                    sprintf(str,"Cut of %i degree in phi", available_cutangles[i]);
+                    phicuts->addItem(new CED_SubSubMenu(str,  CUT_ANGLE0+i));
+                    //glutChangeToMenuEntry(i+1, str,  CUT_ANGLE0+i);
+            }
+
+            //CED_SubMenu *phicuts=new CED_SubMenu("Cuts");
+            //cuts->addItem(new CED_SubSubMenu("Cut at z=0",  0));
+            //cuts->addItem(new CED_SubSubMenu("Cut at z=3000",  0));
+            //cuts->addItem(new CED_SubSubMenu("Cut at z=5000",  0));
+            popupmenu->addItem(phicuts);
 
             p_pre_x=p_x; 
             p_pre_y=p_y; 
@@ -3820,6 +3895,8 @@ void buildMainMenu(void){
 
     //layers
     CED_SubMenu *layers=new CED_SubMenu("Layers");
+
+    layers->addItem(new CED_SubSubMenu("Show/Hide axis", AXES));
     layers->addItem(new CED_SubSubMenu("Show/Hide all data Layers [`]", LAYER_ALL));
     for(i=0;i<NUMBER_POPUP_LAYER;i++){
         sprintf(str,"Data Layer %s%i [%c]: %s", (i < 10)?"  ":"" ,i, layer_keys[i], layerDescription[i]);

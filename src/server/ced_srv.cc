@@ -156,7 +156,7 @@ static void ced_add_objmap(CED_Point *p,int max_dxy, unsigned int ID, unsigned i
     omap[omap_count].x=(int)winx;
     omap[omap_count].y=(int)winy;
     omap[omap_count].z=(int)(1000. * winz);
-    omap[omap_count].max_dxy=my_max_dxy;
+    omap[omap_count].max_dxy=int(my_max_dxy+0.5);
     omap[omap_count++].p=*p;
 }
 
@@ -1001,7 +1001,7 @@ int find_selected_object(int x,int y,GLfloat *wx,GLfloat *wy,GLfloat *wz, int *i
         
         //d=dx+dy;
 
-        d=pow(pow(dx,2)+pow(dy,2)+pow(p->z,2),0.5);
+        d=(int) pow(pow(dx,2)+pow(dy,2)+pow(p->z,2),0.5);
         if(!best || (d<dist)){
             best=p;
             dist=d;
@@ -1370,8 +1370,8 @@ static void ced_draw_geotube(CED_GeoTube *c){
     if(-1*setting.z_cutting < (transformed_shift)){
         //make 1line in the middle
 
-        double tmpz=z1; //make 1line in the middle
-        double tmpr=(d_i+d_o)/2.;
+        tmpz=z1; //make 1line in the middle
+        tmpr=(d_i+d_o)/2.;
         for(double y=0;y<2*3.14-2*3.14*setting.cut_angle/360.;y+=0.1){
              //CED_Point tmp1;
              //tmp1.x = d_o*sin(y);
