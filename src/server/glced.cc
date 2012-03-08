@@ -4063,6 +4063,15 @@ void buildMainMenu(void){
 
 
 }
+
+
+// void doNothing(int id){ }
+// int buildBogusMenu(void){ //hauke
+//   int menu=glutCreateMenu(doNothing);
+//   return menu ;
+// }
+
+
 int buildMenuPopup(void){ //hauke
     //int menu;
     //int subMenu1;
@@ -4490,8 +4499,9 @@ int main(int argc,char *argv[]){
     //glutTimerFunc(2000,time,23);
     //glutTimerFunc(500,timer,23);
   
+    //workaraound for franks mac
+    buildMenuPopup(); //hauke
 
-    //buildMenuPopup(); //hauke
     buildMainMenu(); //hauke
     popupmenu=new CED_PopUpMenu("");
 
