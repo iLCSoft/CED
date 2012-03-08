@@ -292,6 +292,8 @@ static GLfloat axe[][3]={
 void updateScreenshotMenu(void);
 void screenshot(char *name, int times);
 
+void buildLayerMenus(void);
+
 // allows to reset the visible world size
 static void set_world_size( float length) {
   WORLD_SIZE = length ;
@@ -464,7 +466,18 @@ class CED_SubSubMenu{
 
 
                 }
-                drawHelpString(title, x_start+3, y_start+height-height/5);
+
+                if(title == "---"){
+
+                    glColor3f(0.662745,0.662745,0.662745);
+                    glBegin(GL_LINES); 
+                    glVertex3f(x_start,y_start+0.5*(y_end - y_start),0);
+                    glVertex3f(x_end,y_start+0.5*(y_end - y_start),0);
+                    glEnd();
+                    glColor3f(0,0,0);
+                }else{
+                    drawHelpString(title, x_start+3, y_start+height-height/5);
+                }
         }
 
         void clickAt(int x,int y){
@@ -622,7 +635,19 @@ class CED_SubMenu{
                 }
                 //drawHelpString(title, x_start+3, y_start+8);
 
-                drawHelpString(title, x_start+3, y_start+height-height/5);
+                if(title == "---"){
+
+                    glColor3f(0.662745,0.662745,0.662745);
+                    glBegin(GL_LINES); 
+                    glVertex3f(x_start,y_start+0.5*(y_end - y_start),0);
+                    glVertex3f(x_end,y_start+0.5*(y_end - y_start),0);
+                    glEnd();
+                    glColor3f(0,0,0);
+                }else{
+                    drawHelpString(title, x_start+3, y_start+height-height/5);
+                }
+
+                //drawHelpString(title, x_start+3, y_start+height-height/5);
                 if(isExtend){
                     unsigned i;
                     //cout << "draw " << subsubMenus.size() << " subsubmenu items" << endl;
@@ -938,7 +963,7 @@ class CED_PopUpMenu{
                 }
 
                   if(isExtend){
-                    drawHelpString(title, x_start+3, y_start+height-height/5.);
+                    //drawHelpString(title, x_start+3, y_start+height-height/5.);
 
                     if( selected_submenu != NULL){
                          selected_submenu->isExtend=true;
@@ -949,8 +974,8 @@ class CED_PopUpMenu{
                     for(i=0;(unsigned) i<subsubMenus.size();i++){
                         subsubMenus.at(i)->x_start=x_start;
                         subsubMenus.at(i)->x_end  =x_end;
-                        subsubMenus.at(i)->y_start=y_start+height+1+height*i;
-                        subsubMenus.at(i)->y_end  =y_end + height+1+height*i;
+                        subsubMenus.at(i)->y_start=y_start/*+height */+1+height*i;
+                        subsubMenus.at(i)->y_end  =y_end  /*+ height*/+1+height*i;
                         subsubMenus.at(i)->draw();
                     }
                 }
@@ -1046,6 +1071,10 @@ class CED_PopUpMenu{
         CED_SubSubMenu *selected_submenu;
 
 };
+
+CED_SubSubMenu *detectorlayermenu;
+CED_SubSubMenu *datalayermenu;
+
 
 CED_PopUpMenu *popupmenu;
 void buildPopUpMenu(int x, int y);
@@ -1280,6 +1309,7 @@ static void display_world(void){
         return;
     }
 
+
     glColor3f(AXES_COLOR);
     //glLineWidth(2.);
     glLineWidth(AXES_LINE_SIZE);
@@ -1448,14 +1478,18 @@ static void write_world_into_front_buffer(void){
 
 
     
-    glTranslatef(-mm.mv.x,-mm.mv.y,-mm.mv.z);
   
       //glMatrixMode(GL_MODELVIEW); //
   
     // draw static objects
 
     glMatrixMode(GL_MODELVIEW);
+
+
+    //glTranslatef(-mm.mv.x,-mm.mv.y,-mm.mv.z);
     display_world(); 
+
+    glTranslatef(-mm.mv.x,-mm.mv.y,-mm.mv.z);
 
 
    //glTranslatef(0,0,1000);
@@ -1768,9 +1802,10 @@ static void display(void){
       //glMatrixMode(GL_MODELVIEW); //
   
     // draw static objects
+
+    glTranslatef(-mm.mv.x,-mm.mv.y,-mm.mv.z);
     display_world(); //only axes?
   
-    glTranslatef(-mm.mv.x,-mm.mv.y,-mm.mv.z);
   
      //glTranslatef(0,0,1000);
   
@@ -3402,7 +3437,10 @@ void selectFromMenu(int id){ //hauke
             glutSetMenu(detectorMenu);
             toggle_layer(id-DETECTOR1+NUMBER_DATA_LAYER);
             //std::cout << "toogle layer " << id-DETECTOR1 + NUMBER_DATA_LAYER<< std::endl;
-            updateLayerEntryDetector(id-DETECTOR1+NUMBER_DATA_LAYER);
+            //updateLayerEntryDetector(id-DETECTOR1+NUMBER_DATA_LAYER);
+            
+            buildLayerMenus();
+            buildMainMenu();
             break;
 
 
@@ -3430,7 +3468,10 @@ void selectFromMenu(int id){ //hauke
             glutSetMenu(layerMenu);
             toggle_layer(id-LAYER_0);
             //std::cout << "toogle layer " << id-LAYER_0 << std::endl;
-            updateLayerEntryInPopupMenu(id-LAYER_0);
+            //updateLayerEntryInPopupMenu(id-LAYER_0);
+            buildLayerMenus();
+            buildMainMenu();
+
             break;
 
         case CUT_ANGLE0:
@@ -3738,6 +3779,7 @@ void selectFromMenu(int id){ //hauke
     }
 
     reshape((int)window_width, (int)window_height);
+
     glutPostRedisplay();
     //printf("bgcolor = %f %f %f %f\n",setting.bgcolor[0],setting.bgcolor[1],setting.bgcolor[2],setting.bgcolor[2]); 
 
@@ -3754,9 +3796,19 @@ void buildPopUpMenu(int x, int y){
     
     //delete the old one first!!!
 
+    popupmenu=new CED_PopUpMenu("");
+    
+    buildLayerMenus();
+    popupmenu->addItem(datalayermenu);
+    popupmenu->addItem(detectorlayermenu);
+    popupmenu->addItem(new CED_SubSubMenu("---",0));
+    
+
     if(!find_selected_object(x,y,&p_x,&p_y,&p_z, &id, &layer, &type)){ //if ==1 found hit, else clicked on background
         if(type == 0){
-            popupmenu=new CED_PopUpMenu("Select datapoint");
+            //popupmenu=new CED_PopUpMenu("Select datapoint");
+
+            popupmenu->addItem(new CED_SubSubMenu("Selected datapoint:",0));
             sprintf(tmp,"Coordinates: (%.1f, %.1f, %1.f)",p_x,p_y,p_z);
             popupmenu->addItem(new CED_SubSubMenu(tmp,0));
             sprintf(tmp,"ID: %i",id);
@@ -3774,7 +3826,9 @@ void buildPopUpMenu(int x, int y){
             p_pre_y=p_y; 
             p_pre_z=p_z;
         }else if(type == 1){
-            popupmenu=new CED_PopUpMenu("Select detector component");
+            //popupmenu=new CED_PopUpMenu("Select detector component");
+
+            popupmenu->addItem(new CED_SubSubMenu("Selected detector:",0));
             sprintf(tmp,"Coordinates: (%.1f, %.1f, %1.f)",p_x,p_y,p_z);
             popupmenu->addItem(new CED_SubSubMenu(tmp,0));
             sprintf(tmp,"ID: %i",id);
@@ -3809,7 +3863,9 @@ void buildPopUpMenu(int x, int y){
         }
     }else{
 
-        popupmenu=new CED_PopUpMenu("Change background color to:");
+        //popupmenu=new CED_PopUpMenu("Change background color to:");
+
+        popupmenu->addItem(new CED_SubSubMenu("Change background color to:",0));
         sprintf(tmp,"%s",CED_BGCOLOR_OPTION1_NAME);
         popupmenu->addItem(new CED_SubSubMenu(tmp,BGCOLOR_OPTION1));
 
@@ -3886,6 +3942,39 @@ void buildPopUpMenu(int x, int y){
     //popupmenu->y_end=y+popupmenu->size()*2;
     popupmenu->y_end=y+height+1;
 }
+void buildLayerMenus(void){
+    detectorlayermenu=new CED_SubSubMenu("Detector layers",0); 
+    datalayermenu=new CED_SubSubMenu("Data layers",0);
+    int i;
+    char str[2000];
+    int max=20;
+    char tmp[max+1];
+    for(i=0;i<NUMBER_POPUP_LAYER;i++){
+        if(strlen(layerDescription[i]) > max){
+            snprintf(tmp,max-3,"%s",layerDescription[i]);
+            sprintf(tmp,"%s...",tmp);
+        }else{
+            sprintf(tmp,"%s",layerDescription[i]);
+        }
+        sprintf(str,"Data Layer %s%i [%c]: %s", (i < 10)?"  ":"" ,i, layer_keys[i], tmp);
+        datalayermenu->addItem(new CED_SubSubMenu(str,LAYER_0+i));
+    }
+    for(i=NUMBER_DATA_LAYER;i<NUMBER_DETECTOR_LAYER+NUMBER_DATA_LAYER;i++){
+        //sprintf(str,"Detector Layer %s%i [%c]: %s", (i < 10)?"  ":"" ,i, layer_keys[i], layerDescription[i]);
+        if(strlen(layerDescription[i]) > max){
+            snprintf(tmp,max-3,"%s",layerDescription[i]);
+            sprintf(tmp,"%s...",tmp);
+        }else{
+            sprintf(tmp,"%s",layerDescription[i]);
+        }
+
+        sprintf(str,"Detector Layer %s%i: %s", (i < 10)?"  ":"" ,i, layerDescription[i]);
+        detectorlayermenu->addItem(new CED_SubSubMenu(str,DETECTOR1+i-NUMBER_DATA_LAYER));
+    }
+
+
+
+}
 void buildMainMenu(void){
     ced_menu=new CED_Menu();
 
@@ -3896,20 +3985,32 @@ void buildMainMenu(void){
     //layers
     CED_SubMenu *layers=new CED_SubMenu("Layers");
 
-    layers->addItem(new CED_SubSubMenu("Show/Hide axis", AXES));
-    layers->addItem(new CED_SubSubMenu("Show/Hide all data Layers [`]", LAYER_ALL));
-    for(i=0;i<NUMBER_POPUP_LAYER;i++){
-        sprintf(str,"Data Layer %s%i [%c]: %s", (i < 10)?"  ":"" ,i, layer_keys[i], layerDescription[i]);
-        layers->addItem(new CED_SubSubMenu(str,LAYER_0+i));
-    }
+    buildLayerMenus();
 
+    layers->addItem(new CED_SubSubMenu("Show/Hide axis", AXES));
+    layers->addItem(new CED_SubSubMenu("---", AXES));
+    layers->addItem(new CED_SubSubMenu("Show/Hide all data Layers [`]", LAYER_ALL));
+
+    layers->addItem(datalayermenu);
+
+    //for(i=0;i<NUMBER_POPUP_LAYER;i++){
+    //    sprintf(str,"Data Layer %s%i [%c]: %s", (i < 10)?"  ":"" ,i, layer_keys[i], layerDescription[i]);
+    //    layers->addItem(new CED_SubSubMenu(str,LAYER_0+i));
+    //}
+
+
+    layers->addItem(new CED_SubSubMenu("---", AXES));
     layers->addItem(new CED_SubSubMenu("Show/Hide complete detector", DETECTOR_ALL));
-    for(i=NUMBER_DATA_LAYER;i<NUMBER_DETECTOR_LAYER+NUMBER_DATA_LAYER;i++){
-        //sprintf(str,"Detector Layer %s%i [%c]: %s", (i < 10)?"  ":"" ,i, layer_keys[i], layerDescription[i]);
-        sprintf(str,"Detector Layer %s%i: %s", (i < 10)?"  ":"" ,i, layerDescription[i]);
-        layers->addItem(new CED_SubSubMenu(str,DETECTOR1+i-NUMBER_DATA_LAYER));
-    }
+
+    layers->addItem(detectorlayermenu);
+
+    //for(i=NUMBER_DATA_LAYER;i<NUMBER_DETECTOR_LAYER+NUMBER_DATA_LAYER;i++){
+    //    //sprintf(str,"Detector Layer %s%i [%c]: %s", (i < 10)?"  ":"" ,i, layer_keys[i], layerDescription[i]);
+    //    sprintf(str,"Detector Layer %s%i: %s", (i < 10)?"  ":"" ,i, layerDescription[i]);
+    //    layers->addItem(new CED_SubSubMenu(str,DETECTOR1+i-NUMBER_DATA_LAYER));
+    //}
     ced_menu->addSubMenu(layers);
+
 
 
 
@@ -3937,9 +4038,13 @@ void buildMainMenu(void){
     camera->addItem(new CED_SubSubMenu("Reset view [r]", VIEW_RESET));
     camera->addItem(new CED_SubSubMenu("Front view [f]", VIEW_FRONT));
     camera->addItem(new CED_SubSubMenu("Side view [s]", VIEW_SIDE));
+
+    camera->addItem(new CED_SubSubMenu("---", VIEW_SIDE));
     camera->addItem(new CED_SubSubMenu("Toggle side view projection [S]", TOGGLE_PHI_PROJECTION));
     camera->addItem(new CED_SubSubMenu("Toggle front view projection [F]", TOGGLE_Z_PROJECTION));
     camera->addItem(new CED_SubSubMenu("Toggle fisheye projection [v]",VIEW_FISHEYE));
+
+    camera->addItem(new CED_SubSubMenu("---", VIEW_SIDE));
     camera->addItem(new CED_SubSubMenu("Zoom in [+]", VIEW_ZOOM_IN));
     camera->addItem(new CED_SubSubMenu("Zoom out [-]", VIEW_ZOOM_OUT));
     ced_menu->addSubMenu(camera);
@@ -3952,6 +4057,8 @@ void buildMainMenu(void){
             cuts->addItem(new CED_SubSubMenu(str,  CUT_ANGLE0+i));
             //glutChangeToMenuEntry(i+1, str,  CUT_ANGLE0+i);
     }
+
+    cuts->addItem(new CED_SubSubMenu("---",  0));
     cuts->addItem(new CED_SubSubMenu("Cut at z=0",  0));
     cuts->addItem(new CED_SubSubMenu("Cut at z=3000",  0));
     cuts->addItem(new CED_SubSubMenu("Cut at z=5000",  0));
@@ -3961,6 +4068,8 @@ void buildMainMenu(void){
     CED_SubMenu *settings=new CED_SubMenu("Graphic");
     settings->addItem(new CED_SubSubMenu("Graphic low",GRAFIC_LOW));
     settings->addItem(new CED_SubSubMenu("Graphic high",GRAFIC_HIGH));
+
+    settings->addItem(new CED_SubSubMenu("---",0));
     settings->addItem(new CED_SubSubMenu("Toggle perspective",GRAFIC_PERSP));
     settings->addItem(new CED_SubSubMenu("Toggle wireframe",GRAFIC_TRANS));
     settings->addItem(new CED_SubSubMenu("Fade far objects",GRAFIC_FOG));
@@ -3968,6 +4077,8 @@ void buildMainMenu(void){
     settings->addItem(new CED_SubSubMenu("Transparency/mesh", GRAFIC_TRANS));
     settings->addItem(new CED_SubSubMenu("Light", GRAFIC_LIGHT));
     settings->addItem(new CED_SubSubMenu("Anti Aliasing", GRAFIC_ALIAS));
+
+    settings->addItem(new CED_SubSubMenu("---",0));
 
     CED_SubSubMenu *font=new CED_SubSubMenu("Text font size ");
     font->addItem(new CED_SubSubMenu("Tiny",FONT0));
@@ -4016,21 +4127,23 @@ void buildMainMenu(void){
     }
     
 
+    settings->addItem(new CED_SubSubMenu("---",0));
     settings->addItem(background);
+    settings->addItem(new CED_SubSubMenu("---",0));
 
     CED_SubSubMenu *save=new CED_SubSubMenu("Save settings");
     CED_SubSubMenu *load=new CED_SubSubMenu("Load settings");
-    save->addItem(new CED_SubSubMenu("Slot 1",SAVE1));
-    save->addItem(new CED_SubSubMenu("Slot 2",SAVE2));
-    save->addItem(new CED_SubSubMenu("Slot 3",SAVE3));
-    save->addItem(new CED_SubSubMenu("Slot 4",SAVE4));
-    save->addItem(new CED_SubSubMenu("Slot 5",SAVE5));
+    save->addItem(new CED_SubSubMenu("Save into slot 1",SAVE1));
+    save->addItem(new CED_SubSubMenu("Save into slot 2",SAVE2));
+    save->addItem(new CED_SubSubMenu("Save into slot 3",SAVE3));
+    save->addItem(new CED_SubSubMenu("Save into slot 4",SAVE4));
+    save->addItem(new CED_SubSubMenu("Save into slot 5",SAVE5));
 
-    load->addItem(new CED_SubSubMenu("Slot 1",LOAD1));
-    load->addItem(new CED_SubSubMenu("Slot 2",LOAD2));
-    load->addItem(new CED_SubSubMenu("Slot 3",LOAD3));
-    load->addItem(new CED_SubSubMenu("Slot 4",LOAD4));
-    load->addItem(new CED_SubSubMenu("Slot 5",LOAD5));
+    load->addItem(new CED_SubSubMenu("Load settings 1",LOAD1));
+    load->addItem(new CED_SubSubMenu("Load settings 2",LOAD2));
+    load->addItem(new CED_SubSubMenu("Load settings 3",LOAD3));
+    load->addItem(new CED_SubSubMenu("Load settings 4",LOAD4));
+    load->addItem(new CED_SubSubMenu("Load settings 5",LOAD5));
 
 
     settings->addItem(load);
@@ -4051,12 +4164,14 @@ void buildMainMenu(void){
 
     CED_SubMenu *tools=new CED_SubMenu("Tools");
     tools->addItem(screenshot);
+    tools->addItem(new CED_SubSubMenu("---",0));
     tools->addItem(new CED_SubSubMenu("Show FPS",FPS));
     ced_menu->addSubMenu(tools);
 
 
     CED_SubMenu *help=new CED_SubMenu("Help");
     help->addItem(new CED_SubSubMenu("Show keyboard shortcuts",HELP));
+    help->addItem(new CED_SubSubMenu("---",0));
     help->addItem(new CED_SubSubMenu("Contact CED team (hauke.hoelbe@desy.de)",0));
     ced_menu->addSubMenu(help);
 
@@ -4500,9 +4615,11 @@ int main(int argc,char *argv[]){
     //glutTimerFunc(500,timer,23);
   
     //workaraound for franks mac
-    buildMenuPopup(); //hauke
+    buildMenuPopup(); 
 
-    buildMainMenu(); //hauke
+
+    buildLayerMenus();
+    buildMainMenu(); 
     popupmenu=new CED_PopUpMenu("");
 
 
