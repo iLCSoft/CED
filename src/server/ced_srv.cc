@@ -1337,12 +1337,19 @@ static void ced_write_picking_text(CED_PICKING_TEXT *text){
 static unsigned GEOT_ID=0;
 
 static void ced_draw_geotube(CED_GeoTube *c){
+    using namespace std;
     if(!IS_VISIBLE(c->type)){
         return;
     }
 
+    //cout << "Detector layer: "  << c->type-NUMBER_DATA_LAYER << "trans: " << setting.detector_trans[c->type-NUMBER_DATA_LAYER] << endl;
 
     double transformed_shift = single_fisheye_transform(c->shift, fisheye_alpha);
+
+
+    double cut_angle=setting.detector_cut_angle[c->type-NUMBER_DATA_LAYER];
+    double trans_value=setting.detector_trans[c->type-NUMBER_DATA_LAYER];
+
 
     //SM-H: Fisheye code
     double d_o = single_fisheye_transform(c->r_o, fisheye_alpha);
@@ -1372,7 +1379,7 @@ static void ced_draw_geotube(CED_GeoTube *c){
 
         tmpz=z1; //make 1line in the middle
         tmpr=(d_i+d_o)/2.;
-        for(double y=0;y<2*3.14-2*3.14*setting.cut_angle/360.;y+=0.1){
+        for(double y=0;y<2*3.14-2*3.14*cut_angle/360.;y+=0.1){
              //CED_Point tmp1;
              //tmp1.x = d_o*sin(y);
              //tmp1.y = d_o*cos(y);
@@ -1403,7 +1410,7 @@ static void ced_draw_geotube(CED_GeoTube *c){
 
    for(; tmpz <= z0-2*(z0-z1); tmpz+=200){
         for(double tmpr=d_i; tmpr < d_o; tmpr+=600){
-            for(double y=0;y<2*3.14-2*3.14*setting.cut_angle/360.;y+=0.20){
+            for(double y=0;y<2*3.14-2*3.14*cut_angle/360.;y+=0.20){
                  //z0 left end
                  //z1 middle
                  //right z0-2*(z0-z1)
@@ -1417,7 +1424,7 @@ static void ced_draw_geotube(CED_GeoTube *c){
         }
 
         for(double tmpr=d_i+300; tmpr < d_o; tmpr+=600){
-            for(double y=0.1;y<2*3.14-2*3.14*setting.cut_angle/360.;y+=0.20){
+            for(double y=0.1;y<2*3.14-2*3.14*cut_angle/360.;y+=0.20){
                  //z0 left end
                  //z1 middle
                  //right z0-2*(z0-z1)
@@ -1452,8 +1459,8 @@ static void ced_draw_geotube(CED_GeoTube *c){
         for(int k=0;k<2;k++){        
 
         //for(int k=1;k>=0;k--){        
-            GLfloat face_color[4]={((c->color>>16)&0xff)/255.0,((c->color>>8)&0xff)/255.0,((c->color)&0xff)/255.0, setting.trans_value};  
-            //GLfloat face_color[4]={((c->color>>16)&0xff)/255.0/2.0+(1.0-setting.bgcolor[0])/2.0,((c->color>>8)&0xff)/255.0/2.0+(1.0-setting.bgcolor[1])/2.0,((c->color)&0xff)/255.0/2.0+(1.0-setting.bgcolor[2])/2.0, setting.trans_value}; //shape in detector color mixed with anti background color
+            GLfloat face_color[4]={((c->color>>16)&0xff)/255.0,((c->color>>8)&0xff)/255.0,((c->color)&0xff)/255.0, trans_value};  
+            //GLfloat face_color[4]={((c->color>>16)&0xff)/255.0/2.0+(1.0-setting.bgcolor[0])/2.0,((c->color>>8)&0xff)/255.0/2.0+(1.0-setting.bgcolor[1])/2.0,((c->color)&0xff)/255.0/2.0+(1.0-setting.bgcolor[2])/2.0, trans_value}; //shape in detector color mixed with anti background color
     
     
             //float detector_lines_wide=0.3;
@@ -1466,7 +1473,7 @@ static void ced_draw_geotube(CED_GeoTube *c){
             glGetDoublev(GL_COLOR_CLEAR_VALUE, setting.bgcolor);
             //GLfloat line_color[4]={((c->color>>16)&0xff)/255.0/2.0+(1.0-setting.bgcolor[0])/2.0,((c->color>>8)&0xff)/255.0/2.0+(1.0-setting.bgcolor[1])/2.0,((c->color)&0xff)/255.0/2.0+(1.0-setting.bgcolor[2])/2.0, 0.6}; //lines in detector color mixed with anti background color
     
-            GLfloat line_color[4]={((c->color>>16)&0xff)/255.0/2.0+(1.0-setting.bgcolor[0])/2.0,((c->color>>8)&0xff)/255.0/2.0+(1.0-setting.bgcolor[1])/2.0,((c->color)&0xff)/255.0/2.0+(1.0-setting.bgcolor[2])/2.0, (1-setting.trans_value)+CED_GEOTUBE_LINE_MAX_TRANS}; //lines in detector color mixed with anti background color
+            GLfloat line_color[4]={((c->color>>16)&0xff)/255.0/2.0+(1.0-setting.bgcolor[0])/2.0,((c->color>>8)&0xff)/255.0/2.0+(1.0-setting.bgcolor[1])/2.0,((c->color)&0xff)/255.0/2.0+(1.0-setting.bgcolor[2])/2.0, (1-trans_value)+CED_GEOTUBE_LINE_MAX_TRANS}; //lines in detector color mixed with anti background color
     
     
             //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //default
@@ -1479,7 +1486,7 @@ static void ced_draw_geotube(CED_GeoTube *c){
 
             
 
-            if(setting.cut_angle < 360){
+            if(cut_angle < 360){
                 //std::cout << setting.z_cutting << " vs " << transformed_shift-z << std::endl;
                // if(-2*setting.z_cutting > transformed_shift+z+z){
 
@@ -1498,7 +1505,7 @@ static void ced_draw_geotube(CED_GeoTube *c){
                 glTranslatef(0.0, 0.0, transformed_shift);
                 if(c->rotate_o > 0.01 ) glRotatef(c->rotate_o, 0, 0, 1);
     
-                if(c->rotate_o <= setting.cut_angle){ //dont cut if rotate angle is to big
+                if(c->rotate_o <= cut_angle){ //dont cut if rotate angle is to big
                     if(c->edges_o != c->edges_i || c->rotate_i != 0){
                         //glColor4f((c->color>>16)&0xff,(c->color>>8)&0xff,(c->color)&0xff, 0.8);
                         glColor4f(face_color[0], face_color[1], face_color[2], face_color[3]);
@@ -1510,11 +1517,11 @@ static void ced_draw_geotube(CED_GeoTube *c){
                         glRotatef(c->rotate_i, 0, 0, 1);
      
                         glPolygonOffset( 1.f, 1.f );
-                        if(setting.trans_value < 1.0){
+                        if(trans_value < 1.0){
     
                             //std::cout << "call drawPartialCylinder outer:" << 0 << " inner" << 1 << std::endl;
                             if(k==0)
-                                drawPartialCylinder(z*2, d_o-(d_o-d_i)/5, d_i, c->edges_i, setting.cut_angle - c->rotate_i- c->rotate_o, c->rotate_i + c->rotate_o,0,1); //draw the inner cylinder 
+                                drawPartialCylinder(z*2, d_o-(d_o-d_i)/5, d_i, c->edges_i, cut_angle - c->rotate_i- c->rotate_o, c->rotate_i + c->rotate_o,0,1); //draw the inner cylinder 
                         }
     
                         glRotatef(-1*c->rotate_i, 0, 0, 1);
@@ -1523,10 +1530,10 @@ static void ced_draw_geotube(CED_GeoTube *c){
                         glPolygonOffset( 1.f, 1.f ); 
                         glEnable( GL_POLYGON_OFFSET_FILL );
                         glPolygonOffset( 2.f, 2.f );
-                        if(setting.trans_value < 1.0){
+                        if(trans_value < 1.0){
                             //std::cout << "call drawPartialCylinder outer:" << 1 << " inner" << 0 << std::endl;
                             if(k==0)
-                                drawPartialCylinder(z*2, d_o, d_i+(d_o-d_i)/5, c->edges_o, setting.cut_angle - c->rotate_o, c->rotate_o,1,0, c->rotate_i); //draw the outer cylinder
+                                drawPartialCylinder(z*2, d_o, d_i+(d_o-d_i)/5, c->edges_o, cut_angle - c->rotate_o, c->rotate_o,1,0, c->rotate_i); //draw the outer cylinder
                         }
     
     
@@ -1538,14 +1545,14 @@ static void ced_draw_geotube(CED_GeoTube *c){
     //                    glPolygonOffset( 1.f, 1.f ); 
     //                    glEnable( GL_POLYGON_OFFSET_FILL );
     //                    glPolygonOffset( 2.f, 2.f );
-    //                    if(setting.trans_value < 1.0){
-    //                        drawPartialCylinder(z*2, d_o-(d_o-d_i)/5, d_i, c->edges_i, setting.cut_angle - c->rotate_i- c->rotate_o, c->rotate_i + c->rotate_o,0,1); //draw the inner cylinder 
+    //                    if(trans_value < 1.0){
+    //                        drawPartialCylinder(z*2, d_o-(d_o-d_i)/5, d_i, c->edges_i, cut_angle - c->rotate_i- c->rotate_o, c->rotate_i + c->rotate_o,0,1); //draw the inner cylinder 
     //                    }
     //                    //draw the outer shape
     //                    glRotatef(-1*c->rotate_i, 0, 0, 1);
     //                    glPolygonOffset( 1.f, 1.f );
-    //                    if(setting.trans_value < 1.0){
-    //                        drawPartialCylinder(z*2, d_o, d_i+(d_o-d_i)/5, c->edges_o, setting.cut_angle - c->rotate_o, c->rotate_o,1,0); //draw the outer cylinder
+    //                    if(trans_value < 1.0){
+    //                        drawPartialCylinder(z*2, d_o, d_i+(d_o-d_i)/5, c->edges_o, cut_angle - c->rotate_o, c->rotate_o,1,0); //draw the outer cylinder
     //                    }
     //
     
@@ -1557,12 +1564,12 @@ static void ced_draw_geotube(CED_GeoTube *c){
                         glRotatef(c->rotate_i, 0, 0, 1);
                         //draw the inner cylinder 
                         if(k==1)
-                        drawPartialLineCylinder(z*2, d_o-(d_o-d_i)/5, d_i, c->edges_i, setting.cut_angle - c->rotate_i- c->rotate_o, c->rotate_i + c->rotate_o,0,1); 
+                        drawPartialLineCylinder(z*2, d_o-(d_o-d_i)/5, d_i, c->edges_i, cut_angle - c->rotate_i- c->rotate_o, c->rotate_i + c->rotate_o,0,1); 
                         glRotatef(-1*c->rotate_i, 0, 0, 1);
                         //draw the outer cylinder
 
                         if(k==1)
-                        drawPartialLineCylinder(z*2, d_o, d_i+(d_o-d_i)/5, c->edges_o, setting.cut_angle - c->rotate_o, c->rotate_o,1,0);
+                        drawPartialLineCylinder(z*2, d_o, d_i+(d_o-d_i)/5, c->edges_o, cut_angle - c->rotate_o, c->rotate_o,1,0);
                     }else{
     
                         //glColor4f(((c->color>>16)&0xff)*0.02,((c->color>>8)&0xff)*0.02,((c->color)&0xff)*0.02, 0.4);
@@ -1574,12 +1581,12 @@ static void ced_draw_geotube(CED_GeoTube *c){
     
                         glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
     
-                        if(setting.trans_value < 1.0){
+                        if(trans_value < 1.0){
     
                             //std::cout << "call drawPartialCylinder inner:" << 1 << " outer" << 1 << std::endl;
 
                             if(k==0)
-                                drawPartialCylinder(z*2, d_o, d_i, c->edges_o, setting.cut_angle - c->rotate_o, c->rotate_o);
+                                drawPartialCylinder(z*2, d_o, d_i, c->edges_o, cut_angle - c->rotate_o, c->rotate_o);
                         }
     
                         //glLineWidth(1);
@@ -1593,7 +1600,7 @@ static void ced_draw_geotube(CED_GeoTube *c){
     
 
                         if(k==1)
-                        drawPartialLineCylinder(z*2, d_o, d_i, c->edges_o, setting.cut_angle - c->rotate_o, c->rotate_o);
+                        drawPartialLineCylinder(z*2, d_o, d_i, c->edges_o, cut_angle - c->rotate_o, c->rotate_o);
                     }
                 }else{
                     if(c->edges_o != c->edges_i || c->rotate_i != 0){
@@ -1610,7 +1617,7 @@ static void ced_draw_geotube(CED_GeoTube *c){
                         glRotatef(c->rotate_i, 0, 0, 1);
      
                         glPolygonOffset( 1.f, 1.f );
-                        if(setting.trans_value < 1.0){
+                        if(trans_value < 1.0){
     
                             //std::cout << "call drawPartialCylinder inner:" << 1 << " outer" << 0 << std::endl;
 
@@ -1625,7 +1632,7 @@ static void ced_draw_geotube(CED_GeoTube *c){
                         glPolygonOffset( 1.f, 1.f ); 
                         glEnable( GL_POLYGON_OFFSET_FILL );
                         glPolygonOffset( 2.f, 2.f );
-                        if(setting.trans_value < 1.0){
+                        if(trans_value < 1.0){
     
                             //std::cout << "call drawPartialCylinder inner:" << 0 << " outer" << 1 << std::endl;
                             if(k==0)
@@ -1663,7 +1670,7 @@ static void ced_draw_geotube(CED_GeoTube *c){
     
                         glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
     
-                        if(setting.trans_value < 1.0){
+                        if(trans_value < 1.0){
     
                             //std::cout << "call drawPartialCylinder inner:" << 1 << " outer" << 1 << std::endl;
                             if(k==0)

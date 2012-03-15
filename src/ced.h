@@ -91,6 +91,8 @@ struct CEDsettings{
     bool persp;         //perspectivic view or flat projection 
     bool antia;         //anti aliasing
     bool light;         //light source 
+    double detector_trans[NUMBER_DETECTOR_LAYER];
+    double detector_cut_angle[NUMBER_DETECTOR_LAYER];
     double cut_angle;
     double trans_value;
     bool layer[CED_MAX_LAYER];

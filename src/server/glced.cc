@@ -89,15 +89,34 @@ using namespace std;
 #define CUT_ANGLE270            2105
 #define CUT_ANGLE360            2106
 
-#define TRANS0                  3000
-#define TRANS40                 3101
+#define LAYER_CUT_ANGLE0        2200
+#define LAYER_CUT_ANGLE30       2201
+#define LAYER_CUT_ANGLE90       2202
+#define LAYER_CUT_ANGLE135      2203
+#define LAYER_CUT_ANGLE180      2204
+#define LAYER_CUT_ANGLE270      2205
+#define LAYER_CUT_ANGLE360      2206
 
-#define TRANS60                 3001
-#define TRANS70                 3002
-#define TRANS80                 3003
-#define TRANS90                 3004
-#define TRANS95                 3005
-#define TRANS100                3006
+
+
+#define TRANS0                  3100
+#define TRANS40                 3101
+#define TRANS60                 3102
+#define TRANS70                 3103
+#define TRANS80                 3104
+#define TRANS90                 3105
+#define TRANS95                 3106
+#define TRANS100                3107
+
+#define LAYER_TRANS0            3200
+#define LAYER_TRANS40           3201
+#define LAYER_TRANS60           3202
+#define LAYER_TRANS70           3203
+#define LAYER_TRANS80           3204
+#define LAYER_TRANS90           3205
+#define LAYER_TRANS95           3206
+#define LAYER_TRANS100          3207
+
 
 #define FULLSCREEN              6001
 #define AXES                    6002
@@ -226,6 +245,7 @@ static int available_cutangles[]={0,30,90,135, 180, 270, 360};  //for new angles
 //#define PHI_PROJECTION_OFF 5001
 
 
+int last_selected_layer;
 extern CEDsettings setting;
 
 CEDsettings setting_old[5];
@@ -2196,6 +2216,12 @@ void loadSettings(int slot){
         defaultSettings();
     }
 
+   for(int i=0;i<NUMBER_DETECTOR_LAYER;i++){
+       setting.detector_cut_angle[i]=setting.cut_angle;
+       setting.detector_trans[i]=setting.trans_value;
+   }
+
+
     setting_old[0]=setting;
     setting_old[1]=setting;
     setting_old[2]=setting;
@@ -2539,15 +2565,14 @@ static void keypressed(unsigned char key,int x,int y){
           glutPostRedisplay();
 
     }else if(key == 'm'){
-          if(setting.cut_angle > 0){
-            setting.cut_angle-=0.5;
-            //std::cout << "decrease trans" << setting.trans_value <<endl;
+          if(
+            setting.detector_cut_angle[last_selected_layer - NUMBER_DATA_LAYER] > 0){
+            setting.detector_cut_angle[last_selected_layer - NUMBER_DATA_LAYER]-=0.5;
             glutPostRedisplay();
           }
     } else if(key == 'M'){
-          if(setting.cut_angle < 360){
-            setting.cut_angle+=0.5;
-            //std::cout << "decrease trans" << setting.trans_value <<endl;
+          if(setting.detector_cut_angle[last_selected_layer - NUMBER_DATA_LAYER] < 360){
+            setting.detector_cut_angle[last_selected_layer - NUMBER_DATA_LAYER]+=0.5;
             glutPostRedisplay();
           }
     }
@@ -2938,8 +2963,6 @@ void updateSaveLoadMenu(int id){ //id is save id, not menu id!
     glutSetMenu(subSave);
     glutChangeToMenuEntry(id,menuStr, SAVE1+id-1);                     
     
-
-
     glutSetMenu(subLoad);
     glutChangeToMenuEntry(id,menuStr, LOAD1+id-1);                     
 
@@ -3475,71 +3498,149 @@ void selectFromMenu(int id){ //hauke
             break;
 
         case CUT_ANGLE0:
-            setting.cut_angle=0; 
-            update_cut_angle_menu();
+            for(int i=0;i<NUMBER_DETECTOR_LAYER;i++)
+                setting.detector_cut_angle[i]=0;
+            //setting.cut_angle=0; 
+            //update_cut_angle_menu();
             break;
 
         case CUT_ANGLE30:
-            setting.cut_angle=30; 
-            update_cut_angle_menu();
+            for(int i=0;i<NUMBER_DETECTOR_LAYER;i++)
+                setting.detector_cut_angle[i]=30;
+            //setting.cut_angle=30; 
+            //update_cut_angle_menu();
             break;
 
         case CUT_ANGLE90:
-            setting.cut_angle=90;
-            update_cut_angle_menu();
+            for(int i=0;i<NUMBER_DETECTOR_LAYER;i++)
+                setting.detector_cut_angle[i]=90;
+            //setting.cut_angle=90;
+            //update_cut_angle_menu();
             break;
 
         case CUT_ANGLE135:
-            setting.cut_angle=135;
-            update_cut_angle_menu();
+            for(int i=0;i<NUMBER_DETECTOR_LAYER;i++)
+                setting.detector_cut_angle[i]=135;
+
+            //setting.cut_angle=135;
+            //update_cut_angle_menu();
             break;
 
         case CUT_ANGLE180:
-            setting.cut_angle=180;
-            update_cut_angle_menu();
+            for(int i=0;i<NUMBER_DETECTOR_LAYER;i++)
+                setting.detector_cut_angle[i]=180;
+
+            //setting.cut_angle=180;
+            //update_cut_angle_menu();
             break;
 
         case CUT_ANGLE270:
-            setting.cut_angle=270;
-            update_cut_angle_menu();
+            for(int i=0;i<NUMBER_DETECTOR_LAYER;i++)
+                setting.detector_cut_angle[i]=270;
+
+            //setting.cut_angle=270;
+            //update_cut_angle_menu();
             break;
 
         case CUT_ANGLE360:
-            setting.cut_angle=360;
-            update_cut_angle_menu();
+            for(int i=0;i<NUMBER_DETECTOR_LAYER;i++)
+                setting.detector_cut_angle[i]=360;
+
+            //setting.cut_angle=360;
+            //update_cut_angle_menu();
             break;
+
+
+
+        case LAYER_CUT_ANGLE0:
+            setting.detector_cut_angle[last_selected_layer- NUMBER_DATA_LAYER]=0;
+            break;
+        case LAYER_CUT_ANGLE30:
+            setting.detector_cut_angle[last_selected_layer- NUMBER_DATA_LAYER]=30;
+            break;
+        case LAYER_CUT_ANGLE90:
+            setting.detector_cut_angle[last_selected_layer- NUMBER_DATA_LAYER]=90;
+            break;
+        case LAYER_CUT_ANGLE135:
+            setting.detector_cut_angle[last_selected_layer- NUMBER_DATA_LAYER]=135;
+            break;
+        case LAYER_CUT_ANGLE180:
+            setting.detector_cut_angle[last_selected_layer- NUMBER_DATA_LAYER]=180;
+            break;
+        case LAYER_CUT_ANGLE270:
+            setting.detector_cut_angle[last_selected_layer- NUMBER_DATA_LAYER]=270;
+            break;
+        //case LAYER_CUT_ANGLE360:
+        //    setting.detector_cut_angle[last_selected_layer- NUMBER_DATA_LAYER]=360;
+        //    break;
+
 
         case TRANS0:
-            setting.trans_value=0;
+            for(int i=0;i<NUMBER_DETECTOR_LAYER;i++)
+                setting.detector_trans[i]=0;
+            //setting.trans_value=0;
             break;
-
         case TRANS40:
-            setting.trans_value=0.4;
+            for(int i=0;i<NUMBER_DETECTOR_LAYER;i++)
+                setting.detector_trans[i]=0.4;
+            //setting.trans_value=0.4;
             break;
-
         case TRANS60:
-            setting.trans_value=0.6;
+             for(int i=0;i<NUMBER_DETECTOR_LAYER;i++)
+                setting.detector_trans[i]=0.6;
+            //setting.trans_value=0.6;
             break;
-
         case TRANS70:
-            setting.trans_value=0.7;
+             for(int i=0;i<NUMBER_DETECTOR_LAYER;i++)
+                setting.detector_trans[i]=0.7;
+            //setting.trans_value=0.7;
             break;
-
         case TRANS80:
-            setting.trans_value=0.8;
+            for(int i=0;i<NUMBER_DETECTOR_LAYER;i++)
+                setting.detector_trans[i]=0.8;
+            //setting.trans_value=0.8;
             break;
-
         case TRANS90:
-            setting.trans_value=0.9;
+            for(int i=0;i<NUMBER_DETECTOR_LAYER;i++)
+                setting.detector_trans[i]=0.9;
+            //setting.trans_value=0.9;
             break;
-
         case TRANS95:
-            setting.trans_value=0.95;
+            for(int i=0;i<NUMBER_DETECTOR_LAYER;i++)
+                setting.detector_trans[i]=0.95;
+            //setting.trans_value=0.95;
+            break;
+        case TRANS100:
+            for(int i=0;i<NUMBER_DETECTOR_LAYER;i++)
+                setting.detector_trans[i]=1.0;
+            //setting.trans_value=1.0;
             break;
 
-        case TRANS100:
-            setting.trans_value=1.0;
+        case LAYER_TRANS0:
+            setting.detector_trans[last_selected_layer- NUMBER_DATA_LAYER]=0;
             break;
+        case LAYER_TRANS40:
+            setting.detector_trans[last_selected_layer- NUMBER_DATA_LAYER]=0.4;
+            break;
+        case LAYER_TRANS60:
+            setting.detector_trans[last_selected_layer- NUMBER_DATA_LAYER]=0.6;
+            break;
+        case LAYER_TRANS70:
+            setting.detector_trans[last_selected_layer- NUMBER_DATA_LAYER]=0.7;
+            break;
+        case LAYER_TRANS80:
+            setting.detector_trans[last_selected_layer- NUMBER_DATA_LAYER]=0.8;
+            break;
+        case LAYER_TRANS90:
+            setting.detector_trans[last_selected_layer- NUMBER_DATA_LAYER]=0.9;
+            break;
+        case LAYER_TRANS95:
+            setting.detector_trans[last_selected_layer- NUMBER_DATA_LAYER]=0.95;
+            break;
+        case LAYER_TRANS100:
+            setting.detector_trans[last_selected_layer- NUMBER_DATA_LAYER]=1.0;
+            break;
+
 //        case FULLSCREEN:
 //////            glutDestroyWindow(mainWindow);;
 //////            glutGameModeString("1280x1024:32@60");
@@ -3828,7 +3929,17 @@ void buildPopUpMenu(int x, int y){
         }else if(type == 1){
             //popupmenu=new CED_PopUpMenu("Select detector component");
 
-            popupmenu->addItem(new CED_SubSubMenu("Selected detector:",0));
+            last_selected_layer=layer;
+            sprintf(tmp, "Selected detector: %s (Layer: %i)", layerDescription[layer], layer);
+            popupmenu->addItem(new CED_SubSubMenu(tmp,0));
+
+            sprintf(tmp,"Hide layer %i",layer);
+            popupmenu->addItem(new CED_SubSubMenu(tmp, layer-NUMBER_DATA_LAYER+DETECTOR1));
+
+            //sprintf(tmp,"Cut detector at this layer",layer, layerDescription[layer]);
+            //popupmenu->addItem(new CED_SubSubMenu(tmp, layer-NUMBER_DATA_LAYER+DETECTOR1));
+ 
+
             sprintf(tmp,"Coordinates: (%.1f, %.1f, %1.f)",p_x,p_y,p_z);
             popupmenu->addItem(new CED_SubSubMenu(tmp,0));
             sprintf(tmp,"ID: %i",id);
@@ -3839,23 +3950,37 @@ void buildPopUpMenu(int x, int y){
             popupmenu->addItem(new CED_SubSubMenu(tmp,CENTER_HIT));
             sprintf(tmp,"Pick object");
             popupmenu->addItem(new CED_SubSubMenu(tmp,PICK_HIT));
-            sprintf(tmp,"Hide layer %i: %s",layer, layerDescription[layer]);
-            popupmenu->addItem(new CED_SubSubMenu(tmp, layer-NUMBER_DATA_LAYER+DETECTOR1));
+            //sprintf(tmp,"Hide layer %i: %s",layer, layerDescription[layer]);
+            //popupmenu->addItem(new CED_SubSubMenu(tmp, layer-NUMBER_DATA_LAYER+DETECTOR1));
 
             CED_SubSubMenu *phicuts=new CED_SubSubMenu("Cuts");
             unsigned i;
             char str[200];
             for(i=0; (unsigned)i < sizeof(available_cutangles)/sizeof(available_cutangles[0]); i++){
                     sprintf(str,"Cut of %i degree in phi", available_cutangles[i]);
-                    phicuts->addItem(new CED_SubSubMenu(str,  CUT_ANGLE0+i));
+                    phicuts->addItem(new CED_SubSubMenu(str,  LAYER_CUT_ANGLE0+i));
                     //glutChangeToMenuEntry(i+1, str,  CUT_ANGLE0+i);
             }
+
+            popupmenu->addItem(phicuts);
 
             //CED_SubMenu *phicuts=new CED_SubMenu("Cuts");
             //cuts->addItem(new CED_SubSubMenu("Cut at z=0",  0));
             //cuts->addItem(new CED_SubSubMenu("Cut at z=3000",  0));
             //cuts->addItem(new CED_SubSubMenu("Cut at z=5000",  0));
-            popupmenu->addItem(phicuts);
+
+            CED_SubSubMenu *trans=new CED_SubSubMenu("Transparency");
+            trans->addItem(new CED_SubSubMenu("    0%",LAYER_TRANS0));
+            trans->addItem(new CED_SubSubMenu("  40%", LAYER_TRANS40));
+            trans->addItem(new CED_SubSubMenu("  60%", LAYER_TRANS60));
+            trans->addItem(new CED_SubSubMenu("  70%", LAYER_TRANS70));
+            trans->addItem(new CED_SubSubMenu("  80%", LAYER_TRANS80));
+            trans->addItem(new CED_SubSubMenu("  90%", LAYER_TRANS90));
+            trans->addItem(new CED_SubSubMenu("  95%", LAYER_TRANS95));
+            trans->addItem(new CED_SubSubMenu("100%",  LAYER_TRANS100));
+            popupmenu->addItem(trans);
+
+
 
             p_pre_x=p_x; 
             p_pre_y=p_y; 
@@ -3956,7 +4081,8 @@ void buildLayerMenus(void){
         }else{
             sprintf(tmp,"%s",layerDescription[i]);
         }
-        sprintf(str,"Data Layer %s%i [%c]: %s", (i < 10)?"  ":"" ,i, layer_keys[i], tmp);
+
+        sprintf(str,"%s %s%i [%c]: %s", isLayerVisible(i)?"[X]":"[ ]", (i < 10)?"  ":"" ,i, layer_keys[i], tmp);
         datalayermenu->addItem(new CED_SubSubMenu(str,LAYER_0+i));
     }
     for(i=NUMBER_DATA_LAYER;i<NUMBER_DETECTOR_LAYER+NUMBER_DATA_LAYER;i++){
@@ -3968,7 +4094,7 @@ void buildLayerMenus(void){
             sprintf(tmp,"%s",layerDescription[i]);
         }
 
-        sprintf(str,"Detector Layer %s%i: %s", (i < 10)?"  ":"" ,i, layerDescription[i]);
+        sprintf(str,"%s %s%i: %s", isLayerVisible(i)?"[X]":"[ ]",(i < 10)?"  ":"" ,i, layerDescription[i]);
         detectorlayermenu->addItem(new CED_SubSubMenu(str,DETECTOR1+i-NUMBER_DATA_LAYER));
     }
 
@@ -4031,7 +4157,7 @@ void buildMainMenu(void){
     trans->addItem(new CED_SubSubMenu("  80%",TRANS80));
     trans->addItem(new CED_SubSubMenu("  90%",TRANS90));
     trans->addItem(new CED_SubSubMenu("  95%",TRANS95));
-    trans->addItem(new CED_SubSubMenu("100%",TRANS95));
+    trans->addItem(new CED_SubSubMenu("100%",TRANS100));
     ced_menu->addSubMenu(trans);
 
     CED_SubMenu *camera=new CED_SubMenu("Camera");
