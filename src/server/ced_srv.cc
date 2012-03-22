@@ -482,6 +482,27 @@ typedef struct my_point {
 
 typedef struct T {double a; int b;};
 
+struct point3d{
+    double x;
+    double y;
+    double z;
+};
+
+void calNormals(point3d &n, point3d p1_, point3d p2_, point3d p3_){
+    point3d p2={p2_.x-p1_.x, p2_.y-p1_.y, p2_.z-p1_.z};
+    point3d p3={p3_.x-p1_.x, p3_.y-p1_.y, p3_.z-p1_.z};
+
+    //calulate crossproduct
+    n.x=(p2.y*p3.z - p3.y*p2.z);
+    n.y=(p2.z*p3.x - p3.z*p2.x);
+    n.z=(p2.x*p3.y - p3.x*p2.y);
+    
+    double factor=1.0/pow(pow(n.x,2)+pow(n.y,2)+pow(n.z,2),0.5);
+    n.x=factor*n.x;
+    n.y=factor*n.y;
+    n.z=factor*n.z;
+}
+
 void drawPartialCylinder(double length, double R /*radius*/, double iR /*inner radius*/, int edges, double angle_cut_off, double angle_cut_off_left, bool outer_face=1, bool inner_face=1, double irotate=0){
     //glDisable(GL_BLEND);
     //return;
@@ -511,11 +532,28 @@ void drawPartialCylinder(double length, double R /*radius*/, double iR /*inner r
 
     if(inner_face == true){
         //inner
+        //struct point3d p1={1,2,3};
+
+        struct point3d p1 = {iR*sin(360.0/edges*(i)*2*PI/360.0),iR*cos(360.0/edges*(i)*2*PI/360.0), -length/2};
+        struct point3d p2 = {iR*sin(360.0/edges*(i)*2*PI/360.0),iR*cos(360.0/edges*(i)*2*PI/360.0), length/2};
+        struct point3d p3 = {iR*xl*sin((angle_cut_off_left)*2*PI/360.0),iR*xl*cos((angle_cut_off_left)*2*PI/360.0), length/2};
+        struct point3d p4 = {iR*xl*sin((angle_cut_off_left)*2*PI/360.0),iR*xl*cos((angle_cut_off_left)*2*PI/360.0), -length/2};
+        struct point3d n;
+        calNormals(n,p1,p2,p3);
+
         glBegin(GL_QUADS);
-        glVertex3d(iR*sin(360.0/edges*(i)*2*PI/360.0),iR*cos(360.0/edges*(i)*2*PI/360.0), -length/2);
-        glVertex3d(iR*sin(360.0/edges*(i)*2*PI/360.0),iR*cos(360.0/edges*(i)*2*PI/360.0), length/2);
-        glVertex3d(iR*xl*sin((angle_cut_off_left)*2*PI/360.0),iR*xl*cos((angle_cut_off_left)*2*PI/360.0), length/2);
-        glVertex3d(iR*xl*sin((angle_cut_off_left)*2*PI/360.0),iR*xl*cos((angle_cut_off_left)*2*PI/360.0), -length/2);
+
+        glVertex3d(p1.x,p1.y,p1.z);
+        glNormal3f(n.x,n.y,n.z);
+        glVertex3d(p2.x,p2.y,p2.z);
+        glVertex3d(p3.x,p3.y,p3.z);
+        glVertex3d(p4.x,p4.y,p4.z);
+
+        //glVertex3d(iR*sin(360.0/edges*(i)*2*PI/360.0),iR*cos(360.0/edges*(i)*2*PI/360.0), -length/2);
+        //glVertex3d(iR*sin(360.0/edges*(i)*2*PI/360.0),iR*cos(360.0/edges*(i)*2*PI/360.0), length/2);
+        //glVertex3d(iR*xl*sin((angle_cut_off_left)*2*PI/360.0),iR*xl*cos((angle_cut_off_left)*2*PI/360.0), length/2);
+        //glVertex3d(iR*xl*sin((angle_cut_off_left)*2*PI/360.0),iR*xl*cos((angle_cut_off_left)*2*PI/360.0), -length/2);
+
         glEnd();
     }
 
@@ -591,13 +629,26 @@ void drawPartialCylinder(double length, double R /*radius*/, double iR /*inner r
                 break;
         }else{
             if(outer_face == true){
+
                 //outer
+                struct point3d p1 = {R*sin(phi2*2*PI/360.0), R*cos(phi2*2*PI/360.0),-length/2};
+                struct point3d p2 = {R*sin(phi2*2*PI/360.0), R*cos(phi2*2*PI/360.0),length/2};
+                struct point3d p3 = {R*sin(phi*2*PI/360.0), R*cos(phi*2*PI/360.0), length/2};
+                struct point3d p4 = {R*sin(phi*2*PI/360.0), R*cos(phi*2*PI/360.0), -length/2};
+
+                struct point3d n;
+                calNormals(n,p1,p2,p3);
+
                 glBegin(GL_QUADS);
-                glVertex3d(R*sin(phi2*2*PI/360.0), R*cos(phi2*2*PI/360.0),-length/2);
-                glVertex3d(R*sin(phi2*2*PI/360.0), R*cos(phi2*2*PI/360.0),length/2);
-                glVertex3d(R*sin(phi*2*PI/360.0), R*cos(phi*2*PI/360.0), length/2);
-                glVertex3d(R*sin(phi*2*PI/360.0), R*cos(phi*2*PI/360.0), -length/2);
+
+                glVertex3d(p1.x,p1.y,p1.z);
+                glNormal3f(n.x,n.y,n.z);
+                glVertex3d(p2.x,p2.y,p2.z);
+                glVertex3d(p3.x,p3.y,p3.z);
+                glVertex3d(p4.x,p4.y,p4.z);
+
                 glEnd();
+
             }
 
         }

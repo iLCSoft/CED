@@ -1572,6 +1572,7 @@ static void write_world_into_front_buffer(void){
   
   
   
+
     glRotatef(mm.va,1.,0.,0.);
     glRotatef(mm.ha,0.,1.0,0.);
     glScalef(mm.sf,mm.sf,mm.sf); //streech the world
@@ -1590,7 +1591,9 @@ static void write_world_into_front_buffer(void){
 
 
     //glTranslatef(-mm.mv.x,-mm.mv.y,-mm.mv.z);
+
     display_world(); 
+
 
     glTranslatef(-mm.mv.x,-mm.mv.y,-mm.mv.z);
 
@@ -1610,7 +1613,9 @@ static void write_world_into_front_buffer(void){
   
     // draw elements (hits + detector)
     ced_prepare_objmap();
+
     ced_do_draw_event();
+
   
     //cout << "mm.sf: " << mm.sf << "hinterer clipping plane: " << 5000*2.0*mm.sf << std::endl;
     //gluPerspective(60,window_width/window_height,100*2.0*mm.sf,5000*2.0*mm.sf);
@@ -1948,12 +1953,14 @@ static void display(void){
 
 
 
+    glDisable(GL_LIGHTING);
     ced_menu->draw();
-
     popupmenu->draw();
-    
-
     printFPS();
+
+    if(setting.light==true){
+        glEnable(GL_LIGHTING);
+    }
 
   
     glutSwapBuffers();
@@ -4020,8 +4027,8 @@ void selectFromMenu(int id){ //hauke
 //      mm.ha=mm.ha_start+(x-mouse_x)*180./window_width;
 //      mm.va=mm.va_start+(y-mouse_y)*180./window_height;
  
-                 GLfloat light0_pos[] = {200, 0, 0};
-                 GLfloat light0_dir[] = {0, -1, 0};
+                 GLfloat light0_pos[] = {2000, 2000, 2000};
+                 //GLfloat light0_dir[] = {-1, -1, 0};
 
                  GLfloat angle[] = {30};
                  //GLfloat light0_ambi[]= {0.5, 0.5, 0.5, 0.5};     
@@ -4037,9 +4044,9 @@ void selectFromMenu(int id){ //hauke
                  glLightfv(GL_LIGHT1, GL_DIFFUSE, light0_ambi);
                  glLightfv(GL_LIGHT2, GL_AMBIENT, light0_diff);
 
-                 glLightfv(GL_LIGHT0, GL_SPOT_CUTOFF, angle);
-                 glLightfv(GL_LIGHT1, GL_SPOT_CUTOFF, angle);
-                 glLightfv(GL_LIGHT2, GL_SPOT_CUTOFF, angle);
+                 //glLightfv(GL_LIGHT0, GL_SPOT_CUTOFF, angle);
+                 //glLightfv(GL_LIGHT1, GL_SPOT_CUTOFF, angle);
+                 //glLightfv(GL_LIGHT2, GL_SPOT_CUTOFF, angle);
 
 
 
@@ -4047,9 +4054,9 @@ void selectFromMenu(int id){ //hauke
                  glLightfv(GL_LIGHT1, GL_POSITION, light0_pos);
                  glLightfv(GL_LIGHT2, GL_POSITION, light0_pos);
 
-                 glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, light0_dir);
-                 glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, light0_dir);
-                 glLightfv(GL_LIGHT2, GL_SPOT_DIRECTION, light0_dir);
+                 //glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, light0_dir);
+                 //glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, light0_dir);
+                 //glLightfv(GL_LIGHT2, GL_SPOT_DIRECTION, light0_dir);
  
                  
                  ////glClearColor (0.0, 0.0, 0.0, 0.0);
@@ -4068,7 +4075,8 @@ void selectFromMenu(int id){ //hauke
                  glEnable(GL_NORMALIZE);
 
                  glEnable(GL_LIGHTING); 
-                 glEnable(GL_LIGHT0);
+                 //glEnable(GL_LIGHT0);
+                 glEnable(GL_LIGHT1);
 
                  glEnable(GL_DEPTH_TEST);
 
@@ -4613,9 +4621,6 @@ void buildMainMenu(void){
     help->addItem(new CED_SubSubMenu("---",0));
     help->addItem(new CED_SubSubMenu("Contact CED team (hauke.hoelbe@desy.de)",0));
     ced_menu->addSubMenu(help);
-
-
-
 }
 
 
