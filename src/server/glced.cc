@@ -81,21 +81,101 @@ using namespace std;
 #define GRAFIC_FOG              2007
 
 
-#define CUT_ANGLE0              2100
-#define CUT_ANGLE30             2101
-#define CUT_ANGLE90             2102
-#define CUT_ANGLE135            2103
-#define CUT_ANGLE180            2104
-#define CUT_ANGLE270            2105
-#define CUT_ANGLE360            2106
 
-#define LAYER_CUT_ANGLE0        2200
-#define LAYER_CUT_ANGLE30       2201
-#define LAYER_CUT_ANGLE90       2202
-#define LAYER_CUT_ANGLE135      2203
-#define LAYER_CUT_ANGLE180      2204
-#define LAYER_CUT_ANGLE270      2205
-#define LAYER_CUT_ANGLE360      2206
+#define CUT_Z_M6000             140001          
+#define CUT_Z_M4000             140002          
+#define CUT_Z_M2000             140003          
+#define CUT_Z_0000              140004          
+#define CUT_Z_2000              140005          
+#define CUT_Z_4000              140006          
+#define CUT_Z_6000              140007          
+#define CUT_Z_7000             140000          
+
+
+#define LAYER_CUT_Z_M6000             150001          
+#define LAYER_CUT_Z_M4000             150002          
+#define LAYER_CUT_Z_M2000             150003          
+#define LAYER_CUT_Z_0000              150004          
+#define LAYER_CUT_Z_2000              150005          
+#define LAYER_CUT_Z_4000              150006          
+#define LAYER_CUT_Z_6000              150007          
+#define LAYER_CUT_Z_7000             150000          
+
+
+#define CUT_ANGLE0              12000
+#define CUT_ANGLE30             12030
+#define CUT_ANGLE90             12090
+#define CUT_ANGLE135            12135
+#define CUT_ANGLE180            12180
+#define CUT_ANGLE200            12200
+#define CUT_ANGLE220            12220
+#define CUT_ANGLE240            12240
+#define CUT_ANGLE260            12260
+#define CUT_ANGLE270            12270
+#define CUT_ANGLE280            12280
+#define CUT_ANGLE290            12290
+#define CUT_ANGLE310            12310
+#define CUT_ANGLE330            12330
+#define CUT_ANGLE340            12340
+#define CUT_ANGLE350            12350
+#define CUT_ANGLE45             12045 
+#define CUT_ANGLE100            12100 
+#define CUT_ANGLE120            12120 
+#define CUT_ANGLE150            12150 
+#define CUT_ANGLE170            12170 
+#define CUT_ANGLE190            12190 
+
+//#define CUT_ANGLE360            2106
+
+//#define LAYER_CUT_ANGLE0        2200
+//#define LAYER_CUT_ANGLE30       2201
+//#define LAYER_CUT_ANGLE90       2202
+//#define LAYER_CUT_ANGLE135      2203
+//#define LAYER_CUT_ANGLE180      2204
+//#define LAYER_CUT_ANGLE270      2205
+//#define LAYER_CUT_ANGLE360      2206
+
+//#define LAYER_CUT_ANGLE0       2200
+//#define LAYER_CUT_ANGLE30      2201
+//#define LAYER_CUT_ANGLE90      2202
+//#define LAYER_CUT_ANGLE135     2203
+//#define LAYER_CUT_ANGLE180     2204
+//#define LAYER_CUT_ANGLE200     2205
+//#define LAYER_CUT_ANGLE220     2206
+//#define LAYER_CUT_ANGLE240     2207
+//#define LAYER_CUT_ANGLE260     2208
+//#define LAYER_CUT_ANGLE270     2209
+//#define LAYER_CUT_ANGLE280     2215
+//#define LAYER_CUT_ANGLE290     2210
+//#define LAYER_CUT_ANGLE310     2211
+//#define LAYER_CUT_ANGLE330     2212
+//#define LAYER_CUT_ANGLE340     2213
+//#define LAYER_CUT_ANGLE350     2214
+
+
+#define LAYER_CUT_ANGLE0              13000
+#define LAYER_CUT_ANGLE30             13030
+#define LAYER_CUT_ANGLE90             13090
+#define LAYER_CUT_ANGLE135            13135
+#define LAYER_CUT_ANGLE180            13180
+#define LAYER_CUT_ANGLE200            13200
+#define LAYER_CUT_ANGLE220            13220
+#define LAYER_CUT_ANGLE240            13240
+#define LAYER_CUT_ANGLE260            13260
+#define LAYER_CUT_ANGLE270            13270
+#define LAYER_CUT_ANGLE280            13280
+#define LAYER_CUT_ANGLE290            13290
+#define LAYER_CUT_ANGLE310            13310
+#define LAYER_CUT_ANGLE330            13330
+#define LAYER_CUT_ANGLE340            13340
+#define LAYER_CUT_ANGLE350            13350
+#define LAYER_CUT_ANGLE45             13045 
+#define LAYER_CUT_ANGLE100            13100 
+#define LAYER_CUT_ANGLE120            13120 
+#define LAYER_CUT_ANGLE150            13150 
+#define LAYER_CUT_ANGLE170            13170 
+#define LAYER_CUT_ANGLE190            13190 
+
 
 
 
@@ -125,7 +205,10 @@ using namespace std;
 
 
 
-static int available_cutangles[]={0,30,90,135, 180, 270, 360};  //for new angles add the new angle to this list and to define in top of this
+static int available_cutangles[]={0,30,45,90,100,135,120,150,170,180,190,200,220,240,260,270,280,290,310,330,340};
+
+//static int available_cutangles[]={0,30,90,135, 180, 270, 360};  //for new angles add the new angle to this list and to define in top of this
+
 
 
 #define BGCOLOR_WHITE           1000
@@ -1647,10 +1730,10 @@ void printShortcuts(void){
     shortcuts.push_back( "[z] Cut in -z-axe direction" );
     shortcuts.push_back( "[>] Increase transparency" );
     shortcuts.push_back( "[<] Decrease transparency" );
-    shortcuts.push_back( "[->] Move in z-direction" );
-    shortcuts.push_back( "[<-] Move in -z-direction" );
     shortcuts.push_back( "[m] Increase detector cut angle" );
     shortcuts.push_back( "[m] Decrease detector cut angle" );
+    shortcuts.push_back( "[->] Move in z-direction" );
+    shortcuts.push_back( "[<-] Move in -z-direction" );
     shortcuts.push_back( "[`] Toggle all data layers" );
     shortcuts.push_back( "[~] Toggle all detector layers" );
 
@@ -2020,11 +2103,11 @@ void saveSettings(int slot){
         file<<"#Persp:"<<std::endl<<setting.persp  << std::endl;
         file<<"#Anti A:"<<std::endl<<setting.antia<< std::endl;
         file<<"#Light:"<<std::endl<<setting.light<< std::endl;
-        file<<"#Cut angle:"<<std::endl<<setting.cut_angle<< std::endl;
-        file<<"#Trans value:"<<std::endl<<setting.trans_value<< std::endl;
-        for(int i=0;i<CED_MAX_LAYER;i++){
-            file<<"#Visibility Layer " << i << ":" <<std::endl<<setting.layer[i]<< std::endl;
-        }
+        //file<<"#Cut angle:"<<std::endl<<setting.cut_angle<< std::endl;
+        //file<<"#Trans value:"<<std::endl<<setting.trans_value<< std::endl;
+        //for(int i=0;i<CED_MAX_LAYER;i++){
+        //    file<<"#Visibility Layer " << i << ":" <<std::endl<<setting.layer[i]<< std::endl;
+        //}
         file<<"#Phi projection:"<<std::endl<<setting.phi_projection<< std::endl;
         file<<"#Z projection:"<<std::endl<<setting.z_projection<< std::endl;
         for(int i=0;i<3;i++){
@@ -2033,7 +2116,7 @@ void saveSettings(int slot){
         file<<"#Vertical angle:"<<std::endl<<setting.va<< std::endl;
         file<<"#Horiz angle:"<<std::endl<<setting.ha<< std::endl;
         file<<"#Fixed view:"<<std::endl<<setting.fixed_view<< std::endl;
-        file<<"#Z cutting:"<<std::endl<<setting.z_cutting<< std::endl;
+        //file<<"#Z cutting:"<<std::endl<<setting.z_cutting<< std::endl;
         file<<"#Window height:"<<std::endl<<setting.win_h<< std::endl;
         file<<"#Window width:"<<std::endl<<setting.win_w<< std::endl;
         file<<"#Zoom:"<<std::endl<<setting.zoom<< std::endl;
@@ -2046,6 +2129,26 @@ void saveSettings(int slot){
 
         file<<"#Show axes:"<<std::endl<<setting.show_axes<< std::endl;
         file<<"#Show fps:"<<std::endl<<setting.fps<< std::endl;
+
+        file<<"#User interface font size"<<std::endl<<setting.font << std::endl;
+
+
+        for(int i=0;i<CED_MAX_LAYER;i++){
+            file<<"#Visibility of data layer " << i << std::endl;
+            file<< setting.layer[i] << std::endl;
+        }
+
+        for(int i=0;i<NUMBER_DETECTOR_LAYER;i++){
+            file<<"#Transparency value of detector layer: " << i << std::endl;
+            file << setting.detector_trans[i] << std::endl;
+
+            file<<"#Cut angle of detector layer: " << i << std::endl;
+            file << setting.detector_cut_angle[i] << std::endl;
+
+            file<<"#Cut z-value of detector layer: " << i << std::endl;
+            file << setting.detector_cut_z[i] << std::endl;
+        }
+
 
 
         std::cout << "Save settings to: " << filename << std::endl;
@@ -2060,9 +2163,9 @@ void defaultSettings(void){
         setting.persp=true;
         setting.light=false;
         setting.antia=false;
-        setting.cut_angle=180;
-        setting.trans_value=0.8;
-        setting.z_cutting=7000;
+        //setting.cut_angle=180;
+        //setting.trans_value=0.8;
+        //setting.z_cutting=7000;
 
 
         setting.win_w=500;
@@ -2075,9 +2178,7 @@ void defaultSettings(void){
         setting.ha=mm.ha;
     
         
-        for(int i=0; i < CED_MAX_LAYER; i++){
-            setting.layer[i]=true; // turn all layers on
-        }
+
         for(int i=0;i < 4; i++){
             setting.bgcolor[i]=0; //black
         }
@@ -2085,7 +2186,17 @@ void defaultSettings(void){
 
         setting.font=0;
 
-        std::cout << "Set to default settings" << std::endl;
+        for(int i=0; i < CED_MAX_LAYER; i++){
+            setting.layer[i]=true; // turn all layers on
+        }
+
+        for(int i=0;i<NUMBER_DETECTOR_LAYER;i++){
+            setting.detector_trans[i] =0.8;
+            setting.detector_cut_angle[i] = 0;//180;
+            setting.detector_cut_z[i] = 7000;
+        }
+
+        std::cout << "Set options to default settings" << std::endl;
 }
 
 void idle(void){
@@ -2107,119 +2218,118 @@ void loadSettings(int slot){
 //        file.read((char*)&setting, sizeof(setting));
             getline(file,line);getline(file,line);
             if(VERSION_CONFIG != atoi(line.c_str())){
-                std::cout << "WARNING: Cant read configfile (" << filename << ") please delete or rename it" << std::endl; 
+                //std::cout << "WARNING: Cant read configfile (" << filename << ") please delete or rename it" << std::endl; 
+                std::cout << "WARNING: Cant read configfile (" << filename << ") version does not match! Please delete or rename the file" << std::endl; 
                 defaultSettings();
-            }
-
-            getline(file,line);getline(file,line);
-            setting.trans=atoi(line.c_str());
-
-            getline(file,line);getline(file,line);
-            setting.persp=atoi(line.c_str());
-
-            getline(file,line);getline(file,line);
-            setting.antia=atoi(line.c_str());
-
-            getline(file,line);getline(file,line);
-            setting.light=atoi(line.c_str());
-
-            getline(file,line);getline(file,line);
-            setting.cut_angle=atof(line.c_str());
-
-            getline(file,line);getline(file,line);
-            setting.trans_value=atof(line.c_str());
-
-            for(int i=0;i<CED_MAX_LAYER;i++){
+                return;
+            } else{ 
                 getline(file,line);getline(file,line);
-                setting.layer[i]=atoi(line.c_str());
-            }
+                setting.trans=atoi(line.c_str());
 
-            getline(file,line);getline(file,line);
-            setting.phi_projection=atoi(line.c_str());
-
-            getline(file,line);getline(file,line);
-            setting.z_projection=atoi(line.c_str());
-
-            for(int i=0;i<3;i++){
                 getline(file,line);getline(file,line);
-                setting.view[i]=atof(line.c_str());
-            }
+                setting.persp=atoi(line.c_str());
 
-            getline(file,line);getline(file,line);
-            setting.va=atof(line.c_str());
-            getline(file,line);getline(file,line);
-            setting.ha=atof(line.c_str());
-
-            getline(file,line);getline(file,line);
-            setting.fixed_view=atoi(line.c_str());
-            
-            getline(file,line);getline(file,line);
-            setting.z_cutting=atof(line.c_str());
-
-            getline(file,line);getline(file,line);
-            setting.win_h=atoi(line.c_str());
-
-            getline(file,line);getline(file,line);
-            setting.win_w=atoi(line.c_str());
-            if(setting.win_w == 0 || setting.win_h == 0){
-                setting.win_w = setting.win_h = 500;
-            }
-
-            getline(file,line);getline(file,line);
-            setting.zoom=atof(line.c_str());
-
-            getline(file,line);getline(file,line);
-            setting.fisheye_alpha=atof(line.c_str());
-
-            getline(file,line);getline(file,line);
-            setting.world_size=atof(line.c_str());
-
-            getline(file,line);getline(file,line);
-            setting.fisheye_world_size=atof(line.c_str());
-
-            for(int i=0;i<4;i++){
                 getline(file,line);getline(file,line);
-                setting.bgcolor[i] = atof(line.c_str());
-            }
+                setting.antia=atoi(line.c_str());
 
-            getline(file,line);getline(file,line);
-            setting.show_axes=atoi(line.c_str());
-
-            getline(file,line);getline(file,line);
-            setting.fps=atoi(line.c_str());
+                getline(file,line);getline(file,line);
+                setting.light=atoi(line.c_str());
 
 
 
-        mm.va=setting.va;
-        mm.ha=setting.ha;
-        mm.sf = setting.zoom; 
-        fisheye_alpha=setting.fisheye_alpha;
+                getline(file,line);getline(file,line);
+                setting.phi_projection=atoi(line.c_str());
+
+                getline(file,line);getline(file,line);
+                setting.z_projection=atoi(line.c_str());
+
+                for(int i=0;i<3;i++){
+                    getline(file,line);getline(file,line);
+                    setting.view[i]=atof(line.c_str());
+                }
+
+                getline(file,line);getline(file,line);
+                setting.va=atof(line.c_str());
+                getline(file,line);getline(file,line);
+                setting.ha=atof(line.c_str());
+
+                getline(file,line);getline(file,line);
+                setting.fixed_view=atoi(line.c_str());
+                
+                getline(file,line);getline(file,line);
+                setting.win_h=atoi(line.c_str());
+
+                getline(file,line);getline(file,line);
+                setting.win_w=atoi(line.c_str());
+                if(setting.win_w == 0 || setting.win_h == 0){
+                    setting.win_w = setting.win_h = 500;
+                }
+
+                getline(file,line);getline(file,line);
+                setting.zoom=atof(line.c_str());
+
+                getline(file,line);getline(file,line);
+                setting.fisheye_alpha=atof(line.c_str());
+
+                getline(file,line);getline(file,line);
+                setting.world_size=atof(line.c_str());
+
+                getline(file,line);getline(file,line);
+                setting.fisheye_world_size=atof(line.c_str());
+
+                for(int i=0;i<4;i++){
+                    getline(file,line);getline(file,line);
+                    setting.bgcolor[i] = atof(line.c_str());
+                }
+
+                getline(file,line);getline(file,line);
+                setting.show_axes=atoi(line.c_str());
+
+                getline(file,line);getline(file,line);
+                setting.fps=atoi(line.c_str());
 
 
-        FISHEYE_WORLD_SIZE = setting.fisheye_world_size; 
-        WORLD_SIZE=setting.world_size;
+                getline(file,line);getline(file,line);
+                setting.font = atoi(line.c_str());
 
+                for(int i=0;i<CED_MAX_LAYER;i++){
+                    getline(file,line);getline(file,line);
+                    setting.layer[i]=atoi(line.c_str());
+                }
 
+                for(int i=0;i<NUMBER_DETECTOR_LAYER;i++){
+                    getline(file,line);getline(file,line);
+                    setting.detector_trans[i]=atof(line.c_str());
 
+                    getline(file,line);getline(file,line);
+                    setting.detector_cut_angle[i]=atof(line.c_str());
 
-        //set_bg_color(setting.bgcolor[0],setting.bgcolor[1],setting.bgcolor[2],setting.bgcolor[3]); 
+                    getline(file,line);getline(file,line);
+                    setting.detector_cut_z[i]=atof(line.c_str());
+                }
 
-
-
-        //reshape(setting.win_w, setting.win_h);
-
-
-        std::cout << "Read settings from: " << filename << std::endl;
+            //set_bg_color(setting.bgcolor[0],setting.bgcolor[1],setting.bgcolor[2],setting.bgcolor[3]); 
+            std::cout << "Read settings from: " << filename << std::endl;
+        }
 
     }else{ //set to default
         std::cout << "WARNING: Failed to read settings from: " << filename << std::endl;
         defaultSettings();
     }
 
-   for(int i=0;i<NUMBER_DETECTOR_LAYER;i++){
-       setting.detector_cut_angle[i]=setting.cut_angle;
-       setting.detector_trans[i]=setting.trans_value;
-   }
+    mm.va=setting.va;
+    mm.ha=setting.ha;
+    mm.sf = setting.zoom; 
+    fisheye_alpha=setting.fisheye_alpha;
+
+
+    FISHEYE_WORLD_SIZE = setting.fisheye_world_size; 
+    WORLD_SIZE=setting.world_size;
+
+
+
+
+    //reshape(setting.win_w, setting.win_h);
 
 
     setting_old[0]=setting;
@@ -2282,6 +2392,8 @@ static void mouse(int btn,int state,int x,int y){
     mm.va_start=mm.va;
     mm.sf_start=mm.sf;
     mm.mv_start=mm.mv;
+
+    double angle;
     switch(btn){
     case GLUT_LEFT_BUTTON:
         ced_menu->clickAt((int)mouse_x,(int)mouse_y);
@@ -2512,11 +2624,99 @@ static void keypressed(unsigned char key,int x,int y){
     } else if(key == '-'|| key == '_'){
           selectFromMenu(VIEW_ZOOM_OUT);
     } else if(key == 'z'){
-          if(setting.z_cutting < 7000){ setting.z_cutting+=100; };
+          if(last_selected_layer > 0){
+            if(setting.detector_cut_z[last_selected_layer - NUMBER_DATA_LAYER] < 7000){ 
+                      setting.detector_cut_z[last_selected_layer - NUMBER_DATA_LAYER]+=100; 
+            }
+          }else{
+               for(int i = 0; i<NUMBER_DETECTOR_LAYER;i++){
+                    if(setting.detector_cut_z[0] < 7000){
+                        setting.detector_cut_z[i]+=100; 
+                    }
+                }         
+          }
+
           glutPostRedisplay();
     } else if(key == 'Z'){
-          if(setting.z_cutting > -7000){ setting.z_cutting-=100; };
+
+          if(last_selected_layer > 0){
+            if(setting.detector_cut_z[last_selected_layer - NUMBER_DATA_LAYER] > -7000){ 
+                  setting.detector_cut_z[last_selected_layer - NUMBER_DATA_LAYER]-=100; 
+            }
+          }else{
+               for(int i = 0; i<NUMBER_DETECTOR_LAYER;i++){
+                    if(setting.detector_cut_z[i] > -7000){
+                        setting.detector_cut_z[i]-=100; 
+                    }
+                }
+          }         
           glutPostRedisplay();
+    } else if(key == '<'){
+         if(last_selected_layer > 0){
+            if(setting.detector_trans[last_selected_layer - NUMBER_DATA_LAYER] > 0.005){
+              setting.detector_trans[last_selected_layer - NUMBER_DATA_LAYER]-=0.005;
+            }else{
+              setting.detector_trans[last_selected_layer - NUMBER_DATA_LAYER]=0;
+            }
+        }else{
+            for(int i = 0; i<NUMBER_DETECTOR_LAYER;i++){
+                if(setting.detector_trans[i] > 0.005){
+                    setting.detector_trans[i]-=0.005;
+                }else{
+                    setting.detector_trans[i]=0;
+                }
+            }
+
+        }
+         glutPostRedisplay();
+    }else if(key == '>'){
+          if(last_selected_layer > 0){
+                if(setting.detector_trans[last_selected_layer - NUMBER_DATA_LAYER] < 1-0.005){
+                  setting.detector_trans[last_selected_layer - NUMBER_DATA_LAYER]+=0.005;
+                }else{
+                  setting.detector_trans[last_selected_layer - NUMBER_DATA_LAYER]=1.;
+                }
+            }else{
+               for(int i = 0; i<NUMBER_DETECTOR_LAYER;i++){
+                    if(setting.detector_trans[i] < 1-0.005){
+                        setting.detector_trans[i]+=0.005;
+                    }else{
+                      setting.detector_trans[i]=1.;
+                    }
+                }
+            }
+
+          glutPostRedisplay();
+
+    }else if(key == 'm'){
+         if(last_selected_layer > 0){
+            if( setting.detector_cut_angle[last_selected_layer - NUMBER_DATA_LAYER] > 0){
+              setting.detector_cut_angle[last_selected_layer - NUMBER_DATA_LAYER]-=0.5;
+            }
+          }else{
+               for(int i = 0; i<NUMBER_DETECTOR_LAYER;i++){
+                   if( setting.detector_cut_angle[i] > 0){
+                        setting.detector_cut_angle[i]-=0.5;
+                    }
+            }
+        }
+        glutPostRedisplay();
+    } else if(key == 'M'){
+         if(last_selected_layer > 0){
+          if(setting.detector_cut_angle[last_selected_layer - NUMBER_DATA_LAYER] < 360){
+            setting.detector_cut_angle[last_selected_layer - NUMBER_DATA_LAYER]+=0.5;
+            }
+          }
+         else{
+          for(int i = 0; i<NUMBER_DETECTOR_LAYER;i++){
+                if(setting.detector_cut_angle[i] < 360){
+                  setting.detector_cut_angle[i]+=0.5;
+                }
+          }
+        }
+
+      glutPostRedisplay();
+
     } else if(key=='t'){ // t - momentum at ip layer 2
       toggle_layer(20);
       glutPostRedisplay();
@@ -2547,34 +2747,6 @@ static void keypressed(unsigned char key,int x,int y){
         }
     } else if(key == 'h'){
           toggleHelpWindow();
-    } else if(key == '<'){
-          if(setting.trans_value > 0.005){
-            //std::cout << "increase trans: " << setting.trans_value << endl;
-            setting.trans_value-=0.005;
-          }else{
-            setting.trans_value=0;
-          }
-         glutPostRedisplay();
-    }else if(key == '>'){
-          if(setting.trans_value < 1-0.005){
-            setting.trans_value+=0.005;
-            //std::cout << "decrease trans" << setting.trans_value <<endl;
-          }else{
-            setting.trans_value=1.;
-          }
-          glutPostRedisplay();
-
-    }else if(key == 'm'){
-          if(
-            setting.detector_cut_angle[last_selected_layer - NUMBER_DATA_LAYER] > 0){
-            setting.detector_cut_angle[last_selected_layer - NUMBER_DATA_LAYER]-=0.5;
-            glutPostRedisplay();
-          }
-    } else if(key == 'M'){
-          if(setting.detector_cut_angle[last_selected_layer - NUMBER_DATA_LAYER] < 360){
-            setting.detector_cut_angle[last_selected_layer - NUMBER_DATA_LAYER]+=0.5;
-            glutPostRedisplay();
-          }
     }
 
 
@@ -3000,35 +3172,61 @@ void addLayerDescriptionToMenu(int id, char * str){
 
 
 void update_cut_angle_menu(void){
-    char str[200];
+    return;
+    //char str[200];
 
-    int i;
+    //int i;
 
-    glutSetMenu(subsubMenu2);
+    //glutSetMenu(subsubMenu2);
 
-    for(i=0; (unsigned)i < sizeof(available_cutangles)/sizeof(available_cutangles[0]); i++){
+    //for(i=0; (unsigned)i < sizeof(available_cutangles)/sizeof(available_cutangles[0]); i++){
 
-        if(available_cutangles[i] == setting.cut_angle){
-            sprintf(str,"[X] %i", available_cutangles[i]);
-            glutChangeToMenuEntry(i+1, str,  CUT_ANGLE0+i);
-        }else{
-            sprintf(str,"[  ] %i", available_cutangles[i]);
-            glutChangeToMenuEntry(i+1, str,  CUT_ANGLE0+i);
-        }
-    }
+    //    if(available_cutangles[i] == setting.cut_angle){
+    //        sprintf(str,"[X] %i", available_cutangles[i]);
+    //        glutChangeToMenuEntry(i+1, str,  CUT_ANGLE0+i);
+    //    }else{
+    //        sprintf(str,"[  ] %i", available_cutangles[i]);
+    //        glutChangeToMenuEntry(i+1, str,  CUT_ANGLE0+i);
+    //    }
+    //}
 
 }
 
+void copySetting(CEDsettings &dest, CEDsettings &source, const char *name){
+    if(strcmp(name,"trans")==0){
+        for(int i=0;i<NUMBER_DETECTOR_LAYER;i++){
+            dest.detector_trans[i]=source.detector_trans[i];
+        }
+    }
+
+    else if(strcmp(name,"cut z")==0){
+        for(int i=0;i<NUMBER_DETECTOR_LAYER;i++){
+            dest.detector_cut_z[i]=source.detector_cut_z[i];
+        }
+    }
+    
+    else if(strcmp(name,"cut angle")==0){
+        for(int i=0;i<NUMBER_DETECTOR_LAYER;i++){
+            dest.detector_cut_angle[i]=source.detector_cut_angle[i];
+        }
+    }
+    else{
+        std::cout << "WARNING: unknown settingtype: " << name << std::endl;
+    } 
+
+}
 
 void selectFromMenu(int id){ //hauke
     int i;
     int anz;
-    static float z_cutting_backup;
-    static float cut_angle_backup;
+    CEDsettings backup_setting;
+    //static float z_cutting_backup;
+    //static float cut_angle_backup;
     static float mm_ha_backup; 
     static float mm_va_backup;
     static int graphic_2_backup;
     //static int fullscreen=false;
+    double z_cut;
 
 
     glutSetWindow(mainWindow); //hauke
@@ -3192,15 +3390,24 @@ void selectFromMenu(int id){ //hauke
             if((setting.trans == true && setting.persp == false) || (setting.trans == false && setting.persp == true)){
                 selectFromMenu(GRAFIC_PERSP); //switch persp on in new view, switch persp off in classic view
             }
-            setting.z_cutting=7000; //no z cutting
-            setting.cut_angle=0;    // no detector cutting
+            //setting.z_cutting=7000; //no z cutting
+            //setting.cut_angle=0;    // no detector cutting
+            for(int i = 0; i<NUMBER_DETECTOR_LAYER;i++){
+                setting.detector_trans[i]=0.8;
+                setting.detector_cut_angle[i]=0;
+                setting.detector_cut_z[i]=7000;
+            }
+
+            for(int i = 0; i<CED_MAX_LAYER;i++){
+                setting.layer[i]=true;
+            }
             setting.phi_projection = false; // no phi projection
             setting.z_projection=false; // no phi projection;
             mm=mm_reset;
             //mm.sf = fisheye_alpha > 0 ? mm.sf*8.0: mm.sf;
             fisheye_alpha=0;
             setting.fixed_view=false;
-            update_cut_angle_menu();
+            //update_cut_angle_menu();
             set_world_size(DEFAULT_WORLD_SIZE ); 
             //std::cout << "DEFAULT_WORLD_SIZE "  << DEFAULT_WORLD_SIZE << "zoom: " << mm.sf << std::endl;
             break;
@@ -3243,8 +3450,14 @@ void selectFromMenu(int id){ //hauke
         case TOGGLE_PHI_PROJECTION:
             if(setting.phi_projection){ //turn projection off
                 setting.phi_projection=false;
-                setting.z_cutting=z_cutting_backup;
-                setting.cut_angle=cut_angle_backup;
+                //setting.z_cutting=z_cutting_backup;
+                copySetting(setting, backup_setting, "cut z");
+                //setting.detector_cut_z=backup_setting.detector_cut_z;
+                //setting.cut_angle=cut_angle_backup;
+
+
+                copySetting(setting, backup_setting, "cut angle");
+                //setting.detector_cut_angle=backup_setting.detector_cut_angle;
                 //if(graphic_2_backup != graphic[2]){selectFromMenu(GRAFIC_PERSP); } //restore persp setting
                 if(graphic_2_backup != setting.persp){selectFromMenu(GRAFIC_PERSP); } //restore persp setting
 
@@ -3258,8 +3471,13 @@ void selectFromMenu(int id){ //hauke
                     selectFromMenu(TOGGLE_Z_PROJECTION);
                 }
 
-                z_cutting_backup=setting.z_cutting;
-                cut_angle_backup=setting.cut_angle;
+                //z_cutting_backup=setting.z_cutting;
+                //cut_angle_backup=setting.cut_angle;
+
+                copySetting(backup_setting, setting, "cut angle");
+                copySetting(backup_setting, setting, "cut z");
+                //backup_setting.detector_cut_z=setting.detector_cut_z;
+                //backup_setting.detector_cut_angle=setting.detector_cut_angle;
 
                 setting.phi_projection=true;
 
@@ -3270,8 +3488,12 @@ void selectFromMenu(int id){ //hauke
                 if(setting.persp==1){selectFromMenu(GRAFIC_PERSP); }
 
 
-                setting.cut_angle=180;
-                setting.z_cutting=7000;
+                for(int i=0;i<NUMBER_DETECTOR_LAYER;i++){
+                    setting.detector_cut_angle[i]=180;
+                    setting.detector_cut_z[i]=7000;
+                }
+                //setting.cut_angle=180;
+                //setting.z_cutting=7000;
                 mm_ha_backup=mm.ha;
                 mm_va_backup = mm.va;
                 mm.ha=90.;
@@ -3289,8 +3511,13 @@ void selectFromMenu(int id){ //hauke
                 setting.z_projection=false;
                 //z_cutting=7000;
                 //selectFromMenu(GRAFIC_PERSP);
-                setting.z_cutting=z_cutting_backup;
-                setting.cut_angle=cut_angle_backup;
+                //setting.z_cutting=z_cutting_backup;
+
+                copySetting(setting, backup_setting, "cut z");
+                copySetting(setting, backup_setting, "cut angle");
+                //setting.detector_cut_z = backup_setting.detector_cut_z;
+                //setting.cut_angle=cut_angle_backup;
+                //setting.detector_cut_angle = backup_setting.detector_cut_angle;
                 //if(graphic[2]==0){selectFromMenu(GRAFIC_PERSP); }
                 //if(graphic_2_backup != graphic[2]){selectFromMenu(GRAFIC_PERSP); } //restore persp setting
                 if(graphic_2_backup != setting.persp){selectFromMenu(GRAFIC_PERSP); } //restore persp setting
@@ -3304,13 +3531,24 @@ void selectFromMenu(int id){ //hauke
 
                 if(setting.phi_projection){selectFromMenu(TOGGLE_PHI_PROJECTION);}
 
-                z_cutting_backup=setting.z_cutting;
-                cut_angle_backup=setting.cut_angle;
+                //z_cutting_backup=setting.z_cutting;
+
+                copySetting(backup_setting, setting, "cut z");
+                copySetting(backup_setting, setting, "cut angle");
+
+
+
+                //backup_setting.detector_cut_z=setting.detector_cut_z;
+                //cut_angle_backup=setting.cut_angle;
+                //backup_setting.detector_cut_angle=setting.detector_cut_angle;
 
                 setting.z_projection=true;
-                setting.cut_angle=0;
-                setting.z_cutting=-10;
 
+                for(int i=0;i<NUMBER_DETECTOR_LAYER;i++){
+                    //setting.cut_angle=0;
+                    //setting.z_cutting=-10;
+                    setting.detector_cut_z[i]=-10;
+                }
 
                 //graphic_2_backup=graphic[2];
                 graphic_2_backup=setting.persp;
@@ -3325,9 +3563,6 @@ void selectFromMenu(int id){ //hauke
 
                 mm.ha=180.;
                 mm.va=0.;
-
-
-
 
                 setting.fixed_view=true;
             }
@@ -3497,82 +3732,132 @@ void selectFromMenu(int id){ //hauke
 
             break;
 
-        case CUT_ANGLE0:
-            for(int i=0;i<NUMBER_DETECTOR_LAYER;i++)
-                setting.detector_cut_angle[i]=0;
-            //setting.cut_angle=0; 
-            //update_cut_angle_menu();
-            break;
-
-        case CUT_ANGLE30:
-            for(int i=0;i<NUMBER_DETECTOR_LAYER;i++)
-                setting.detector_cut_angle[i]=30;
-            //setting.cut_angle=30; 
-            //update_cut_angle_menu();
-            break;
-
-        case CUT_ANGLE90:
-            for(int i=0;i<NUMBER_DETECTOR_LAYER;i++)
-                setting.detector_cut_angle[i]=90;
-            //setting.cut_angle=90;
-            //update_cut_angle_menu();
-            break;
-
+        case CUT_ANGLE0  :
+        case CUT_ANGLE30 :
+        case CUT_ANGLE90 :
         case CUT_ANGLE135:
-            for(int i=0;i<NUMBER_DETECTOR_LAYER;i++)
-                setting.detector_cut_angle[i]=135;
-
-            //setting.cut_angle=135;
-            //update_cut_angle_menu();
-            break;
-
         case CUT_ANGLE180:
-            for(int i=0;i<NUMBER_DETECTOR_LAYER;i++)
-                setting.detector_cut_angle[i]=180;
-
-            //setting.cut_angle=180;
-            //update_cut_angle_menu();
-            break;
-
+        case CUT_ANGLE200:
+        case CUT_ANGLE220:
+        case CUT_ANGLE240:
+        case CUT_ANGLE260:
         case CUT_ANGLE270:
+        case CUT_ANGLE280:
+        case CUT_ANGLE290:
+        case CUT_ANGLE310:
+        case CUT_ANGLE330:
+        case CUT_ANGLE340:
+        case CUT_ANGLE350:
+        case CUT_ANGLE45 :
+        case CUT_ANGLE100:
+        case CUT_ANGLE120:
+        case CUT_ANGLE150:
+        case CUT_ANGLE170:
+        case CUT_ANGLE190:
             for(int i=0;i<NUMBER_DETECTOR_LAYER;i++)
-                setting.detector_cut_angle[i]=270;
-
-            //setting.cut_angle=270;
-            //update_cut_angle_menu();
-            break;
-
-        case CUT_ANGLE360:
-            for(int i=0;i<NUMBER_DETECTOR_LAYER;i++)
-                setting.detector_cut_angle[i]=360;
-
-            //setting.cut_angle=360;
-            //update_cut_angle_menu();
+               setting.detector_cut_angle[i]=id-CUT_ANGLE0;
             break;
 
 
 
-        case LAYER_CUT_ANGLE0:
-            setting.detector_cut_angle[last_selected_layer- NUMBER_DATA_LAYER]=0;
-            break;
-        case LAYER_CUT_ANGLE30:
-            setting.detector_cut_angle[last_selected_layer- NUMBER_DATA_LAYER]=30;
-            break;
-        case LAYER_CUT_ANGLE90:
-            setting.detector_cut_angle[last_selected_layer- NUMBER_DATA_LAYER]=90;
-            break;
+
+        case LAYER_CUT_ANGLE0  :
+        case LAYER_CUT_ANGLE30 :
+        case LAYER_CUT_ANGLE90 :
         case LAYER_CUT_ANGLE135:
-            setting.detector_cut_angle[last_selected_layer- NUMBER_DATA_LAYER]=135;
-            break;
         case LAYER_CUT_ANGLE180:
-            setting.detector_cut_angle[last_selected_layer- NUMBER_DATA_LAYER]=180;
-            break;
+        case LAYER_CUT_ANGLE200:
+        case LAYER_CUT_ANGLE220:
+        case LAYER_CUT_ANGLE240:
+        case LAYER_CUT_ANGLE260:
         case LAYER_CUT_ANGLE270:
-            setting.detector_cut_angle[last_selected_layer- NUMBER_DATA_LAYER]=270;
+        case LAYER_CUT_ANGLE280:
+        case LAYER_CUT_ANGLE290:
+        case LAYER_CUT_ANGLE310:
+        case LAYER_CUT_ANGLE330:
+        case LAYER_CUT_ANGLE340:
+        case LAYER_CUT_ANGLE350:
+        case LAYER_CUT_ANGLE45 :
+        case LAYER_CUT_ANGLE100:
+        case LAYER_CUT_ANGLE120:
+        case LAYER_CUT_ANGLE150:
+        case LAYER_CUT_ANGLE170:
+        case LAYER_CUT_ANGLE190:
+            setting.detector_cut_angle[last_selected_layer- NUMBER_DATA_LAYER]=id-LAYER_CUT_ANGLE0;
             break;
-        //case LAYER_CUT_ANGLE360:
-        //    setting.detector_cut_angle[last_selected_layer- NUMBER_DATA_LAYER]=360;
-        //    break;
+
+
+
+        
+
+        case CUT_Z_7000:z_cut=7000;
+            for(int i=0;i<NUMBER_DETECTOR_LAYER;i++)
+               setting.detector_cut_z[i]=z_cut;
+            break;
+
+        case CUT_Z_M6000:z_cut=-6000;
+            for(int i=0;i<NUMBER_DETECTOR_LAYER;i++)
+               setting.detector_cut_z[i]=z_cut;
+            break;
+
+        case CUT_Z_M4000:z_cut=-4000;
+            for(int i=0;i<NUMBER_DETECTOR_LAYER;i++)
+               setting.detector_cut_z[i]=z_cut;
+            break;
+
+        case CUT_Z_M2000:z_cut=-2000;
+            for(int i=0;i<NUMBER_DETECTOR_LAYER;i++)
+               setting.detector_cut_z[i]=z_cut;
+            break;
+
+        case CUT_Z_0000 :z_cut=0 ;
+            for(int i=0;i<NUMBER_DETECTOR_LAYER;i++)
+               setting.detector_cut_z[i]=z_cut;
+            break;
+
+        case CUT_Z_2000 :z_cut=2000 ;
+            for(int i=0;i<NUMBER_DETECTOR_LAYER;i++)
+               setting.detector_cut_z[i]=z_cut;
+            break;
+
+        case CUT_Z_4000 :z_cut=4000 ;
+            for(int i=0;i<NUMBER_DETECTOR_LAYER;i++)
+               setting.detector_cut_z[i]=z_cut;
+            break;
+
+        case CUT_Z_6000 :z_cut=6000 ;
+            for(int i=0;i<NUMBER_DETECTOR_LAYER;i++)
+               setting.detector_cut_z[i]=z_cut;
+            break;
+
+        case LAYER_CUT_Z_7000:z_cut=7000;
+            setting.detector_cut_z[last_selected_layer- NUMBER_DATA_LAYER]=z_cut;
+            break;
+
+        case LAYER_CUT_Z_M4000:z_cut=-4000;
+            setting.detector_cut_z[last_selected_layer- NUMBER_DATA_LAYER]=z_cut;
+            break;
+
+        case LAYER_CUT_Z_M2000:z_cut=-2000;
+            setting.detector_cut_z[last_selected_layer- NUMBER_DATA_LAYER]=z_cut;
+            break;
+
+        case LAYER_CUT_Z_0000 :z_cut=0 ;
+            setting.detector_cut_z[last_selected_layer- NUMBER_DATA_LAYER]=z_cut;
+            break;
+
+        case LAYER_CUT_Z_2000 :z_cut=2000 ;
+            setting.detector_cut_z[last_selected_layer- NUMBER_DATA_LAYER]=z_cut;
+            break;
+
+        case LAYER_CUT_Z_4000 :z_cut=4000 ;
+            setting.detector_cut_z[last_selected_layer- NUMBER_DATA_LAYER]=z_cut;
+            break;
+
+        case LAYER_CUT_Z_6000 :z_cut=6000 ;
+            setting.detector_cut_z[last_selected_layer- NUMBER_DATA_LAYER]=z_cut;
+            break;
+
 
 
         case TRANS0:
@@ -3907,6 +4192,10 @@ void buildPopUpMenu(int x, int y){
 
     if(!find_selected_object(x,y,&p_x,&p_y,&p_z, &id, &layer, &type)){ //if ==1 found hit, else clicked on background
         if(type == 0){
+
+
+            last_selected_layer=layer;
+
             //popupmenu=new CED_PopUpMenu("Select datapoint");
 
             popupmenu->addItem(new CED_SubSubMenu("Selected datapoint:",0));
@@ -3944,8 +4233,8 @@ void buildPopUpMenu(int x, int y){
             popupmenu->addItem(new CED_SubSubMenu(tmp,0));
             sprintf(tmp,"ID: %i",id);
             popupmenu->addItem(new CED_SubSubMenu(tmp,0));
-            sprintf(tmp,"Distance previous selected object: %.2f",pow(pow(p_pre_x-p_x,2)+pow(p_pre_y-p_y,2)+pow(p_pre_z-p_z,2),0.5));
-            popupmenu->addItem(new CED_SubSubMenu(tmp,0));
+            //sprintf(tmp,"Distance previous selected object: %.2f",pow(pow(p_pre_x-p_x,2)+pow(p_pre_y-p_y,2)+pow(p_pre_z-p_z,2),0.5));
+            //popupmenu->addItem(new CED_SubSubMenu(tmp,0));
             sprintf(tmp,"Center object");
             popupmenu->addItem(new CED_SubSubMenu(tmp,CENTER_HIT));
             sprintf(tmp,"Pick object");
@@ -3953,16 +4242,27 @@ void buildPopUpMenu(int x, int y){
             //sprintf(tmp,"Hide layer %i: %s",layer, layerDescription[layer]);
             //popupmenu->addItem(new CED_SubSubMenu(tmp, layer-NUMBER_DATA_LAYER+DETECTOR1));
 
-            CED_SubSubMenu *phicuts=new CED_SubSubMenu("Cuts");
+            CED_SubSubMenu *phicuts=new CED_SubSubMenu("Phi cut");
             unsigned i;
             char str[200];
             for(i=0; (unsigned)i < sizeof(available_cutangles)/sizeof(available_cutangles[0]); i++){
                     sprintf(str,"Cut of %i degree in phi", available_cutangles[i]);
-                    phicuts->addItem(new CED_SubSubMenu(str,  LAYER_CUT_ANGLE0+i));
+                    phicuts->addItem(new CED_SubSubMenu(str,  LAYER_CUT_ANGLE0+available_cutangles[i]));
                     //glutChangeToMenuEntry(i+1, str,  CUT_ANGLE0+i);
             }
-
             popupmenu->addItem(phicuts);
+
+            CED_SubSubMenu *zcuts=new CED_SubSubMenu("Z cut");
+            zcuts->addItem(new CED_SubSubMenu("Cut at z=-6000", LAYER_CUT_Z_M6000));
+            zcuts->addItem(new CED_SubSubMenu("Cut at z=-4000", LAYER_CUT_Z_M4000));
+            zcuts->addItem(new CED_SubSubMenu("Cut at z=-2000", LAYER_CUT_Z_M2000));
+            zcuts->addItem(new CED_SubSubMenu("Cut at z=0",     LAYER_CUT_Z_0000));
+            zcuts->addItem(new CED_SubSubMenu("Cut at z=2000",  LAYER_CUT_Z_2000));
+            zcuts->addItem(new CED_SubSubMenu("Cut at z=4000",  LAYER_CUT_Z_4000));
+            zcuts->addItem(new CED_SubSubMenu("Cut at z=6000",  LAYER_CUT_Z_6000));
+            zcuts->addItem(new CED_SubSubMenu("Cut at z=7000",  LAYER_CUT_Z_7000));
+            popupmenu->addItem(zcuts);
+
 
             //CED_SubMenu *phicuts=new CED_SubMenu("Cuts");
             //cuts->addItem(new CED_SubSubMenu("Cut at z=0",  0));
@@ -3988,6 +4288,8 @@ void buildPopUpMenu(int x, int y){
         }
     }else{
 
+
+            last_selected_layer=-1;
         //popupmenu=new CED_PopUpMenu("Change background color to:");
 
         popupmenu->addItem(new CED_SubSubMenu("Change background color to:",0));
@@ -4165,12 +4467,12 @@ void buildMainMenu(void){
     camera->addItem(new CED_SubSubMenu("Front view [f]", VIEW_FRONT));
     camera->addItem(new CED_SubSubMenu("Side view [s]", VIEW_SIDE));
 
-    camera->addItem(new CED_SubSubMenu("---", VIEW_SIDE));
+    camera->addItem(new CED_SubSubMenu("---", 0));
     camera->addItem(new CED_SubSubMenu("Toggle side view projection [S]", TOGGLE_PHI_PROJECTION));
     camera->addItem(new CED_SubSubMenu("Toggle front view projection [F]", TOGGLE_Z_PROJECTION));
     camera->addItem(new CED_SubSubMenu("Toggle fisheye projection [v]",VIEW_FISHEYE));
 
-    camera->addItem(new CED_SubSubMenu("---", VIEW_SIDE));
+    camera->addItem(new CED_SubSubMenu("---", 0));
     camera->addItem(new CED_SubSubMenu("Zoom in [+]", VIEW_ZOOM_IN));
     camera->addItem(new CED_SubSubMenu("Zoom out [-]", VIEW_ZOOM_OUT));
     ced_menu->addSubMenu(camera);
@@ -4180,14 +4482,25 @@ void buildMainMenu(void){
     CED_SubMenu *cuts=new CED_SubMenu("Cuts");
     for(i=0; (unsigned)i < sizeof(available_cutangles)/sizeof(available_cutangles[0]); i++){
             sprintf(str,"Cut of %i degree in phi", available_cutangles[i]);
-            cuts->addItem(new CED_SubSubMenu(str,  CUT_ANGLE0+i));
+            cuts->addItem(new CED_SubSubMenu(str,  CUT_ANGLE0+available_cutangles[i]));
             //glutChangeToMenuEntry(i+1, str,  CUT_ANGLE0+i);
     }
 
-    cuts->addItem(new CED_SubSubMenu("---",  0));
-    cuts->addItem(new CED_SubSubMenu("Cut at z=0",  0));
-    cuts->addItem(new CED_SubSubMenu("Cut at z=3000",  0));
-    cuts->addItem(new CED_SubSubMenu("Cut at z=5000",  0));
+    //CED_SubSubMenu *zcuts=new CED_SubSubMenu("Z cut");
+    cuts->addItem(new CED_SubSubMenu("---", 0));
+    cuts->addItem(new CED_SubSubMenu("Cut at z=-6000", CUT_Z_M6000));
+    cuts->addItem(new CED_SubSubMenu("Cut at z=-4000", CUT_Z_M4000));
+    cuts->addItem(new CED_SubSubMenu("Cut at z=-2000", CUT_Z_M2000));
+    cuts->addItem(new CED_SubSubMenu("Cut at z=0",     CUT_Z_0000));
+    cuts->addItem(new CED_SubSubMenu("Cut at z=2000",  CUT_Z_2000));
+    cuts->addItem(new CED_SubSubMenu("Cut at z=4000",  CUT_Z_4000));
+    cuts->addItem(new CED_SubSubMenu("Cut at z=6000",  CUT_Z_6000));
+    cuts->addItem(new CED_SubSubMenu("Cut at z=7000",  CUT_Z_7000));
+
+    //cuts->addItem(new CED_SubSubMenu("---",  0));
+    //cuts->addItem(new CED_SubSubMenu("Cut at z=0",  0));
+    //cuts->addItem(new CED_SubSubMenu("Cut at z=3000",  0));
+    //cuts->addItem(new CED_SubSubMenu("Cut at z=5000",  0));
     ced_menu->addSubMenu(cuts);
 
 

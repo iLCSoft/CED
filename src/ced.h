@@ -85,7 +85,7 @@ void updateLayerEntryInPopupMenu(int); //glced.c
 int buildMenuPopup(void);//glced.c
 
 
-#define VERSION_CONFIG 2
+#define VERSION_CONFIG 3
 struct CEDsettings{
     bool trans;         //grid or surface view
     bool persp;         //perspectivic view or flat projection 
@@ -93,8 +93,10 @@ struct CEDsettings{
     bool light;         //light source 
     double detector_trans[NUMBER_DETECTOR_LAYER];
     double detector_cut_angle[NUMBER_DETECTOR_LAYER];
-    double cut_angle;
-    double trans_value;
+    double detector_cut_z[NUMBER_DETECTOR_LAYER];
+//    double cut_angle; //deprecated
+//    double trans_value; //deprecated
+//    double z_cutting; //deprecated
     bool layer[CED_MAX_LAYER];
     bool phi_projection;
     bool z_projection;
@@ -102,7 +104,6 @@ struct CEDsettings{
     double va; //vertical angle of view
     double ha; //horionzional angle of view
     bool fixed_view;
-    double z_cutting;
     int win_h; //height of the window (pixel)
     int win_w; //wight of the window (pixel)
     double zoom;

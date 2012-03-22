@@ -1350,6 +1350,8 @@ static void ced_draw_geotube(CED_GeoTube *c){
     double cut_angle=setting.detector_cut_angle[c->type-NUMBER_DATA_LAYER];
     double trans_value=setting.detector_trans[c->type-NUMBER_DATA_LAYER];
 
+    double cut_z=setting.detector_cut_z[c->type-NUMBER_DATA_LAYER];
+
 
     //SM-H: Fisheye code
     double d_o = single_fisheye_transform(c->r_o, fisheye_alpha);
@@ -1374,7 +1376,7 @@ static void ced_draw_geotube(CED_GeoTube *c){
     double tmpz, tmpr;
 
 
-    if(-1*setting.z_cutting < (transformed_shift)){
+    if(-1*cut_z < (transformed_shift)){
         //make 1line in the middle
 
         tmpz=z1; //make 1line in the middle
@@ -1404,8 +1406,8 @@ static void ced_draw_geotube(CED_GeoTube *c){
 
 
    tmpz=z0;
-   if(-1*setting.z_cutting > (transformed_shift)){
-        tmpz=-1*setting.z_cutting;
+   if(-1*cut_z > (transformed_shift)){
+        tmpz=-1*cut_z;
    }
 
    for(; tmpz <= z0-2*(z0-z1); tmpz+=200){
@@ -1439,15 +1441,15 @@ static void ced_draw_geotube(CED_GeoTube *c){
 
    }
 
-   if(-1*setting.z_cutting > (transformed_shift+2*z)){
+   if(-1*cut_z > (transformed_shift+2*z)){
         //component is completly in outside range
       return; 
-   }else if(-1*setting.z_cutting > (transformed_shift)){
+   }else if(-1*cut_z > (transformed_shift)){
       //some part of component is in cutting range
       double backup_transformed_shift=transformed_shift;
-      transformed_shift=transformed_shift+(-1*setting.z_cutting-transformed_shift)/2.;
-      z=z-(-1*setting.z_cutting-transformed_shift);
-      transformed_shift=backup_transformed_shift+(-1*setting.z_cutting-backup_transformed_shift);
+      transformed_shift=transformed_shift+(-1*cut_z-transformed_shift)/2.;
+      z=z-(-1*cut_z-transformed_shift);
+      transformed_shift=backup_transformed_shift+(-1*cut_z-backup_transformed_shift);
    }
 
 
@@ -2526,7 +2528,11 @@ static void ced_draw_geobox_r_solid(CED_GeoBoxR * box )  {
 
 
 	//ced_color(box->color);
-    GLfloat face_color[4]={((box->color>>16)&0xff)/255.0,((box->color>>8)&0xff)/255.0,((box->color)&0xff)/255.0, setting.trans_value};  
+    double trans=0.5;
+    if(box->layer < NUMBER_DETECTOR_LAYER){
+       trans=setting.detector_trans[box->layer]; 
+    }
+    GLfloat face_color[4]={((box->color>>16)&0xff)/255.0,((box->color>>8)&0xff)/255.0,((box->color)&0xff)/255.0, trans};  
     //GLfloat line_color[4]={((c->color>>16)&0xff)/255.0/2.0+(1.0-setting.bgcolor[0])/2.0,((c->color>>8)&0xff)/255.0/2.0+(1.0-setting.bgcolor[1])/2.0,((c->color)&0xff)/255.0/2.0+(1.0-setting.bgcolor[2])/2.0, (1-setting.trans_value)+CED_GEOTUBE_LINE_MAX_TRANS}; //lines in detector color mixed with anti background color
     glColor4f(face_color[0], face_color[1], face_color[2], face_color[3]);
     glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
