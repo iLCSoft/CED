@@ -1562,129 +1562,6 @@ void printFPS(void){
     glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
 }
-
-static void write_world_into_front_buffer(void){
- 
-
-
-    glMatrixMode(GL_PROJECTION);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  
-  
-  
-
-    glRotatef(mm.va,1.,0.,0.);
-    glRotatef(mm.ha,0.,1.0,0.);
-    glScalef(mm.sf,mm.sf,mm.sf); //streech the world
-
-
-
-
-
-    
-  
-      //glMatrixMode(GL_MODELVIEW); //
-  
-    // draw static objects
-
-    glMatrixMode(GL_MODELVIEW);
-
-
-    //glTranslatef(-mm.mv.x,-mm.mv.y,-mm.mv.z);
-
-    display_world(); 
-
-
-    glTranslatef(-mm.mv.x,-mm.mv.y,-mm.mv.z);
-
-
-   //glTranslatef(0,0,1000);
-
-     //const GLdouble clip_plane[]={0,0,-1,setting.z_cutting};
-     //if(setting.z_cutting < 6999){
-     //     glEnable(GL_CLIP_PLANE0);
-     //}else{
-     //     glDisable(GL_CLIP_PLANE0);
-     //}
-     //glClipPlane(GL_CLIP_PLANE0,clip_plane);
-  
-  
-  
-  
-    // draw elements (hits + detector)
-    ced_prepare_objmap();
-
-    ced_do_draw_event();
-
-  
-    //cout << "mm.sf: " << mm.sf << "hinterer clipping plane: " << 5000*2.0*mm.sf << std::endl;
-    //gluPerspective(60,window_width/window_height,100*2.0*mm.sf,5000*2.0*mm.sf);
-
-//    std::cout  << "clipping planes: " << 200*2.0*mm.sf << " bis " << 5000*2.0*mm.sf << std::endl;
-//
-//    gluPerspective(60,window_width/window_height,200*2.0*mm.sf,5000*2.0*mm.sf);
-//        glMatrixMode( GL_MODELVIEW );
-//  
-//        glLoadIdentity();
-//        gluLookAt  (0,0,2000,    0,0,0,    0,1,0);
-//
-//
-
-
-    //printFPS();
-}
-
-void drawStringBig (char *s){
-    unsigned int i;
-    for (i = 0; i[s]; i++){
-        glutBitmapCharacter (GLUT_BITMAP_HELVETICA_18, s[i]);
-    }
-}
-
-void drawHelpString (const string & str, float x,float y){ //format help strings strings: "[<key>] <description>"
-    unsigned int i;
-    glRasterPos2f(x,y);
-  
-    int monospace = 0;
-    for (i = 0; str[i]; i++){
-        if(str[i] == '['){ 
-            monospace = 1;
-            if(setting.font == 0){
-                glutBitmapCharacter (GLUT_BITMAP_HELVETICA_10, '[');
-            }else if(setting.font == 1){
-                glutBitmapCharacter (GLUT_BITMAP_HELVETICA_12, '[');
-            }else if(setting.font == 2){
-                glutBitmapCharacter (GLUT_BITMAP_HELVETICA_18, '[');
-            }
-            i++;
-        }
-        else if(str[i] == ']'){
-             monospace = 0;
-        }
-        if(monospace){
-            if(setting.font == 0){
-                glutBitmapCharacter(GLUT_BITMAP_8_BY_13, str[i]);
-            }else if(setting.font == 1){
-                glutBitmapCharacter(GLUT_BITMAP_8_BY_13, str[i]);
-            }else if(setting.font == 2){
-                glutBitmapCharacter(GLUT_BITMAP_9_BY_15, str[i]);
-            }
-        }else{
-            //glutBitmapCharacter (GLUT_BITMAP_HELVETICA_10, str[i]);
-            //glutBitmapCharacter ( GLUT_BITMAP_HELVETICA_12 , str[i]);
-            //glutBitmapCharacter ( GLUT_BITMAP_HELVETICA_18 , str[i]);
-            if(setting.font == 0){
-                glutBitmapCharacter (GLUT_BITMAP_HELVETICA_10, str[i]);
-            }else if(setting.font == 1){
-                glutBitmapCharacter (GLUT_BITMAP_HELVETICA_12, str[i]);
-            }else if(setting.font == 2){
-                glutBitmapCharacter (GLUT_BITMAP_HELVETICA_18, str[i]);
-            }
-        }
-    }
-}
-
-
 void printShortcuts(void){
 
     const unsigned int MAX_STR_LEN=30;
@@ -1882,6 +1759,7 @@ void printShortcuts(void){
     glPopMatrix();
 
 }
+
 static void display(void){
  
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -1967,6 +1845,121 @@ static void display(void){
 
     glPopMatrix();
 }
+
+static void write_world_into_front_buffer(void){
+    glMatrixMode(GL_PROJECTION);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    glRotatef(mm.va,1.,0.,0.);
+    glRotatef(mm.ha,0.,1.0,0.);
+    glScalef(mm.sf,mm.sf,mm.sf); //streech the world
+  
+      //glMatrixMode(GL_MODELVIEW); //
+  
+    // draw static objects
+
+    glMatrixMode(GL_MODELVIEW);
+
+    //glTranslatef(-mm.mv.x,-mm.mv.y,-mm.mv.z);
+
+    display_world(); 
+
+
+    glTranslatef(-mm.mv.x,-mm.mv.y,-mm.mv.z);
+
+
+   //glTranslatef(0,0,1000);
+
+     //const GLdouble clip_plane[]={0,0,-1,setting.z_cutting};
+     //if(setting.z_cutting < 6999){
+     //     glEnable(GL_CLIP_PLANE0);
+     //}else{
+     //     glDisable(GL_CLIP_PLANE0);
+     //}
+     //glClipPlane(GL_CLIP_PLANE0,clip_plane);
+  
+  
+  
+  
+    // draw elements (hits + detector)
+    ced_prepare_objmap();
+
+    ced_do_draw_event();
+
+  
+    //cout << "mm.sf: " << mm.sf << "hinterer clipping plane: " << 5000*2.0*mm.sf << std::endl;
+    //gluPerspective(60,window_width/window_height,100*2.0*mm.sf,5000*2.0*mm.sf);
+
+//    std::cout  << "clipping planes: " << 200*2.0*mm.sf << " bis " << 5000*2.0*mm.sf << std::endl;
+//
+//    gluPerspective(60,window_width/window_height,200*2.0*mm.sf,5000*2.0*mm.sf);
+//        glMatrixMode( GL_MODELVIEW );
+//  
+//        glLoadIdentity();
+//        gluLookAt  (0,0,2000,    0,0,0,    0,1,0);
+//
+//
+
+    if(setting.light==true){
+        glEnable(GL_LIGHTING);
+    }
+
+
+    //printFPS();
+}
+
+void drawStringBig (char *s){
+    unsigned int i;
+    for (i = 0; i[s]; i++){
+        glutBitmapCharacter (GLUT_BITMAP_HELVETICA_18, s[i]);
+    }
+}
+
+void drawHelpString (const string & str, float x,float y){ //format help strings strings: "[<key>] <description>"
+    unsigned int i;
+    glRasterPos2f(x,y);
+  
+    int monospace = 0;
+    for (i = 0; str[i]; i++){
+        if(str[i] == '['){ 
+            monospace = 1;
+            if(setting.font == 0){
+                glutBitmapCharacter (GLUT_BITMAP_HELVETICA_10, '[');
+            }else if(setting.font == 1){
+                glutBitmapCharacter (GLUT_BITMAP_HELVETICA_12, '[');
+            }else if(setting.font == 2){
+                glutBitmapCharacter (GLUT_BITMAP_HELVETICA_18, '[');
+            }
+            i++;
+        }
+        else if(str[i] == ']'){
+             monospace = 0;
+        }
+        if(monospace){
+            if(setting.font == 0){
+                glutBitmapCharacter(GLUT_BITMAP_8_BY_13, str[i]);
+            }else if(setting.font == 1){
+                glutBitmapCharacter(GLUT_BITMAP_8_BY_13, str[i]);
+            }else if(setting.font == 2){
+                glutBitmapCharacter(GLUT_BITMAP_9_BY_15, str[i]);
+            }
+        }else{
+            //glutBitmapCharacter (GLUT_BITMAP_HELVETICA_10, str[i]);
+            //glutBitmapCharacter ( GLUT_BITMAP_HELVETICA_12 , str[i]);
+            //glutBitmapCharacter ( GLUT_BITMAP_HELVETICA_18 , str[i]);
+            if(setting.font == 0){
+                glutBitmapCharacter (GLUT_BITMAP_HELVETICA_10, str[i]);
+            }else if(setting.font == 1){
+                glutBitmapCharacter (GLUT_BITMAP_HELVETICA_12, str[i]);
+            }else if(setting.font == 2){
+                glutBitmapCharacter (GLUT_BITMAP_HELVETICA_18, str[i]);
+            }
+        }
+    }
+}
+
+
+
 
 static void reshape(int w,int h){
     // printf("Reshaped: %dx%d\n",w,h);
@@ -2167,7 +2160,6 @@ void saveSettings(int slot){
 
 void defaultSettings(void){
         setting.trans=true;
-        setting.persp=true;
         setting.light=false;
         setting.antia=false;
         //setting.cut_angle=180;
@@ -2179,15 +2171,15 @@ void defaultSettings(void){
         setting.win_h=500;
         setting.show_axes=true;
         setting.fps=false;
+        setting.persp=true;
 
 
-        setting.va=mm.va;
-        setting.ha=mm.ha;
     
         
 
         for(int i=0;i < 4; i++){
-            setting.bgcolor[i]=0; //black
+            //setting.bgcolor[i]=0; //black
+            setting.bgcolor[i]=1; //white
         }
 
 
@@ -2202,6 +2194,68 @@ void defaultSettings(void){
             setting.detector_cut_angle[i] = 0;//180;
             setting.detector_cut_z[i] = 7000;
         }
+
+            setting.phi_projection = false; // no phi projection
+            setting.z_projection=false; // no phi projection;
+            //mm.sf = fisheye_alpha > 0 ? mm.sf*8.0: mm.sf;
+            //fisheye_alpha=0;
+            setting.fixed_view=false;
+            //update_cut_angle_menu();
+
+            set_world_size(DEFAULT_WORLD_SIZE );
+
+
+        //mm=mm_reset;
+        //setting.va=mm.va;
+        //setting.ha=mm.ha;
+
+
+       //setting.zoom=0.072033;
+       //mm.sf = setting.zoom;
+//       fisheye_alpha=setting.fisheye_alpha;
+
+//        FISHEYE_WORLD_SIZE = setting.fisheye_world_size;
+//        WORLD_SIZE=setting.world_size;
+//        selectFromMenu(VIEW_RESET);
+
+            if((setting.trans == true && setting.persp == false) || (setting.trans == false && setting.persp == true)){
+                selectFromMenu(GRAFIC_PERSP); //switch persp on in new view, switch persp off in classic view
+            }
+            //setting.z_cutting=7000; //no z cutting
+            //setting.cut_angle=0;    // no detector cutting
+            for(int i = 0; i<NUMBER_DETECTOR_LAYER;i++){
+                setting.detector_trans[i]=0.8;
+                setting.detector_cut_angle[i]=0;
+                setting.detector_cut_z[i]=7000;
+            }
+
+            for(int i = 0; i<CED_MAX_LAYER;i++){
+                setting.layer[i]=true;
+            }
+            setting.phi_projection = false; // no phi projection
+            setting.z_projection=false; // no phi projection;
+            mm=mm_reset;
+            //mm.sf = fisheye_alpha > 0 ? mm.sf*8.0: mm.sf;
+            fisheye_alpha=0;
+            setting.fixed_view=false;
+            //update_cut_angle_menu();
+            set_world_size(DEFAULT_WORLD_SIZE ); 
+            //std::cout << "DEFAULT_WORLD_SIZE "  << DEFAULT_WORLD_SIZE << "zoom: " << mm.sf << std::endl;
+ 
+
+setting.va=mm.va;
+setting.ha=mm.ha;
+setting.zoom=mm.sf;
+setting.fisheye_alpha=fisheye_alpha;
+
+setting.fisheye_world_size= FISHEYE_WORLD_SIZE ; 
+setting.world_size= WORLD_SIZE;
+
+
+
+
+
+
 
         std::cout << "Set options to default settings" << std::endl;
 }
@@ -2338,6 +2392,7 @@ void loadSettings(int slot){
 
     //reshape(setting.win_w, setting.win_h);
 
+ 
 
     setting_old[0]=setting;
     setting_old[1]=setting;
@@ -3226,7 +3281,7 @@ void copySetting(CEDsettings &dest, CEDsettings &source, const char *name){
 void selectFromMenu(int id){ //hauke
     int i;
     int anz;
-    CEDsettings backup_setting;
+    static CEDsettings backup_setting;
     //static float z_cutting_backup;
     //static float cut_angle_backup;
     static float mm_ha_backup; 
@@ -3458,7 +3513,7 @@ void selectFromMenu(int id){ //hauke
             if(setting.phi_projection){ //turn projection off
                 setting.phi_projection=false;
                 //setting.z_cutting=z_cutting_backup;
-                copySetting(setting, backup_setting, "cut z");
+                //copySetting(setting, backup_setting, "cut z");
                 //setting.detector_cut_z=backup_setting.detector_cut_z;
                 //setting.cut_angle=cut_angle_backup;
 
@@ -3482,7 +3537,7 @@ void selectFromMenu(int id){ //hauke
                 //cut_angle_backup=setting.cut_angle;
 
                 copySetting(backup_setting, setting, "cut angle");
-                copySetting(backup_setting, setting, "cut z");
+                //copySetting(backup_setting, setting, "cut z");
                 //backup_setting.detector_cut_z=setting.detector_cut_z;
                 //backup_setting.detector_cut_angle=setting.detector_cut_angle;
 
@@ -3497,7 +3552,7 @@ void selectFromMenu(int id){ //hauke
 
                 for(int i=0;i<NUMBER_DETECTOR_LAYER;i++){
                     setting.detector_cut_angle[i]=180;
-                    setting.detector_cut_z[i]=7000;
+                //    setting.detector_cut_z[i]=7000;
                 }
                 //setting.cut_angle=180;
                 //setting.z_cutting=7000;
@@ -3521,7 +3576,7 @@ void selectFromMenu(int id){ //hauke
                 //setting.z_cutting=z_cutting_backup;
 
                 copySetting(setting, backup_setting, "cut z");
-                copySetting(setting, backup_setting, "cut angle");
+                //copySetting(setting, backup_setting, "cut angle");
                 //setting.detector_cut_z = backup_setting.detector_cut_z;
                 //setting.cut_angle=cut_angle_backup;
                 //setting.detector_cut_angle = backup_setting.detector_cut_angle;
@@ -3541,7 +3596,14 @@ void selectFromMenu(int id){ //hauke
                 //z_cutting_backup=setting.z_cutting;
 
                 copySetting(backup_setting, setting, "cut z");
-                copySetting(backup_setting, setting, "cut angle");
+                //cout << "toggle z projection!:" << endl;
+                //for(int i = 0; i<NUMBER_DETECTOR_LAYER;i++){
+                //    cout << backup_setting.detector_cut_z[i] << endl;
+                //}
+
+
+
+                //copySetting(backup_setting, setting, "cut angle");
 
 
 
@@ -5089,6 +5151,11 @@ int main(int argc,char *argv[]){
   
 
 //    glDisable(GL_BLEND);
+    if(setting.light == true){
+        setting.light=false;
+        selectFromMenu(GRAFIC_LIGHT); 
+    }
+
 
 
 
