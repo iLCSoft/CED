@@ -2392,13 +2392,6 @@ void loadSettings(int slot){
 
     //reshape(setting.win_w, setting.win_h);
 
- 
-
-    setting_old[0]=setting;
-    setting_old[1]=setting;
-    setting_old[2]=setting;
-    setting_old[3]=setting;
-    setting_old[4]=setting;
 }
 
 
@@ -2595,8 +2588,11 @@ static void keypressed(unsigned char key,int x,int y){
     glutSetWindow(mainWindow); //hauke
     //if(key==0x1A ){ //ctrl+z
 
-    if(key=='u' ){ //ctrl+z
-        selectFromMenu(UNDO);
+    //if(key=='u' ){ //ctrl+z
+
+    //std::cout << "key: " << int(key) << endl;
+    if(false ){ //ctrl+z
+        //selectFromMenu(UNDO);
     } else if(key=='r' || key=='R'){ 
         selectFromMenu(VIEW_RESET);
     } else if(key=='f'){     
@@ -2685,34 +2681,39 @@ static void keypressed(unsigned char key,int x,int y){
           selectFromMenu(VIEW_ZOOM_IN);
     } else if(key == '-'|| key == '_'){
           selectFromMenu(VIEW_ZOOM_OUT);
+    }else if (key == 26 || key == 'x'){ //ctrl+z
+       selectFromMenu(UNDO);
     } else if(key == 'z'){
-          if(last_selected_layer > 0){
-            if(setting.detector_cut_z[last_selected_layer - NUMBER_DATA_LAYER] < 7000){ 
-                      setting.detector_cut_z[last_selected_layer - NUMBER_DATA_LAYER]+=100; 
-            }
-          }else{
-               for(int i = 0; i<NUMBER_DETECTOR_LAYER;i++){
-                    if(setting.detector_cut_z[0] < 7000){
-                        setting.detector_cut_z[i]+=100; 
-                    }
-                }         
-          }
 
-          glutPostRedisplay();
+       // if (glutGetModifiers() == GLUT_ACTIVE_CTRL) {
+        //if (glutGetModifiers() & GLUT_ACTIVE_CTRL){
+
+            if(last_selected_layer > 0){
+              if(setting.detector_cut_z[last_selected_layer - NUMBER_DATA_LAYER] < 7000){ 
+                        setting.detector_cut_z[last_selected_layer - NUMBER_DATA_LAYER]+=100; 
+              }
+            }else{
+                 for(int i = 0; i<NUMBER_DETECTOR_LAYER;i++){
+                      if(setting.detector_cut_z[0] < 7000){
+                          setting.detector_cut_z[i]+=100; 
+                      }
+                  }         
+            }
+
+        glutPostRedisplay();
     } else if(key == 'Z'){
-
-          if(last_selected_layer > 0){
-            if(setting.detector_cut_z[last_selected_layer - NUMBER_DATA_LAYER] > -7000){ 
-                  setting.detector_cut_z[last_selected_layer - NUMBER_DATA_LAYER]-=100; 
-            }
-          }else{
-               for(int i = 0; i<NUMBER_DETECTOR_LAYER;i++){
-                    if(setting.detector_cut_z[i] > -7000){
-                        setting.detector_cut_z[i]-=100; 
-                    }
-                }
-          }         
-          glutPostRedisplay();
+            if(last_selected_layer > 0){
+              if(setting.detector_cut_z[last_selected_layer - NUMBER_DATA_LAYER] > -7000){ 
+                    setting.detector_cut_z[last_selected_layer - NUMBER_DATA_LAYER]-=100; 
+              }
+            }else{
+                 for(int i = 0; i<NUMBER_DETECTOR_LAYER;i++){
+                      if(setting.detector_cut_z[i] > -7000){
+                          setting.detector_cut_z[i]-=100; 
+                      }
+                  }
+            }         
+        glutPostRedisplay();
     } else if(key == '<'){
          if(last_selected_layer > 0){
             if(setting.detector_trans[last_selected_layer - NUMBER_DATA_LAYER] > 0.005){
@@ -3144,80 +3145,80 @@ void toggleHelpWindow(void){ //hauke
 }
 
 void updateLayerEntryInPopupMenu(int id){ //id is layer id, not menu id!
-    char string[200];
-    char tmp[41];
-    if(id < 0 || id > NUMBER_POPUP_LAYER-1){
-        return;
-    }
-    strncpy(tmp, layerDescription[id], 40); 
-    tmp[40]=0;
-    
-    sprintf(string,"[%s] Layer %s%i [%c]: %s%s",isLayerVisible(id)?"X":"   ", (id < 10)?"0":"" ,id, layer_keys[id], tmp, (strlen(layerDescription[id]) > 40)?"...":"");
-    glutSetMenu(layerMenu);
-    glutChangeToMenuEntry(id+2,string, id+LAYER_0);                     
+//    char string[200];
+//    char tmp[41];
+//    if(id < 0 || id > NUMBER_POPUP_LAYER-1){
+//        return;
+//    }
+//    strncpy(tmp, layerDescription[id], 40); 
+//    tmp[40]=0;
+//    
+//    sprintf(string,"[%s] Layer %s%i [%c]: %s%s",isLayerVisible(id)?"X":"   ", (id < 10)?"0":"" ,id, layer_keys[id], tmp, (strlen(layerDescription[id]) > 40)?"...":"");
+//    glutSetMenu(layerMenu);
+//    glutChangeToMenuEntry(id+2,string, id+LAYER_0);                     
 }
 
 void updateScreenshotMenu(void){
-    char tmp[200];
-
-    glutSetMenu(subscreenshot);
-    window_width=  glutGet(GLUT_WINDOW_WIDTH);
-    window_height= glutGet(GLUT_WINDOW_HEIGHT);
-
-    sprintf(tmp,"Screenshot small (%.0f x %.0f) (~ %.2f MB)",window_width, window_height, window_width*window_height*3./1000000.);
-    glutChangeToMenuEntry(1,tmp,SAVE_IMAGE1);
-
-    sprintf(tmp,"Screenshot medium (%.0f x %.0f) (~ %.2f MB)",window_width*4, window_height*4, 4*4*window_width*window_height*3./1000000.);
-    glutChangeToMenuEntry(2,tmp,SAVE_IMAGE4);
-
-    sprintf(tmp,"Screenshot large (%.0f x %.0f) (~ %.2f MB)",window_width*10, window_height*10, 10*10*window_width*window_height*3./1000000.);
-    glutChangeToMenuEntry(3,tmp,SAVE_IMAGE10);
-
-    sprintf(tmp,"Screenshot extra large (%.0f x %.0f) (~ %.2f MB)",window_width*20, window_height*20, 20*20*window_width*window_height*3./1000000.);
-    glutChangeToMenuEntry(4,tmp,SAVE_IMAGE20);
-
-    sprintf(tmp,"Screenshot too large (%.0f x %.0f) (~ %.2f MB)",window_width*100, window_height*100, 100*100*window_width*window_height*3./1000000.);
-    glutChangeToMenuEntry(5,tmp,SAVE_IMAGE100);
-
+//    char tmp[200];
+//
+//    glutSetMenu(subscreenshot);
+//    window_width=  glutGet(GLUT_WINDOW_WIDTH);
+//    window_height= glutGet(GLUT_WINDOW_HEIGHT);
+//
+//    sprintf(tmp,"Screenshot small (%.0f x %.0f) (~ %.2f MB)",window_width, window_height, window_width*window_height*3./1000000.);
+//    glutChangeToMenuEntry(1,tmp,SAVE_IMAGE1);
+//
+//    sprintf(tmp,"Screenshot medium (%.0f x %.0f) (~ %.2f MB)",window_width*4, window_height*4, 4*4*window_width*window_height*3./1000000.);
+//    glutChangeToMenuEntry(2,tmp,SAVE_IMAGE4);
+//
+//    sprintf(tmp,"Screenshot large (%.0f x %.0f) (~ %.2f MB)",window_width*10, window_height*10, 10*10*window_width*window_height*3./1000000.);
+//    glutChangeToMenuEntry(3,tmp,SAVE_IMAGE10);
+//
+//    sprintf(tmp,"Screenshot extra large (%.0f x %.0f) (~ %.2f MB)",window_width*20, window_height*20, 20*20*window_width*window_height*3./1000000.);
+//    glutChangeToMenuEntry(4,tmp,SAVE_IMAGE20);
+//
+//    sprintf(tmp,"Screenshot too large (%.0f x %.0f) (~ %.2f MB)",window_width*100, window_height*100, 100*100*window_width*window_height*3./1000000.);
+//    glutChangeToMenuEntry(5,tmp,SAVE_IMAGE100);
+//
 }
 void updateSaveLoadMenu(int id){ //id is save id, not menu id!
-    struct stat s;
-
-
-    const char *home = getenv("HOME");
-    char filename[1000];
-    char menuStr[1000];
-    snprintf(filename, 1000, "%s/.glced_cfg/settings%i", home, id);
-    if(stat(filename,&s) == 0){
-        snprintf(menuStr,1000,"Slot %i, created: %s",id,ctime(&s.st_mtime));
-    }else{
-        snprintf(menuStr,1000,"Slot %i, %s",id,"Empty");
-    }
-
-    glutSetMenu(subSave);
-    glutChangeToMenuEntry(id,menuStr, SAVE1+id-1);                     
-    
-    glutSetMenu(subLoad);
-    glutChangeToMenuEntry(id,menuStr, LOAD1+id-1);                     
-
-    //std::cout << menuStr << std::endl;
+//    struct stat s;
+//
+//
+//    const char *home = getenv("HOME");
+//    char filename[1000];
+//    char menuStr[1000];
+//    snprintf(filename, 1000, "%s/.glced_cfg/settings%i", home, id);
+//    if(stat(filename,&s) == 0){
+//        snprintf(menuStr,1000,"Slot %i, created: %s",id,ctime(&s.st_mtime));
+//    }else{
+//        snprintf(menuStr,1000,"Slot %i, %s",id,"Empty");
+//    }
+//
+//    glutSetMenu(subSave);
+//    glutChangeToMenuEntry(id,menuStr, SAVE1+id-1);                     
+//    
+//    glutSetMenu(subLoad);
+//    glutChangeToMenuEntry(id,menuStr, LOAD1+id-1);                     
+//
+//    //std::cout << menuStr << std::endl;
 }
 
 
 void updateLayerEntryDetector(int id){ //id is layer id, not menu id!
-    char string[200];
-    char tmp[41];
-    if(id < NUMBER_DATA_LAYER || id > NUMBER_DETECTOR_LAYER+NUMBER_DATA_LAYER-1 || id > CED_MAX_LAYER-1 || id < 0){
-        return;
-    }
-    strncpy(tmp, layerDescription[id], 40); 
-    tmp[40]=0;
-    
-    //sprintf(string,"[%s] Layer %s%i [%c]: %s%s",isLayerVisible(id)?"X":"   ", (id < 10)?"0":"" ,id, layer_keys[id], tmp, (strlen(layerDescription[id]) > 40)?"...":"");
-    sprintf(string,"[%s] Layer %s%i [%c]: %s%s",isLayerVisible(id)?"X":"   ", (id < 10)?"0":"" ,id,detec_layer_keys[id-NUMBER_DATA_LAYER],tmp, (strlen(layerDescription[id]) > 40)?"...":"");
-
-    glutSetMenu(detectorMenu);
-    glutChangeToMenuEntry(id-NUMBER_DATA_LAYER+2,string, id-NUMBER_DATA_LAYER+DETECTOR1);                     
+//    char string[200];
+//    char tmp[101];
+//    if(id < NUMBER_DATA_LAYER || id > NUMBER_DETECTOR_LAYER+NUMBER_DATA_LAYER-1 || id > CED_MAX_LAYER-1 || id < 0){
+//        return;
+//    }
+//    strncpy(tmp, layerDescription[id], 100); 
+//    tmp[100]=0;
+//    
+//    //sprintf(string,"[%s] Layer %s%i [%c]: %s%s",isLayerVisible(id)?"X":"   ", (id < 10)?"0":"" ,id, layer_keys[id], tmp, (strlen(layerDescription[id]) > 40)?"...":"");
+//    sprintf(string,"[%s] Layer %s%i [%c]: %s%s",isLayerVisible(id)?"X":"   ", (id < 10)?"0":"" ,id,detec_layer_keys[id-NUMBER_DATA_LAYER],tmp, (strlen(layerDescription[id]) > 100)?"...":"");
+//
+//    glutSetMenu(detectorMenu);
+//    glutChangeToMenuEntry(id-NUMBER_DATA_LAYER+2,string, id-NUMBER_DATA_LAYER+DETECTOR1);                     
 }
 
 
@@ -3641,17 +3642,17 @@ void selectFromMenu(int id){ //hauke
 
         case FONT0:
             setting.font=0;
-            buildMainMenu();
+            //buildMainMenu();
             break;
 
         case FONT1:
             setting.font=1;
-            buildMainMenu();
+            //buildMainMenu();
             break;
 
         case FONT2:
             setting.font=2;
-            buildMainMenu();
+            //buildMainMenu();
             break;
 
 
@@ -3701,7 +3702,7 @@ void selectFromMenu(int id){ //hauke
                    //sprintf(string,"[X] Layer %s%i [%c]: %s", (i < 10)?"0":"" ,i, layer_keys[i], layerDescription[i]);
                    //glutChangeToMenuEntry(i+2,string, LAYER_0+i);                     
                    toggle_layer(i);
-                   updateLayerEntryInPopupMenu(i);
+                   //updateLayerEntryInPopupMenu(i);
                    anz++;
                 }
             }
@@ -3712,7 +3713,7 @@ void selectFromMenu(int id){ //hauke
                    //sprintf(string,"[   ] Layer %s%i [%c]: %s",(i < 10)?"0":"" ,i, layer_keys[i], layerDescription[i]);
                    //glutChangeToMenuEntry(i+2,string, LAYER_0+i);                     
                    toggle_layer(i);
-                   updateLayerEntryInPopupMenu(id);
+                   //updateLayerEntryInPopupMenu(id);
                 }
             }
             break;
@@ -3725,7 +3726,7 @@ void selectFromMenu(int id){ //hauke
                    //sprintf(string,"[X] Layer %s%i [%c]: %s", (i < 10)?"0":"" ,i, layer_keys[i], layerDescription[i]);
                    //glutChangeToMenuEntry(i+2,string, LAYER_0+i);                     
                    toggle_layer(i);
-                   updateLayerEntryDetector(i);
+                   //updateLayerEntryDetector(i);
                    anz++;
                 }
             }
@@ -3734,7 +3735,7 @@ void selectFromMenu(int id){ //hauke
                    //sprintf(string,"[   ] Layer %s%i [%c]: %s",(i < 10)?"0":"" ,i, layer_keys[i], layerDescription[i]);
                    //glutChangeToMenuEntry(i+2,string, LAYER_0+i);                     
                    toggle_layer(i);
-                   updateLayerEntryDetector(id);
+                   //updateLayerEntryDetector(id);
                 }
             }
             break;
@@ -3766,8 +3767,6 @@ void selectFromMenu(int id){ //hauke
             //std::cout << "toogle layer " << id-DETECTOR1 + NUMBER_DATA_LAYER<< std::endl;
             //updateLayerEntryDetector(id-DETECTOR1+NUMBER_DATA_LAYER);
             
-            buildLayerMenus();
-            buildMainMenu();
             break;
 
 
@@ -3796,8 +3795,8 @@ void selectFromMenu(int id){ //hauke
             toggle_layer(id-LAYER_0);
             //std::cout << "toogle layer " << id-LAYER_0 << std::endl;
             //updateLayerEntryInPopupMenu(id-LAYER_0);
-            buildLayerMenus();
-            buildMainMenu();
+            //buildLayerMenus();
+            //buildMainMenu();
 
             break;
 
@@ -4236,6 +4235,12 @@ void selectFromMenu(int id){ //hauke
 
     reshape((int)window_width, (int)window_height);
 
+
+    if(id != 0){
+    //buildMainMenu();
+        buildLayerMenus();
+    }
+
     glutPostRedisplay();
     //printf("bgcolor = %f %f %f %f\n",setting.bgcolor[0],setting.bgcolor[1],setting.bgcolor[2],setting.bgcolor[2]); 
 
@@ -4440,14 +4445,16 @@ void buildPopUpMenu(int x, int y){
     popupmenu->y_end=y+height+1;
 }
 void buildLayerMenus(void){
+    //std::cout << "enter buildLayerMenus" << std::endl;
     detectorlayermenu=new CED_SubSubMenu("Detector layers",0); 
     datalayermenu=new CED_SubSubMenu("Data layers",0);
     int i;
     char str[2000];
-    int max=20;
+    int max=200;
     char tmp[max+1];
     for(i=0;i<NUMBER_POPUP_LAYER;i++){
-        if(strlen(layerDescription[i]) > max){
+        //std::cout << "description: " << layerDescription[i] << std::endl;
+        if(strlen(layerDescription[i]) > max-1){
             snprintf(tmp,max-3,"%s",layerDescription[i]);
             sprintf(tmp,"%s...",tmp);
         }else{
@@ -4455,6 +4462,7 @@ void buildLayerMenus(void){
         }
 
         sprintf(str,"%s %s%i [%c]: %s", isLayerVisible(i)?"[X]":"[ ]", (i < 10)?"  ":"" ,i, layer_keys[i], tmp);
+        //std::cout << str << std::endl;
         datalayermenu->addItem(new CED_SubSubMenu(str,LAYER_0+i));
     }
     for(i=NUMBER_DATA_LAYER;i<NUMBER_DETECTOR_LAYER+NUMBER_DATA_LAYER;i++){
@@ -4471,9 +4479,11 @@ void buildLayerMenus(void){
     }
 
 
-
+    //std::cout << "leave buildLayerMenus" << std::endl;
+    buildMainMenu();
 }
 void buildMainMenu(void){
+    //std::cout << "build main menu" << std::endl;
     ced_menu=new CED_Menu();
 
 
@@ -4483,7 +4493,7 @@ void buildMainMenu(void){
     //layers
     CED_SubMenu *layers=new CED_SubMenu("Layers");
 
-    buildLayerMenus();
+    //buildLayerMenus();
 
     layers->addItem(new CED_SubSubMenu("Show/Hide axis", AXES));
     layers->addItem(new CED_SubSubMenu("---", AXES));
@@ -4932,6 +4942,8 @@ int main(int argc,char *argv[]){
 
     loadSettings(1);  
     setting.screenshot_sections=1;
+
+
     //set_bg_color(setting.bgcolor[0],setting.bgcolor[1],setting.bgcolor[2],setting.bgcolor[2]); //set to default (black)=0;
 
     //set_bg_color(0.0,0.0,0.0,0.0); //set to default (black)
@@ -5156,6 +5168,12 @@ int main(int argc,char *argv[]){
         selectFromMenu(GRAFIC_LIGHT); 
     }
 
+
+    setting_old[0]=setting;
+    setting_old[1]=setting;
+    setting_old[2]=setting;
+    setting_old[3]=setting;
+    setting_old[4]=setting;
 
 
 
