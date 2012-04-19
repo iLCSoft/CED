@@ -1965,6 +1965,9 @@ static void reshape(int w,int h){
     // printf("Reshaped: %dx%d\n",w,h);
     window_width=w;
     window_height=h;
+    setting.win_w=w;
+    setting.win_h=h;
+ 
   
   
     //if(graphic[3]){
@@ -2061,7 +2064,9 @@ static void reshape(int w,int h){
  //   }
 
 
-    updateScreenshotMenu();
+
+    buildMainMenu(); 
+    //updateScreenshotMenu();
 }
 
 void saveSettings(int slot){
@@ -4218,22 +4223,27 @@ void selectFromMenu(int id){ //hauke
 
         case SAVE_IMAGE1:
             screenshot("/tmp/glced.tga",1);
+            reshape((int)window_width, (int)window_height);
             break;
         case SAVE_IMAGE4:
             screenshot("/tmp/glced.tga",4);
+            reshape((int)window_width, (int)window_height);
             break;
         case SAVE_IMAGE10:
             screenshot("/tmp/glced.tga",10);
+            reshape((int)window_width, (int)window_height);
             break;
         case SAVE_IMAGE20:
             screenshot("/tmp/glced.tga",20);
+            reshape((int)window_width, (int)window_height);
             break;
         case SAVE_IMAGE100:
             screenshot("/tmp/glced.tga",100);
+            reshape((int)window_width, (int)window_height);
             break;
     }
 
-    reshape((int)window_width, (int)window_height);
+    //reshape((int)window_width, (int)window_height);
 
 
     if(id != 0){
@@ -4495,9 +4505,25 @@ void buildMainMenu(void){
 
     //buildLayerMenus();
 
-    layers->addItem(new CED_SubSubMenu("Show/Hide axis", AXES));
+    if(setting.show_axes == true){
+        layers->addItem(new CED_SubSubMenu("[X] Axis", AXES));
+    }else{
+        layers->addItem(new CED_SubSubMenu("[ ] Axis", AXES));
+    }    
+        
     layers->addItem(new CED_SubSubMenu("---", AXES));
-    layers->addItem(new CED_SubSubMenu("Show/Hide all data Layers [`]", LAYER_ALL));
+    bool result=true;
+    for(int i=0;i<NUMBER_DATA_LAYER;i++){
+        if(setting.layer[i] == false){
+            result=false;
+            break;
+        }
+    }
+    if(result){
+        layers->addItem(new CED_SubSubMenu("[X] Show/Hide all data Layers [`]", LAYER_ALL));
+    }else{
+        layers->addItem(new CED_SubSubMenu("[ ] Show/Hide all data Layers [`]", LAYER_ALL));
+    }
 
     layers->addItem(datalayermenu);
 
@@ -4508,7 +4534,19 @@ void buildMainMenu(void){
 
 
     layers->addItem(new CED_SubSubMenu("---", AXES));
-    layers->addItem(new CED_SubSubMenu("Show/Hide complete detector", DETECTOR_ALL));
+
+    result=true;
+    for(i=NUMBER_DATA_LAYER;i<NUMBER_DETECTOR_LAYER+NUMBER_DATA_LAYER;i++){
+        if(setting.layer[i] == false){
+            result=false;
+            break;
+        }
+    }
+    if(result){
+        layers->addItem(new CED_SubSubMenu("[X] Show/Hide complete detector", DETECTOR_ALL));
+    }else{
+        layers->addItem(new CED_SubSubMenu("[ ] Show/Hide complete detector", DETECTOR_ALL));
+    }
 
     layers->addItem(detectorlayermenu);
 
@@ -4531,15 +4569,77 @@ void buildMainMenu(void){
     //}
     //ced_menu->addSubMenu(submenu1);
 
+    double tmptrans=setting.detector_trans[0];
+    for(i=1;i<NUMBER_DETECTOR_LAYER;i++){
+        if(setting.detector_trans[i] != tmptrans){
+            tmptrans=-100;
+            break;
+        }
+    }
+
     CED_SubMenu *trans=new CED_SubMenu("Transparency");
-    trans->addItem(new CED_SubSubMenu("    0%",TRANS0));
-    trans->addItem(new CED_SubSubMenu("  40%",TRANS40));
-    trans->addItem(new CED_SubSubMenu("  60%",TRANS60));
-    trans->addItem(new CED_SubSubMenu("  70%",TRANS70));
-    trans->addItem(new CED_SubSubMenu("  80%",TRANS80));
-    trans->addItem(new CED_SubSubMenu("  90%",TRANS90));
-    trans->addItem(new CED_SubSubMenu("  95%",TRANS95));
-    trans->addItem(new CED_SubSubMenu("100%",TRANS100));
+    if(tmptrans == 0){
+        trans->addItem(new CED_SubSubMenu("[X]   0%",TRANS0));
+    }else{
+        trans->addItem(new CED_SubSubMenu("[ ]   0%",TRANS0));
+    }
+    if(tmptrans == 40){
+        trans->addItem(new CED_SubSubMenu("[X]  40%",TRANS40));
+    }else{
+        trans->addItem(new CED_SubSubMenu("[ ]  40%",TRANS40));
+    }
+
+
+    if(tmptrans == 60){
+        trans->addItem(new CED_SubSubMenu("[X]  60%",TRANS60));
+    }else{
+        trans->addItem(new CED_SubSubMenu("[ ]  60%",TRANS60));
+    }
+    if(tmptrans == 70){
+        trans->addItem(new CED_SubSubMenu("[X]  70%",TRANS70));
+    }else{
+        trans->addItem(new CED_SubSubMenu("[ ]  70%",TRANS70));
+    }
+    if(tmptrans == 80){
+        trans->addItem(new CED_SubSubMenu("[X]  80%",TRANS80));
+    }else{
+        trans->addItem(new CED_SubSubMenu("[ ]  80%",TRANS80));
+    }
+
+
+    if(tmptrans == 90){
+        trans->addItem(new CED_SubSubMenu("[X]  90%",TRANS90));
+    }else{
+        trans->addItem(new CED_SubSubMenu("[ ]  90%",TRANS90));
+    }
+
+
+    if(tmptrans == 95){
+        trans->addItem(new CED_SubSubMenu("[X]  95%",TRANS95));
+    }else{
+        trans->addItem(new CED_SubSubMenu("[ ]  95%",TRANS95));
+    }
+
+
+    if(tmptrans == 100){
+        trans->addItem(new CED_SubSubMenu("[X] 100%",TRANS100));
+    }else{
+        trans->addItem(new CED_SubSubMenu("[ ] 100%",TRANS100));
+    }
+
+
+
+
+
+
+
+    //trans->addItem(new CED_SubSubMenu("  40%",TRANS40));
+    //trans->addItem(new CED_SubSubMenu("  60%",TRANS60));
+    //trans->addItem(new CED_SubSubMenu("  70%",TRANS70));
+    //trans->addItem(new CED_SubSubMenu("  80%",TRANS80));
+    //trans->addItem(new CED_SubSubMenu("  90%",TRANS90));
+    //trans->addItem(new CED_SubSubMenu("  95%",TRANS95));
+    //trans->addItem(new CED_SubSubMenu("100%",TRANS100));
     ced_menu->addSubMenu(trans);
 
     CED_SubMenu *camera=new CED_SubMenu("Camera");
@@ -4548,9 +4648,21 @@ void buildMainMenu(void){
     camera->addItem(new CED_SubSubMenu("Side view [s]", VIEW_SIDE));
 
     camera->addItem(new CED_SubSubMenu("---", 0));
-    camera->addItem(new CED_SubSubMenu("Toggle side view projection [S]", TOGGLE_PHI_PROJECTION));
-    camera->addItem(new CED_SubSubMenu("Toggle front view projection [F]", TOGGLE_Z_PROJECTION));
-    camera->addItem(new CED_SubSubMenu("Toggle fisheye projection [v]",VIEW_FISHEYE));
+    if(setting.phi_projection==true){
+        camera->addItem(new CED_SubSubMenu("[X] Toggle side view projection [S]", TOGGLE_PHI_PROJECTION));
+    }else{
+        camera->addItem(new CED_SubSubMenu("[ ] Toggle side view projection [S]", TOGGLE_PHI_PROJECTION));
+    }
+    if(setting.z_projection==true){
+        camera->addItem(new CED_SubSubMenu("[X] Toggle front view projection [F]", TOGGLE_Z_PROJECTION));
+    }else{
+        camera->addItem(new CED_SubSubMenu("[ ] Toggle front view projection [F]", TOGGLE_Z_PROJECTION));
+    }
+    if(fisheye_alpha > 0){
+        camera->addItem(new CED_SubSubMenu("[X] Toggle fisheye projection [v]",VIEW_FISHEYE));
+    }else{
+        camera->addItem(new CED_SubSubMenu("[ ] Toggle fisheye projection [v]",VIEW_FISHEYE));
+    }
 
     camera->addItem(new CED_SubSubMenu("---", 0));
     camera->addItem(new CED_SubSubMenu("Zoom in [+]", VIEW_ZOOM_IN));
@@ -4559,23 +4671,91 @@ void buildMainMenu(void){
 
 
 
+
+    double tmpcut=setting.detector_cut_angle[0];
+    for(i=1;i<NUMBER_DETECTOR_LAYER;i++){
+        if(setting.detector_cut_angle[i] != tmpcut){
+            tmpcut=-100;
+            break;
+        }
+    }
+
     CED_SubMenu *cuts=new CED_SubMenu("Cuts");
     for(i=0; (unsigned)i < sizeof(available_cutangles)/sizeof(available_cutangles[0]); i++){
-            sprintf(str,"Cut of %i degree in phi", available_cutangles[i]);
+            if(available_cutangles[i] == tmpcut){
+                sprintf(str,"[X] Cut of %i degree in phi", available_cutangles[i]);
+            }else{
+                sprintf(str,"[ ] Cut of %i degree in phi", available_cutangles[i]);
+            }
             cuts->addItem(new CED_SubSubMenu(str,  CUT_ANGLE0+available_cutangles[i]));
             //glutChangeToMenuEntry(i+1, str,  CUT_ANGLE0+i);
     }
 
     //CED_SubSubMenu *zcuts=new CED_SubSubMenu("Z cut");
+
+    tmpcut=setting.detector_cut_z[0];
+    for(i=1;i<NUMBER_DETECTOR_LAYER;i++){
+        if(setting.detector_cut_z[i] != tmpcut){
+            tmpcut=-99999999;
+            break;
+        }
+    }
+
     cuts->addItem(new CED_SubSubMenu("---", 0));
-    cuts->addItem(new CED_SubSubMenu("Cut at z=-6000", CUT_Z_M6000));
-    cuts->addItem(new CED_SubSubMenu("Cut at z=-4000", CUT_Z_M4000));
-    cuts->addItem(new CED_SubSubMenu("Cut at z=-2000", CUT_Z_M2000));
-    cuts->addItem(new CED_SubSubMenu("Cut at z=0",     CUT_Z_0000));
-    cuts->addItem(new CED_SubSubMenu("Cut at z=2000",  CUT_Z_2000));
-    cuts->addItem(new CED_SubSubMenu("Cut at z=4000",  CUT_Z_4000));
-    cuts->addItem(new CED_SubSubMenu("Cut at z=6000",  CUT_Z_6000));
-    cuts->addItem(new CED_SubSubMenu("Cut at z=7000",  CUT_Z_7000));
+    if(tmpcut == -6000){
+        cuts->addItem(new CED_SubSubMenu("[X] Cut at z=-6000", CUT_Z_M6000));
+    }else{
+        cuts->addItem(new CED_SubSubMenu("[ ] Cut at z=-6000", CUT_Z_M6000));
+    }
+
+    if(tmpcut == -4000){
+        cuts->addItem(new CED_SubSubMenu("[X] Cut at z=-4000", CUT_Z_M4000));
+    }else{
+        cuts->addItem(new CED_SubSubMenu("[ ] Cut at z=-4000", CUT_Z_M4000));
+    }
+
+    if(tmpcut == -2000){
+        cuts->addItem(new CED_SubSubMenu("[X] Cut at z=-2000", CUT_Z_M2000));
+    }else{
+        cuts->addItem(new CED_SubSubMenu("[ ] Cut at z=-2000", CUT_Z_M2000));
+    }
+
+    if(tmpcut == 0){
+        cuts->addItem(new CED_SubSubMenu("[X] Cut at z=0", CUT_Z_0000));
+    }else{
+        cuts->addItem(new CED_SubSubMenu("[ ] Cut at z=0", CUT_Z_0000));
+    }
+    if(tmpcut == 2000){
+        cuts->addItem(new CED_SubSubMenu("[X] Cut at z=2000", CUT_Z_2000));
+    }else{
+        cuts->addItem(new CED_SubSubMenu("[ ] Cut at z=2000", CUT_Z_2000));
+    }
+    if(tmpcut == 4000){
+        cuts->addItem(new CED_SubSubMenu("[X] Cut at z=4000", CUT_Z_4000));
+    }else{
+        cuts->addItem(new CED_SubSubMenu("[ ] Cut at z=4000", CUT_Z_4000));
+    }
+
+    if(tmpcut == 6000){
+        cuts->addItem(new CED_SubSubMenu("[X] Cut at z=6000", CUT_Z_6000));
+    }else{
+        cuts->addItem(new CED_SubSubMenu("[ ] Cut at z=6000", CUT_Z_6000));
+    }
+
+    if(tmpcut == 7000){
+        cuts->addItem(new CED_SubSubMenu("[X] Cut at z=7000", CUT_Z_7000));
+    }else{
+        cuts->addItem(new CED_SubSubMenu("[ ] Cut at z=7000", CUT_Z_7000));
+    }
+
+
+    //cuts->addItem(new CED_SubSubMenu("Cut at z=-4000", CUT_Z_M4000));
+    //cuts->addItem(new CED_SubSubMenu("Cut at z=-2000", CUT_Z_M2000));
+    //cuts->addItem(new CED_SubSubMenu("Cut at z=0",     CUT_Z_0000));
+    //cuts->addItem(new CED_SubSubMenu("Cut at z=2000",  CUT_Z_2000));
+    //cuts->addItem(new CED_SubSubMenu("Cut at z=4000",  CUT_Z_4000));
+    //cuts->addItem(new CED_SubSubMenu("Cut at z=6000",  CUT_Z_6000));
+    //cuts->addItem(new CED_SubSubMenu("Cut at z=7000",  CUT_Z_7000));
 
     //cuts->addItem(new CED_SubSubMenu("---",  0));
     //cuts->addItem(new CED_SubSubMenu("Cut at z=0",  0));
@@ -4585,24 +4765,62 @@ void buildMainMenu(void){
 
 
     CED_SubMenu *settings=new CED_SubMenu("Graphic");
-    settings->addItem(new CED_SubSubMenu("Graphic low",GRAFIC_LOW));
-    settings->addItem(new CED_SubSubMenu("Graphic high",GRAFIC_HIGH));
+    if(setting.trans==false && setting.persp==false){
+        settings->addItem(new CED_SubSubMenu("[X] Graphic low",GRAFIC_LOW));
+    }else{
+        settings->addItem(new CED_SubSubMenu("[ ] Graphic low",GRAFIC_LOW));
+    }
+
+
+    if(setting.trans==true && setting.persp==true){
+        settings->addItem(new CED_SubSubMenu("[X] Graphic high",GRAFIC_HIGH));
+    }else{
+        settings->addItem(new CED_SubSubMenu("[ ] Graphic high",GRAFIC_HIGH));
+    }
 
     settings->addItem(new CED_SubSubMenu("---",0));
-    settings->addItem(new CED_SubSubMenu("Toggle perspective",GRAFIC_PERSP));
-    settings->addItem(new CED_SubSubMenu("Toggle wireframe",GRAFIC_TRANS));
+    if(setting.persp){
+        settings->addItem(new CED_SubSubMenu("[X] Toggle perspective",GRAFIC_PERSP));
+    }else{
+        settings->addItem(new CED_SubSubMenu("[ ] Toggle perspective",GRAFIC_PERSP));
+    }
+    if(setting.trans){
+        settings->addItem(new CED_SubSubMenu("[X] Toggle wireframe",GRAFIC_TRANS));
+    }else{
+        settings->addItem(new CED_SubSubMenu("[ ] Toggle wireframe",GRAFIC_TRANS));
+    }
+    if(setting.light){
+        settings->addItem(new CED_SubSubMenu("[X] Light", GRAFIC_LIGHT));
+    }else{
+        settings->addItem(new CED_SubSubMenu("[ ] Light", GRAFIC_LIGHT));
+    }
+    if(setting.antia){
+        settings->addItem(new CED_SubSubMenu("[X] Anti Aliasing", GRAFIC_ALIAS));
+    }else{
+        settings->addItem(new CED_SubSubMenu("[ ] Anti Aliasing", GRAFIC_ALIAS));
+    }
+
     settings->addItem(new CED_SubSubMenu("Fade far objects",GRAFIC_FOG));
     settings->addItem(new CED_SubSubMenu("Deepbuffer", GRAFIC_BUFFER));
-    settings->addItem(new CED_SubSubMenu("Transparency/mesh", GRAFIC_TRANS));
-    settings->addItem(new CED_SubSubMenu("Light", GRAFIC_LIGHT));
-    settings->addItem(new CED_SubSubMenu("Anti Aliasing", GRAFIC_ALIAS));
 
     settings->addItem(new CED_SubSubMenu("---",0));
 
     CED_SubSubMenu *font=new CED_SubSubMenu("Text font size ");
-    font->addItem(new CED_SubSubMenu("Tiny",FONT0));
-    font->addItem(new CED_SubSubMenu("Normal",FONT1));
-    font->addItem(new CED_SubSubMenu("Big",FONT2));
+    if(setting.font == 0){
+        font->addItem(new CED_SubSubMenu("[X] Tiny",FONT0));
+    }else{
+        font->addItem(new CED_SubSubMenu("[ ] Tiny",FONT0));
+    }
+    if(setting.font == 1){
+        font->addItem(new CED_SubSubMenu("[X] Normal",FONT1));
+    }else{
+        font->addItem(new CED_SubSubMenu("[ ] Normal",FONT1));
+    }
+    if(setting.font == 2){
+        font->addItem(new CED_SubSubMenu("[X] Big",FONT2));
+    }else{
+        font->addItem(new CED_SubSubMenu("[ ] Big",FONT2));
+    }
     settings->addItem(font);
 
 
@@ -4674,22 +4892,40 @@ void buildMainMenu(void){
 
 
 
+    char tmp[200];
     CED_SubSubMenu *screenshot=new CED_SubSubMenu("Save screenshot");
-    screenshot->addItem(new CED_SubSubMenu("original size",SAVE_IMAGE1));
-    screenshot->addItem(new CED_SubSubMenu("large",SAVE_IMAGE4));
-    screenshot->addItem(new CED_SubSubMenu("very large",SAVE_IMAGE10));
-    screenshot->addItem(new CED_SubSubMenu("very very large",SAVE_IMAGE20));
-    screenshot->addItem(new CED_SubSubMenu("extrem large",SAVE_IMAGE100));
+    sprintf(tmp,"original size (%i x %i)", int(setting.win_w), int(setting.win_h));
+    screenshot->addItem(new CED_SubSubMenu(tmp,SAVE_IMAGE1));
+
+    sprintf(tmp,"large (%i x %i)", int(4*setting.win_w), int(4*setting.win_h));
+    screenshot->addItem(new CED_SubSubMenu(tmp,SAVE_IMAGE4));
+
+    sprintf(tmp,"very large (%i x %i)", int(10*setting.win_w), int(10*setting.win_h));
+    screenshot->addItem(new CED_SubSubMenu(tmp,SAVE_IMAGE10));
+
+    sprintf(tmp,"very very large (%i x %i)", int(20*setting.win_w), int(20*setting.win_h));
+    screenshot->addItem(new CED_SubSubMenu(tmp,SAVE_IMAGE20));
+
+    sprintf(tmp,"extrem large (%i x %i)", int(100*setting.win_w), int(100*setting.win_h));
+    screenshot->addItem(new CED_SubSubMenu(tmp,SAVE_IMAGE100));
 
     CED_SubMenu *tools=new CED_SubMenu("Tools");
     tools->addItem(screenshot);
     tools->addItem(new CED_SubSubMenu("---",0));
-    tools->addItem(new CED_SubSubMenu("Show FPS",FPS));
+    if(setting.fps){
+        tools->addItem(new CED_SubSubMenu("[X] Show FPS",FPS));
+    }else{
+        tools->addItem(new CED_SubSubMenu("[ ] Show FPS",FPS));
+    }
     ced_menu->addSubMenu(tools);
 
 
     CED_SubMenu *help=new CED_SubMenu("Help");
-    help->addItem(new CED_SubSubMenu("Show keyboard shortcuts",HELP));
+    if(showHelp){
+        help->addItem(new CED_SubSubMenu("[X] Show keyboard shortcuts",HELP));
+    }else{
+        help->addItem(new CED_SubSubMenu("[ ] Show keyboard shortcuts",HELP));
+    }
     help->addItem(new CED_SubSubMenu("---",0));
     help->addItem(new CED_SubSubMenu("Contact CED team (hauke.hoelbe@desy.de)",0));
     ced_menu->addSubMenu(help);
