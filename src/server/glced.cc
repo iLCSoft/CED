@@ -11,10 +11,23 @@
  *                     - added help message for "-help, -h, -?"
  *                     - replaced fixed size window geometry with geometry comand-line option
  *                     
+ * 2010 - 2012, H. Hoelbe:
+ *                     - improved picking function 
+ *                     - added main und popup menu
+ *                     - added help menu
+ *                     - added grafik features:
+ *                         - detector in mesh or polygonal view
+ *                         - perspectivic view
+ *                         - detector cuts (phi and z)
+ *                         - tranformations: front and side view
+ *                         - background color
+ *                         - transparency
+ *                      - added features:
+ *                         - screenshot 
+ *                         - distance
+ *                         - frames per secound
+ *           
  */
-
-
-
 
 #include <iomanip>
 
@@ -44,52 +57,47 @@
 #include <errno.h>
 #include <sys/select.h>
 
-//hauke
-#include <ctype.h> //toupper
+#include <ctype.h> 
 #include <sys/time.h>
 #include <time.h>
 #include <netdb.h>
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include <stdlib.h> //getenv
+#include <stdlib.h> 
 #include <sys/stat.h>
-//#include <wx>
 
 using namespace std;
 
 
-    //#include<jpeglib.h>
+#define PICK_HIT                    24974
+#define CENTER_HIT                  24975
 
-#define PICK_HIT               24974
-#define CENTER_HIT             24975
+#define FONT0                        2010            
+#define FONT1                        2011
+#define FONT2                        2012
 
-#define FONT0                   2010            
-#define FONT1                   2011
-#define FONT2                   2012
+#define UNDO                         2312
 
-
-#define UNDO                    2312
-
-#define GRAFIC_HIGH             2000            
-#define GRAFIC_LOW              2001
-#define GRAFIC_PERSP            2002
-#define GRAFIC_BUFFER           2003
-#define GRAFIC_TRANS            2004
-#define GRAFIC_LIGHT            2005
-#define GRAFIC_ALIAS            2006
-#define GRAFIC_FOG              2007
+#define GRAFIC_HIGH                  2000            
+#define GRAFIC_LOW                   2001
+#define GRAFIC_PERSP                 2002
+#define GRAFIC_BUFFER                2003
+#define GRAFIC_TRANS                 2004
+#define GRAFIC_LIGHT                 2005
+#define GRAFIC_ALIAS                 2006
+#define GRAFIC_FOG                   2007
 
 
 
-#define CUT_Z_M6000             140001          
-#define CUT_Z_M4000             140002          
-#define CUT_Z_M2000             140003          
-#define CUT_Z_0000              140004          
-#define CUT_Z_2000              140005          
-#define CUT_Z_4000              140006          
-#define CUT_Z_6000              140007          
-#define CUT_Z_7000             140000          
+#define CUT_Z_M6000                  140001          
+#define CUT_Z_M4000                  140002          
+#define CUT_Z_M2000                  140003          
+#define CUT_Z_0000                   140004          
+#define CUT_Z_2000                   140005          
+#define CUT_Z_4000                   140006          
+#define CUT_Z_6000                   140007          
+#define CUT_Z_7000                   140000          
 
 
 #define LAYER_CUT_Z_M6000             150001          
@@ -125,34 +133,6 @@ using namespace std;
 #define CUT_ANGLE170            12170 
 #define CUT_ANGLE190            12190 
 
-//#define CUT_ANGLE360            2106
-
-//#define LAYER_CUT_ANGLE0        2200
-//#define LAYER_CUT_ANGLE30       2201
-//#define LAYER_CUT_ANGLE90       2202
-//#define LAYER_CUT_ANGLE135      2203
-//#define LAYER_CUT_ANGLE180      2204
-//#define LAYER_CUT_ANGLE270      2205
-//#define LAYER_CUT_ANGLE360      2206
-
-//#define LAYER_CUT_ANGLE0       2200
-//#define LAYER_CUT_ANGLE30      2201
-//#define LAYER_CUT_ANGLE90      2202
-//#define LAYER_CUT_ANGLE135     2203
-//#define LAYER_CUT_ANGLE180     2204
-//#define LAYER_CUT_ANGLE200     2205
-//#define LAYER_CUT_ANGLE220     2206
-//#define LAYER_CUT_ANGLE240     2207
-//#define LAYER_CUT_ANGLE260     2208
-//#define LAYER_CUT_ANGLE270     2209
-//#define LAYER_CUT_ANGLE280     2215
-//#define LAYER_CUT_ANGLE290     2210
-//#define LAYER_CUT_ANGLE310     2211
-//#define LAYER_CUT_ANGLE330     2212
-//#define LAYER_CUT_ANGLE340     2213
-//#define LAYER_CUT_ANGLE350     2214
-
-
 #define LAYER_CUT_ANGLE0              13000
 #define LAYER_CUT_ANGLE30             13030
 #define LAYER_CUT_ANGLE90             13090
@@ -175,9 +155,6 @@ using namespace std;
 #define LAYER_CUT_ANGLE150            13150 
 #define LAYER_CUT_ANGLE170            13170 
 #define LAYER_CUT_ANGLE190            13190 
-
-
-
 
 #define TRANS0                  3100
 #define TRANS40                 3101
@@ -203,12 +180,8 @@ using namespace std;
 #define FPS                     6003
 
 
-
-
+//for new angles add the new angle to this list and to define in top of this
 static int available_cutangles[]={0,30,45,90,100,135,120,150,170,180,190,200,220,240,260,270,280,290,310,330,340};
-
-//static int available_cutangles[]={0,30,90,135, 180, 270, 360};  //for new angles add the new angle to this list and to define in top of this
-
 
 
 #define BGCOLOR_WHITE           1000
@@ -327,6 +300,9 @@ static int available_cutangles[]={0,30,45,90,100,135,120,150,170,180,190,200,220
 
 //#define PHI_PROJECTION_OFF 5001
 
+
+static GLfloat window_width=0.;
+static GLfloat window_height=0.;
 
 int last_selected_layer;
 extern CEDsettings setting;
@@ -523,8 +499,14 @@ class CED_SubSubMenu{
                         }
                     }
                     for(i=0;(unsigned) i<subsubMenus.size();i++){
-                            subsubMenus.at(i)->x_start=x_end;
-                            subsubMenus.at(i)->x_end  =x_end+maxlength*width;
+                            //cout << window_width << " vs " << x_end+maxlength*width << endl;
+                            if(window_width > x_end+maxlength*width || window_width-x_end  > x_start){
+                                subsubMenus.at(i)->x_start=x_end;
+                                subsubMenus.at(i)->x_end  =x_end+maxlength*width;
+                            }else{
+                                subsubMenus.at(i)->x_start=x_start-maxlength*width;
+                                subsubMenus.at(i)->x_end  =x_start;
+                            }
                             subsubMenus.at(i)->y_start=y_start+height*i;
                             subsubMenus.at(i)->y_end  =y_end + height*i;
                             subsubMenus.at(i)->draw();
@@ -655,7 +637,6 @@ class CED_SubSubMenu{
                width=11;
            }
 
-
             subsub->x_start=x_start;
             subsub->x_end  =x_start+50; //TODO
             subsub->y_start=y_start+height;
@@ -667,7 +648,22 @@ class CED_SubSubMenu{
             optionNr=nr;
             isExtend=false;
             isMouseOver=false;
+            dead=false;
         }
+        ~CED_SubSubMenu(){
+            if(dead == true){
+                return;
+            }
+            cout << "       delete subsubmenus (" << subsubMenus.size() << " submenus)" <<  endl;
+            for(unsigned i=1;i<subsubMenus.size();i++){
+                cout << "           delete: " << subsubMenus.at(i)->title <<   endl;
+                delete subsubMenus.at(i);
+                subsubMenus.at(i)=NULL;
+                //subsubMenu.remove(i);
+            }
+            dead=true;
+        }
+
 
         bool isAktive;
         string title; 
@@ -678,6 +674,8 @@ class CED_SubSubMenu{
         int x_end;
         int y_start;
         int y_end;
+        
+        bool dead;
 
     private: 
         vector<CED_SubSubMenu *> subsubMenus;   
@@ -838,6 +836,13 @@ class CED_SubMenu{
             isMouseOver=false;
             selected_submenu=NULL;
         }
+        ~CED_SubMenu(){
+            for(int i=0;(unsigned) i<subsubMenus.size();i++){
+                delete subsubMenus.at(i);
+                subsubMenus.at(i)=NULL;
+            }
+        }
+
 
 
         string title; 
@@ -988,6 +993,12 @@ class CED_Menu{
         }
         CED_Menu(){
             x_offset=1;
+        }
+        ~CED_Menu(){
+            cout << "delete ced menu" <<  endl;
+            for(int i=0;(unsigned) i<subMenus.size();){
+                delete subMenus.at(i);
+            }
         }
         
     private:
@@ -1183,7 +1194,7 @@ CED_PopUpMenu *popupmenu;
 void buildPopUpMenu(int x, int y);
 
 
-CED_Menu *ced_menu;
+CED_Menu *ced_menu=NULL;
 
 // from ced_srv.c
 void ced_prepare_objmap(void);
@@ -1366,8 +1377,6 @@ static struct {
 }, mm_reset ;
 
 
-static GLfloat window_width=0.;
-static GLfloat window_height=0.;
 static enum {
     NO_MOVE,
     TURN_XY,
@@ -2065,7 +2074,8 @@ static void reshape(int w,int h){
 
 
 
-    buildMainMenu(); 
+    //buildMainMenu(); 
+    buildLayerMenus();
     //updateScreenshotMenu();
 }
 
@@ -4456,11 +4466,15 @@ void buildPopUpMenu(int x, int y){
 }
 void buildLayerMenus(void){
     //std::cout << "enter buildLayerMenus" << std::endl;
+    //if(ced_menu != NULL && detectorlayermenu != NULL && datalayermenu != NULL){
+    //    delete ced_menu;
+    //}
+
     detectorlayermenu=new CED_SubSubMenu("Detector layers",0); 
     datalayermenu=new CED_SubSubMenu("Data layers",0);
     int i;
     char str[2000];
-    int max=200;
+    int max=150;
     char tmp[max+1];
     for(i=0;i<NUMBER_POPUP_LAYER;i++){
         //std::cout << "description: " << layerDescription[i] << std::endl;
@@ -4495,6 +4509,7 @@ void buildLayerMenus(void){
 void buildMainMenu(void){
     //std::cout << "build main menu" << std::endl;
     ced_menu=new CED_Menu();
+    //buildLayerMenus();
 
 
     char str[200];
