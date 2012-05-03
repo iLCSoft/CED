@@ -32,13 +32,13 @@
 #include <iomanip>
 
 #ifdef __APPLE__
-#include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
-#include <GLUT/glut.h>
+    #include <OpenGL/gl.h>
+    #include <OpenGL/glu.h>
+    #include <GLUT/glut.h>
 #else
-#include "GL/gl.h"
-#include <GL/glu.h>
-#include <GL/glut.h>
+    #include "GL/gl.h"
+    #include <GL/glu.h>
+    #include <GL/glut.h>
 #endif
 
 #include <sys/types.h>
@@ -67,296 +67,46 @@
 #include <stdlib.h> 
 #include <sys/stat.h>
 
-using namespace std;
-
-
-#define PICK_HIT                    24974
-#define CENTER_HIT                  24975
-
-#define FONT0                        2010            
-#define FONT1                        2011
-#define FONT2                        2012
-
-#define UNDO                         2312
-
-#define GRAFIC_HIGH                  2000            
-#define GRAFIC_LOW                   2001
-#define GRAFIC_PERSP                 2002
-#define GRAFIC_BUFFER                2003
-#define GRAFIC_TRANS                 2004
-#define GRAFIC_LIGHT                 2005
-#define GRAFIC_ALIAS                 2006
-#define GRAFIC_FOG                   2007
-
-
-
-#define CUT_Z_M6000                  140001          
-#define CUT_Z_M4000                  140002          
-#define CUT_Z_M2000                  140003          
-#define CUT_Z_0000                   140004          
-#define CUT_Z_2000                   140005          
-#define CUT_Z_4000                   140006          
-#define CUT_Z_6000                   140007          
-#define CUT_Z_7000                   140000          
-
-
-#define LAYER_CUT_Z_M6000             150001          
-#define LAYER_CUT_Z_M4000             150002          
-#define LAYER_CUT_Z_M2000             150003          
-#define LAYER_CUT_Z_0000              150004          
-#define LAYER_CUT_Z_2000              150005          
-#define LAYER_CUT_Z_4000              150006          
-#define LAYER_CUT_Z_6000              150007          
-#define LAYER_CUT_Z_7000             150000          
-
-
-#define CUT_ANGLE0              12000
-#define CUT_ANGLE30             12030
-#define CUT_ANGLE90             12090
-#define CUT_ANGLE135            12135
-#define CUT_ANGLE180            12180
-#define CUT_ANGLE200            12200
-#define CUT_ANGLE220            12220
-#define CUT_ANGLE240            12240
-#define CUT_ANGLE260            12260
-#define CUT_ANGLE270            12270
-#define CUT_ANGLE280            12280
-#define CUT_ANGLE290            12290
-#define CUT_ANGLE310            12310
-#define CUT_ANGLE330            12330
-#define CUT_ANGLE340            12340
-#define CUT_ANGLE350            12350
-#define CUT_ANGLE45             12045 
-#define CUT_ANGLE100            12100 
-#define CUT_ANGLE120            12120 
-#define CUT_ANGLE150            12150 
-#define CUT_ANGLE170            12170 
-#define CUT_ANGLE190            12190 
-
-#define LAYER_CUT_ANGLE0              13000
-#define LAYER_CUT_ANGLE30             13030
-#define LAYER_CUT_ANGLE90             13090
-#define LAYER_CUT_ANGLE135            13135
-#define LAYER_CUT_ANGLE180            13180
-#define LAYER_CUT_ANGLE200            13200
-#define LAYER_CUT_ANGLE220            13220
-#define LAYER_CUT_ANGLE240            13240
-#define LAYER_CUT_ANGLE260            13260
-#define LAYER_CUT_ANGLE270            13270
-#define LAYER_CUT_ANGLE280            13280
-#define LAYER_CUT_ANGLE290            13290
-#define LAYER_CUT_ANGLE310            13310
-#define LAYER_CUT_ANGLE330            13330
-#define LAYER_CUT_ANGLE340            13340
-#define LAYER_CUT_ANGLE350            13350
-#define LAYER_CUT_ANGLE45             13045 
-#define LAYER_CUT_ANGLE100            13100 
-#define LAYER_CUT_ANGLE120            13120 
-#define LAYER_CUT_ANGLE150            13150 
-#define LAYER_CUT_ANGLE170            13170 
-#define LAYER_CUT_ANGLE190            13190 
-
-#define TRANS0                  3100
-#define TRANS40                 3101
-#define TRANS60                 3102
-#define TRANS70                 3103
-#define TRANS80                 3104
-#define TRANS90                 3105
-#define TRANS95                 3106
-#define TRANS100                3107
-
-#define LAYER_TRANS0            3200
-#define LAYER_TRANS40           3201
-#define LAYER_TRANS60           3202
-#define LAYER_TRANS70           3203
-#define LAYER_TRANS80           3204
-#define LAYER_TRANS90           3205
-#define LAYER_TRANS95           3206
-#define LAYER_TRANS100          3207
-
-
-#define FULLSCREEN              6001
-#define AXES                    6002
-#define FPS                     6003
-
-
-//for new angles add the new angle to this list and to define in top of this
-static int available_cutangles[]={0,30,45,90,100,135,120,150,170,180,190,200,220,240,260,270,280,290,310,330,340};
-
-
-#define BGCOLOR_WHITE           1000
-#define BGCOLOR_SILVER          1001
-#define BGCOLOR_DIMGRAY         1002
-#define BGCOLOR_BLACK           1003
-#define BGCOLOR_LIGHTSTEELBLUE  1004
-#define BGCOLOR_STEELBLUE       1005
-#define BGCOLOR_BLUE            1006
-#define BGCOLOR_SEAGREEN        1007
-#define BGCOLOR_ORANGE          1008
-#define BGCOLOR_YELLOW          1009
-#define BGCOLOR_VIOLET          1010
-
-//#define BGCOLOR_GAINSBORO       1011
-//#define BGCOLOR_LIGHTGREY       1012
-//#define BGCOLOR_DARKGRAY        1013
-//#define BGCOLOR_GRAY            1014
-#define BGCOLOR_OPTION1         1015
-#define BGCOLOR_OPTION2         1016
-#define BGCOLOR_OPTION3         1017
-#define BGCOLOR_OPTION4         1018
-#define BGCOLOR_OPTION5         1019
-#define BGCOLOR_OPTION6         1020
-#define BGCOLOR_OPTION7         1021
-#define BGCOLOR_OPTION8         1022
-#define BGCOLOR_OPTION9         1023
-#define BGCOLOR_OPTION10        1024
-#define BGCOLOR_OPTION11        1025
-#define BGCOLOR_OPTION12        1026
-#define BGCOLOR_OPTION13        1027
-#define BGCOLOR_OPTION14        1028
-#define BGCOLOR_OPTION15        1029
-
-#define BGCOLOR_USER            1100
-
-
-#define VIEW_FISHEYE    20
-#define VIEW_FRONT      21
-#define VIEW_SIDE       22
-#define VIEW_ZOOM_IN    23
-#define VIEW_ZOOM_OUT   24
-#define VIEW_RESET      25
-#define VIEW_CENTER     26
-
-#define LAYER_0         30
-#define LAYER_1         31
-#define LAYER_2         32
-#define LAYER_3         33
-#define LAYER_4         34
-#define LAYER_5         35
-#define LAYER_6         36
-#define LAYER_7         37
-#define LAYER_8         38
-#define LAYER_9         39
-#define LAYER_10        40
-#define LAYER_11        41
-#define LAYER_12        42
-#define LAYER_13        43
-#define LAYER_14        44
-#define LAYER_15        45
-#define LAYER_16        46
-#define LAYER_17        47
-#define LAYER_18        48
-#define LAYER_19        49
-#define LAYER_ALL       60
-
-#define DETECTOR1               4001
-#define DETECTOR2               4002
-#define DETECTOR3               4003
-#define DETECTOR4               4004
-#define DETECTOR5               4005
-#define DETECTOR6               4006
-#define DETECTOR7               4007
-#define DETECTOR8               4008
-#define DETECTOR9               4009
-#define DETECTOR10              4010
-#define DETECTOR11              4011
-#define DETECTOR12              4012
-#define DETECTOR13               4013
-#define DETECTOR14               4014
-#define DETECTOR15               4015
-#define DETECTOR16               4016
-#define DETECTOR17               4017
-#define DETECTOR18               4018
-#define DETECTOR19               4019
-#define DETECTOR20              4020
-
-#define DETECTOR_ALL            4100
-
-
-
-#define HELP            100
-#define SAVE1           101
-#define SAVE2           102
-#define SAVE3           103
-#define SAVE4           104
-#define SAVE5           105
-#define LOAD1           131
-#define LOAD2           132
-#define LOAD3           133
-#define LOAD4           134
-#define LOAD5           135
-
-
-#define SAVE_IMAGE      5555
-#define SAVE_IMAGE1     5556
-#define SAVE_IMAGE4     5557
-#define SAVE_IMAGE10    5558
-#define SAVE_IMAGE20    5559
-#define SAVE_IMAGE100   5560
-
-
-#define TOGGLE_PHI_PROJECTION   5000
-#define TOGGLE_Z_PROJECTION     5001
-
-//#define PHI_PROJECTION_OFF 5001
-
-
 static GLfloat window_width=0.;
 static GLfloat window_height=0.;
 
-int last_selected_layer;
-extern CEDsettings setting;
-
-CEDsettings setting_old[5];
-
-//extern int graphic[];  //= {0,0,0,0}; //light, transparence, perspective, anti aliasing
-//extern double cut_angle;
-//extern double trans_value;
-//static double z_cutting=7000;
-//static bool fixed_view=0;
-
-//extern bool phi_projection;
-//extern bool z_projection;
-
-//double POPUPMENU_X, POPUPMENU_Y;
-
-int ced_picking(int x,int y,GLfloat *wx,GLfloat *wy,GLfloat *wz); //from ced_srv.c, need header files!
-
-static char layerDescription[CED_MAX_LAYER][CED_MAX_LAYER_CHAR]; 
-const char layer_keys[] = {'0','1', '2','3','4','5','6','7','8','9',')', '!', '@', '#', '$', '%', '^', '&', '*', '(', 't', 'y', 'u', 'i', 'o'};
-
-const char detec_layer_keys[] = {'t','y','u','i','o','p','[',']','\\', 'T', 'Y','U','I','O','P','{','}','|',' ',' ',' '};
-
-static int mainWindow=-1;
-//static int subWindow=-1;
-static int layerMenu;
-static int detectorMenu;
-static int subsubMenu2;
-
-static int subscreenshot;
-
-static int subSave;
-static int subLoad;
-
-
-//static int helpWindow=-1;
-static int showHelp=0;
-
-
-
+#include <ced_menu.h>
 
 
 #define DEFAULT_WORLD_SIZE 1000.  //SJA:FIXED Reduce world size to give better scale
 
+using namespace std;
+
+
+int ced_picking(int x,int y,GLfloat *wx,GLfloat *wy,GLfloat *wz); //from ced_srv.c, need header files!
+
+
+//*************** global variables ***************************************//
+//for new angles add the new angle to this list and to define in ced_menu.h
+static int available_cutangles[]={0,30,45,90,100,135,120,150,170,180,190,200,220,240,260,270,280,290,310,330,340};
+int last_selected_layer;
+extern CEDsettings setting;
+CEDsettings setting_old[5];
+static char layerDescription[CED_MAX_LAYER][CED_MAX_LAYER_CHAR]; 
+//const char layer_keys[] = {'0','1', '2','3','4','5','6','7','8','9',')', '!', '@', '#', '$', '%', '^', '&', '*', '(', 't', 'y', 'u', 'i', 'o'};
+const char layer_keys[] = { DATALAYER_SHORTKEY_00, DATALAYER_SHORTKEY_01, DATALAYER_SHORTKEY_02, DATALAYER_SHORTKEY_03, DATALAYER_SHORTKEY_04, DATALAYER_SHORTKEY_05, DATALAYER_SHORTKEY_06, DATALAYER_SHORTKEY_07, DATALAYER_SHORTKEY_08, DATALAYER_SHORTKEY_09, DATALAYER_SHORTKEY_10, DATALAYER_SHORTKEY_11, DATALAYER_SHORTKEY_12, DATALAYER_SHORTKEY_13, DATALAYER_SHORTKEY_14, DATALAYER_SHORTKEY_15, DATALAYER_SHORTKEY_16, DATALAYER_SHORTKEY_17, DATALAYER_SHORTKEY_18, DATALAYER_SHORTKEY_19, DATALAYER_SHORTKEY_20, DATALAYER_SHORTKEY_21, DATALAYER_SHORTKEY_22, DATALAYER_SHORTKEY_23, DATALAYER_SHORTKEY_24};
+
+//const char detec_layer_keys[] = {'t','y','u','i','o','p','[',']','\\', 'T', 'Y','U','I','O','P','{','}','|',' ',' ',' '};
+const char detec_layer_keys[] = { DETECTORLAYER_SHORTKEY_00,   DETECTORLAYER_SHORTKEY_01,   DETECTORLAYER_SHORTKEY_02,   DETECTORLAYER_SHORTKEY_03,   DETECTORLAYER_SHORTKEY_04,   DETECTORLAYER_SHORTKEY_05,   DETECTORLAYER_SHORTKEY_06,   DETECTORLAYER_SHORTKEY_07,   DETECTORLAYER_SHORTKEY_08,   DETECTORLAYER_SHORTKEY_09,   DETECTORLAYER_SHORTKEY_10,   DETECTORLAYER_SHORTKEY_11,   DETECTORLAYER_SHORTKEY_12,   DETECTORLAYER_SHORTKEY_13,   DETECTORLAYER_SHORTKEY_14,   DETECTORLAYER_SHORTKEY_15,   DETECTORLAYER_SHORTKEY_16,   DETECTORLAYER_SHORTKEY_17,   DETECTORLAYER_SHORTKEY_18,   DETECTORLAYER_SHORTKEY_19};   
+
+static int mainWindow=-1;
+static int layerMenu;
+static int detectorMenu;
+static int subsubMenu2;
+static int subscreenshot;
+static int subSave;
+static int subLoad;
+static int showHelp=0;
 static float WORLD_SIZE;
 static float FISHEYE_WORLD_SIZE;
-
 double fisheye_alpha = 0.0;
-
-//hauke
 long int doubleClickTime=0;
 static float BG_COLOR[4];
-
 extern int SELECTED_ID ;
 
 //fg - make axe a global to be able to rescale the world volume
@@ -367,12 +117,6 @@ static GLfloat axe[][3]={
   { 0., 0., DEFAULT_WORLD_SIZE/2 }
 };
 
-
-void updateScreenshotMenu(void);
-void screenshot(char *name, int times);
-
-void buildLayerMenus(void);
-
 // allows to reset the visible world size
 static void set_world_size( float length) {
   WORLD_SIZE = length ;
@@ -380,17 +124,6 @@ static void set_world_size( float length) {
   axe[2][1] = WORLD_SIZE / 2. ;
   axe[3][2] = WORLD_SIZE / 2. ;
 };
-
-
-//hauke
-static void set_bg_color(float one, float two, float three, float four){
-    BG_COLOR[0]=one;
-    BG_COLOR[1]=two;
-    BG_COLOR[2]=three;
-    BG_COLOR[3]=four;
-
-    glClearColor(BG_COLOR[0],BG_COLOR[1],BG_COLOR[2],BG_COLOR[3]);
-}
 
 typedef GLfloat color_t[4];
 
@@ -403,7 +136,6 @@ static color_t bgColors[] = {
   { 0.8, 0.8, 0.8, 0.0 },
   { 1.0, 1.0, 1.0, 0.0 }  //white
 };
-
 static float userDefinedBGColor[] = {-1.0, -1.0, -1.0, -1.0};
 
 static unsigned int iBGcolor = 0;
@@ -418,792 +150,10 @@ extern struct __glutSocketList {
 
 extern bool client_connected;
 
-
-void drawHelpString (const string & str, float x,float y);
-void buildMainMenu(void);
-
-class CED_SubSubMenu{
-    public: 
-        void setTitle(string new_title){
-            title=new_title;        
-        }
-        void draw(){
-                int height=10;
-                int width=2;
-                if(setting.font==0){
-                    height=10;
-                    width=6;
-                }
-                if(setting.font==1){
-                    height=12;
-                    width=8;
-                }
-                if(setting.font==2){
-                    height=20;
-                    width=11;
-                }
-
-
-                if(isExtend || isMouseOver){
-                    isAktive=true;
-                    glColor3f(0.662745,0.662745,0.662745);
-                    glBegin(GL_QUADS);
-                    glVertex3f(x_start,y_start,0);
-                    glVertex3f(x_start,y_end,0);
-                    glVertex3f(x_end,y_end,0);
-                    glVertex3f(x_end,y_start,0);
-                    glEnd();
-
-                    //glColor3f(1,1,1);
-                    //glLineWidth(1.);
-                    //glBegin(GL_LINES); 
-
-                    //glVertex3f(x_start,y_start,0);
-                    //glVertex3f(x_start,y_end,0);
-
-                    //glVertex3f(x_start,y_end,0);
-                    //glVertex3f(x_end,y_end,0);
-
-                    //glVertex3f(x_end,y_end,0);
-                    //glVertex3f(x_end,y_start,0);
-
-                    //glVertex3f(x_end,y_start,0);
-                    //glVertex3f(x_start,y_start,0);
-                    //glEnd();
-                    glColor3f(0.662745,0.662745,0.662745);
-                    glBegin(GL_LINES); 
-
-                    glVertex3f(x_start,y_start,0);
-                    glVertex3f(x_start,y_end,0);
-
-                    glVertex3f(x_end,y_end,0);
-                    glVertex3f(x_end,y_start,0);
-
-                    glVertex3f(x_start,y_end,0);
-                    glVertex3f(x_end,y_end,0);
-
-
-                    //glVertex3f(x_end,y_start,0);
-                    //glVertex3f(x_start,y_start,0);
-                    glEnd();
- 
-
-                    glColor3f(1,1,1);
-                    unsigned i;
-
-
-                    unsigned maxlength=0;
-                    for(i=0;(unsigned) i<subsubMenus.size();i++){
-                        if(subsubMenus.at(i)->title.length() > maxlength){
-                            maxlength=subsubMenus.at(i)->title.length();
-                        }
-                    }
-                    for(i=0;(unsigned) i<subsubMenus.size();i++){
-                            //cout << window_width << " vs " << x_end+maxlength*width << endl;
-                            if(window_width > x_end+maxlength*width || window_width-x_end  > x_start){
-                                subsubMenus.at(i)->x_start=x_end;
-                                subsubMenus.at(i)->x_end  =x_end+maxlength*width;
-                            }else{
-                                subsubMenus.at(i)->x_start=x_start-maxlength*width;
-                                subsubMenus.at(i)->x_end  =x_start;
-                            }
-                            subsubMenus.at(i)->y_start=y_start+height*i;
-                            subsubMenus.at(i)->y_end  =y_end + height*i;
-                            subsubMenus.at(i)->draw();
-                    }
-
-
-                }else{
-                    isAktive=false;
-                    glColor4f(0.827451,0.827451,0.827451,1);
-                    glBegin(GL_QUADS);
-                    glVertex3f(x_start,y_start,0);
-                    glVertex3f(x_start,y_end,0);
-                    glVertex3f(x_end,y_end,0);
-                    glVertex3f(x_end,y_start,0);
-                    glEnd();
-
-                    glColor3f(0.662745,0.662745,0.662745);
-                    glBegin(GL_LINES); 
-
-                    glVertex3f(x_start,y_start,0);
-                    glVertex3f(x_start,y_end,0);
-                    glVertex3f(x_end,y_end,0);
-                    glVertex3f(x_end,y_start,0);
-
-
-                    //glVertex3f(x_start,y_end,0);
-                    //glVertex3f(x_end,y_end,0);
-
-
-                    //glVertex3f(x_end,y_start,0);
-                    //glVertex3f(x_start,y_start,0);
-                    glEnd();
-                    glColor3f(0,0,0);
-                    if(subsubMenus.size() > 0){
-                        //cout << "draw triangle"  << endl;
-                        glBegin(GL_TRIANGLES); 
-                        glVertex3f(x_end-8,y_start+1,0);
-                        glVertex3f(x_end-8,y_end-1,0);
-                        glVertex3f(x_end-1,y_start+(y_end-y_start)/2,0);
-                        glEnd();
-                    }
-
-
-                }
-
-                if(title == "---"){
-
-                    glColor3f(0.662745,0.662745,0.662745);
-                    glBegin(GL_LINES); 
-                    glVertex3f(x_start,y_start+0.5*(y_end - y_start),0);
-                    glVertex3f(x_end,y_start+0.5*(y_end - y_start),0);
-                    glEnd();
-                    glColor3f(0,0,0);
-                }else{
-                    drawHelpString(title, x_start+3, y_start+height-height/5);
-                }
-        }
-
-        void clickAt(int x,int y){
-            //cout << "x = " << x << " y == " << y << endl;
-            //cout << "x_start = " << x_start << " y == " << y << endl;
-
-            if(x_start < x && x_end > x && y_start < y && y_end > y){
-                //cout << "submenu clicked!" << endl;
-
-                if(isAktive){
-                    selectFromMenu(optionNr);
-                }
-                if(isExtend){
-                    isExtend=false;
-                }else{
-                    if(subsubMenus.size() > 0){
-                        isExtend=true;
-                    }else{
-                        isExtend=false;
-                        isMouseOver=false;
-                    }
-
-                }
-            }else{
-                isExtend=false;
-            }
-            unsigned i;
-            for(i=0;(unsigned) i<subsubMenus.size();i++){
-                if(subsubMenus.at(i)->isExtend || subsubMenus.at(i)->isMouseOver){
-                    //cout << "send clickat to: " << subsubMenus.at(i)->title << endl;
-                    subsubMenus.at(i)->clickAt(x,y);
-                }
-            }
-
-        }
-
-        int mouseMove(int x,int y){
-            if(x_start < x && x_end > x && y_start < y && y_end > y){
-                isMouseOver=true;
-                glutPostRedisplay();
-            } else if(isMouseOver==true){
-                isMouseOver=false;
-                glutPostRedisplay();
-            }
-            unsigned i;
-            for(i=0;(unsigned) i<subsubMenus.size();i++){
-                if( subsubMenus.at(i)->mouseMove(x,y)){
-                   // if(selected_submenu != NULL){
-                   //     selected_submenu->isExtend=false;
-                   // }
-                   // selected_submenu=subsubMenus.at(i);
-                }
-            }
- 
-            return(isMouseOver);
-        }
-
-
-        void addItem(CED_SubSubMenu *subsub){
-           int height=10;
-           int width=6;
-           if(setting.font==0){
-               height=10;
-               width=6;
-           }
-           if(setting.font==1){
-               height=12;
-               width=8;
-           }
-           if(setting.font==2){
-               height=20;
-               width=11;
-           }
-
-            subsub->x_start=x_start;
-            subsub->x_end  =x_start+50; //TODO
-            subsub->y_start=y_start+height;
-            subsub->y_end  =y_end + height;
-            subsubMenus.push_back(subsub); 
-        }
-        CED_SubSubMenu(string t, int nr=0){
-            title=t;
-            optionNr=nr;
-            isExtend=false;
-            isMouseOver=false;
-            dead=false;
-        }
-        ~CED_SubSubMenu(){
-            if(dead == true){
-                return;
-            }
-            cout << "       delete subsubmenus (" << subsubMenus.size() << " submenus)" <<  endl;
-            for(unsigned i=1;i<subsubMenus.size();i++){
-                cout << "           delete: " << subsubMenus.at(i)->title <<   endl;
-                delete subsubMenus.at(i);
-                subsubMenus.at(i)=NULL;
-                //subsubMenu.remove(i);
-            }
-            dead=true;
-        }
-
-
-        bool isAktive;
-        string title; 
-        int optionNr;
-        bool isExtend;
-        bool isMouseOver;
-        int x_start;
-        int x_end;
-        int y_start;
-        int y_end;
-        
-        bool dead;
-
-    private: 
-        vector<CED_SubSubMenu *> subsubMenus;   
-};
-
-
-class CED_SubMenu{
-    public: 
-        void setTitle(string new_title){
-            title=new_title;        
-        }
-        void draw(){
-                int height=10;
-                int width=6;
-                if(setting.font==0){
-                    height=10;
-                    width=6;
-                }
-                if(setting.font==1){
-                    height=12;
-                    width=8;
-                }
-                if(setting.font==2){
-                    height=20;
-                    width=11;
-                }
-
-
-                if(isExtend || isMouseOver){
-                    glColor4f(0.662745,0.662745,0.662745,1);
-                    glBegin(GL_QUADS);
-                    glVertex3f(x_start,y_start,0);
-                    glVertex3f(x_start,y_end,0);
-                    glVertex3f(x_end,y_end,0);
-                    glVertex3f(x_end,y_start,0);
-                    glEnd();
-
-                    //glColor3f(1,1,1);
-                    //glLineWidth(1.);
-                    //glBegin(GL_LINES); 
-
-                    //glVertex3f(x_start,y_start,0);
-                    //glVertex3f(x_start,y_end,0);
-
-                    //glVertex3f(x_start,y_end,0);
-                    //glVertex3f(x_end,y_end,0);
-
-                    //glVertex3f(x_end,y_end,0);
-                    //glVertex3f(x_end,y_start,0);
-
-                    //glVertex3f(x_end,y_start,0);
-                    //glVertex3f(x_start,y_start,0);
-                    //glEnd();
-
-                    glColor3f(1,1,1);
-                }else{
-                    glColor3f(0,0,0);
-                }
-                //drawHelpString(title, x_start+3, y_start+8);
-
-                if(title == "---"){
-
-                    glColor3f(0.662745,0.662745,0.662745);
-                    glBegin(GL_LINES); 
-                    glVertex3f(x_start,y_start+0.5*(y_end - y_start),0);
-                    glVertex3f(x_end,y_start+0.5*(y_end - y_start),0);
-                    glEnd();
-                    glColor3f(0,0,0);
-                }else{
-                    drawHelpString(title, x_start+3, y_start+height-height/5);
-                }
-
-                //drawHelpString(title, x_start+3, y_start+height-height/5);
-                if(isExtend){
-                    unsigned i;
-                    //cout << "draw " << subsubMenus.size() << " subsubmenu items" << endl;
-                   if( selected_submenu != NULL){
-                        selected_submenu->isExtend=true;
-                        //selected_submenu->mouseOver();
-                    }
-
-                    unsigned maxlength=0;
-                    for(i=0;(unsigned) i<subsubMenus.size();i++){
-                        if(subsubMenus.at(i)->title.length() > maxlength){
-                            maxlength=subsubMenus.at(i)->title.length();
-                        }
-                    }
-
-
-                    for(i=0;(unsigned) i<subsubMenus.size();i++){
-                        subsubMenus.at(i)->x_start=x_start;
-                        subsubMenus.at(i)->x_end  =x_start+maxlength*width;
-                        subsubMenus.at(i)->y_start=y_start+height+1+height*i;
-                        subsubMenus.at(i)->y_end  =y_end + height+1+height*i;
-                        subsubMenus.at(i)->draw();
-                    }
-                }
-        }
-
-        void clickAt(int x,int y){
-            //cout << "x = " << x << " y == " << y << endl;
-            //cout << "x_start = " << x_start << " y == " << y << endl;
-            if(isExtend){
-                unsigned i;
-                for(i=0;(unsigned) i<subsubMenus.size();i++){
-                    subsubMenus.at(i)->clickAt(x,y);
-                }
-            }
-
-            if(x_start < x && x_end > x && y_start < y && y_end > y){
-                //cout << "submenu clicked!" << endl;
-                if(isExtend){
-                    isExtend=false;
-                }else{
-                    isExtend=true;
-                    selectFromMenu(optionNr);
-                }
-            }else{
-                isExtend=false;
-            }
-
-
-            selected_submenu=NULL;
-        }
-
-        void mouseMove(int x,int y){
-            if(isExtend){
-                unsigned i;
-                for(i=0;(unsigned) i<subsubMenus.size();i++){
-                    if( subsubMenus.at(i)->mouseMove(x,y)){
-                        if(selected_submenu != NULL){
-                            selected_submenu->isExtend=false;
-                        }
-                        selected_submenu=subsubMenus.at(i);
-                    }
-                }
-            }
-            if(x_start < x && x_end > x && y_start < y && y_end > y){
-                isMouseOver=true;
-                glutPostRedisplay();
-            }else if(isMouseOver==true){
-                isMouseOver=false;
-                glutPostRedisplay();
-            }
-
-        }
-
-
-
-        void addItem(CED_SubSubMenu *subsub){
-            subsubMenus.push_back(subsub); 
-
-        }
-        CED_SubMenu(string t, int nr=0){
-            title=t;
-            optionNr=nr;
-            isExtend=false;
-            isMouseOver=false;
-            selected_submenu=NULL;
-        }
-        ~CED_SubMenu(){
-            for(int i=0;(unsigned) i<subsubMenus.size();i++){
-                delete subsubMenus.at(i);
-                subsubMenus.at(i)=NULL;
-            }
-        }
-
-
-
-        string title; 
-        int optionNr;
-        bool isExtend;
-        bool isMouseOver;
-        int x_start;
-        int x_end;
-        int y_start;
-        int y_end;
-    
-
-    private: 
-        CED_SubSubMenu *selected_submenu;
-        vector<CED_SubSubMenu *> subsubMenus;   
-};
-
-class CED_Menu{
-    public:
-        void draw(void){
-            //cout << "menu draw" << endl;
-            glMatrixMode(GL_PROJECTION);
-            glPushMatrix();
-            glMatrixMode(GL_MODELVIEW);
-            glPushMatrix();
-
-
-            glMatrixMode(GL_PROJECTION);
-            glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-            glDisable(GL_DEPTH_TEST);
-
-
-            glLoadIdentity();
-
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-            GLfloat w=glutGet(GLUT_WINDOW_WIDTH);
-            GLfloat h=glutGet(GLUT_WINDOW_HEIGHT); ;
-
-            int  WORLD_SIZE=1000; //static worldsize maybe will get problems in the future...
-
-            glOrtho(0,w,h, 0,0,15*WORLD_SIZE);
-
-            glMatrixMode(GL_MODELVIEW);
-            glLoadIdentity();
-            
-            //glColor3f(0,0,0);
-
-            glColor4f(0.827451,0.827451,0.827451,1);
-
-            int height=10;
-            if(setting.font==0){
-                height=10;
-            }
-            if(setting.font==1){
-                height=12;
-            }
-            if(setting.font==2){
-                height=20;
-            }
-
-
-
-            glBegin(GL_QUADS); 
-            glVertex3f(0, 0,0);
-            glVertex3f(0,height,0);
-            glVertex3f(w,height,0);
-            glVertex3f(w,0,0);
-            glEnd();
-
-
-            glColor3f(0.501961,0.501961,0.501961);
-            glLineWidth(1.);
-            glBegin(GL_LINES); 
-
-            //glVertex3f(1,1,0);
-            //glVertex3f(1,10,0);
-
-            glVertex3f(1,height+1,0);
-            glVertex3f(w-1,height+1,0);
-
-            //glVertex3f(w-1,8,0);
-            //glVertex3f(w-1,1,0);
-
-
-            //glVertex3f(w-1,1,0);
-            //glVertex3f(1,1,0);
-            glEnd();
-
-            glColor3f(0,0,0);
-
-            unsigned i;
-            //unsigned x_offset=1;
-            for(i=0;(unsigned) i<subMenus.size();i++){
-               //drawHelpString(shortcuts[i],  R_COLUMN)*column+boarder_quad+5, (i%ITEMS_PER_COLUMN)*line+boarder_quad+10);
-                subMenus.at(i)->draw();
-                //x_offset+=subMenus.at(i)->title.length()*6;
-            }
-
-            glEnable(GL_DEPTH_TEST);
-            glMatrixMode(GL_PROJECTION);
-            glPopMatrix();
-            glMatrixMode(GL_MODELVIEW);
-            glPopMatrix();
-
-
-        }
-        void clickAt(int x, int y){
-            //cout << "isClicked" << endl;
-            unsigned i;
-            for(i=0;(unsigned) i<subMenus.size();i++){
-                subMenus.at(i)->clickAt(x,y);
-            }
-
-        }
-
-        void mouseMove(int x, int y){
-            unsigned i;
-            for(i=0;(unsigned) i<subMenus.size();i++){
-                subMenus.at(i)->mouseMove(x,y);
-            }
-
-        }
-
-        void addSubMenu(CED_SubMenu *sub){
-            double length=10;
-            int height=10;
-            if(setting.font==0){
-                length=4.8;
-                height=10;
-            }
-            if(setting.font==1){
-                length=5.2;
-                height=12;
-            }
-            if(setting.font==2){
-                length=10.0;
-                height=20;
-            }
-            //cout << "length: " << length << endl;
-            sub->x_start=x_offset;
-            sub->y_start=1;
-            sub->y_end=height+1;
-            x_offset+=(unsigned)(sub->title.length()*length+3*length);
-            sub->x_end=x_offset;
-            subMenus.push_back(sub);
-            x_offset+=5;
-        }
-        CED_Menu(){
-            x_offset=1;
-        }
-        ~CED_Menu(){
-            cout << "delete ced menu" <<  endl;
-            for(int i=0;(unsigned) i<subMenus.size();){
-                delete subMenus.at(i);
-            }
-        }
-        
-    private:
-        vector<CED_SubMenu *> subMenus;   
-        unsigned x_offset;
-};
-
-class CED_PopUpMenu{
-    public: 
-        void setTitle(string new_title){
-            title=new_title;        
-        }
-        void draw(){
-            int height=10;
-            int width=6;
-            if(setting.font==0){
-                height=10;
-                width=6;
-            }
-            if(setting.font==1){
-                height=12;
-                width=8;
-            }
-            if(setting.font==2){
-                height=20;
-                width=11;
-            }
-
-            unsigned  maxlength=title.length();
-            unsigned i;
-            for(i=0;(unsigned) i<subsubMenus.size();i++){
-                if(subsubMenus.at(i)->title.length() > maxlength){
-                    maxlength=subsubMenus.at(i)->title.length();
-                }
-            }
-            x_end=x_start+maxlength*width;
-
-
-            glMatrixMode(GL_PROJECTION);
-            glPushMatrix();
-            glMatrixMode(GL_MODELVIEW);
-            glPushMatrix();
-
-
-            glMatrixMode(GL_PROJECTION);
-            glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-            glDisable(GL_DEPTH_TEST);
-
-
-            glLoadIdentity();
-
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-            GLfloat w=glutGet(GLUT_WINDOW_WIDTH);
-            GLfloat h=glutGet(GLUT_WINDOW_HEIGHT); ;
-
-            int  WORLD_SIZE=1000; //static worldsize maybe will get problems in the future...
-
-            glOrtho(0,w,h, 0,0,15*WORLD_SIZE);
-
-            glMatrixMode(GL_MODELVIEW);
-            glLoadIdentity();
- 
-                if(isExtend || isMouseOver){
-                    glColor4f(0.662745,0.662745,0.662745,1);
-                    glBegin(GL_QUADS);
-                    glVertex3f(x_start,y_start,0);
-                    glVertex3f(x_start,y_end,0);
-                    glVertex3f(x_end,y_end,0);
-                    glVertex3f(x_end,y_start,0);
-                    glEnd();
-
-                    glColor3f(1,1,1);
-                }else{
-                    glColor3f(0,0,0);
-                }
-
-                  if(isExtend){
-                    //drawHelpString(title, x_start+3, y_start+height-height/5.);
-
-                    if( selected_submenu != NULL){
-                         selected_submenu->isExtend=true;
-                         //selected_submenu->mouseOver();
-                     }
-
-                    unsigned i;
-                    for(i=0;(unsigned) i<subsubMenus.size();i++){
-                        subsubMenus.at(i)->x_start=x_start;
-                        subsubMenus.at(i)->x_end  =x_end;
-                        subsubMenus.at(i)->y_start=y_start/*+height */+1+height*i;
-                        subsubMenus.at(i)->y_end  =y_end  /*+ height*/+1+height*i;
-                        subsubMenus.at(i)->draw();
-                    }
-                }
-            glEnable(GL_DEPTH_TEST);
-            glMatrixMode(GL_PROJECTION);
-            glPopMatrix();
-            glMatrixMode(GL_MODELVIEW);
-            glPopMatrix();
-
-        }
-
-        void clickAt(int x,int y){
-            //cout << "x = " << x << " y == " << y << endl;
-            //cout << "x_start = " << x_start << " y == " << y << endl;
-            if(isExtend){
-                unsigned i;
-                for(i=0;(unsigned) i<subsubMenus.size();i++){
-                    subsubMenus.at(i)->clickAt(x,y);
-                }
-            }
-
-            if(x_start < x && x_end > x && y_start < y && y_end > y){
-                //cout << "submenu clicked!" << endl;
-                if(isExtend){
-                    isExtend=false;
-                }else{
-                    isExtend=true;
-                    selectFromMenu(optionNr);
-                }
-
-            }else{
-                isExtend=false;
-            }
-
-            selected_submenu=NULL;
-
-
-        }
-
-        void mouseMove(int x,int y){
-            if(isExtend){
-                unsigned i;
-                for(i=0;(unsigned) i<subsubMenus.size();i++){
-                    if( subsubMenus.at(i)->mouseMove(x,y)){
-                        if(selected_submenu != NULL){
-                            selected_submenu->isExtend=false;
-                        }
-                        selected_submenu=subsubMenus.at(i);
-                    }
- 
-                    //subsubMenus.at(i)->mouseMove(x,y);
-                }
-                if(x_start < x && x_end > x && y_start < y && y_end > y){
-                    isMouseOver=true;
-                    glutPostRedisplay();
-                }else if(isMouseOver==true){
-                    isMouseOver=false;
-                    glutPostRedisplay();
-                }
-            }
-
-        }
-
-
-
-        void addItem(CED_SubSubMenu *subsub){
-            subsubMenus.push_back(subsub); 
-
-        }
-        CED_PopUpMenu(string t, int nr=0){
-            title=t;
-            optionNr=nr;
-            isExtend=false;
-            isMouseOver=false;
-            selected_submenu=NULL;
-        }
-
-        int size(void){
-            return(subsubMenus.size());
-        }
-        string title; 
-        int optionNr;
-        bool isExtend;
-        bool isMouseOver;
-        int x_start;
-        int x_end;
-        int y_start;
-        int y_end;
-    
-
-    private: 
-        vector<CED_SubSubMenu *> subsubMenus;   
-        CED_SubSubMenu *selected_submenu;
-
-};
-
 CED_SubSubMenu *detectorlayermenu;
 CED_SubSubMenu *datalayermenu;
-
-
 CED_PopUpMenu *popupmenu;
-void buildPopUpMenu(int x, int y);
-
-
 CED_Menu *ced_menu=NULL;
-
-// from ced_srv.c
-void ced_prepare_objmap(void);
-int ced_get_selected(int x,int y,GLfloat *wx,GLfloat *wy,GLfloat *wz);
-int find_selected_object(int x,int y,GLfloat *wx,GLfloat *wy,GLfloat *wz, int *id, int *layer, int *type);
-
-//SJA:FIXED set this to extern as it is a global from ced_srv.c
-//extern unsigned long ced_visible_layers; 
-//extern bool ced_visible_layers[100];
 
 static struct _geoCylinder {
   GLuint obj;
@@ -1227,6 +177,30 @@ static struct _geoCylinder {
   { 0, 3000.0,  8, 22.5, 702.25, -4230.5, 0.0, 0.8, 0.0 }, // endcap HCAL
   { 0, 2045.7,  8, 22.5, 101.00, -3022.0, 0.5, 0.5, 0.1 }, // endcap ECAL
 };
+
+
+//************ function declarations ************************* //
+void updateScreenshotMenu(void);
+void screenshot(char *name, int times);
+void buildLayerMenus(void);
+void buildMainMenu(void);
+void buildPopUpMenu(int x, int y);
+void ced_prepare_objmap(void);
+int ced_get_selected(int x,int y,GLfloat *wx,GLfloat *wy,GLfloat *wz);
+int find_selected_object(int x,int y,GLfloat *wx,GLfloat *wy,GLfloat *wz, int *id, int *layer, int *type);
+
+
+// ********** function definitions  (rest of file) ************************** //
+
+//set background color (hauke)
+static void set_bg_color(float one, float two, float three, float four){
+    BG_COLOR[0]=one;
+    BG_COLOR[1]=two;
+    BG_COLOR[2]=three;
+    BG_COLOR[3]=four;
+
+    glClearColor(BG_COLOR[0],BG_COLOR[1],BG_COLOR[2],BG_COLOR[3]);
+}
 
 static GLuint makeCylinder(struct _geoCylinder *c){
     GLUquadricObj *q1 = gluNewQuadric();
@@ -1255,52 +229,6 @@ static void makeGeometry(void) {
         geoCylinder[i].obj=makeCylinder(geoCylinder+i);
     }
 }
-
-////function from: http://www.opengl.org/discussion_boards/ubbthreads.php?ubb=showflat&Number=44286
-//bool screenshot(char *fileName){
-//    static unsigned char header[54] = {
-//        0x42, 0x4D, 0x36, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x36, 0x00, 0x00, 0x00, 0x28, 0x00, 
-//        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x18, 0x00, 0x00, 0x00, 
-//        0x00, 0x00, 0x00, 0x00, 0x03, 0x00, 0xC4, 0x0E, 0x00, 0x00, 0xC4, 0x0E, 0x00, 0x00, 0x00, 0x00, 
-//        0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-//
-//    unsigned char *pixels = (unsigned char *) malloc(Xres * Yres * 3);
-//    ((unsigned __int16 *) header)[ 9] = Xres;
-//    ((unsigned __int16 *) header)[11] = Yres;
-//
-//    glReadPixels(0,0,Xres,Yres,GL_RGB,GL_UNSIGNED_BYTE,pixels);
-//
-//    unsigned char temp;
-//    for (unsigned int i = 0; i < Xres * Yres * 3; i += 3){
-//        temp = pixels[i];
-//        pixels[i] = pixels[i + 2];
-//        pixels[i + 2] = temp;
-//    }
-//
-//    HANDLE FileHandle;
-//    unsigned long Size;
-//
-//    if (fileName == NULL){
-//        char file[256];
-//        i = 0;
-//        do {
-//            sprintf(file,"Screenshot%d.bmp",i);
-//            FileHandle = CreateFile(file,GENERIC_WRITE,0,NULL,CREATE_NEW,FILE_ATTRIBUTE_NORMAL,NULL);
-//            i++;
-//        } while (FileHandle == INVALID_HANDLE_VALUE);
-//    } else {
-//        FileHandle = CreateFile(fileName,GENERIC_WRITE,0,NULL,CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL,NULL);
-//        if (FileHandle == INVALID_HANDLE_VALUE) return false;
-//    }
-//
-//    WriteFile(FileHandle,header,sizeof(header),&Size,NULL);
-//    WriteFile(FileHandle,pixels,Xres * Yres * 3,&Size,NULL);
-//    
-//    CloseHandle(FileHandle);
-//
-//    free(pixels);
-//    return true;    
-//}
 
 int isLayerVisible(int x){
     //return(ced_visible_layers[x]);
@@ -1917,55 +845,55 @@ static void write_world_into_front_buffer(void){
     //printFPS();
 }
 
-void drawStringBig (char *s){
-    unsigned int i;
-    for (i = 0; i[s]; i++){
-        glutBitmapCharacter (GLUT_BITMAP_HELVETICA_18, s[i]);
-    }
-}
+//void drawStringBig (char *s){
+//    unsigned int i;
+//    for (i = 0; i[s]; i++){
+//        glutBitmapCharacter (GLUT_BITMAP_HELVETICA_18, s[i]);
+//    }
+//}
 
-void drawHelpString (const string & str, float x,float y){ //format help strings strings: "[<key>] <description>"
-    unsigned int i;
-    glRasterPos2f(x,y);
-  
-    int monospace = 0;
-    for (i = 0; str[i]; i++){
-        if(str[i] == '['){ 
-            monospace = 1;
-            if(setting.font == 0){
-                glutBitmapCharacter (GLUT_BITMAP_HELVETICA_10, '[');
-            }else if(setting.font == 1){
-                glutBitmapCharacter (GLUT_BITMAP_HELVETICA_12, '[');
-            }else if(setting.font == 2){
-                glutBitmapCharacter (GLUT_BITMAP_HELVETICA_18, '[');
-            }
-            i++;
-        }
-        else if(str[i] == ']'){
-             monospace = 0;
-        }
-        if(monospace){
-            if(setting.font == 0){
-                glutBitmapCharacter(GLUT_BITMAP_8_BY_13, str[i]);
-            }else if(setting.font == 1){
-                glutBitmapCharacter(GLUT_BITMAP_8_BY_13, str[i]);
-            }else if(setting.font == 2){
-                glutBitmapCharacter(GLUT_BITMAP_9_BY_15, str[i]);
-            }
-        }else{
-            //glutBitmapCharacter (GLUT_BITMAP_HELVETICA_10, str[i]);
-            //glutBitmapCharacter ( GLUT_BITMAP_HELVETICA_12 , str[i]);
-            //glutBitmapCharacter ( GLUT_BITMAP_HELVETICA_18 , str[i]);
-            if(setting.font == 0){
-                glutBitmapCharacter (GLUT_BITMAP_HELVETICA_10, str[i]);
-            }else if(setting.font == 1){
-                glutBitmapCharacter (GLUT_BITMAP_HELVETICA_12, str[i]);
-            }else if(setting.font == 2){
-                glutBitmapCharacter (GLUT_BITMAP_HELVETICA_18, str[i]);
-            }
-        }
-    }
-}
+//void drawHelpString (const string & str, float x,float y){ //format help strings strings: "[<key>] <description>"
+//    unsigned int i;
+//    glRasterPos2f(x,y);
+//  
+//    int monospace = 0;
+//    for (i = 0; str[i]; i++){
+//        if(str[i] == '['){ 
+//            monospace = 1;
+//            if(setting.font == 0){
+//                glutBitmapCharacter (GLUT_BITMAP_HELVETICA_10, '[');
+//            }else if(setting.font == 1){
+//                glutBitmapCharacter (GLUT_BITMAP_HELVETICA_12, '[');
+//            }else if(setting.font == 2){
+//                glutBitmapCharacter (GLUT_BITMAP_HELVETICA_18, '[');
+//            }
+//            i++;
+//        }
+//        else if(str[i] == ']'){
+//             monospace = 0;
+//        }
+//        if(monospace){
+//            if(setting.font == 0){
+//                glutBitmapCharacter(GLUT_BITMAP_8_BY_13, str[i]);
+//            }else if(setting.font == 1){
+//                glutBitmapCharacter(GLUT_BITMAP_8_BY_13, str[i]);
+//            }else if(setting.font == 2){
+//                glutBitmapCharacter(GLUT_BITMAP_9_BY_15, str[i]);
+//            }
+//        }else{
+//            //glutBitmapCharacter (GLUT_BITMAP_HELVETICA_10, str[i]);
+//            //glutBitmapCharacter ( GLUT_BITMAP_HELVETICA_12 , str[i]);
+//            //glutBitmapCharacter ( GLUT_BITMAP_HELVETICA_18 , str[i]);
+//            if(setting.font == 0){
+//                glutBitmapCharacter (GLUT_BITMAP_HELVETICA_10, str[i]);
+//            }else if(setting.font == 1){
+//                glutBitmapCharacter (GLUT_BITMAP_HELVETICA_12, str[i]);
+//            }else if(setting.font == 2){
+//                glutBitmapCharacter (GLUT_BITMAP_HELVETICA_18, str[i]);
+//            }
+//        }
+//    }
+//}
 
 
 
@@ -2463,7 +1391,7 @@ static void mouse(int btn,int state,int x,int y){
     mm.sf_start=mm.sf;
     mm.mv_start=mm.mv;
 
-    double angle;
+    //double angle;
     switch(btn){
     case GLUT_LEFT_BUTTON:
         ced_menu->clickAt((int)mouse_x,(int)mouse_y);
@@ -2630,66 +1558,160 @@ static void keypressed(unsigned char key,int x,int y){
         glutPostRedisplay();
     }*/  else if(key=='v' || key=='V'){
           selectFromMenu(VIEW_FISHEYE);
-    } else if((key>='0') && (key<='9')){
-          selectFromMenu(LAYER_0+key-'0');
-    } else if(key==')'){ // 0
-          selectFromMenu(LAYER_10);
-    } else if(key=='!'){ // 1
-          selectFromMenu(LAYER_11);
-    } else if(key=='@'){ // 2
-          selectFromMenu(LAYER_12);
-    } else if(key=='#'){ // 3
-          selectFromMenu(LAYER_13);
-    } else if(key=='$'){ // 4
-          selectFromMenu(LAYER_14);
-    } else if(key=='%'){ // 5
-          selectFromMenu(LAYER_15);
-    } else if(key=='^'){ // 6
-          selectFromMenu(LAYER_16);
-    } else if(key=='&'){ // 7
-          selectFromMenu(LAYER_17);
-    } else if(key=='*'){ // 8
-          selectFromMenu(LAYER_18);
-    } else if(key=='('){ // 9
-          selectFromMenu(LAYER_19);
+    //} else if((key>='0') && (key<='9')){
+    //      selectFromMenu(LAYER_0+key-'0');
+    //} else if(key==')'){ // 0
+    //      selectFromMenu(LAYER_10);
+    //} else if(key=='!'){ // 1
+    //      selectFromMenu(LAYER_11);
+    //} else if(key=='@'){ // 2
+    //      selectFromMenu(LAYER_12);
+    //} else if(key=='#'){ // 3
+    //      selectFromMenu(LAYER_13);
+    //} else if(key=='$'){ // 4
+    //      selectFromMenu(LAYER_14);
+    //} else if(key=='%'){ // 5
+    //      selectFromMenu(LAYER_15);
+    //} else if(key=='^'){ // 6
+    //      selectFromMenu(LAYER_16);
+    //} else if(key=='&'){ // 7
+    //      selectFromMenu(LAYER_17);
+    //} else if(key=='*'){ // 8
+    //      selectFromMenu(LAYER_18);
+    //} else if(key=='('){ // 9
+    //      selectFromMenu(LAYER_19);
+    } else if(key== DATALAYER_SHORTKEY_00){
+    selectFromMenu(LAYER_0);
+    } else if(key== DATALAYER_SHORTKEY_01){
+    selectFromMenu(LAYER_1);
+    } else if(key== DATALAYER_SHORTKEY_02){
+    selectFromMenu(LAYER_2);
+    } else if(key== DATALAYER_SHORTKEY_03){
+    selectFromMenu(LAYER_3);
+    } else if(key== DATALAYER_SHORTKEY_04){
+    selectFromMenu(LAYER_4);
+    } else if(key== DATALAYER_SHORTKEY_05){
+    selectFromMenu(LAYER_5);
+    } else if(key== DATALAYER_SHORTKEY_06){
+    selectFromMenu(LAYER_6);
+    } else if(key== DATALAYER_SHORTKEY_07){
+    selectFromMenu(LAYER_7);
+    } else if(key== DATALAYER_SHORTKEY_08){
+    selectFromMenu(LAYER_8);
+    } else if(key== DATALAYER_SHORTKEY_09){
+    selectFromMenu(LAYER_9);
+    } else if(key== DATALAYER_SHORTKEY_10){
+    selectFromMenu(LAYER_10);
+    } else if(key== DATALAYER_SHORTKEY_11){
+    selectFromMenu(LAYER_11);
+    } else if(key== DATALAYER_SHORTKEY_12){
+    selectFromMenu(LAYER_12);
+    } else if(key== DATALAYER_SHORTKEY_13){
+    selectFromMenu(LAYER_13);
+    } else if(key== DATALAYER_SHORTKEY_14){
+    selectFromMenu(LAYER_14);
+    } else if(key== DATALAYER_SHORTKEY_15){
+    selectFromMenu(LAYER_15);
+    } else if(key== DATALAYER_SHORTKEY_16){
+    selectFromMenu(LAYER_16);
+    } else if(key== DATALAYER_SHORTKEY_17){
+    selectFromMenu(LAYER_17);
+    } else if(key== DATALAYER_SHORTKEY_18){
+    selectFromMenu(LAYER_18);
+    } else if(key== DATALAYER_SHORTKEY_19){
+    selectFromMenu(LAYER_19);
+    } else if(key== DATALAYER_SHORTKEY_20){
+    selectFromMenu(LAYER_20);
+    } else if(key== DATALAYER_SHORTKEY_21){
+    selectFromMenu(LAYER_21);
+    } else if(key== DATALAYER_SHORTKEY_22){
+    selectFromMenu(LAYER_22);
+    } else if(key== DATALAYER_SHORTKEY_23){
+    selectFromMenu(LAYER_23);
+    } else if(key== DATALAYER_SHORTKEY_24){
+    selectFromMenu(LAYER_24);
     } else if(key=='`'){
-          selectFromMenu(LAYER_ALL);
-    } else if(key=='t'){
+    selectFromMenu(LAYER_ALL);
+
+
+//const char detec_layer_keys[] = {'t','y','u','i','o','p','[',']','\\', 'T', 'Y','U','I','O','P','{','}','|',' ',' ',' '};
+   } else if(key==DETECTORLAYER_SHORTKEY_00){
           selectFromMenu(DETECTOR1);
-    } else if(key=='y'){
+   } else if(key==DETECTORLAYER_SHORTKEY_01){
           selectFromMenu(DETECTOR2);
-    } else if(key=='u'){
+   } else if(key==DETECTORLAYER_SHORTKEY_02){
           selectFromMenu(DETECTOR3);
-    } else if(key=='i'){
+   } else if(key==DETECTORLAYER_SHORTKEY_03){
           selectFromMenu(DETECTOR4);
-    } else if(key=='o'){
+   } else if(key==DETECTORLAYER_SHORTKEY_04){
           selectFromMenu(DETECTOR5);
-    } else if(key=='p'){
+   } else if(key==DETECTORLAYER_SHORTKEY_05){
           selectFromMenu(DETECTOR6);
-    } else if(key=='['){
+   } else if(key==DETECTORLAYER_SHORTKEY_06){
           selectFromMenu(DETECTOR7);
-    } else if(key==']'){
+   } else if(key==DETECTORLAYER_SHORTKEY_07){
           selectFromMenu(DETECTOR8);
-    } else if(key=='\\'){
+   } else if(key==DETECTORLAYER_SHORTKEY_08){
           selectFromMenu(DETECTOR9);
-    } else if(key=='T'){
+   } else if(key==DETECTORLAYER_SHORTKEY_09){
           selectFromMenu(DETECTOR10);
-    } else if(key=='Y'){
+   } else if(key==DETECTORLAYER_SHORTKEY_10){
           selectFromMenu(DETECTOR11);
-    } else if(key=='U'){
+   } else if(key==DETECTORLAYER_SHORTKEY_11){
           selectFromMenu(DETECTOR12);
-    } else if(key=='I'){
+   } else if(key==DETECTORLAYER_SHORTKEY_12){
           selectFromMenu(DETECTOR13);
-    } else if(key=='O'){
+   } else if(key==DETECTORLAYER_SHORTKEY_13){
           selectFromMenu(DETECTOR14);
-    } else if(key=='P'){
+   } else if(key==DETECTORLAYER_SHORTKEY_14){
           selectFromMenu(DETECTOR15);
-    } else if(key=='{'){
+   } else if(key==DETECTORLAYER_SHORTKEY_15){
           selectFromMenu(DETECTOR16);
-    } else if(key=='}'){
+   } else if(key==DETECTORLAYER_SHORTKEY_16){
           selectFromMenu(DETECTOR17);
-    } else if(key=='|'){
+   } else if(key==DETECTORLAYER_SHORTKEY_17){
           selectFromMenu(DETECTOR18);
+   } else if(key==DETECTORLAYER_SHORTKEY_18){
+          selectFromMenu(DETECTOR19);
+   } else if(key==DETECTORLAYER_SHORTKEY_19){
+          selectFromMenu(DETECTOR20);
+
+//    } else if(key=='t'){
+//          selectFromMenu(DETECTOR1);
+//    } else if(key=='y'){
+//          selectFromMenu(DETECTOR2);
+//    } else if(key=='u'){
+//          selectFromMenu(DETECTOR3);
+//    } else if(key=='i'){
+//          selectFromMenu(DETECTOR4);
+//    } else if(key=='o'){
+//          selectFromMenu(DETECTOR5);
+//    } else if(key=='p'){
+//          selectFromMenu(DETECTOR6);
+//    } else if(key=='['){
+//          selectFromMenu(DETECTOR7);
+//    } else if(key==']'){
+//          selectFromMenu(DETECTOR8);
+//    } else if(key=='\\'){
+//          selectFromMenu(DETECTOR9);
+//    } else if(key=='T'){
+//          selectFromMenu(DETECTOR10);
+//    } else if(key=='Y'){
+//          selectFromMenu(DETECTOR11);
+//    } else if(key=='U'){
+//          selectFromMenu(DETECTOR12);
+//    } else if(key=='I'){
+//          selectFromMenu(DETECTOR13);
+//    } else if(key=='O'){
+//          selectFromMenu(DETECTOR14);
+//    } else if(key=='P'){
+//          selectFromMenu(DETECTOR15);
+//    } else if(key=='{'){
+//          selectFromMenu(DETECTOR16);
+//    } else if(key=='}'){
+//          selectFromMenu(DETECTOR17);
+//    } else if(key=='|'){
+//          selectFromMenu(DETECTOR18);
     } else if(key=='~'){
           selectFromMenu(DETECTOR_ALL);
     } else if(key == '+'|| key == '='){
@@ -3295,7 +2317,6 @@ void copySetting(CEDsettings &dest, CEDsettings &source, const char *name){
 }
 
 void selectFromMenu(int id){ //hauke
-    int i;
     int anz;
     static CEDsettings backup_setting;
     //static float z_cutting_backup;
@@ -3712,7 +2733,7 @@ void selectFromMenu(int id){ //hauke
             anz=0;
             //for(i=0;i<NUMBER_POPUP_LAYER;i++){ //try to turn all layers on
 
-            for(i=0;i<NUMBER_DATA_LAYER;i++){ //try to turn all layers on
+            for(int i=0;i<NUMBER_DATA_LAYER;i++){ //try to turn all layers on
                 if(!isLayerVisible(i)){
                    //sprintf(string,"[X] Layer %s%i [%c]: %s", (i < 10)?"0":"" ,i, layer_keys[i], layerDescription[i]);
                    //glutChangeToMenuEntry(i+2,string, LAYER_0+i);                     
@@ -3724,7 +2745,7 @@ void selectFromMenu(int id){ //hauke
             if(anz == 0){ //turn all layers off
                 //for(i=0;i<NUMBER_POPUP_LAYER;i++){
 
-                for(i=0;i<NUMBER_DATA_LAYER;i++){
+                for(int i=0;i<NUMBER_DATA_LAYER;i++){
                    //sprintf(string,"[   ] Layer %s%i [%c]: %s",(i < 10)?"0":"" ,i, layer_keys[i], layerDescription[i]);
                    //glutChangeToMenuEntry(i+2,string, LAYER_0+i);                     
                    toggle_layer(i);
@@ -3736,7 +2757,7 @@ void selectFromMenu(int id){ //hauke
         case DETECTOR_ALL:
             glutSetMenu(detectorMenu);
             anz=0;
-            for(i=NUMBER_DATA_LAYER;i<NUMBER_DETECTOR_LAYER+NUMBER_DATA_LAYER;i++){ //try to turn all layers on
+            for(int i=NUMBER_DATA_LAYER;i<NUMBER_DETECTOR_LAYER+NUMBER_DATA_LAYER;i++){ //try to turn all layers on
                 if(!isLayerVisible(i)){
                    //sprintf(string,"[X] Layer %s%i [%c]: %s", (i < 10)?"0":"" ,i, layer_keys[i], layerDescription[i]);
                    //glutChangeToMenuEntry(i+2,string, LAYER_0+i);                     
@@ -3746,7 +2767,7 @@ void selectFromMenu(int id){ //hauke
                 }
             }
             if(anz == 0){ //turn all layers off
-                for(i=NUMBER_DATA_LAYER;i<NUMBER_DETECTOR_LAYER+NUMBER_DATA_LAYER;i++){
+                for(int i=NUMBER_DATA_LAYER;i<NUMBER_DETECTOR_LAYER+NUMBER_DATA_LAYER;i++){
                    //sprintf(string,"[   ] Layer %s%i [%c]: %s",(i < 10)?"0":"" ,i, layer_keys[i], layerDescription[i]);
                    //glutChangeToMenuEntry(i+2,string, LAYER_0+i);                     
                    toggle_layer(i);
@@ -3806,6 +2827,11 @@ void selectFromMenu(int id){ //hauke
         case LAYER_17:
         case LAYER_18:
         case LAYER_19:
+        case LAYER_20:
+        case LAYER_21:
+        case LAYER_22:
+        case LAYER_23:
+        case LAYER_24:
             glutSetMenu(layerMenu);
             toggle_layer(id-LAYER_0);
             //std::cout << "toogle layer " << id-LAYER_0 << std::endl;
@@ -4106,7 +3132,7 @@ void selectFromMenu(int id){ //hauke
                  GLfloat light0_pos[] = {2000, 2000, 2000};
                  //GLfloat light0_dir[] = {-1, -1, 0};
 
-                 GLfloat angle[] = {30};
+                 //GLfloat angle[] = {30};
                  //GLfloat light0_ambi[]= {0.5, 0.5, 0.5, 0.5};     
 
 /////////////////
@@ -4433,7 +3459,6 @@ void buildPopUpMenu(int x, int y){
         sprintf(tmp,"%s",CED_BGCOLOR_OPTION15_NAME);
         popupmenu->addItem(new CED_SubSubMenu(tmp,BGCOLOR_OPTION15));
 
-
 //
 //
 //      if(userDefinedBGColor[0] >= 0){ //is set
@@ -4474,7 +3499,7 @@ void buildLayerMenus(void){
     datalayermenu=new CED_SubSubMenu("Data layers",0);
     int i;
     char str[2000];
-    int max=150;
+    unsigned max=150;
     char tmp[max+1];
     for(i=0;i<NUMBER_POPUP_LAYER;i++){
         //std::cout << "description: " << layerDescription[i] << std::endl;
@@ -4542,12 +3567,6 @@ void buildMainMenu(void){
 
     layers->addItem(datalayermenu);
 
-    //for(i=0;i<NUMBER_POPUP_LAYER;i++){
-    //    sprintf(str,"Data Layer %s%i [%c]: %s", (i < 10)?"  ":"" ,i, layer_keys[i], layerDescription[i]);
-    //    layers->addItem(new CED_SubSubMenu(str,LAYER_0+i));
-    //}
-
-
     layers->addItem(new CED_SubSubMenu("---", AXES));
 
     result=true;
@@ -4564,25 +3583,7 @@ void buildMainMenu(void){
     }
 
     layers->addItem(detectorlayermenu);
-
-    //for(i=NUMBER_DATA_LAYER;i<NUMBER_DETECTOR_LAYER+NUMBER_DATA_LAYER;i++){
-    //    //sprintf(str,"Detector Layer %s%i [%c]: %s", (i < 10)?"  ":"" ,i, layer_keys[i], layerDescription[i]);
-    //    sprintf(str,"Detector Layer %s%i: %s", (i < 10)?"  ":"" ,i, layerDescription[i]);
-    //    layers->addItem(new CED_SubSubMenu(str,DETECTOR1+i-NUMBER_DATA_LAYER));
-    //}
     ced_menu->addSubMenu(layers);
-
-
-
-
-    //CED_SubMenu *submenu1=new CED_SubMenu("test 1");
-    //CED_SubSubMenu *subsubmenus[40];
-    //for(i=0;i<40;i++){
-    //   subsubmenus[i]=new CED_SubSubMenu("test entry");
-    //   submenu1->addItem(subsubmenus[i]);
-    //   
-    //}
-    //ced_menu->addSubMenu(submenu1);
 
     double tmptrans=setting.detector_trans[0];
     for(i=1;i<NUMBER_DETECTOR_LAYER;i++){
@@ -4641,20 +3642,6 @@ void buildMainMenu(void){
     }else{
         trans->addItem(new CED_SubSubMenu("[ ] 100%",TRANS100));
     }
-
-
-
-
-
-
-
-    //trans->addItem(new CED_SubSubMenu("  40%",TRANS40));
-    //trans->addItem(new CED_SubSubMenu("  60%",TRANS60));
-    //trans->addItem(new CED_SubSubMenu("  70%",TRANS70));
-    //trans->addItem(new CED_SubSubMenu("  80%",TRANS80));
-    //trans->addItem(new CED_SubSubMenu("  90%",TRANS90));
-    //trans->addItem(new CED_SubSubMenu("  95%",TRANS95));
-    //trans->addItem(new CED_SubSubMenu("100%",TRANS100));
     ced_menu->addSubMenu(trans);
 
     CED_SubMenu *camera=new CED_SubMenu("Camera");
@@ -4763,19 +3750,6 @@ void buildMainMenu(void){
         cuts->addItem(new CED_SubSubMenu("[ ] Cut at z=7000", CUT_Z_7000));
     }
 
-
-    //cuts->addItem(new CED_SubSubMenu("Cut at z=-4000", CUT_Z_M4000));
-    //cuts->addItem(new CED_SubSubMenu("Cut at z=-2000", CUT_Z_M2000));
-    //cuts->addItem(new CED_SubSubMenu("Cut at z=0",     CUT_Z_0000));
-    //cuts->addItem(new CED_SubSubMenu("Cut at z=2000",  CUT_Z_2000));
-    //cuts->addItem(new CED_SubSubMenu("Cut at z=4000",  CUT_Z_4000));
-    //cuts->addItem(new CED_SubSubMenu("Cut at z=6000",  CUT_Z_6000));
-    //cuts->addItem(new CED_SubSubMenu("Cut at z=7000",  CUT_Z_7000));
-
-    //cuts->addItem(new CED_SubSubMenu("---",  0));
-    //cuts->addItem(new CED_SubSubMenu("Cut at z=0",  0));
-    //cuts->addItem(new CED_SubSubMenu("Cut at z=3000",  0));
-    //cuts->addItem(new CED_SubSubMenu("Cut at z=5000",  0));
     ced_menu->addSubMenu(cuts);
 
 
@@ -4903,10 +3877,6 @@ void buildMainMenu(void){
 
     ced_menu->addSubMenu(settings);
 
-
-
-
-
     char tmp[200];
     CED_SubSubMenu *screenshot=new CED_SubSubMenu("Save screenshot");
     sprintf(tmp,"original size (%i x %i)", int(setting.win_w), int(setting.win_h));
@@ -4947,23 +3917,9 @@ void buildMainMenu(void){
 }
 
 
-// void doNothing(int id){ }
-// int buildBogusMenu(void){ //hauke
-//   int menu=glutCreateMenu(doNothing);
-//   return menu ;
-// }
-
-
 int buildMenuPopup(void){ //hauke
-    //int menu;
-    //int subMenu1;
-    //int subMenu2;
     int subMenu3;
-    //int subMenu4;
-    //int subsubMenu1;
-    //int subsubMenu3;
     int DetectorComponents;
-
     int bgColorMenu = glutCreateMenu(selectFromMenu);
 
     glutAddMenuEntry(CED_BGCOLOR_OPTION1_NAME,BGCOLOR_OPTION1);
@@ -4983,21 +3939,6 @@ int buildMenuPopup(void){ //hauke
     glutAddMenuEntry(CED_BGCOLOR_OPTION15_NAME,BGCOLOR_OPTION15);
 
 
-//    glutAddMenuEntry("White",BGCOLOR_WHITE);
-//    glutAddMenuEntry("Gainsboro", BGCOLOR_GAINSBORO);
-//    glutAddMenuEntry("Lightgrey", BGCOLOR_LIGHTGREY);
-//    glutAddMenuEntry("Silver", BGCOLOR_SILVER);
-//    glutAddMenuEntry("Darkgray", BGCOLOR_DARKGRAY);
-//    glutAddMenuEntry("Gray", BGCOLOR_GRAY);
-//    glutAddMenuEntry("Dimgray", BGCOLOR_DIMGRAY);
-//    glutAddMenuEntry("Black",BGCOLOR_BLACK);
-//    glutAddMenuEntry("Lightsteelblue",BGCOLOR_LIGHTSTEELBLUE);
-//    glutAddMenuEntry("Steelblue",BGCOLOR_STEELBLUE);
-//    glutAddMenuEntry("Blue",BGCOLOR_BLUE);
-//    glutAddMenuEntry("Seagreen",BGCOLOR_SEAGREEN);
-//    glutAddMenuEntry("Orange",BGCOLOR_ORANGE);
-//    glutAddMenuEntry("Yellow",BGCOLOR_YELLOW);
-//    glutAddMenuEntry("Violet",BGCOLOR_VIOLET);
     if(userDefinedBGColor[0] >= 0){ //is set
         glutAddMenuEntry("User defined",BGCOLOR_USER);
     }
@@ -5036,20 +3977,6 @@ int buildMenuPopup(void){ //hauke
     detectorMenu=DetectorComponents;
 
 
-
-//    subsubMenu1 = glutCreateMenu(selectFromMenu);
-//    glutAddMenuEntry("Perspective",GRAFIC_PERSP);
-//    //glutAddMenuEntry("Deepbuffer", GRAFIC_BUFFER);
-//    glutAddMenuEntry("Transparency/mesh", GRAFIC_TRANS);
-//    glutAddMenuEntry("Light", GRAFIC_LIGHT);
-//    //glutAddMenuEntry("Anti Aliasing", GRAFIC_ALIAS);
-//    glutAddMenuEntry("Fade far objects to current background color", GRAFIC_FOG);
-//    glutAddMenuEntry("Toggle visible of axes", AXES);
-//    #ifndef __APPLE__
-//        glutAddMenuEntry("Show FPS", FPS);
-//    #endif
-//
-
     subsubMenu2 = glutCreateMenu(selectFromMenu);
     for(i=0; (unsigned) i < sizeof(available_cutangles) / sizeof(available_cutangles[0]); i++){
         glutAddMenuEntry(" ",  CUT_ANGLE0+i);
@@ -5067,18 +3994,6 @@ int buildMenuPopup(void){ //hauke
     glutAddMenuEntry("90%",TRANS90);
     glutAddMenuEntry("95%",TRANS95);
     glutAddMenuEntry("100%",TRANS100);
-
-
-
-
-//    subMenu4 = glutCreateMenu(selectFromMenu);
-//    glutAddMenuEntry("Classic View",GRAFIC_LOW);
-//    glutAddMenuEntry("New View", GRAFIC_HIGH);
-////    glutAddMenuEntry("Full Screen mode", FULLSCREEN);
-//
-//    glutAddSubMenu("Graphic details", subsubMenu1);
-//    glutAddSubMenu("Transparency value", transMenu);
-
 
 
     subSave=glutCreateMenu(selectFromMenu);
@@ -5151,21 +4066,6 @@ int buildMenuPopup(void){ //hauke
     glutAddSubMenu("Camera",cameraMenu);
     glutAddMenuEntry("Show Keybinding [h]", HELP);
     glutAddSubMenu("Tools",toolMenu);
-
-//    glutAddSubMenu("View", subMenu2);
-//    glutAddSubMenu("Data layers", subMenu3);
-//    glutAddSubMenu("Detector components", DetectorComponents);
-//    glutAddSubMenu("Detector cuts", subsubMenu2);
-//    glutAddSubMenu("Background Color", subMenu1);
-//    glutAddSubMenu("Graphic options", subMenu4);
-//
-//    glutAddSubMenu("Save settings",subSave);
-//
-//    glutAddSubMenu("Load saved settings",subLoad);
-//
-//    glutAddSubMenu("Save screenshot",subscreenshot);
-//    glutAddMenuEntry("Toggle help [h]",HELP);
-
 
     return menu;
 }
@@ -5301,13 +4201,11 @@ int main(int argc,char *argv[]){
           //printf("test: %s %s\n",argv[i], argv[i+1]);
           struct hostent *host = gethostbyname(argv[i]);
           if (host != NULL){
-  	    extern char trusted_hosts[50];
-
-              snprintf(trusted_hosts, 50, "%u.%u.%u.%u",(unsigned char)host->h_addr[0] ,(unsigned char)host->h_addr[1] ,(unsigned char)host->h_addr[2] ,(unsigned char)host->h_addr[3]);
-  
-             printf("Trust ip: %s\n", trusted_hosts);
-          } else{
-              printf("ERROR: Host %s is unknown!\n", argv[i+1]);  
+  	        extern char trusted_hosts[50];
+            snprintf(trusted_hosts, 50, "%u.%u.%u.%u",(unsigned char)host->h_addr[0] ,(unsigned char)host->h_addr[1] ,(unsigned char)host->h_addr[2] ,(unsigned char)host->h_addr[3]);
+            printf("Trust ip: %s\n", trusted_hosts);
+          } else {
+            printf("ERROR: Host %s is unknown!\n", argv[i+1]);  
           }
       } else if(!strcmp(argv[i], "-geometry")){
         geometry = true;
@@ -5357,14 +4255,9 @@ int main(int argc,char *argv[]){
     //glClearColor(BG_COLOR[0],BG_COLOR[1], BG_COLOR[2], BG_COLOR[3]);
     init();
 
-
-   
-
     #ifndef __APPLE__
     //glutMouseWheelFunc(mouseWheel); //dont works under mac os!
     #endif
-  
-
   
     glutMouseFunc(mouse);
     glutPassiveMotionFunc(mouse_passive);
@@ -5391,29 +4284,17 @@ int main(int argc,char *argv[]){
     buildMainMenu(); 
     popupmenu=new CED_PopUpMenu("");
 
-
-
-
     //glutAttachMenu(GLUT_RIGHT_BUTTON); 
-
-  
     //for(i=0;i<NUMBER_POPUP_LAYER;i++){ //fill the layer section
     //  updateLayerEntryInPopupMenu(i);
     //}
-
-
     //for(i=NUMBER_DATA_LAYER;i<NUMBER_DETECTOR_LAYER+NUMBER_DATA_LAYER;i++){ //fill the layer section
     //  updateLayerEntryDetector(i);
     //}
 
-
-
-  
-
     glutTimerFunc(500,timer,1);
   
-
-//    glDisable(GL_BLEND);
+    //glDisable(GL_BLEND);
     if(setting.light == true){
         setting.light=false;
         selectFromMenu(GRAFIC_LIGHT); 
@@ -5451,13 +4332,6 @@ int save_pixmap_as_tga(unsigned char *buffer_all,char *name,int wi, int hi){
     header[14] = hi & 255;
     header[15] = hi >> 8;
     header[16] = 24;    // 24 bits per pix
-
-//    //RGB -> BGR
-//    for(int j=0;j<mem_size;j+=3){
-//        tmp = buffer_all[j];
-//        buffer_all[j] = buffer_all[j+2];
-//        buffer_all[j+2] = tmp;
-//    }
 
     if (!(out_file = fopen(name, "wb"))) { return(-2); }
 
@@ -5509,78 +4383,7 @@ int save_pixmap_as_bmp(unsigned char *buffer_all,char *name,unsigned int wi, uns
     std::cout << "height: " << int((header[21] << 8) + header[20]) << endl;
     std::cout << "wight: " << int((header[19] << 8)+  header[18]) << endl;
 
-
-
-
-
-//    unsigned int header_size=54;
-//    //header
-//    header[0] = 'B';  
-//    header[1] = 'M';  
-//    header[2] = (mem_size+header_size) & 255;
-//    header[3] = ((mem_size+header_size) >> 8) & 255;
-//    header[4] = ((mem_size+header_size)  >> 16) & 255;
-//    header[5] = ((mem_size+header_size)  >> 24) & 255;
-//    header[6] = 0;
-//    header[7] = 0;
-//    header[8] = 0;
-//    header[9] = 0;
-//    header[10] = header_size & 255;
-//    header[11] = (header_size >>8) & 255;
-//    header[12] = (header_size >>16) & 255;
-//    header[13] = (header_size >>24) & 255;
-//    //info header:
-//    header[14] = 40;
-//    header[15] = 0;
-//    header[16] = 0;
-//    header[17] = 0;
-//
-//    header[18] = wi & 255;
-//    header[19] = (wi >> 8) & 255;
-//    header[20] = (wi >> 16) & 255;
-//    header[21] = (wi >> 24) & 255;
-//    header[22] =  hi & 255;
-//
-//    header[23] = (hi >> 8) & 255;
-//    header[24] = (hi >> 16) & 255;
-//    header[25] = (hi >> 24) & 255;
-//    header[26] = 1;
-//    header[27] = 0;
-//    header[28] = 24;
-//    header[29] = 0;
-//    header[30] = 0;
-//    header[34] =  ( mem_size) & 255;
-//    header[35] =  ((mem_size) >> 8) & 255;
-//    header[36] =  ((mem_size)  >> 16) & 255;
-//    header[37] =  ((mem_size)  >> 24) & 255;
-//    header[38] = 0;
-//    header[39] = 0;
-//    header[40] = 0;
-//    header[41] = 0;
-//    header[42] = 0;
-//    header[43] = 0;
-//    header[44] = 0;
-//    header[45] = 0;
-//    header[46] = 0;
-//    header[47] = 0;
-//    header[48] = 0;
-//    header[49] = 0;
-//    header[50] = 0;
-//    header[51] = 0;
-//    header[52] = 0;
-//    header[53] = 0;
-
-    //cout << "size" << (header_size & 255) << endl;
-
     if (!(out_file = fopen(name, "wb"))) { return(-2); }
-
-    //char tmp;
-//    //RGB BGR
-//    for(int i=0;i<mem_size;i+=3){
-//        tmp = buffer_all[i+2];
-//        buffer_all[i+2] = buffer_all[i];
-//        buffer_all[i] = tmp;
-//    }
 
     fwrite(header, sizeof(unsigned char), header_size, out_file);
     fwrite(buffer_all, sizeof(unsigned char), mem_size, out_file);
@@ -5739,22 +4542,6 @@ void screenshot(char *name, int times)
     }
     std::cout << " Done" << std::endl;
 
-
-
-
-
-        //// RGB to BGR
-        //for(int j=0;j<times*times;j++){
-        //    for (int i=0; i<buf_size; i+=3)
-        //    {
-        //        tmp = buffer[j][i];
-        //        buffer[j][i] = buffer[j][i + 2];
-        //        buffer[j][i + 2] = tmp;
-        //    }
-        //}
-
-
-
     for(int k=0;k<times;k++){
         for(int l=0;l<h;l++){
             for(int j=0;j<times;j++){
@@ -5773,15 +4560,10 @@ void screenshot(char *name, int times)
         buffer_all[j+2] = tmp;
     }
 
-
-
-
     std::cout << "    Save screenshot as: " << name ;
     cout.flush();
     //save_pixmap_as_tga(buffer_all, name, w*times, h*times);
-
-//    save_pixmap_as_bmp(buffer_all, "/tmp/glced.bmp", w*times, h*times);
-
+    //save_pixmap_as_bmp(buffer_all, "/tmp/glced.bmp", w*times, h*times);
     save_pixmap_as_tga(buffer_all, "/tmp/glced.tga", w*times, h*times);
     std::cout << " Done" << endl ;
 
@@ -5796,412 +4578,3 @@ void screenshot(char *name, int times)
 
     setting.screenshot_sections=1;
 }
-
-
-
-
-
-////from: http://www.opengl.org/discussion_boards/ubbthreads.php?ubb=showflat&Number=44286
-//void screenshot_old(char *name)
-//{
-//    //int HEADER_SIZE=24;
-//
-//    int HEADER_SIZE=24;
-//    unsigned char *buffer_all;
-//
-//    unsigned char *buffer1;
-//
-//    unsigned char *buffer2;
-//
-//    unsigned char *buffer3;
-//
-//    unsigned char *buffer4;
-//    char filename[50];
-//    int w=window_width;
-//    int h=window_height;
-//    int buf_size = (w * h * 3);
-//
-//    int buf_size_all = HEADER_SIZE + buf_size * 4;
-//    //int i;
-//    unsigned char temp;
-//    FILE *out_file;
-//
-//
-//     //mm.mv.y=
-//     //mm.mv.z=
-//  
-//  
-//    float grad2rad=3.141*2/360;
-//    float x_factor_x =  cos(mm.ha*grad2rad);
-//    float x_factor_y =  cos((mm.va-90)*grad2rad)*cos((mm.ha+90)*grad2rad);
-//    float y_factor_x =  0; 
-//    float y_factor_y = -cos(mm.va*grad2rad);
-//    float z_factor_x =  cos((mm.ha-90)*grad2rad);
-//    float z_factor_y = -cos(mm.ha*grad2rad)*cos((mm.va+90)*grad2rad);
-//  
-//    //float scale_factor=580/mm.sf/exp(log(window_width*window_height)/2.5) ;
-//
-//    float scale_factor=0.5*580/mm.sf/exp(log(window_width*window_height)/2.5);
-//    float move_x=0;
-//    float move_y=0;
-//
-//
-//
-//    // allocate mem to read from frame buf
-//    if (!(buffer1 = (unsigned char *) calloc(1, buf_size)))
-//    {
-//        return;
-//    }
-//    if (!(buffer2 = (unsigned char *) calloc(1, buf_size)))
-//    {
-//        return;
-//    }
-//
-//
-//    if (!(buffer3 = (unsigned char *) calloc(1, buf_size)))
-//    {
-//        return;
-//    }
-//    if (!(buffer4 = (unsigned char *) calloc(1, buf_size)))
-//    {
-//        return;
-//    }
-//
-//    if (!(buffer_all = (unsigned char *) calloc(1, buf_size_all)))
-//    {
-//        return;
-//    }
-//
-//
-//    if(setting.persp== false){
-//        move_x=-w;
-//        move_y=-h;
-//    //    x_factor_x =  cos(mm.ha*grad2rad);
-//    //    x_factor_y =  cos((mm.va-90)*grad2rad)*cos((mm.ha+90)*grad2rad);
-//    //    y_factor_x =  0; 
-//    //    y_factor_y = -cos(mm.va*grad2rad);
-//    //    z_factor_x =  cos((mm.ha-90)*grad2rad);
-//    //    z_factor_y = -cos(mm.ha*grad2rad)*cos((mm.va+90)*grad2rad);
-//    
-//        mm.mv.x-= -1*scale_factor*(move_x)*x_factor_x - scale_factor*(move_y)*x_factor_y;
-//        mm.mv.y-= -1*scale_factor*(move_x)*y_factor_x - scale_factor*(move_y)*y_factor_y;
-//        mm.mv.z-= -1*scale_factor*(move_x)*z_factor_x - scale_factor*(move_y)*z_factor_y;
-//      
-//        glutPostRedisplay();
-//        reshape(w,h);
-//        display();
-//        reshape(w,h);
-//    
-//        glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer3);
-//    
-//        //mm.mv.x+=1000;
-//    
-//    
-//    
-//        move_x=+w*2;
-//        move_y=0;
-//    
-//    //    x_factor_x =  cos(mm.ha*grad2rad);
-//    //    x_factor_y =  cos((mm.va-90)*grad2rad)*cos((mm.ha+90)*grad2rad);
-//    //    y_factor_x =  0; 
-//    //    y_factor_y = -cos(mm.va*grad2rad);
-//    //    z_factor_x =  cos((mm.ha-90)*grad2rad);
-//    //    z_factor_y = -cos(mm.ha*grad2rad)*cos((mm.va+90)*grad2rad);
-//    
-//        mm.mv.x-=-1* scale_factor*(move_x)*x_factor_x - scale_factor*(move_y)*x_factor_y;
-//        mm.mv.y-=-1* scale_factor*(move_x)*y_factor_x - scale_factor*(move_y)*y_factor_y;
-//        mm.mv.z-=- 1*scale_factor*(move_x)*z_factor_x - scale_factor*(move_y)*z_factor_y;
-//      
-//    
-//        glutPostRedisplay();
-//        display();
-//        reshape(w,h);
-//    
-//    
-//        glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer4);
-//    
-//    
-//        move_x=0;
-//        move_y=2*h;
-//    //    x_factor_x =  cos(mm.ha*grad2rad);
-//    //    x_factor_y =  cos((mm.va-90)*grad2rad)*cos((mm.ha+90)*grad2rad);
-//    //    y_factor_x =  0; 
-//    //    y_factor_y = -cos(mm.va*grad2rad);
-//    //    z_factor_x =  cos((mm.ha-90)*grad2rad);
-//    //    z_factor_y = -cos(mm.ha*grad2rad)*cos((mm.va+90)*grad2rad);
-//    
-//        mm.mv.x-=- 1*scale_factor*(move_x)*x_factor_x - scale_factor*(move_y)*x_factor_y;
-//        mm.mv.y-=- 1*scale_factor*(move_x)*y_factor_x - scale_factor*(move_y)*y_factor_y;
-//        mm.mv.z-=- 1*scale_factor*(move_x)*z_factor_x - scale_factor*(move_y)*z_factor_y;
-//      
-//    
-//        glutPostRedisplay();
-//    
-//        display();
-//        reshape(w,h);
-//    
-//        glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer2);
-//    
-//    
-//    
-//        move_x=-2*w;
-//        move_y=0;
-//    //    x_factor_x =  cos(mm.ha*grad2rad);
-//    //    x_factor_y =  cos((mm.va-90)*grad2rad)*cos((mm.ha+90)*grad2rad);
-//    //    y_factor_x =  0; 
-//    //    y_factor_y = -cos(mm.va*grad2rad);
-//    //    z_factor_x =  cos((mm.ha-90)*grad2rad);
-//    //    z_factor_y = -cos(mm.ha*grad2rad)*cos((mm.va+90)*grad2rad);
-//    
-//        mm.mv.x-=-1* scale_factor*(move_x)*x_factor_x - scale_factor*(move_y)*x_factor_y;
-//        mm.mv.y-=-1* scale_factor*(move_x)*y_factor_x - scale_factor*(move_y)*y_factor_y;
-//        mm.mv.z-=-1* scale_factor*(move_x)*z_factor_x - scale_factor*(move_y)*z_factor_y;
-//      
-//    
-//        glutPostRedisplay();
-//        display();
-//        reshape(w,h);
-//    
-//    
-//        glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer1);
-//    
-//    
-//    
-//        move_x=+w;
-//        move_y=-h;
-//        mm.mv.x-=-1* scale_factor*(move_x)*x_factor_x - scale_factor*(move_y)*x_factor_y;
-//        mm.mv.y-=-1* scale_factor*(move_x)*y_factor_x - scale_factor*(move_y)*y_factor_y;
-//        mm.mv.z-=-1* scale_factor*(move_x)*z_factor_x - scale_factor*(move_y)*z_factor_y;
-//        glutPostRedisplay();
-//        display();
-//        reshape(w,h);
-//    
-//      
-//    
-//    }else if(setting.persp == true){
-//        //reshape(500,500);
-//        int w=window_width;
-//        int h=window_height;
-//
-//
-//        std::cout << "w" << w << "h: " << h << std::endl;
-//
-//    //    double x=cos((90.-45./4.)*3.141*2./360.)*2000;
-//    //    double y=cos((90.-45./4.)*3.141*2./360.)*2000;
-//    //    double z=2000.-pow(pow(2000,2)-pow(x,2)-pow(y,2),0.5);
-//    //    z=0;
-//    //    std::cout << "(" << x << "," << y << "," << z << ") |x| = " << pow(pow(x,2)+pow(y,2)+pow(z,2),0.5) << endl;
-//
-//
-//
-////        glMatrixMode(GL_PROJECTION);
-////        glLoadIdentity();
-////        glViewport(0,0,w,h);
-////        gluPerspective(45./2.,window_width/window_height,100.0,50000.0*mm.sf+50000/mm.sf);
-////        gluLookAt  (0,0,2000,    -1.*x,y,z,    0,1,0);
-////        glMatrixMode(GL_MODELVIEW);
-////        write_world_into_front_buffer();
-////        glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer3);
-////        glMatrixMode(GL_MODELVIEW);
-////        glutPostRedisplay();
-////        display();
-////        reshape(w,h);
-////
-////
-////
-////        glMatrixMode(GL_PROJECTION);
-////        glLoadIdentity();
-////        glViewport(0,0,w,h);
-////        gluPerspective(45./2.,window_width/window_height,100.0,50000.0*mm.sf+50000/mm.sf);
-////        gluLookAt  (0,0,2000,    -1.*x,-1.*y,z,    0,1,0);
-////        glMatrixMode(GL_MODELVIEW);
-////        write_world_into_front_buffer();
-////        glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer1);
-////        glMatrixMode(GL_MODELVIEW);
-////        glutPostRedisplay();
-////        display();
-////        reshape(w,h);
-////
-////
-////
-////
-////        glMatrixMode(GL_PROJECTION);
-////        glLoadIdentity();
-////        glViewport(0,0,w,h);
-////        gluPerspective(45./2.,window_width/window_height,100.0,50000.0*mm.sf+50000/mm.sf);
-////        gluLookAt  (0,0,2000,  x,y,z,    0,1,0);
-////        glMatrixMode(GL_MODELVIEW);
-////        write_world_into_front_buffer();
-////        glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer4);
-////        glMatrixMode(GL_MODELVIEW);
-////        glutPostRedisplay();
-////        display();
-////        reshape(w,h);
-////
-////        glMatrixMode(GL_PROJECTION);
-////        glLoadIdentity();
-////        glViewport(0,0,w,h);
-////        gluPerspective(45./2.,window_width/window_height,100.0,50000.0*mm.sf+50000/mm.sf);
-////        gluLookAt  (0,0,2000,    x,-1*y,z,    0,1,0);
-////        glMatrixMode(GL_MODELVIEW);
-////        write_world_into_front_buffer();
-////        glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer2);
-////        glMatrixMode(GL_MODELVIEW);
-////        glutPostRedisplay();
-////        display();
-////        reshape(w,h);
-//
-//
-/////////////////////////
-//        
-//
-//        glMatrixMode(GL_PROJECTION);
-//        glLoadIdentity();
-//        glFrustum(-100,0,-100,0,200.,50000.0*mm.sf*2+50000/(mm.sf*2));
-//        glViewport(0,0,w,h);
-//        gluLookAt  (0,0,2000,    0,0,0,    0,1,0);
-//        glMatrixMode(GL_MODELVIEW);
-//        write_world_into_front_buffer();
-//        glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer1);
-//        glMatrixMode(GL_MODELVIEW);
-//        glutPostRedisplay();
-//        display();
-//        reshape(w,h);
-//
-//        glMatrixMode(GL_PROJECTION);
-//        glLoadIdentity();
-//        glFrustum(0,100,-100,0,200.0,50000.0*mm.sf*2+50000/(mm.sf*2));
-//        glViewport(0,0,w,h);
-//        gluLookAt  (0,0,2000,    0,0,0,    0,1,0);
-//        glMatrixMode(GL_MODELVIEW);
-//        write_world_into_front_buffer();
-//        glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer2);
-//        glMatrixMode(GL_MODELVIEW);
-//        glutPostRedisplay();
-//        display();
-//        reshape(w,h);
-//
-//
-//
-//        glMatrixMode(GL_PROJECTION);
-//        glLoadIdentity();
-//        glFrustum(-100,0,0,100,200.0,50000.0*mm.sf*2+50000/(mm.sf*2));
-//        glViewport(0,0,w,h);
-//        gluLookAt  (0,0,2000,    0,0,0,    0,1,0);
-//        glMatrixMode(GL_MODELVIEW);
-//        write_world_into_front_buffer();
-//        glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer3);
-//        glMatrixMode(GL_MODELVIEW);
-//        glutPostRedisplay();
-//        display();
-//        reshape(w,h);
-//
-//
-//
-//        glMatrixMode(GL_PROJECTION);
-//        glLoadIdentity();
-//        glFrustum(0,100,0,100,200.0,50000.0*mm.sf*2+50000/(mm.sf*2));
-//        glViewport(0,0,w,h);
-//        gluLookAt  (0,0,2000,    0,0,0,    0,1,0);
-//        glMatrixMode(GL_MODELVIEW);
-//        write_world_into_front_buffer();
-//        glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer4);
-//        glMatrixMode(GL_MODELVIEW);
-//        glutPostRedisplay();
-//        display();
-//        reshape(w,h);
-//
-//
-//
-//     }
-//
-//
-//    // open file for output 
-//    if (!(out_file = fopen(name, "w")))
-//    {
-//        return;
-//    }
-//
-//
-//
-//
-//    
-//    // set header info
-//    buffer_all[2] = 2;  // uncompressed
-//    buffer_all[12] = (w*2) & 255;
-//    buffer_all[13] = (w*2) >> 8;
-//    buffer_all[14] = (h*2) & 255;
-//    buffer_all[15] = (h*2) >> 8;
-//    buffer_all[16] = 24;    // 24 bits per pix
-//
-//
-//    // RGB to BGR
-//    for (int i = 0; i < buf_size; i += 3)
-//    {
-//        temp = buffer1[i];
-//        buffer1[i] = buffer1[i + 2];
-//        buffer1[i + 2] = temp;
-//    }
-//
-//    for (int i = 0; i < buf_size; i += 3)
-//    {
-//        temp = buffer2[i];
-//        buffer2[i] = buffer2[i + 2];
-//        buffer2[i + 2] = temp;
-//    }
-//
-//    for (int i = 0; i < buf_size; i += 3)
-//    {
-//        temp = buffer3[i];
-//        buffer3[i] = buffer3[i + 2];
-//        buffer3[i + 2] = temp;
-//    }
-//
-//    for (int i = 0; i < buf_size; i += 3)
-//    {
-//        temp = buffer4[i];
-//        buffer4[i] = buffer4[i + 2];
-//        buffer4[i + 2] = temp;
-//    }
-//
-//
-//
-//
-//    for(int l=0; l < h; l++){
-//        for(int c=0; c < w*3; c++){
-//                buffer_all[c+2*w*l*3+HEADER_SIZE] = buffer1[c+w*l*3];
-//        }
-//
-//        for(int c=0; c < w*3; c++){
-//                buffer_all[w*3+c+2*w*l*3+HEADER_SIZE] = buffer2[c+w*l*3];
-//        }
-//     }
-//
-//    for(int l=0; l < h; l++){
-//        for(int c=0; c < w*3; c++){
-//                buffer_all[c+2*w*(l+h)*3+HEADER_SIZE] = buffer3[c+w*l*3];
-//        }
-//
-//        for(int c=0; c < w*3; c++){
-//                buffer_all[w*3+c+2*w*(l+h)*3+HEADER_SIZE] = buffer4[c+w*l*3];
-//        }
-//     }
-//
-//
-//
-//    // write header + color buf to file
-//    fwrite(buffer_all, sizeof(unsigned char), buf_size_all, out_file);
-//
-//    // cleanup
-//    fclose(out_file);
-//    free(buffer_all);
-//
-//    free(buffer1);
-//
-//    free(buffer2);
-//
-//    free(buffer3);
-//
-//    free(buffer4);
-//    std::cout << "screenshot saved" << std::endl;
-//}
