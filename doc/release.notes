@@ -6,6 +6,64 @@
 ##################################################
 
  --------
+| v01-07 |
+ --------
+NOTE: Old config files (created by CED by save settings) are not longer readable, sorry!
+
+New features (H.Hoelbe, DESY):
+    - split reset ced into two parts: reset everything (shortcut R), reset view (shortcut r)
+    - menu and popup menu expands now to left/top if right/button is not enough space.
+    - update the manual (not finished yet)
+    - Undo function is build in. (shortkey: 'u')
+
+    Menus:
+        - Popup/Main menu entrys now shown a little triangle at the right when they are have subitems
+        - Add a menu option with allows to change the text size
+        - Main menu now show current status of
+            - axis visibility
+            - layers
+            - detector
+            - transparency
+            - projections
+            - cuts
+            - graphics settings
+            - font size
+            - fps
+            - help
+            - additionaly the screenshot function show the pixel x pixel size of the image
+            - New available cut values for angle and z-cut added to popup and main menu
+            - Selecting a detector component by righclick now allows to change its transparency (>,<), cutangle (m,M) and z-cut value (z,Z)
+            - Selecting the background allows to change transparency, cutangle, z-cut value for all components starting at the individual values of each component
+            - Save/Load now saves the individual values for each detector component
+            - popup menu now allow to change detector transparence and phi-cut exclusive for one specific layer
+         - Layer menu now contains visible/not visible flag
+         - popup menu now contains data and detector layers too
+    - Add some of the normals to the draw detector function to improve lighting, still under construction!
+    - Layer description text is now shown in popup menu
+
+
+
+Bugfixes (H. Hoelbe, DESY):
+    - layer visibility  is now shown correctly in the menus
+    - layer description is now shown in the menus
+    - undo function is moved from shortkey 'u' to x or ctrl+z
+    - undo function now does not cause in strange behavior when pressing after startup
+    - save light settings
+    - screenshot with light
+    - load default settings
+    - toggle z and phi projection
+    - fixed picking problem (calculate the distance for each method in the same way)
+    - axis are now drawn always in the middle of the detector (enquired by frank)
+    - subsubmenu and submenu are now able to draw horizontal lines
+    - data and detector layer menus (main and popup) now shows the layer description
+    - workaround for mac - draw bogus GLUT menu
+    - Fixed bug in the picking line feature
+    - Shortcut frame: now works correct for diverent font sizes
+    - Popup menu now supports subitems
+    - Popup menu for detector components now shows phi-cut submenu
+    - Removed compiler warnings
+
+ --------
 | v01-06 |
  --------
 - New features (H. Hoelbe, DESY):
