@@ -75,44 +75,82 @@
 \newpage
 \section{Overview}
 %\subsection{What CED is}
-CED stands for "C Event Display" and is a client server based tool to draw objects into a dynamic 3D picture. CED is a graphical application which uses OpenGL to display the 3D world. It is possible to draw individual objects with CED, but for common use it is well integrated into the ilcsoft framework.
-\newline\newline
-The common use for CED is to display events, this is split into different parts. First of all a data file which contains the LCIO objects to be drawn is needed. This object gets processed with Marlin, that sends the data over a TCP/IP connection to CED. In order to do this, Marlin needs a steering file. This XML file can be written by hand or can be generated with MarlinGUI.
-\newline\newline
+The C Event Display (CED) and is a client server based tool to draw objects into a dynamic 3D picture. 
+CED is a graphical application which uses OpenGL to display the 3D enviroment. 
+It is possible to draw individual objects with CED (see section \ref{myviewer}) but for common use it is well integrated into the ilcsoft framework:
+
+The common use for CED is to display events. 
+To do this several steps are necessary.
+A data file which contains the LCIO objects to be drawn is needed. 
+This object gets processed with Marlin, which sends the data of the events over a TCP/IP connection to CED. 
+In order to do this, Marlin needs a steering file. 
+This XML file can be written by hand or can be generated with MarlinGUI.
 The steering file decides which data file is read and also which viewer is used, the viewer decides which datatype is on what layer (see layer section), which color will be used etc. Example viewers are: Generic-, CED- and DST-Viewer.
 
 %\subsection{(0.2 How do you get it)}
 \section{Quickstart}
-Generating a Marlin steering file can be time consumming, but there is a tool in the CED package which displays the event using a default configuration. For a simple first look, source the ini ilcsoft script and enter: 
+Generating a Marlin steering file can be time consumming, but there is a tool in the CED package which displays the event using a default configuration. 
+For a simple first look, source the ini ilcsoft script and use the command: 
 \begin{verbatim}
     ced2go <your datafile>
 \end{verbatim}
-A window which contains the graphical interpretation of your event will open. To view the next event press enter in the terminal.
-\newline\newline
-Select the CED window and press 'h' to see the available keyboard shortcuts. Right-click into the the CED window to open a context menu.
+A window which contains the graphical interpretation of your event will open. 
+To view the next event press enter in the terminal where you have commited the ced2go command.
 
-\begin{figure}[h]
-\centerline{ \includegraphics[width=1\linewidth]{quickstart6.png}}
-\caption{\label{CEDViewer} \textsl{ced2go after the first start}}
+All possible options are available from the menu at the top. 
+Additional you are able to use shortcuts (see appendix). 
+You are also able to change objects by the popup menu by clicking with the right mouse button at one object.
+
+\begin{figure}
+    \begin{center}
+         \fbox{
+         \includegraphics[width=0.5\linewidth]{quickstart1.png}
+         }
+         \caption{\label{CEDViewer} \textsl{ced2go after the first start}}
+    \end{center}
 \end{figure}
 
 
-\subsection{Help}
-Select the CED window and press 'h' to get an overlay of shortcuts and a description of used layers.
+%\subsection{Help}
+%Select the CED window and press 'h' to get an overlay of shortcuts and a description of used layers.
+
+\subsection{menu}
+All CED options are accessible from the main menu.
+Splitted into seven submenus: 
+\begin{itemize}
+    \item{Layers}: Toggle the visable of data or detector layers. 
+    \item{Transparency}: Change the transparency of the detector components. 
+    \item{Camera}: Change the possition of view, reset view or selecting projections. 
+
+    \item{Cuts}: Different cuts of the detector. 
+
+    \item{Graphic}: Graphic options. You can also save your prefered settings here.
+
+    \item{Tools}: Additional functions like making high resolution screenshots.
+
+    \item{Help}: Getting help.
+
+\end{itemize}
 
 \subsection{Pop-up menu}
-Right-click in the CED window to open an pop-up menu. This menu allows you to configure CED.
+Right-click on any object displayed in CED open the popup menu. 
+This menu allows you to configure or select the selected object.
+For example to change the color of the background simply click on it and change a different one.
 
 \section{Save settings}
-By selecting 'save settings' from the pop-up menu, all CED settings will be stored into $\sim$/.glced. This includes current background color, view, transparency, cuts, layers visibility etc. but does not save the current event or other Marlin settings, because these depend on the Marlin steering file and not on CED. On the next start up CED will read the config file and restore the settings.
-\newline\newline
-The config file $\sim$/.glced is human readable but it is not recommended to change the settings within an editor.
+You are able to save your favorite settings and switch between the saved ones. 
+The settings are stored under $\sim$/.glced\_cfg/.
+The save function store the current background color, view, transparency, cuts, layers visibility etc. 
+But the current event or other Marlin settings is not saved, because these depend on the Marlin steering file and not on CED. 
+
+The config file  is human readable but it is not recommended to change the settings by hand. 
 
 \section{Views}
 \subsection{Rotate}
 To change the view, simply left-click into the CED window, hold the mouse button and pull in any direction to rotate the view.
 \subsection{Zoom factor}
 To increase the magnification press '+', to decrease press '-'. If you are on Linux zooming with the mousewheel works too. 
+%%here
 
 \subsection{Move}
 To move the center of view to any direction, press and hold the middle mouse button and pull. 

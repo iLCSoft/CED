@@ -1016,7 +1016,8 @@ int ced_get_selected(int x,int y,GLfloat *wx,GLfloat *wy,GLfloat *wz){
         if((dx>p->max_dxy) || (dy>p->max_dxy)){
             continue;
         }
-        d=dx+dy;
+        //d=dx+dy;
+        d=(int) pow(pow(dx,2)+pow(dy,2)+pow(p->z,2),0.5);
         if(!best || (d<dist)){
             best=p;
             dist=d;
@@ -1029,6 +1030,7 @@ int ced_get_selected(int x,int y,GLfloat *wx,GLfloat *wy,GLfloat *wz){
     *wx=best->p.x;
     *wy=best->p.y;
     *wz=best->p.z;
+
     //printf("Will center in: %.1f %.1f %.1f for HIT %d\n",*wx,*wy,*wz,best->ID);
     std::cout << "Center selected hit (ID: " << best->ID << ")" << std::endl;
 
@@ -1053,6 +1055,7 @@ int find_selected_object(int x,int y,GLfloat *wx,GLfloat *wy,GLfloat *wz, int *i
         //d=dx+dy;
 
         d=(int) pow(pow(dx,2)+pow(dy,2)+pow(p->z,2),0.5);
+        //d=dx+dy;
         if(!best || (d<dist)){
             best=p;
             dist=d;
@@ -1062,6 +1065,9 @@ int find_selected_object(int x,int y,GLfloat *wx,GLfloat *wy,GLfloat *wz, int *i
         return 1;
     }
     //std::cout << "best has z: " <<  p->z << std::endl;
+    //*wx=best->p.x;
+    //*wy=best->p.y;
+    //*wz=best->p.z;
     *wx=best->p.x;
     *wy=best->p.y;
     *wz=best->p.z;
@@ -1107,7 +1113,8 @@ int ced_picking(int x,int y,GLfloat *wx,GLfloat *wy,GLfloat *wz){
         if((dx>p->max_dxy) || (dy>p->max_dxy)){
             continue;
         }
-        d=dx+dy;
+        //d=dx+dy;
+        d=(int) pow(pow(dx,2)+pow(dy,2)+pow(p->z,2),0.5);
         if(!best || (d<dist)){
             best=p;
             dist=d;

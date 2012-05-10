@@ -536,6 +536,7 @@ void printShortcuts(void){
     shortcuts.push_back( "[Esc] Quit CED" );
     shortcuts.push_back( "[h] Toggle shortcut frame" );
     shortcuts.push_back( "[r] Reset view" );
+    shortcuts.push_back( "[R] Reset CED" );
     shortcuts.push_back( "[f] Font view" );
     shortcuts.push_back( "[s] Side view" );
     shortcuts.push_back( "[F] Front projection" );
@@ -1536,8 +1537,10 @@ static void keypressed(unsigned char key,int x,int y){
     //std::cout << "key: " << int(key) << endl;
     if(false ){ //ctrl+z
         //selectFromMenu(UNDO);
-    } else if(key=='r' || key=='R'){ 
+    } else if(key=='r'){ 
         selectFromMenu(VIEW_RESET);
+    } else if(key=='R'){ 
+        selectFromMenu(CED_RESET);
     } else if(key=='f'){     
        selectFromMenu(VIEW_FRONT);
     } else if(key == 'F'){
@@ -2340,7 +2343,8 @@ void selectFromMenu(int id){ //hauke
 
     switch(id){
         case PICK_HIT:
-            if(!ced_picking(popupmenu->x_start,popupmenu->y_start ,&mm.mv.x,&mm.mv.y,&mm.mv.z)){
+            //cout << "TODO: pick with: " << popupmenu->x_click << " , " << popupmenu->y_click << endl;
+            if(!ced_picking(popupmenu->x_click,popupmenu->y_click ,&mm.mv.x,&mm.mv.y,&mm.mv.z)){
                struct __glutSocketList *sock;
                sock=__glutSockets;
                int id = SELECTED_ID;
@@ -2484,7 +2488,19 @@ void selectFromMenu(int id){ //hauke
         case BGCOLOR_USER:
             set_bg_color(userDefinedBGColor[0],userDefinedBGColor[1], userDefinedBGColor[2], userDefinedBGColor[3]);
 
+
         case VIEW_RESET:
+            setting.phi_projection = false; // no phi projection
+            setting.z_projection=false; // no phi projection;
+            mm=mm_reset;
+            //mm.sf = fisheye_alpha > 0 ? mm.sf*8.0: mm.sf;
+            fisheye_alpha=0;
+            setting.fixed_view=false;
+            //update_cut_angle_menu();
+            set_world_size(DEFAULT_WORLD_SIZE ); 
+            break;
+
+        case CED_RESET:
             //if(graphic[2] == 0){selectFromMenu(GRAFIC_PERSP); }
             if((setting.trans == true && setting.persp == false) || (setting.trans == false && setting.persp == true)){
                 selectFromMenu(GRAFIC_PERSP); //switch persp on in new view, switch persp off in classic view
@@ -3312,6 +3328,7 @@ void buildPopUpMenu(int x, int y){
     
 
     if(!find_selected_object(x,y,&p_x,&p_y,&p_z, &id, &layer, &type)){ //if ==1 found hit, else clicked on background
+        //cout << "TODO: ID: " << id << endl;
         if(type == 0){
 
 
@@ -3482,12 +3499,29 @@ void buildPopUpMenu(int x, int y){
         width=300;
     }
 
+    int pos_y=popupmenu->size()*height;
+
     popupmenu->isExtend=true;
-    popupmenu->x_start=x;
-    popupmenu->x_end=x+width;
-    popupmenu->y_start=y;
-    //popupmenu->y_end=y+popupmenu->size()*2;
-    popupmenu->y_end=y+height+1;
+    
+    if( (x + width+10) > window_width){
+        popupmenu->x_start=x-width-10;
+        popupmenu->x_end=x-10;
+    }else{
+        popupmenu->x_start=x;
+        popupmenu->x_end=x+width;
+    }
+
+    if( (y+pos_y) > window_height){
+        popupmenu->y_start=y-pos_y;
+        popupmenu->y_end=y-pos_y+height+1;
+    }else{
+        popupmenu->y_start=y;
+        popupmenu->y_end=y+height+1;
+    }
+
+    popupmenu->y_click=y;
+    popupmenu->x_click=x;
+   // cout << "TODO: x,y: " << x << ", " << y << endl;
 }
 void buildLayerMenus(void){
     //std::cout << "enter buildLayerMenus" << std::endl;
@@ -3646,8 +3680,9 @@ void buildMainMenu(void){
 
     CED_SubMenu *camera=new CED_SubMenu("Camera");
     camera->addItem(new CED_SubSubMenu("Reset view [r]", VIEW_RESET));
+    camera->addItem(new CED_SubSubMenu("Reset CED  [R]", CED_RESET));
     camera->addItem(new CED_SubSubMenu("Front view [f]", VIEW_FRONT));
-    camera->addItem(new CED_SubSubMenu("Side view [s]", VIEW_SIDE));
+    camera->addItem(new CED_SubSubMenu("Side view [s]",  VIEW_SIDE));
 
     camera->addItem(new CED_SubSubMenu("---", 0));
     if(setting.phi_projection==true){

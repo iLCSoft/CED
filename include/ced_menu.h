@@ -415,6 +415,12 @@ class CED_SubMenu{
                         subsubMenus.at(i)->x_end  =x_start+maxlength*width;
                         subsubMenus.at(i)->y_start=y_start+height+1+height*i;
                         subsubMenus.at(i)->y_end  =y_end + height+1+height*i;
+                        if(subsubMenus.at(i)->x_end > window_width){
+                            int tmp=subsubMenus.at(i)->x_end;
+                            int tmp2=subsubMenus.at(i)->x_start;
+                            subsubMenus.at(i)->x_end = x_end;
+                            subsubMenus.at(i)->x_start=x_end-(tmp-tmp2);
+                        }
                         subsubMenus.at(i)->draw();
                     }
                 }
@@ -582,8 +588,9 @@ class CED_Menu{
             //unsigned x_offset=1;
             for(i=0;(unsigned) i<subMenus.size();i++){
                //drawHelpString(shortcuts[i],  R_COLUMN)*column+boarder_quad+5, (i%ITEMS_PER_COLUMN)*line+boarder_quad+10);
-                subMenus.at(i)->draw();
-                //x_offset+=subMenus.at(i)->title.length()*6;
+
+               subMenus.at(i)->draw();
+
             }
 
             glEnable(GL_DEPTH_TEST);
@@ -627,6 +634,7 @@ class CED_Menu{
                 height=20;
             }
             //cout << "length: " << length << endl;
+
             sub->x_start=x_offset;
             sub->y_start=1;
             sub->y_end=height+1;
@@ -809,6 +817,8 @@ class CED_PopUpMenu{
             isExtend=false;
             isMouseOver=false;
             selected_submenu=NULL;
+            //click_x=
+            //click_y=
         }
 
         int size(void){
@@ -822,6 +832,8 @@ class CED_PopUpMenu{
         int x_end;
         int y_start;
         int y_end;
+        int x_click;
+        int y_click;
 
     private:
         vector<CED_SubSubMenu *> subsubMenus;
@@ -983,6 +995,7 @@ class CED_PopUpMenu{
 #define VIEW_ZOOM_OUT   24
 #define VIEW_RESET      25
 #define VIEW_CENTER     26
+#define CED_RESET       27
 
 #define LAYER_0         30
 #define LAYER_1         31
