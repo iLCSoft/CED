@@ -13,7 +13,6 @@
 /********************************************************** 
 * Handling                                                *
 **********************************************************/
-
 //time when 2 clicks should be a double click, in 1/1000000 secounds
 #define DOUBLE_CLICK_TIME                   300000 
 

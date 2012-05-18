@@ -710,12 +710,24 @@ static void display(void){
     // in case of no rotate, in some cases it could get strange 
     // lines in fisheye view from (0,0,0) to (-inf, -inf,x)
 
-
-    glRotatef(mm.va,1.,0.,0.);
-    glRotatef(mm.ha,0.,1.0,0.);
-    glScalef(mm.sf,mm.sf,mm.sf); //streech the world
-
     setting.zoom=mm.sf;
+    glScalef(mm.sf,mm.sf,mm.sf); //zoom
+
+//#if ROTATE_MODE == 1
+//        glTranslatef(-mm.mv.x,-mm.mv.y,-mm.mv.z); //move
+//        glRotatef(mm.va,1.,0.,0.); //rotate
+//        glRotatef(mm.ha,0.,1.0,0.); //rotate
+//#else
+//        glRotatef(mm.va,1.,0.,0.); //rotate
+//        glRotatef(mm.ha,0.,1.0,0.); //rotate
+//        glTranslatef(-mm.mv.x,-mm.mv.y,-mm.mv.z); //move
+//#endif
+
+
+        glRotatef(mm.va,1.,0.,0.); //rotate
+        glRotatef(mm.ha,0.,1.0,0.); //rotate
+        glTranslatef(-mm.mv.x,-mm.mv.y,-mm.mv.z); //move
+
 
 
 
@@ -726,8 +738,6 @@ static void display(void){
       //glMatrixMode(GL_MODELVIEW); //
   
     // draw static objects
-
-    glTranslatef(-mm.mv.x,-mm.mv.y,-mm.mv.z);
     display_world(); //only axes?
   
   
@@ -761,6 +771,7 @@ static void display(void){
 //        gluLookAt  (0,0,2000,    0,0,0,    0,1,0);
 //
 //
+
 
     if(showHelp == 1){
         printShortcuts();
@@ -1904,7 +1915,8 @@ static void motion(int x,int y){
         mm.mv.x=mm.mv_start.x-(x-mouse_x)*WORLD_SIZE/window_width
         mm.mv.y=mm.mv_start.y+(y-mouse_y)*WORLD_SIZE/window_height
         */
-  
+ 
+            
         float grad2rad=3.141*2/360;
         float x_factor_x =  cos(mm.ha*grad2rad);
         float x_factor_y =  cos((mm.va-90)*grad2rad)*cos((mm.ha+90)*grad2rad);

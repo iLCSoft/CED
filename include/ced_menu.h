@@ -18,7 +18,16 @@ extern GLfloat window_width;
 
 void drawHelpString (const string & str, float x,float y){ //format help strings strings: "[<key>] <description>"
     unsigned int i;
-    glRasterPos2f(x,y);
+    float x1=x;
+    float y1=y;
+    if( x1 < 0.0){
+        x1=0.;
+    }  
+    if( y1 < 0.0){ 
+        y1=0.;
+    }  
+
+    glRasterPos2f(x1,y1);
 
     int monospace = 0;
     for (i = 0; str[i]; i++){
@@ -153,10 +162,18 @@ class CED_SubSubMenu{
                                 subsubMenus.at(i)->x_start=x_start-maxlength*width;
                                 subsubMenus.at(i)->x_end  =x_start;
                             }
-                            subsubMenus.at(i)->y_start=y_start+height*i;
-                            subsubMenus.at(i)->y_end  =y_end + height*i;
+
+                            if(window_height < (y_start+height*subsubMenus.size()) ){
+                                subsubMenus.at(i)->y_start=y_start-height*subsubMenus.size()+height+height*i;
+                                subsubMenus.at(i)->y_end  =y_end-height*subsubMenus.size() +height+ height*i;
+                            }else{
+                                subsubMenus.at(i)->y_start=y_start+height*i;
+                                subsubMenus.at(i)->y_end  =y_end + height*i;
+                            }
                             subsubMenus.at(i)->draw();
                     }
+
+
 
 
                 }else{
@@ -197,6 +214,13 @@ class CED_SubSubMenu{
 
 
                 }
+                if(x_start < 0){
+                    x_start=0;
+                }
+                //if(x_end > window_width){
+                //    x_end=window_width;
+                //}
+
 
                 if(title == "---"){
 
@@ -207,7 +231,7 @@ class CED_SubSubMenu{
                     glEnd();
                     glColor3f(0,0,0);
                 }else{
-                    drawHelpString(title, x_start+3, y_start+height-height/5);
+                    drawHelpString(title.substr(0,int(fabs((x_end-x_start)/width))), x_start+3, y_start+height-height/5);
                 }
         }
 
