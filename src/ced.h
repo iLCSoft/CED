@@ -94,6 +94,7 @@ struct CEDsettings{
     double detector_trans[NUMBER_DETECTOR_LAYER];
     double detector_cut_angle[NUMBER_DETECTOR_LAYER];
     double detector_cut_z[NUMBER_DETECTOR_LAYER];
+    bool detector_picking;
 //    double cut_angle; //deprecated
 //    double trans_value; //deprecated
 //    double z_cutting; //deprecated

@@ -1106,6 +1106,8 @@ void saveSettings(int slot){
 
 
 
+        file<<"#Enable detector picking:"<<std::endl<<setting.detector_picking<< std::endl;
+
         std::cout << "Save settings to: " << filename << std::endl;
 
     }else{
@@ -1198,21 +1200,15 @@ void defaultSettings(void){
             //std::cout << "DEFAULT_WORLD_SIZE "  << DEFAULT_WORLD_SIZE << "zoom: " << mm.sf << std::endl;
  
 
-setting.va=mm.va;
-setting.ha=mm.ha;
-setting.zoom=mm.sf;
-setting.fisheye_alpha=fisheye_alpha;
+            setting.va=mm.va;
+            setting.ha=mm.ha;
+            setting.zoom=mm.sf;
+            setting.fisheye_alpha=fisheye_alpha;
+            
+            setting.fisheye_world_size= FISHEYE_WORLD_SIZE ; 
+            setting.world_size= WORLD_SIZE;
 
-setting.fisheye_world_size= FISHEYE_WORLD_SIZE ; 
-setting.world_size= WORLD_SIZE;
-
-
-
-
-
-
-
-        std::cout << "Set options to default settings" << std::endl;
+            std::cout << "Set options to default settings" << std::endl;
 }
 
 void idle(void){
@@ -1324,6 +1320,10 @@ void loadSettings(int slot){
                     setting.detector_cut_z[i]=atof(line.c_str());
                 }
 
+                getline(file,line);getline(file,line);
+                setting.detector_picking = atoi(line.c_str());
+
+
             //set_bg_color(setting.bgcolor[0],setting.bgcolor[1],setting.bgcolor[2],setting.bgcolor[3]); 
             std::cout << "Read settings from: " << filename << std::endl;
         }
@@ -1342,11 +1342,7 @@ void loadSettings(int slot){
     FISHEYE_WORLD_SIZE = setting.fisheye_world_size; 
     WORLD_SIZE=setting.world_size;
 
-
-
-
     //reshape(setting.win_w, setting.win_h);
-
 }
 
 
@@ -1439,6 +1435,9 @@ static void mouse(int btn,int state,int x,int y){
           ced_menu->clickAt((int)mouse_x,(int)mouse_y);
           buildPopUpMenu(x,y);
           glutPostRedisplay();
+          if(ZOOM_RIGHT_CLICK == false){
+            return;
+          }
           move_mode=ZOOM;
           return;
         case GLUT_MIDDLE_BUTTON:
@@ -3157,7 +3156,16 @@ void selectFromMenu(int id){ //hauke
 //      mm.ha=mm.ha_start+(x-mouse_x)*180./window_width;
 //      mm.va=mm.va_start+(y-mouse_y)*180./window_height;
  
-                 GLfloat light0_pos[] = {2000, 2000, 2000};
+                
+                 GLfloat light0_pos[] = {20000, 20000, 20000};
+                 
+            glBegin(GL_QUADS);
+            glVertex3d(2000,2000,20000);
+            glVertex3d(2500,2000,20000);
+            glVertex3d(2000,2500,20000);
+            glVertex3d(2000,2000,20500);
+            glEnd();
+
                  //GLfloat light0_dir[] = {-1, -1, 0};
 
                  //GLfloat angle[] = {30};
@@ -3206,7 +3214,7 @@ void selectFromMenu(int id){ //hauke
 
                  glEnable(GL_LIGHTING); 
                  //glEnable(GL_LIGHT0);
-                 glEnable(GL_LIGHT1);
+                 glEnable(GL_LIGHT0);
 
                  glEnable(GL_DEPTH_TEST);
 
@@ -3229,6 +3237,10 @@ void selectFromMenu(int id){ //hauke
             }
             break;
 
+
+        case TOGGLE_DETECTOR_PICKING:
+            setting.detector_picking = abs(setting.detector_picking-1);
+            break; 
 
         case GRAFIC_FOG:
                 glGetDoublev(GL_COLOR_CLEAR_VALUE, setting.bgcolor);
@@ -3839,6 +3851,12 @@ void buildMainMenu(void){
     settings->addItem(new CED_SubSubMenu("Fade far objects",GRAFIC_FOG));
     settings->addItem(new CED_SubSubMenu("Deepbuffer", GRAFIC_BUFFER));
 
+    settings->addItem(new CED_SubSubMenu("---",0));
+    if(setting.detector_picking){
+        settings->addItem(new CED_SubSubMenu("[X] Detector picking", TOGGLE_DETECTOR_PICKING));
+    }else{
+        settings->addItem(new CED_SubSubMenu("[ ] Detector picking", TOGGLE_DETECTOR_PICKING));
+    }
     settings->addItem(new CED_SubSubMenu("---",0));
 
     CED_SubSubMenu *font=new CED_SubSubMenu("Text font size ");

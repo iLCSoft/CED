@@ -18,16 +18,18 @@ extern GLfloat window_width;
 
 void drawHelpString (const string & str, float x,float y){ //format help strings strings: "[<key>] <description>"
     unsigned int i;
-    float x1=x;
-    float y1=y;
-    if( x1 < 0.0){
-        x1=0.;
-    }  
-    if( y1 < 0.0){ 
-        y1=0.;
-    }  
+//    float x1=x;
+//    float y1=y;
+//    if( x1 < 0.0){
+//        x1=0.;
+//    }  
+//    if( y1 < 0.0){ 
+//        y1=0.;
+//    }  
+//
+//    glRasterPos2f(x1,y1);
 
-    glRasterPos2f(x1,y1);
+    glRasterPos2f(x,y);
 
     int monospace = 0;
     for (i = 0; str[i]; i++){
@@ -885,6 +887,8 @@ class CED_PopUpMenu{
 #define GRAFIC_LIGHT                 2005
 #define GRAFIC_ALIAS                 2006
 #define GRAFIC_FOG                   2007
+
+#define TOGGLE_DETECTOR_PICKING      2008
 
 
 

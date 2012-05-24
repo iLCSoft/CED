@@ -13,8 +13,11 @@
 /********************************************************** 
 * Handling                                                *
 **********************************************************/
+//enable zoom function by right click and pull
+#define ZOOM_RIGHT_CLICK                   0
+
 //time when 2 clicks should be a double click, in 1/1000000 secounds
-#define DOUBLE_CLICK_TIME                   300000 
+#define DOUBLE_CLICK_TIME                  300000 
 
 //data layer keys 
 #define DATALAYER_SHORTKEY_00       '0'
