@@ -111,22 +111,6 @@ class CED_SubSubMenu{
                     glVertex3f(x_end,y_start,0);
                     glEnd();
 
-                    //glColor3f(1,1,1);
-                    //glLineWidth(1.);
-                    //glBegin(GL_LINES);
-
-                    //glVertex3f(x_start,y_start,0);
-                    //glVertex3f(x_start,y_end,0);
-
-                    //glVertex3f(x_start,y_end,0);
-                    //glVertex3f(x_end,y_end,0);
-
-                    //glVertex3f(x_end,y_end,0);
-                    //glVertex3f(x_end,y_start,0);
-
-                    //glVertex3f(x_end,y_start,0);
-                    //glVertex3f(x_start,y_start,0);
-                    //glEnd();
                     glColor3f(0.662745,0.662745,0.662745);
                     glBegin(GL_LINES);
 
@@ -139,11 +123,7 @@ class CED_SubSubMenu{
                     glVertex3f(x_start,y_end,0);
                     glVertex3f(x_end,y_end,0);
 
-
-                    //glVertex3f(x_end,y_start,0);
-                    //glVertex3f(x_start,y_start,0);
                     glEnd();
-
 
                     glColor3f(1,1,1);
                     unsigned i;
@@ -156,7 +136,6 @@ class CED_SubSubMenu{
                         }
                     }
                     for(i=0;(unsigned) i<subsubMenus.size();i++){
-                            //cout << window_width << " vs " << x_end+maxlength*width << endl;
                             if(window_width > x_end+maxlength*width || window_width-x_end  > x_start){
                                 subsubMenus.at(i)->x_start=x_end;
                                 subsubMenus.at(i)->x_end  =x_end+maxlength*width;
@@ -181,6 +160,7 @@ class CED_SubSubMenu{
                 }else{
                     isAktive=false;
                     glColor4f(0.827451,0.827451,0.827451,1);
+
                     glBegin(GL_QUADS);
                     glVertex3f(x_start,y_start,0);
                     glVertex3f(x_start,y_end,0);
@@ -384,22 +364,6 @@ class CED_SubMenu{
                     glVertex3f(x_end,y_end,0);
                     glVertex3f(x_end,y_start,0);
                     glEnd();
-
-                    //glColor3f(1,1,1);
-                    //glLineWidth(1.);
-                    //glBegin(GL_LINES);
-
-                    //glVertex3f(x_start,y_start,0);
-                    //glVertex3f(x_start,y_end,0);
-
-                    //glVertex3f(x_start,y_end,0);
-                    //glVertex3f(x_end,y_end,0);
-                  //glVertex3f(x_end,y_end,0);
-                    //glVertex3f(x_end,y_start,0);
-
-                    //glVertex3f(x_end,y_start,0);
-                    //glVertex3f(x_start,y_start,0);
-                    //glEnd();
 
                     glColor3f(1,1,1);
                 }else{
@@ -741,19 +705,19 @@ class CED_PopUpMenu{
             glMatrixMode(GL_MODELVIEW);
             glLoadIdentity();
 
-                if(isExtend || isMouseOver){
-                    glColor4f(0.662745,0.662745,0.662745,1);
-                    glBegin(GL_QUADS);
-                    glVertex3f(x_start,y_start,0);
-                    glVertex3f(x_start,y_end,0);
-                    glVertex3f(x_end,y_end,0);
-                    glVertex3f(x_end,y_start,0);
-                    glEnd();
+               // if(isExtend || isMouseOver){
+               //     glColor4f(0.662745,0.662745,0.662745,1);
+               //     glBegin(GL_QUADS);
+               //     glVertex3f(x_start,y_start,0);
+               //     glVertex3f(x_start,y_end,0);
+               //     glVertex3f(x_end,y_end,0);
+               //     glVertex3f(x_end,y_start,0);
+               //     glEnd();
 
-                    glColor3f(1,1,1);
-                }else{
+               //     glColor3f(1,1,1);
+               // }else{
                     glColor3f(0,0,0);
-                }
+               // }
 
                   if(isExtend){
                     //drawHelpString(title, x_start+3, y_start+height-height/5.);
@@ -804,7 +768,7 @@ class CED_PopUpMenu{
             }
 
             selected_submenu=NULL;
-
+            x_start=0; x_end=0;
 
         }
        void mouseMove(int x,int y){
