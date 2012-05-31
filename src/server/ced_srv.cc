@@ -133,11 +133,14 @@ inline float single_fisheye_transform(float c, const double scale_factor) {
  */
 static void ced_add_objmap(CED_Point *p,int max_dxy, unsigned int ID, unsigned int layer=0, int type=0){
     double my_max_dxy =  5*max_dxy*setting.zoom;
-    //glColor3f(0.5,0.5,0); 
-    //glPointSize(my_max_dxy);
-    //glBegin(GL_POINTS);
-    //glVertex3f(p->x,p->y,p->z);
-    //glEnd();
+
+    #if DEBUG_PICKING == 1
+        glColor3f(0.0,1.0,0); 
+        glPointSize(my_max_dxy);
+        glBegin(GL_POINTS);
+        glVertex3f(p->x,p->y,p->z);
+        glEnd();
+    #endif
 
 
     //return;
@@ -1095,7 +1098,7 @@ int ced_get_selected(int x,int y,GLfloat *wx,GLfloat *wy,GLfloat *wz){
             continue;
         }
         //d=dx+dy;
-        d=(int) pow(pow(dx,2)+pow(dy,2)+pow(p->z,2),0.5);
+        d=(int) pow(pow(dx,2)+pow(dy,2),0.5); //+pow(p->z,2),0.5);
         if(!best || (d<dist)){
             best=p;
             dist=d;
@@ -1132,7 +1135,7 @@ int find_selected_object(int x,int y,GLfloat *wx,GLfloat *wy,GLfloat *wz, int *i
         
         //d=dx+dy;
 
-        d=(int) pow(pow(dx,2)+pow(dy,2)+pow(p->z,2),0.5);
+        d=(int) pow(pow(dx,2)+pow(dy,2),0.5); //+pow(p->z,2),0.5);
         //d=dx+dy;
         if(!best || (d<dist)){
             best=p;
@@ -1192,7 +1195,7 @@ int ced_picking(int x,int y,GLfloat *wx,GLfloat *wy,GLfloat *wz){
             continue;
         }
         //d=dx+dy;
-        d=(int) pow(pow(dx,2)+pow(dy,2)+pow(p->z,2),0.5);
+        d=(int) pow(pow(dx,2)+pow(dy,2),0.5);//+pow(p->z,2),0.5);
         if(!best || (d<dist)){
             best=p;
             dist=d;

@@ -3354,10 +3354,7 @@ void buildPopUpMenu(int x, int y){
     if(!find_selected_object(x,y,&p_x,&p_y,&p_z, &id, &layer, &type)){ //if ==1 found hit, else clicked on background
         //cout << "TODO: ID: " << id << endl;
         if(type == 0){
-
-
             last_selected_layer=layer;
-
             //popupmenu=new CED_PopUpMenu("Select datapoint");
 
             popupmenu->addItem(new CED_SubSubMenu("Selected datapoint:",0));
@@ -3404,7 +3401,10 @@ void buildPopUpMenu(int x, int y){
             //sprintf(tmp,"Hide layer %i: %s",layer, layerDescription[layer]);
             //popupmenu->addItem(new CED_SubSubMenu(tmp, layer-NUMBER_DATA_LAYER+DETECTOR1));
 
-            CED_SubSubMenu *phicuts=new CED_SubSubMenu("Phi cut");
+
+            snprintf(tmp,199,"Phi cut (%.0f)",setting.detector_cut_angle[layer-NUMBER_DATA_LAYER]);
+            CED_SubSubMenu *phicuts=new CED_SubSubMenu(tmp);
+
             unsigned i;
             char str[200];
             for(i=0; (unsigned)i < sizeof(available_cutangles)/sizeof(available_cutangles[0]); i++){
@@ -3414,7 +3414,9 @@ void buildPopUpMenu(int x, int y){
             }
             popupmenu->addItem(phicuts);
 
-            CED_SubSubMenu *zcuts=new CED_SubSubMenu("Z cut");
+            char tmp[200];
+            snprintf(tmp,199,"Z-cut (%.0f)",setting.detector_cut_z[layer-NUMBER_DATA_LAYER]);
+            CED_SubSubMenu *zcuts=new CED_SubSubMenu(tmp);
             zcuts->addItem(new CED_SubSubMenu("Cut at z=-6000", LAYER_CUT_Z_M6000));
             zcuts->addItem(new CED_SubSubMenu("Cut at z=-4000", LAYER_CUT_Z_M4000));
             zcuts->addItem(new CED_SubSubMenu("Cut at z=-2000", LAYER_CUT_Z_M2000));
@@ -3431,7 +3433,11 @@ void buildPopUpMenu(int x, int y){
             //cuts->addItem(new CED_SubSubMenu("Cut at z=3000",  0));
             //cuts->addItem(new CED_SubSubMenu("Cut at z=5000",  0));
 
-            CED_SubSubMenu *trans=new CED_SubSubMenu("Transparency");
+
+            
+
+            snprintf(tmp,199,"Transparency (%.0f)",100*setting.detector_trans[layer-NUMBER_DATA_LAYER]);
+            CED_SubSubMenu *trans=new CED_SubSubMenu(tmp);
             trans->addItem(new CED_SubSubMenu("    0%",LAYER_TRANS0));
             trans->addItem(new CED_SubSubMenu("  40%", LAYER_TRANS40));
             trans->addItem(new CED_SubSubMenu("  60%", LAYER_TRANS60));
