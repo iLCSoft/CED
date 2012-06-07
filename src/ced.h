@@ -91,6 +91,7 @@ struct CEDsettings{
     bool persp;         //perspectivic view or flat projection 
     bool antia;         //anti aliasing
     bool light;         //light source 
+    bool picking_highlight; //marker at picking position
     double detector_trans[NUMBER_DETECTOR_LAYER];
     double detector_cut_angle[NUMBER_DETECTOR_LAYER];
     double detector_cut_z[NUMBER_DETECTOR_LAYER];

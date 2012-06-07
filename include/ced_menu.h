@@ -770,6 +770,10 @@ class CED_PopUpMenu{
             selected_submenu=NULL;
             x_start=0; x_end=0;
 
+            for(int i=0;(unsigned) i<subsubMenus.size();i++){
+                subsubMenus.at(i)->x_end=0;
+                subsubMenus.at(i)->x_start=0;
+            }
         }
        void mouseMove(int x,int y){
             if(isExtend){
@@ -853,6 +857,9 @@ class CED_PopUpMenu{
 #define GRAFIC_FOG                   2007
 
 #define TOGGLE_DETECTOR_PICKING      2008
+
+
+#define PICKING_MARKER 2009
 
 
 

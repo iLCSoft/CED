@@ -284,6 +284,10 @@ typedef struct {
     GLfloat z;
 } Point;
 
+Point pick_point;
+bool  select_nothing=true;
+
+
 static struct {
     GLfloat va; // vertical angle
     GLfloat ha; // horisontal angle
@@ -733,6 +737,15 @@ static void display(void){
 
 
 
+    if(setting.picking_highlight==true && select_nothing == false){
+        glColor3f(1,0,0);
+        glPointSize(10);
+        glBegin(GL_POINTS);
+        //cout<< "point: " << pick_point.x << ", " << pick_point.y << ", " << pick_point.z << endl;
+        glVertex3f(pick_point.x,pick_point.y,pick_point.z);
+        glEnd();
+    }
+
     
   
       //glMatrixMode(GL_MODELVIEW); //
@@ -780,6 +793,7 @@ static void display(void){
 
 
 
+
     glDisable(GL_LIGHTING);
     ced_menu->draw();
     popupmenu->draw();
@@ -788,6 +802,8 @@ static void display(void){
     if(setting.light==true){
         glEnable(GL_LIGHTING);
     }
+
+
 
   
     glutSwapBuffers();
@@ -1104,9 +1120,15 @@ void saveSettings(int slot){
             file << setting.detector_cut_z[i] << std::endl;
         }
 
-
-
         file<<"#Enable detector picking:"<<std::endl<<setting.detector_picking<< std::endl;
+
+        file<<"#Position:"<<std::endl<<
+                mm.mv.x<< std::endl <<
+                mm.mv.y<< std::endl << 
+                mm.mv.z<< std::endl;
+
+
+        file<<"#Picking marker:"<<std::endl<< setting.picking_highlight << std::endl;
 
         std::cout << "Save settings to: " << filename << std::endl;
 
@@ -1129,6 +1151,7 @@ void defaultSettings(void){
         setting.show_axes=true;
         setting.fps=false;
         setting.persp=true;
+        setting.picking_highlight=false;
 
 
     
@@ -1324,6 +1347,21 @@ void loadSettings(int slot){
                 setting.detector_picking = atoi(line.c_str());
 
 
+
+                getline(file,line);getline(file,line);
+                mm.mv.x = atof(line.c_str());
+                getline(file,line);
+                mm.mv.y = atof(line.c_str());
+                getline(file,line);
+                mm.mv.z = atof(line.c_str());
+
+
+                getline(file,line);getline(file,line);
+                setting.picking_highlight = atoi(line.c_str());
+
+
+
+
             //set_bg_color(setting.bgcolor[0],setting.bgcolor[1],setting.bgcolor[2],setting.bgcolor[3]); 
             std::cout << "Read settings from: " << filename << std::endl;
         }
@@ -1415,13 +1453,28 @@ static void mouse(int btn,int state,int x,int y){
         if( (tv.tv_sec*1000000+tv.tv_usec-doubleClickTime) < 300000 && (tv.tv_sec*1000000+tv.tv_usec-doubleClickTime) > 5){ //1000000=1sec
             //printf("Double Click %f\n", tv.tv_sec*1000000+tv.tv_usec-doubleClickTime);
             if(!ced_picking(x,y,&mm.mv.x,&mm.mv.y,&mm.mv.z)){
+
+                GLfloat p_x, p_y, p_z;
+                int id, layer, type;
+                if(!find_selected_object(x,y,&p_x,&p_y,&p_z, &id, &layer, &type)){ //if ==1 found hit, else clicked on background
+                    pick_point.x=p_x;
+                    pick_point.y=p_y;
+                    pick_point.z=p_z;
+                    select_nothing=false;
+                }
+
+
                sock=__glutSockets;
-               int id = SELECTED_ID;
+               id = SELECTED_ID;
                //printf(" ced_get_selected : socket connected: %d", sock->fd );	
                if(client_connected){
                     send( sock->fd , &id , sizeof(int) , 0 );
                 }
+            }else{
+                select_nothing=true;
             }
+
+
         }else{
             //printf("Single Click\n");
             if(setting.fixed_view == 0){ //dont rotate the view when in side or front projection
@@ -2354,6 +2407,7 @@ void selectFromMenu(int id){ //hauke
 
     switch(id){
         case PICK_HIT:
+
             //cout << "TODO: pick with: " << popupmenu->x_click << " , " << popupmenu->y_click << endl;
             if(!ced_picking(popupmenu->x_click,popupmenu->y_click ,&mm.mv.x,&mm.mv.y,&mm.mv.z)){
                struct __glutSocketList *sock;
@@ -2536,6 +2590,9 @@ void selectFromMenu(int id){ //hauke
             //update_cut_angle_menu();
             set_world_size(DEFAULT_WORLD_SIZE ); 
             //std::cout << "DEFAULT_WORLD_SIZE "  << DEFAULT_WORLD_SIZE << "zoom: " << mm.sf << std::endl;
+            setting.light=false;
+
+            setting.show_axes=true;
             break;
 
 
@@ -3225,18 +3282,25 @@ void selectFromMenu(int id){ //hauke
         case GRAFIC_ALIAS:
             //if(graphic[3] == 1){
             if(setting.antia == true){
-                printf("Anti aliasing is off\n");
+                //printf("Anti aliasing is off\n");
                 //graphic[3] = 0;
                 setting.antia = false;
                 reshape((int)window_width, (int)window_height);
             }else{
-                printf("Anti aliasing is on\n");
+                //printf("Anti aliasing is on\n");
                 //graphic[3] = 1;
                 setting.antia=true;
                 reshape((int)window_width, (int)window_height);
             }
             break;
 
+        case PICKING_MARKER:
+            if(setting.picking_highlight==true){
+                setting.picking_highlight=false;
+            }else{
+                setting.picking_highlight=true;
+            }
+            break;
 
         case TOGGLE_DETECTOR_PICKING:
             setting.detector_picking = abs(setting.detector_picking-1);
@@ -3353,6 +3417,11 @@ void buildPopUpMenu(int x, int y){
 
     if(!find_selected_object(x,y,&p_x,&p_y,&p_z, &id, &layer, &type)){ //if ==1 found hit, else clicked on background
         //cout << "TODO: ID: " << id << endl;
+        //cout << "PICK_HIT" << endl;
+        //find_selected_object(popupmenu->x_click,popupmenu->y_click,&pick_point.x,&pick_point.y,&pick_point.z, NULL, NULL, NULL);
+        select_nothing=false;
+        pick_point.x=p_x;pick_point.y=p_y;pick_point.z=p_z;
+
         if(type == 0){
             last_selected_layer=layer;
             //popupmenu=new CED_PopUpMenu("Select datapoint");
@@ -3455,6 +3524,7 @@ void buildPopUpMenu(int x, int y){
             p_pre_z=p_z;
         }
     }else{
+           select_nothing=true;
 
 
             last_selected_layer=-1;
@@ -3853,6 +3923,13 @@ void buildMainMenu(void){
     }else{
         settings->addItem(new CED_SubSubMenu("[ ] Anti Aliasing", GRAFIC_ALIAS));
     }
+
+    if(setting.picking_highlight){
+        settings->addItem(new CED_SubSubMenu("[X] Picking marker", PICKING_MARKER));
+    }else{
+        settings->addItem(new CED_SubSubMenu("[ ] Picking marker", PICKING_MARKER));
+    }
+
 
     settings->addItem(new CED_SubSubMenu("Fade far objects",GRAFIC_FOG));
     settings->addItem(new CED_SubSubMenu("Deepbuffer", GRAFIC_BUFFER));
