@@ -6,7 +6,7 @@
 ##################################################
 
  --------
-| v01-07 |
+| v01-06 |
  --------
 NOTE: Old config files (created by CED by save settings) are not longer readable, sorry!
 
@@ -15,6 +15,11 @@ New features (H.Hoelbe, DESY):
     - menu and popup menu expands now to left/top if right/button is not enough space.
     - update the manual (not finished yet)
     - Undo function is build in. (shortkey: 'u')
+    - Replaced the GLUT popup menu by a selfmade main menu drawn at the top of the window and a selfmade context based popup menu. 
+      (The popup menu entrys depend on with object you click)
+    - It is now possible to pick detector components
+    
+
 
     Menus:
         - Popup/Main menu entrys now shown a little triangle at the right when they are have subitems
@@ -42,6 +47,26 @@ New features (H.Hoelbe, DESY):
     - Layer description text is now shown in popup menu
 
 
+Small changes (H. Hoelbe, DESY):
+    - X,Y,Z-Axis now always get drawn at the point (0,0,0) (not obligatory at the center of the detector).
+      I think this change will bring more overview when moving the detector and rotate it after this.
+    
+    - shortcut help frame now changes color depending on background color
+
+    - It is now possible to decrease transparency by using the '<'-key to 0. (before it stops at an value of 0.05)
+      (transparency of 0.0 is special because at this value only the outline of the detector will drawn)
+    
+    - In the DST viewer, a legend get drawn. Now the color of this legend will switch from white to black
+      when the background color is to light. (white letters on white background was not readable)
+    
+    - Detector outline lines will now always set to no transparency. (default value in ced_config.h)
+    
+    - arrow keys moves the detector:
+          arrow key left: z-axis,
+          right arrow: -z-axis,
+          up-arraw: y-axis,  (new)
+          down-arrow: -y-axis (new)
+
 
 Bugfixes (H. Hoelbe, DESY):
     - layer visibility  is now shown correctly in the menus
@@ -62,36 +87,6 @@ Bugfixes (H. Hoelbe, DESY):
     - Popup menu now supports subitems
     - Popup menu for detector components now shows phi-cut submenu
     - Removed compiler warnings
-
- --------
-| v01-06 |
- --------
-- New features (H. Hoelbe, DESY):
-    - Replaced the GLUT popup menu by a selfmade main menu drawn at the top of the window and a selfmade context based popup menu. 
-      (The popup menu entrys depend on with object you click)
-    - It is now possible to pick detector components
-    
-
-- Small changes (H. Hoelbe, DESY):
-    - X,Y,Z-Axis now always get drawn at the point (0,0,0) (not obligatory at the center of the detector).
-      I think this change will bring more overview when moving the detector and rotate it after this.
-    
-    - shortcut help frame now changes color depending on background color
-
-    - It is now possible to decrease transparency by using the '<'-key to 0. (before it stops at an value of 0.05)
-      (transparency of 0.0 is special because at this value only the outline of the detector will drawn)
-    
-    - In the DST viewer, a legend get drawn. Now the color of this legend will switch from white to black
-      when the background color is to light. (white letters on white background was not readable)
-    
-    - Detector outline lines will now always set to no transparency. (default value in ced_config.h)
-    
-    - arrow keys moves the detector:
-          arrow key left: z-axis,
-          right arrow: -z-axis,
-          up-arraw: y-axis,  (new)
-          down-arrow: -y-axis (new)
-
 
 
 
