@@ -18,8 +18,8 @@ New features (H.Hoelbe, DESY):
     - Replaced the GLUT popup menu by a selfmade main menu drawn at the top of the window and a selfmade context based popup menu. 
       (The popup menu entrys depend on with object you click)
     - It is now possible to pick detector components
-    
-
+    - Marker which highlights the last picked object 
+        - Toggle this option in menu->graphics->picking marker. (Default option is off)
 
     Menus:
         - Popup/Main menu entrys now shown a little triangle at the right when they are have subitems
@@ -87,6 +87,10 @@ Bugfixes (H. Hoelbe, DESY):
     - Popup menu now supports subitems
     - Popup menu for detector components now shows phi-cut submenu
     - Removed compiler warnings
+    - Reset CED (shortkey: 'R'): Now also reset light and the visibly of the axis
+    - Save function now also store the position, picking marker and detector picking.
+    - Fixed an issue with the popup menu.
+
 
 
 
