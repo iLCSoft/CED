@@ -3733,45 +3733,47 @@ void buildMainMenu(void){
     }else{
         trans->addItem(new CED_SubSubMenu("[ ]   0%",TRANS0));
     }
-    if(tmptrans == 40){
+
+    if(tmptrans == 0.40){
         trans->addItem(new CED_SubSubMenu("[X]  40%",TRANS40));
     }else{
         trans->addItem(new CED_SubSubMenu("[ ]  40%",TRANS40));
     }
 
-
-    if(tmptrans == 60){
+    if(tmptrans == 0.60){
         trans->addItem(new CED_SubSubMenu("[X]  60%",TRANS60));
     }else{
         trans->addItem(new CED_SubSubMenu("[ ]  60%",TRANS60));
     }
-    if(tmptrans == 70){
+
+    if(tmptrans == 0.70){
         trans->addItem(new CED_SubSubMenu("[X]  70%",TRANS70));
     }else{
         trans->addItem(new CED_SubSubMenu("[ ]  70%",TRANS70));
     }
-    if(tmptrans == 80){
+
+    if(tmptrans == 0.80){
         trans->addItem(new CED_SubSubMenu("[X]  80%",TRANS80));
     }else{
         trans->addItem(new CED_SubSubMenu("[ ]  80%",TRANS80));
     }
 
 
-    if(tmptrans == 90){
+    if(tmptrans == 0.90){
         trans->addItem(new CED_SubSubMenu("[X]  90%",TRANS90));
     }else{
         trans->addItem(new CED_SubSubMenu("[ ]  90%",TRANS90));
     }
 
 
-    if(tmptrans == 95){
+    if(tmptrans == 0.95){
         trans->addItem(new CED_SubSubMenu("[X]  95%",TRANS95));
     }else{
         trans->addItem(new CED_SubSubMenu("[ ]  95%",TRANS95));
     }
 
 
-    if(tmptrans == 100){
+    if(tmptrans == 1.00){
         trans->addItem(new CED_SubSubMenu("[X] 100%",TRANS100));
     }else{
         trans->addItem(new CED_SubSubMenu("[ ] 100%",TRANS100));
