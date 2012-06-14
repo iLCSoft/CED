@@ -745,6 +745,7 @@ class CED_PopUpMenu{
         }
 
         void clickAt(int x,int y){
+            //cout << "get clickat " << endl;
             //cout << "x = " << x << " y == " << y << endl;
             //cout << "x_start = " << x_start << " y == " << y << endl;
             if(isExtend){
@@ -767,6 +768,7 @@ class CED_PopUpMenu{
                 isExtend=false;
             }
 
+            isExtend=false;
             selected_submenu=NULL;
             x_start=0; x_end=0;
 

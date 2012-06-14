@@ -285,6 +285,8 @@ typedef struct {
 } Point;
 
 Point pick_point;
+Point pre_pick_point;
+int selected_layer;
 bool  select_nothing=true;
 
 
@@ -1451,8 +1453,11 @@ static void mouse(int btn,int state,int x,int y){
         gettimeofday(&tv, 0); 
         //FIX IT: get the system double click time
         if( (tv.tv_sec*1000000+tv.tv_usec-doubleClickTime) < 300000 && (tv.tv_sec*1000000+tv.tv_usec-doubleClickTime) > 5){ //1000000=1sec
+
+            last_selected_layer=-1;
             //printf("Double Click %f\n", tv.tv_sec*1000000+tv.tv_usec-doubleClickTime);
             if(!ced_picking(x,y,&mm.mv.x,&mm.mv.y,&mm.mv.z)){
+
 
                 GLfloat p_x, p_y, p_z;
                 int id, layer, type;
@@ -1460,7 +1465,24 @@ static void mouse(int btn,int state,int x,int y){
                     pick_point.x=p_x;
                     pick_point.y=p_y;
                     pick_point.z=p_z;
+
                     select_nothing=false;
+
+                    if(type == 1){ //detector
+                        selected_layer=layer;
+                        last_selected_layer=layer;
+                        select_nothing=true;
+                    }else if(type == 0){ //data
+                        selected_layer=-1;
+                        pre_pick_point.x=p_x;
+                        pre_pick_point.y=p_y;
+                        pre_pick_point.z=p_z;
+                    }
+
+
+                    if(setting.detector_picking==false){
+                        selected_layer=-1;
+                    }
                 }
 
 
@@ -1472,6 +1494,7 @@ static void mouse(int btn,int state,int x,int y){
                 }
             }else{
                 select_nothing=true;
+                selected_layer=-1;
             }
 
 
@@ -3399,7 +3422,7 @@ void selectFromMenu(int id){ //hauke
 }
 
 void buildPopUpMenu(int x, int y){
-    static GLfloat p_pre_x=0, p_pre_y=0, p_pre_z=0;
+    //static GLfloat p_pre_x=0, p_pre_y=0, p_pre_z=0;
     char tmp[200];
 
     GLfloat p_x, p_y, p_z;
@@ -3414,13 +3437,14 @@ void buildPopUpMenu(int x, int y){
     popupmenu->addItem(detectorlayermenu);
     popupmenu->addItem(new CED_SubSubMenu("---",0));
     
-
+    selected_layer=-1;
     if(!find_selected_object(x,y,&p_x,&p_y,&p_z, &id, &layer, &type)){ //if ==1 found hit, else clicked on background
         //cout << "TODO: ID: " << id << endl;
         //cout << "PICK_HIT" << endl;
         //find_selected_object(popupmenu->x_click,popupmenu->y_click,&pick_point.x,&pick_point.y,&pick_point.z, NULL, NULL, NULL);
         select_nothing=false;
         pick_point.x=p_x;pick_point.y=p_y;pick_point.z=p_z;
+
 
         if(type == 0){
             last_selected_layer=layer;
@@ -3431,7 +3455,7 @@ void buildPopUpMenu(int x, int y){
             popupmenu->addItem(new CED_SubSubMenu(tmp,0));
             sprintf(tmp,"ID: %i",id);
             popupmenu->addItem(new CED_SubSubMenu(tmp,0));
-            sprintf(tmp,"Distance previous selected hit: %.2f",pow(pow(p_pre_x-p_x,2)+pow(p_pre_y-p_y,2)+pow(p_pre_z-p_z,2),0.5));
+            sprintf(tmp,"Distance previous selected hit: %.2f",pow(pow(pre_pick_point.x-p_x,2)+pow(pre_pick_point.y-p_y,2)+pow(pre_pick_point.z-p_z,2),0.5));
             popupmenu->addItem(new CED_SubSubMenu(tmp,0));
             sprintf(tmp,"Center object");
             popupmenu->addItem(new CED_SubSubMenu(tmp,CENTER_HIT));
@@ -3440,13 +3464,16 @@ void buildPopUpMenu(int x, int y){
             sprintf(tmp,"Hide layer %i: %s)",layer,layerDescription[layer] );
             popupmenu->addItem(new CED_SubSubMenu(tmp,LAYER_0+layer));
 
-            p_pre_x=p_x; 
-            p_pre_y=p_y; 
-            p_pre_z=p_z;
+            pre_pick_point.x=p_x; 
+            pre_pick_point.y=p_y; 
+            pre_pick_point.z=p_z;
         }else if(type == 1){
             //popupmenu=new CED_PopUpMenu("Select detector component");
 
+
+            select_nothing=true;
             last_selected_layer=layer;
+            selected_layer=layer;
             sprintf(tmp, "Selected detector: %s (Layer: %i)", layerDescription[layer], layer);
             popupmenu->addItem(new CED_SubSubMenu(tmp,0));
 
@@ -3519,9 +3546,9 @@ void buildPopUpMenu(int x, int y){
 
 
 
-            p_pre_x=p_x; 
-            p_pre_y=p_y; 
-            p_pre_z=p_z;
+            //pre_pick_point.x=p_x; 
+            //pre_pick_point.y=p_y; 
+            //pre_pick_point.z=p_z;
         }
     }else{
            select_nothing=true;

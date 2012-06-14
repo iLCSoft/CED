@@ -62,6 +62,7 @@ int SELECTED_X=0;
 int SELECTED_Y=0;
 
 extern double fisheye_alpha;
+extern int selected_layer;
 //#define IS_VISIBLE(x) ((1<<((x>>8)&0xff))&ced_visible_layers)
 //#define IS_VISIBLE(x) ((x < (CED_MAX_LAYER-1) && x >= 0)?ced_visible_layers[x]:false)
 
@@ -1149,6 +1150,30 @@ int find_selected_object(int x,int y,GLfloat *wx,GLfloat *wy,GLfloat *wz, int *i
     //*wx=best->p.x;
     //*wy=best->p.y;
     //*wz=best->p.z;
+
+    //new
+    if(best->type==1){
+        for(i=0,p=omap,best=0;i<omap_count;i++,p++){
+            dx=abs(p->x-x);
+            dy=abs(p->y-y);
+            if((dx>p->max_dxy) || (dy>p->max_dxy)){
+                continue;
+            }
+            //if(p->type != 1){
+            //    continue;
+            //}
+            
+            //d=dx+dy;
+
+            d=(int) pow(pow(dx,2)+pow(dy,2)+pow(p->z/5.,2),0.5);
+            //d=dx+dy;
+            if(!best || (d<dist)){
+                best=p;
+                dist=d;
+            }
+        }
+    }
+    //end new
     *wx=best->p.x;
     *wy=best->p.y;
     *wz=best->p.z;
@@ -1700,10 +1725,15 @@ static void ced_draw_geotube(CED_GeoTube *c){
     //
     
                         //glLineWidth(0.5);
-                        glLineWidth(detector_lines_wide);
     
                         //glColor4f(0.5,0.5,0.5, 0.4);
-                        glColor4f(line_color[0], line_color[1], line_color[2], line_color[3]);
+                        if(c->type == unsigned(selected_layer) && setting.picking_highlight){
+                            glLineWidth(detector_lines_wide*5);
+                            glColor4f(1, 0,0,line_color[3]);
+                        }else{ 
+                            glLineWidth(detector_lines_wide);
+                            glColor4f(line_color[0], line_color[1], line_color[2], line_color[3]);
+                        }
                         glRotatef(c->rotate_i, 0, 0, 1);
                         //draw the inner cylinder 
                         if(k==1)
@@ -1737,7 +1767,15 @@ static void ced_draw_geotube(CED_GeoTube *c){
     
     
                         //glColor4f(0.5,0.5,0.5, 0.4);
-                        glColor4f(line_color[0], line_color[1], line_color[2], line_color[3]);
+                        //glColor4f(line_color[0], line_color[1], line_color[2], line_color[3]);
+                        if(c->type == unsigned(selected_layer) && setting.picking_highlight){
+                            glLineWidth(detector_lines_wide*5);
+                            glColor4f(1, 0,0,line_color[3]);
+                        }else{ 
+                            glLineWidth(detector_lines_wide);
+                            glColor4f(line_color[0], line_color[1], line_color[2], line_color[3]);
+                        }
+
     
                         //glColor4f(1,1,1, 0.0);
     
@@ -1790,7 +1828,15 @@ static void ced_draw_geotube(CED_GeoTube *c){
     
     
                         //glColor4f(0.5,0.5,0.5, 0.4);
-                        glColor4f(line_color[0], line_color[1], line_color[2], line_color[3]);
+                        //glColor4f(line_color[0], line_color[1], line_color[2], line_color[3]);
+                        if(c->type == unsigned(selected_layer) && setting.picking_highlight){
+                            glLineWidth(detector_lines_wide*5);
+                            glColor4f(1, 0,0,line_color[3]);
+                        }else{ 
+                            glLineWidth(detector_lines_wide);
+                            glColor4f(line_color[0], line_color[1], line_color[2], line_color[3]);
+                        }
+
     
     
                         glRotatef(c->rotate_i, 0, 0, 1);
@@ -1827,6 +1873,14 @@ static void ced_draw_geotube(CED_GeoTube *c){
     
                         //glColor4f(0.5,0.5,0.5, 0.4);
                         glColor4f(line_color[0], line_color[1], line_color[2], line_color[3]);
+                        if(c->type == unsigned(selected_layer) && setting.picking_highlight){
+                            glLineWidth(detector_lines_wide*5);
+                            glColor4f(1, 0,0,line_color[3]);
+                        }else{ 
+                            glLineWidth(detector_lines_wide);
+                            glColor4f(line_color[0], line_color[1], line_color[2], line_color[3]);
+                        }
+
     
                         //glColor4f(1,1,1, 0.0);
     
