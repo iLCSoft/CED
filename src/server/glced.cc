@@ -16,16 +16,21 @@
  *                     - added main und popup menu
  *                     - added help menu
  *                     - added grafik features:
- *                         - detector in mesh or polygonal view
+ *                         - detector in polygonal view
  *                         - perspectivic view
  *                         - detector cuts (phi and z)
  *                         - tranformations: front and side view
  *                         - background color
  *                         - transparency
+ *                         - lightning
+ *                         - fog
+ *                         - picking highlighting
  *                      - added features:
- *                         - screenshot 
+ *                         - screenshot function
+ *                         - save/load settings
  *                         - distance
  *                         - frames per secound
+ *                         - detector picking
  *           
  */
 
@@ -539,11 +544,12 @@ void printShortcuts(void){
     shortcuts.push_back( "GENERAL SHORTCUTS:" );
 
 
-    shortcuts.push_back( "[Esc] Quit CED" );
+    shortcuts.push_back( "[ESC] Quit CED" );
     shortcuts.push_back( "[h] Toggle shortcut frame" );
+    shortcuts.push_back( "[CTRL+z] Undo" );
     shortcuts.push_back( "[r] Reset view" );
     shortcuts.push_back( "[R] Reset CED" );
-    shortcuts.push_back( "[f] Font view" );
+    shortcuts.push_back( "[f] Front view" );
     shortcuts.push_back( "[s] Side view" );
     shortcuts.push_back( "[F] Front projection" );
     shortcuts.push_back( "[S] Side projection" );
