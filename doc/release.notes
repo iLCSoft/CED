@@ -5,6 +5,43 @@
 #   original author A.Zhelezov, DESY
 ##################################################
 
+
+ --------
+| v01-07 |
+ --------
+
+Fixes/Changes:
+
+    - Updated the manual to the latest CED version
+
+    - Deleted the old pictures
+    
+    - New pictures are stored in doc/manual/img/
+    
+    - Added undo to help frame 
+    
+    - Fixed typo in help frame text
+
+    - Fixed a bug with the screenshot function where the axis are drawn at a wrong possition
+
+    - Improve the identification of hits/detector components when 
+      pick object while  detector picking is enabled
+
+    - Fixed an issue with the popup menu which causes a visible menu 
+      when right clicking at the same position.
+
+    - The distance calculation between two objects is 
+      now also affected by selecting objects via double click
+
+    - Instead of highlighting the picked point now the whole detector 
+      component is highlighted (only visable when detector picking 
+      is enabled and picking marker enabled).
+    
+    - When selecting a detector component by doubleclick this component 
+      is now also active to modify only this component via shortkeys.   
+
+    - Fixed menu detector transparency checkboxes
+
  --------
 | v01-06 |
  --------
