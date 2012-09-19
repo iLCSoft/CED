@@ -2649,7 +2649,7 @@ void selectFromMenu(int id){ //hauke
 
             if(setting.fixed_view){ break;}
 
-            mm.ha=180.;
+            mm.ha=0.;
             mm.va=0.;
             break;
 
