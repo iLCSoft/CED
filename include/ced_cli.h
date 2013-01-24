@@ -121,7 +121,9 @@ typedef struct {
 typedef enum {
     CED_HIT_POINT=0,
     CED_HIT_CROSS,
-    CED_HIT_STAR
+    CED_HIT_STAR,
+    CED_HIT_BOX,
+    CED_HIT_VXD
 } CED_HIT_TYPE;
 
 typedef struct {

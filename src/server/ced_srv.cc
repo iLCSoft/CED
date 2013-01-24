@@ -92,6 +92,10 @@ static CED_ObjMap *omap=0;
 static unsigned omap_count=0;
 static unsigned omap_alloced=0;
 
+
+static void ced_draw_geobox(CED_GeoBox * box );
+static void ced_draw_geobox_r_solid(CED_GeoBoxR * box );
+
 //SM-H: Takes a given point, and returns the fisheye transformed version. Based on transform given in
 //'Event display: Can We See What We Want to See', 
 //H. Drevermann, D. Kuhn, B.S. Nilsson, 1995
@@ -148,8 +152,14 @@ static void ced_add_objmap(CED_Point *p,int max_dxy, unsigned int ID, unsigned i
     GLdouble winx,winy,winz;
 
     if(omap_count==omap_alloced){
-        omap_alloced+=256;
+//        omap_alloced+=256;
+        omap_alloced+=4096;
         omap=(CED_ObjMap*) realloc(omap,omap_alloced*sizeof(CED_ObjMap));
+        if ( omap == NULL ) {
+          std::cout << "glced will exit because of a failure to allocate memory in ced_add_objmap..." << std::endl;
+          exit(1);
+        }
+
     }
     if(gluProject((GLdouble)p->x,(GLdouble)p->y,(GLdouble)p->z, modelM,projM,viewport,&winx,&winy,&winz)!=GL_TRUE){
         return;
@@ -479,12 +489,12 @@ void drawPartialLineCylinder(double length, double R /*radius*/, double iR /*inn
  *                                                      hauke hoelbe 2011
  */
 
-typedef struct my_point {
+struct my_point {
                 double x;
                 double y;
                 };
 
-typedef struct T {double a; int b;};
+struct T {double a; int b;};
 
 struct point3d{
     double x;
@@ -1288,9 +1298,16 @@ static void ced_draw_hit(CED_Hit *h){
 
 
     glDisable(GL_BLEND);
+
+//    std::cout << " size=" << h->size << " screenshot_sections " << setting.screenshot_sections 
+//	<< " type=" << h->type << std::endl;
+
+
     switch(h->type){
 
     	case CED_HIT_CROSS:
+    	case CED_HIT_BOX:
+    	case CED_HIT_VXD:
     	case CED_HIT_STAR:
     	    //glLineWidth(1.);
             glLineWidth(1.);
@@ -1299,9 +1316,8 @@ static void ced_draw_hit(CED_Hit *h){
 
     	    if(h->type ==  CED_HIT_CROSS){
     	       	 //     printf("cross type == %d \n",(h->type & CED_HIT_CROSS));
-    	        d=h->size/2*setting.screenshot_sections;
-
-    
+//    	        d=h->size/2*setting.screenshot_sections;
+    	        d=((GLfloat)h->size)/20.*setting.screenshot_sections;
     	        glVertex3f(x-d,y-d,z+d);
     	        glVertex3f(x+d,y+d,z-d);
     
@@ -1314,9 +1330,43 @@ static void ced_draw_hit(CED_Hit *h){
     	        glVertex3f(x-d,y+d,z+d);
     	        glVertex3f(x+d,y-d,z-d);
     
+            }
+    	    else if(h->type ==  CED_HIT_VXD){
+    	       	 //     printf("cross type == %d \n",(h->type & CED_HIT_CROSS));
+//    	        d=h->size/2*setting.screenshot_sections;
+//    	        d=((GLfloat)h->size)/20.*setting.screenshot_sections;
+                d=0.005;
+#if 1
+    	        glVertex3f(x-d,y-d,z+d);
+    	        glVertex3f(x+d,y+d,z-d);
+    
+    	        glVertex3f(x+d,y-d,z+d);
+    	        glVertex3f(x-d,y+d,z-d);
+    
+    	        glVertex3f(x+d,y+d,z+d);
+    	        glVertex3f(x-d,y-d,z-d);
+    
+    	        glVertex3f(x-d,y+d,z+d);
+    	        glVertex3f(x+d,y-d,z-d);
+#endif
+//
+//               double sizes[3]={0.1, 0.1, 0.1};
+//               double center[3]={x, y, z};
+//               ced_geobox( sizes, center, 0xff00ff );
+//
+#if 0
+      std::cout << " calling ced_draw_geobox_r_solid..." << std::endl;
+      CED_GeoBoxR abox;
+      abox.sizes[0]=0.005 ; abox.sizes[1]=0.015; abox.sizes[2]=0.005;
+      abox.center[0]=x; abox.center[1]=y; abox.center[2]=z; 
+      abox.color=0xff00ff; 
+      abox.rotate[0]=0.0 ; abox.rotate[1]=0.0;  abox.rotate[2]=0.0;
+      ced_draw_geobox_r_solid(&abox);
+#endif
     	    } else {
     	       	//      printf("star type == %d \n",(h->type & CED_HIT_STAR));
-    	        d=h->size/2.*setting.screenshot_sections;
+//    	        d=h->size/2.*setting.screenshot_sections;
+    	        d=((GLfloat)h->size)/20.*setting.screenshot_sections;
     	        glVertex3f(x-d,y,z);
     	        glVertex3f(x+d,y,z);
     	        glVertex3f(x,y-d,z);
@@ -1335,6 +1385,8 @@ static void ced_draw_hit(CED_Hit *h){
             glEnd();
 
     }
+
+
     //glEnd();
     glEnable(GL_BLEND);
     ced_add_objmap(&h->p,5,h->lcioID,h->layer,0);
@@ -1350,7 +1402,15 @@ static void ced_draw_line(CED_Line *h){
     if(!IS_VISIBLE(h->type)){ //<< CED_LAYER_SHIFT)){
         return;
     }
-   	
+
+//    std::cout << " CED_Line p0=" << h->p0.x << " ," << h->p0.y << " ," << h->p0.z << std::endl;
+//    std::cout << " CED_Line p1=" << h->p1.x << " ," << h->p1.y << " ," << h->p1.z << std::endl;
+//    std::cout << " CED screenshot_sections=" << setting.screenshot_sections << std::endl;
+//    std::cout << " winx, y=" << setting.win_w << " ," << setting.win_h << 
+//	 " zoom=" << setting.zoom << std::endl;
+//    double length=pow(pow(h->p0.x-h->p1.x,2)+pow(h->p0.y-h->p1.y,2)+pow(h->p0.z-h->p1.z,2),0.5);
+//    if( length < 1.0 ) { return ; }
+
     CED_Point fisheye_point0;
     CED_Point fisheye_point1;
     fisheye_point0 = fisheye_transform(h->p0.x, h->p0.y, h->p0.z, fisheye_alpha);
@@ -1375,13 +1435,13 @@ static void ced_draw_line(CED_Line *h){
 
     //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     //end hauke
-
   	glLineWidth(h->width);
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   	glBegin(GL_LINES);
 
 
     
+#if 1
     //hauke
     if(setting.phi_projection){
       //phi_projection is on
@@ -1396,16 +1456,24 @@ static void ced_draw_line(CED_Line *h){
     fisheye_point1.z=0;
    }
    //end hauke
+
     glVertex3fv(&fisheye_point0.x); 
     glVertex3fv(&fisheye_point1.x); 
 
+#endif
+//      glVertex3fv(&(h->p0.x));
+//      glVertex3fv(&(h->p1.x));
+
   	//glDisable(GL_BLEND);
   	glEnd();
+
     //glEnable(GL_BLEND);
     ced_add_objmap(&h->p0,5,h->lcioID,h->type,0 );
     ced_add_objmap(&h->p1,5,h->lcioID,h->type,0);
 
-    double length=pow(pow(h->p0.x-h->p1.x,2)+pow(h->p0.y-h->p1.y,2)+pow(h->p0.z-h->p1.z,2),0.5);
+#if 0
+
+//    double length=pow(pow(h->p0.x-h->p1.x,2)+pow(h->p0.y-h->p1.y,2)+pow(h->p0.z-h->p1.z,2),0.5);
 
 
     CED_Point p[100];
@@ -1418,7 +1486,11 @@ static void ced_draw_line(CED_Line *h){
         steps=100;
     }
 
+//    std::cout << " ced_draw_line ... length=" << length << " steps =" << steps << std::endl; 
+#endif
 
+#if 0 
+// off for debug
     for(int i=0;i<steps;i++){
         p[i].x=(h->p1.x - h->p0.x)/steps*i+h->p0.x;
         p[i].y=(h->p1.y - h->p0.y)/steps*i+h->p0.y;
@@ -1431,6 +1503,7 @@ static void ced_draw_line(CED_Line *h){
         //glVertex3f(p.x,p.y,p.z);
         //glEnd();
     }
+#endif
     
 }
 
@@ -1633,7 +1706,8 @@ static void ced_draw_geotube(CED_GeoTube *c){
     
             //float detector_lines_wide=0.3;
 
-            float detector_lines_wide=CED_GEOTUBE_LINE_WIDTH;
+//            float detector_lines_wide=CED_GEOTUBE_LINE_WIDTH;
+            float detector_lines_wide=CED_GEOTUBE_LINE_WIDTH*setting.autoshot_scale;
             
     
             //GLfloat line_color[4]={0.5,0.5,0.5, 0.4}; //lines in gray
@@ -2423,6 +2497,7 @@ static void ced_draw_legend(CED_Legend *legend){
  */
 static unsigned GEOB_ID = 0;
 
+
 static void ced_draw_geobox(CED_GeoBox * box )  {
     // a box has 8 vertices, four belonging to the first surface facing
     // the beam, the other four from the second surface
@@ -2434,6 +2509,7 @@ static void ced_draw_geobox(CED_GeoBox * box )  {
     unsigned int i, j;
   
   
+#if 1
     ced_color(box->color);
 
     glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
@@ -2442,7 +2518,8 @@ static void ced_draw_geobox(CED_GeoBox * box )  {
     glDepthMask(GL_FALSE);
 
     glLineWidth(2.);
-  
+#endif  
+
     face[0][0][0] = box->center[0] + (0.5 * box->sizes[0]);
     face[0][0][1] = box->center[1] + (0.5 * box->sizes[1]);
     face[0][0][2] = box->center[2] - (0.5 * box->sizes[2]);
@@ -2500,7 +2577,6 @@ static void ced_draw_geobox(CED_GeoBox * box )  {
 
     glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
 
-
 }
 
 /*
@@ -2509,6 +2585,9 @@ static void ced_draw_geobox(CED_GeoBox * box )  {
 static unsigned GEOBR_ID = 0;
 
 static void ced_draw_geobox_r(CED_GeoBoxR * box )  {
+
+    std::cout << " ced_draw_geobox_r was called." << std::endl;
+
     if(!IS_VISIBLE(box->layer)){
         return;
     }
@@ -2522,8 +2601,13 @@ static void ced_draw_geobox_r(CED_GeoBoxR * box )  {
     //  unsigned int iDim, iPoint, iFace;
     unsigned int i, j;
   
-  
     ced_color(box->color);
+
+    glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_LINE_SMOOTH);
+    glHint(GL_LINE_SMOOTH,GL_NICEST);
+    glDepthMask(GL_FALSE);
+
     glLineWidth(2);
   
     glPushMatrix(); // push the matrix onto the matrix stack and pop it off (preserving the original matrix)
@@ -2595,6 +2679,12 @@ static void ced_draw_geobox_r(CED_GeoBoxR * box )  {
     }
     glEnd();
   
+
+    glDepthMask(GL_TRUE);
+    glDisable(GL_LINE_SMOOTH);
+
+    glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
+
     glPopMatrix();
 }
 
@@ -2662,10 +2752,12 @@ static void ced_draw_cone_r(CED_ConeR * cone )  {
 static unsigned GEOBRS_ID = 0;
 
 static void ced_draw_geobox_r_solid(CED_GeoBoxR * box )  {
+
+//   std::cout << " ced_draw_geobox_r_solid was called." << std::endl;
+
 	if(!IS_VISIBLE(box->layer)){
 		return;
     }
-	
 	// a box has 8 vertices, four belonging to the first surface facing
 	// the beam, the other four from the second surface
 	const unsigned int nPoint = 4;

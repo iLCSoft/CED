@@ -117,6 +117,8 @@ struct CEDsettings{
     bool fps;
     double screenshot_sections;
     int font; //size of text (menu, shortcuts, text in ced window)
+    bool autoshot; // If true, generate screencapture in every new event
+    int autoshot_scale; // If true, generate screencapture in every new event
 };
 
 /*

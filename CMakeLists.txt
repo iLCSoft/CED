@@ -83,14 +83,16 @@ IF( CED_SERVER )
     # opengl libraries used in the linking process of glced to be overwriten
     # by LD_LIBRARY_PATH, e.g.: LD_LIBRARY_PATH set by geant4 env_init_script
     # points to old mesa libraries in afs
-    FOREACH( _opengl_lib ${OPENGL_LIBRARIES} )
+    IF( NOT CED_NOT_INCLUDE_OPENGL_LINKER_PATH ) 
+      FOREACH( _opengl_lib ${OPENGL_LIBRARIES} )
         GET_FILENAME_COMPONENT( _opengl_lib_path ${_opengl_lib} PATH )
         LIST( APPEND _opengl_linker_paths ${_opengl_lib_path} )
-    ENDFOREACH()
+      ENDFOREACH()
 
     # remove duplicate paths
-    IF( _opengl_linker_paths )
+      IF( _opengl_linker_paths )
         LIST( REMOVE_DUPLICATES _opengl_linker_paths )
+      ENDIF()
     ENDIF()
 
     #MESSAGE( "_opengl_linker_paths: ${_opengl_linker_paths}" )
@@ -120,7 +122,7 @@ ENDIF( CED_SERVER )
 
 
 # ------------------ CED TESTS ------------------
-FOREACH( _testname test_ced test_ced_mhits )
+FOREACH( _testname test_ced test_ced_mhits test_ced_color )
 
     IF( BUILD_TESTING )
         ADD_EXECUTABLE( ${_testname} ./src/tests/${_testname}.cc )

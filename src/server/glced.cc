@@ -71,6 +71,7 @@
 #include <vector>
 #include <stdlib.h> 
 #include <sys/stat.h>
+#include <sstream>
 
 static GLfloat window_width=0.;
 static GLfloat window_height=0.;
@@ -82,6 +83,7 @@ static GLfloat window_height=0.;
 
 using namespace std;
 
+static int numpict=0;
 
 int ced_picking(int x,int y,GLfloat *wx,GLfloat *wy,GLfloat *wz); //from ced_srv.c, need header files!
 
@@ -104,6 +106,7 @@ static int layerMenu;
 static int detectorMenu;
 static int subsubMenu2;
 static int subscreenshot;
+static int subautoshot;
 static int subSave;
 static int subLoad;
 static int showHelp=0;
@@ -186,7 +189,7 @@ static struct _geoCylinder {
 
 //************ function declarations ************************* //
 void updateScreenshotMenu(void);
-void screenshot(char *name, int times);
+void screenshot(const char *name, int times);
 void buildLayerMenus(void);
 void buildMainMenu(void);
 void buildPopUpMenu(int x, int y);
@@ -717,6 +720,7 @@ static void display(void){
     // TODO: fix it! 
     // in case of no rotate, in some cases it could get strange 
     // lines in fisheye view from (0,0,0) to (-inf, -inf,x)
+
     setting.zoom=mm.sf;
     glScalef(mm.sf,mm.sf,mm.sf); //zoom
 
@@ -811,12 +815,9 @@ static void write_world_into_front_buffer(void){
 ///////
     glMatrixMode(GL_PROJECTION);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-
-
+    
     //glRotatef(mm.va,1.,0.,0.);
     //glRotatef(mm.ha,0.,1.0,0.);
-
 
     setting.zoom=mm.sf;
     glScalef(mm.sf,mm.sf,mm.sf); //streech the world
@@ -854,8 +855,6 @@ static void write_world_into_front_buffer(void){
      //     glDisable(GL_CLIP_PLANE0);
      //}
      //glClipPlane(GL_CLIP_PLANE0,clip_plane);
-  
-  
   
   
     // draw elements (hits + detector)
@@ -1243,6 +1242,9 @@ void defaultSettings(void){
             setting.fisheye_world_size= FISHEYE_WORLD_SIZE ; 
             setting.world_size= WORLD_SIZE;
 
+            setting.autoshot=false;
+            setting.autoshot_scale=1;
+
             std::cout << "Set options to default settings" << std::endl;
 }
 
@@ -1376,6 +1378,10 @@ void loadSettings(int slot){
 
             //set_bg_color(setting.bgcolor[0],setting.bgcolor[1],setting.bgcolor[2],setting.bgcolor[3]); 
             std::cout << "Read settings from: " << filename << std::endl;
+
+	    setting.autoshot_scale=1;
+            setting.autoshot=false;
+
         }
 
     }else{ //set to default
@@ -1386,6 +1392,7 @@ void loadSettings(int slot){
     mm.va=setting.va;
     mm.ha=setting.ha;
     mm.sf = setting.zoom; 
+
     fisheye_alpha=setting.fisheye_alpha;
 
 
@@ -2002,7 +2009,8 @@ static void motion(int x,int y){
         */
  
             
-        float grad2rad=3.141*2/360;
+//        float grad2rad=3.141*2/360;
+        float grad2rad=M_PI*2/360;
         float x_factor_x =  cos(mm.ha*grad2rad);
         float x_factor_y =  cos((mm.va-90)*grad2rad)*cos((mm.ha+90)*grad2rad);
         float y_factor_x =  0; 
@@ -2100,6 +2108,11 @@ int glut_tcp_server(unsigned short port, void (*user_func)(void *data));
 static void input_data(void *data){
     if(ced_process_input(data)>0){
         glutPostRedisplay();
+        if( setting.autoshot ) {
+          std::cout << " calling screenshot." << std::endl;
+          screenshot("/tmp/glced.tga",setting.autoshot_scale);
+          reshape((int)window_width, (int)window_height);
+        }
     }
 }
 
@@ -2649,7 +2662,7 @@ void selectFromMenu(int id){ //hauke
 
             if(setting.fixed_view){ break;}
 
-            mm.ha=0.;
+            mm.ha=180.;
             mm.va=0.;
             break;
 
@@ -3183,6 +3196,15 @@ void selectFromMenu(int id){ //hauke
             }
             break;
 
+        case AUTOSHOT:
+           if(setting.autoshot) {
+             setting.autoshot=false;
+           }
+           else {
+             setting.autoshot=true;
+           }
+           break;
+
         case GRAFIC_HIGH:
             setting.light=true;
             setting.trans=false;
@@ -3395,25 +3417,47 @@ void selectFromMenu(int id){ //hauke
             break;
 
         case SAVE_IMAGE1:
+            setting.autoshot_scale=1;
             screenshot("/tmp/glced.tga",1);
             reshape((int)window_width, (int)window_height);
             break;
         case SAVE_IMAGE4:
+            setting.autoshot_scale=4;
             screenshot("/tmp/glced.tga",4);
             reshape((int)window_width, (int)window_height);
             break;
         case SAVE_IMAGE10:
+            setting.autoshot_scale=10;
             screenshot("/tmp/glced.tga",10);
             reshape((int)window_width, (int)window_height);
             break;
         case SAVE_IMAGE20:
+            setting.autoshot_scale=20;
             screenshot("/tmp/glced.tga",20);
             reshape((int)window_width, (int)window_height);
             break;
         case SAVE_IMAGE100:
+            setting.autoshot_scale=100;
             screenshot("/tmp/glced.tga",100);
             reshape((int)window_width, (int)window_height);
             break;
+
+        case AUTOSHOT_IMAGE1:
+           setting.autoshot_scale=1;
+           break;
+        case AUTOSHOT_IMAGE4:
+           setting.autoshot_scale=4;
+           break;
+        case AUTOSHOT_IMAGE10:
+           setting.autoshot_scale=10;
+           break;
+        case AUTOSHOT_IMAGE20:
+           setting.autoshot_scale=20;
+           break;
+        case AUTOSHOT_IMAGE100:
+           setting.autoshot_scale=100;
+           break;
+
     }
 
     //reshape((int)window_width, (int)window_height);
@@ -3673,7 +3717,7 @@ void buildLayerMenus(void){
     unsigned max=150;
     char tmp[max+1];
     for(i=0;i<NUMBER_POPUP_LAYER;i++){
-        //std::cout << "description: " << layerDescription[i] << std::endl;
+//        std::cout << "description: " << layerDescription[i] << std::endl;
         if(strlen(layerDescription[i]) > max-1){
             snprintf(tmp,max-3,"%s",layerDescription[i]);
             sprintf(tmp,"%s...",tmp);
@@ -4081,6 +4125,22 @@ void buildMainMenu(void){
     sprintf(tmp,"extrem large (%i x %i)", int(100*setting.win_w), int(100*setting.win_h));
     screenshot->addItem(new CED_SubSubMenu(tmp,SAVE_IMAGE100));
 
+    CED_SubSubMenu *autoshot=new CED_SubSubMenu("A. shot scale");
+    sprintf(tmp,"original size (%i x %i)", int(setting.win_w), int(setting.win_h));
+    autoshot->addItem(new CED_SubSubMenu(tmp,AUTOSHOT_IMAGE1));
+
+    sprintf(tmp,"large size (%i x %i)", int(4*setting.win_w), int(4*setting.win_h));
+    autoshot->addItem(new CED_SubSubMenu(tmp,AUTOSHOT_IMAGE4));
+
+    sprintf(tmp,"very large size (%i x %i)", int(10*setting.win_w), int(10*setting.win_h));
+    autoshot->addItem(new CED_SubSubMenu(tmp,AUTOSHOT_IMAGE10));
+
+    sprintf(tmp,"very very large size (%i x %i)", int(20*setting.win_w), int(20*setting.win_h));
+    autoshot->addItem(new CED_SubSubMenu(tmp,AUTOSHOT_IMAGE20));
+
+    sprintf(tmp,"extream size (%i x %i)", int(100*setting.win_w), int(100*setting.win_h));
+    autoshot->addItem(new CED_SubSubMenu(tmp,AUTOSHOT_IMAGE100));
+
     CED_SubMenu *tools=new CED_SubMenu("Tools");
     tools->addItem(screenshot);
     tools->addItem(new CED_SubSubMenu("---",0));
@@ -4089,6 +4149,14 @@ void buildMainMenu(void){
     }else{
         tools->addItem(new CED_SubSubMenu("[ ] Show FPS",FPS));
     }
+    tools->addItem(new CED_SubSubMenu("---",0));
+    if(setting.autoshot) {
+        tools->addItem(new CED_SubSubMenu("[X] Auto shot",AUTOSHOT));
+    }
+    else {
+        tools->addItem(new CED_SubSubMenu("[ ] Auto shot",AUTOSHOT));
+    }
+    tools->addItem(autoshot);
     ced_menu->addSubMenu(tools);
 
 
@@ -4211,6 +4279,12 @@ int buildMenuPopup(void){ //hauke
     glutAddMenuEntry("...",SAVE_IMAGE100);
     updateScreenshotMenu();
 
+    subautoshot=glutCreateMenu(selectFromMenu);
+    glutAddMenuEntry("...",AUTOSHOT_IMAGE1);
+    glutAddMenuEntry("...",AUTOSHOT_IMAGE4);
+    glutAddMenuEntry("...",AUTOSHOT_IMAGE10);
+    glutAddMenuEntry("...",AUTOSHOT_IMAGE20);
+    glutAddMenuEntry("...",AUTOSHOT_IMAGE100);
 
     int graphicDetailsMenu=glutCreateMenu(selectFromMenu);
     glutAddMenuEntry("Toggle perspective",GRAFIC_PERSP);
@@ -4235,7 +4309,8 @@ int buildMenuPopup(void){ //hauke
     int toolMenu=glutCreateMenu(selectFromMenu);
     glutAddSubMenu("Screenshot",subscreenshot);
     glutAddMenuEntry("Show FPS",FPS);
-
+    glutAddMenuEntry("Auto shot",AUTOSHOT);
+    glutAddSubMenu("A. shot scale",subautoshot);
 
 
 
@@ -4501,7 +4576,7 @@ int main(int argc,char *argv[]){
     return 0;
 }
 
-int save_pixmap_as_tga(unsigned char *buffer_all,char *name,int wi, int hi){
+int save_pixmap_as_tga(unsigned char *buffer_all,const char *name,int wi, int hi){
     //based on: http://www.opengl.org/discussion_boards/ubbthreads.php?ubb=showflat&Number=44286
 
     int header_size=24;
@@ -4530,7 +4605,7 @@ int save_pixmap_as_tga(unsigned char *buffer_all,char *name,int wi, int hi){
 }
 
 
-int save_pixmap_as_bmp(unsigned char *buffer_all,char *name,unsigned int wi, unsigned int hi){
+int save_pixmap_as_bmp(unsigned char *buffer_all,const char *name,unsigned int wi, unsigned int hi){
     unsigned int mem_size = wi*hi*3;
     FILE *out_file;
     unsigned char *header;
@@ -4579,7 +4654,7 @@ int save_pixmap_as_bmp(unsigned char *buffer_all,char *name,unsigned int wi, uns
     return(0);
 }
 
-void screenshot(char *name, int times)
+void screenshot(const char *name, int times)
 {
     if(times > 100){
         std::cout << "Sorry 100x100 are the max value" << std::cout;
@@ -4604,7 +4679,6 @@ void screenshot(char *name, int times)
     int buf_size = (w*h*3);
 
     std::cout << "Generating screenshot (" << w*times << "x" << h*times << "):" << std::endl;
-    
 
     //int buf_size_all = HEADER_SIZE + w*h*3 *times*times;
 
@@ -4628,6 +4702,7 @@ void screenshot(char *name, int times)
     
 
     std::cout << "    Generating image ";
+
     if(setting.persp == true){
         glTranslatef(0.0, 0.0, +2000); //HOTFIX!!! TODO: find the place where this translation is made 
         double near_plane=200.;
@@ -4673,8 +4748,6 @@ void screenshot(char *name, int times)
             }
         }
      }else{
-
-
         double near_plane=200./(WORLD_SIZE/10);
 
         for(int i=0;i<times;i++){
@@ -4710,11 +4783,9 @@ void screenshot(char *name, int times)
                 WORLD_SIZE=tmp2;
 
                 }
-
                 glViewport(0,0,w,h);
                 gluLookAt  (0,0,2000,    0,0,0,    0,1,0);
                 glViewport(0,0,w,h);
- 
                 glMatrixMode(GL_MODELVIEW);
                 write_world_into_front_buffer();
 
@@ -4747,12 +4818,24 @@ void screenshot(char *name, int times)
         buffer_all[j+2] = tmp;
     }
 
-    std::cout << "    Save screenshot as: " << name ;
-    cout.flush();
-    //save_pixmap_as_tga(buffer_all, name, w*times, h*times);
-    //save_pixmap_as_bmp(buffer_all, "/tmp/glced.bmp", w*times, h*times);
-    save_pixmap_as_tga(buffer_all, "/tmp/glced.tga", w*times, h*times);
-    std::cout << " Done" << endl ;
+    numpict++;
+    std::ostringstream foutname;
+    char *imgfile;
+    imgfile = getenv ( "CED_IMAGEFILE" );
+    if(imgfile != NULL){
+      foutname << imgfile << "-" << numpict << ".tga" << std::ends;
+    }else{
+      foutname << "glced-" << numpict << ".tga" << std::ends;
+    }
+    std::string cfout=foutname.str();
+    int spret=save_pixmap_as_tga(buffer_all, cfout.c_str(), w*times, h*times);
+//    int spret=save_pixmap_as_bmp(buffer_all, cfout.c_str(), w*times, h*times);
+    if ( spret == 0 ) {
+      std::cout << "Imagefile was written in " << cfout << std::endl ;
+    }
+    else {
+      std::cout << "Failed to write file to " << cfout << std::endl;
+    }
 
     std::cout << "    Clean memory ";
     for(int i=0;i<times*times;i++){

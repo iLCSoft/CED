@@ -275,18 +275,18 @@ class CED_SubSubMenu{
 
         void addItem(CED_SubSubMenu *subsub){
            int height=10;
-           int width=6;
+//           int width=6;
            if(setting.font==0){
                height=10;
-               width=6;
+//               width=6;
            }
            if(setting.font==1){
                height=12;
-               width=8;
+//               width=8;
            }
            if(setting.font==2){
                height=20;
-               width=11;
+//               width=11;
            }
 
             subsub->x_start=x_start;
@@ -953,6 +953,7 @@ class CED_PopUpMenu{
 #define FULLSCREEN              6001
 #define AXES                    6002
 #define FPS                     6003
+#define AUTOSHOT                6004
 
 #define BGCOLOR_WHITE           1000
 #define BGCOLOR_SILVER          1001
@@ -1069,6 +1070,13 @@ class CED_PopUpMenu{
 #define SAVE_IMAGE10    5558
 #define SAVE_IMAGE20    5559
 #define SAVE_IMAGE100   5560
+
+#define AUTOSHOT_IMAGE       5561
+#define AUTOSHOT_IMAGE1      5562
+#define AUTOSHOT_IMAGE4      5563
+#define AUTOSHOT_IMAGE10     5564
+#define AUTOSHOT_IMAGE20     5565
+#define AUTOSHOT_IMAGE100    5566
 
 
 #define TOGGLE_PHI_PROJECTION   5000
