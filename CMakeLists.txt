@@ -122,7 +122,8 @@ ENDIF( CED_SERVER )
 
 
 # ------------------ CED TESTS ------------------
-FOREACH( _testname test_ced test_ced_mhits test_ced_color )
+#FOREACH( _testname test_ced test_ced_mhits test_ced_color )
+FOREACH( _testname test_ced test_ced_mhits )
 
     IF( BUILD_TESTING )
         ADD_EXECUTABLE( ${_testname} ./src/tests/${_testname}.cc )
