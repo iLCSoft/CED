@@ -468,12 +468,19 @@ Another way is to rightclick at the object and select \textit{Pick object} from 
  
 \section{Screenshot}
 To create a high resolution screenshot select \textit{Tools $\to$ Save screenshot $\to$ $<$SIZE$>$} from the main menu. 
-The screenshot is saved in the TGA format in the location \textit{/tmp/glced.tga}. 
-Converting the screenshot into for example png use:
+The screenshot is saved in the TGA format in the current location where CED was started as \textit{glced-N.tga} where $N$ starts from 1 and gets increased
+with the number of saved screenshots. Converting the screenshot into for example png use:
  \begin{verbatim}
-      convert /tmp/glced.tga screenshot.png 
+      convert glced.tga screenshot.png
  \end{verbatim}
-
+or in batch mode
+\begin{verbatim}
+      for i in `ls -1 glced-*.tga`;
+      do
+        convert $i `basename $i .tga`.png;
+      done
+ \end{verbatim}
+ 
 \section{Viewer}
 To draw an event with Marlin into CED, Marlin needs a configuration file, written in XML. This file is called the Marlin-Steeringfile, see its documentation for details. In this file one or more viewers are configured. There a a number of different viewers available in ilcsoft: CEDViewer, DSTViewer, Generic Viewer, and Vertex Viewer. The difference between these viewers is how the event gets drawn. The detector geometry does not depend on with viewer is used. 
 
