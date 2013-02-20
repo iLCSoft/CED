@@ -3,14 +3,14 @@
  *
  * Alexey Zhelezov, DESY/ITEP, 2005 
  *
- * July 2005, Jörgen Samson: Moved parts of the TCP/IP
+ * July 2005, Joergen Samson: Moved parts of the TCP/IP
  *            server to glut's timer loop to make glced 
  *            "standard glut" compliant
  *
  * June 2007, F.Gaede: - added world_size command line parameter
  *                     - added help message for "-help, -h, -?"
  *                     - replaced fixed size window geometry with geometry comand-line option
- *                     
+ *
  * 2010 - 2012, H. Hoelbe:
  *                     - improved picking function 
  *                     - added main und popup menu
@@ -31,7 +31,11 @@
  *                         - distance
  *                         - frames per secound
  *                         - detector picking
- *           
+ *
+ * February 2013, O. Volynets:
+ *                      - added CTRL+s shortcut for fast screenshot saving.
+ *                        The screenshot is saved in the default size without scaling
+ *
  */
 
 #include <iomanip>
@@ -549,6 +553,7 @@ void printShortcuts(void){
 
     shortcuts.push_back( "[ESC] Quit CED" );
     shortcuts.push_back( "[h] Toggle shortcut frame" );
+    shortcuts.push_back( "[CTRL+s] Save screenshot" );
     shortcuts.push_back( "[CTRL+z] Undo" );
     shortcuts.push_back( "[r] Reset view" );
     shortcuts.push_back( "[R] Reset CED" );
@@ -1654,6 +1659,8 @@ static void keypressed(unsigned char key,int x,int y){
         selectFromMenu(TOGGLE_PHI_PROJECTION);
     } else if(key==27) { //esc
         exit(0);
+    } else if(key==19 ) { //ctrl+s
+        selectFromMenu(SAVE_IMAGE1);
     } else if(key=='c' || key=='C'){
       //selectFromMenu(VIEW_CENTER);
       if(!ced_get_selected(x,y,&mm.mv.x,&mm.mv.y,&mm.mv.z)) glutPostRedisplay();
