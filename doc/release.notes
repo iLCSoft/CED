@@ -7,6 +7,33 @@
 
 
  --------
+| v01-08 |
+ --------
+
+New features (A. Miyamoto):
+
+    - Add "Auto shot" flag in Tools menu of glced.
+      When set, glced write a screen image to a file when new event is received from
+      CED client. The file is written in a directory where glced is executed with
+      a name, glced-N.tga, where N is a sequence number.  If an environment variable,
+      CED_IMAGEFILE is set, output file name is ${CED_IMAGEFILE}-N.tga.  Note that
+      a file could be written at any place by including a directory in ${CED_IMAGEFILE}.
+
+      A menu, Tools->Auto scale, can be used to select the scale of output image.
+
+    - A CMake variable, CED_NOT_INCLUDE_OPENGL_LINKER_PATH.  If set,
+      OpenGL linker path is not included in rpath of glced. Inclusion of
+      the OpenGL path caused a problem at run time when gcc used for OpenGL
+      is older than those used to build glced.
+
+    - Add 2 more CED_HIT_TYPE, CED_HIT_BOX and CED_HIT_VXD. Then will be used
+      to display pixel hits of FPCCD.
+
+New feature (O. Volynets):
+
+    - Added shortcut ctrl+s for fast saving of screenshots in original size (i.e. without scaling)
+
+ --------
 | v01-07 |
  --------
 

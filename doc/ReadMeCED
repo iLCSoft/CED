@@ -44,6 +44,7 @@ Controls for CED display server (glced window):
 Keyboard shortcuts:
 -------------------
 ESC .......... quit
+CTRL+s ....... save screenshot
 keys [0-9] ... toggle visibility layers
 key 'r' ...... redispaly in some initial projection
 key 'f' ...... front projection
