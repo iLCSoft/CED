@@ -1,7 +1,8 @@
 /* "C" event display.
  * Enduser accessable API.
  *
- * Alexey Zhelezov, DESY/ITEP, 2005 */
+ * Alexey Zhelezov, DESY/ITEP, 2005 
+ */
 
 #ifndef __CED_CLI_H
 #define __CED_CLI_H
@@ -22,9 +23,9 @@
 //#define CED_MAX_LAYER_CHAR 400
 
 
-//#ifdef __cplusplus
-//extern "C" {
-//#endif
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /*
  * This is the first function to call (before any other).
@@ -138,7 +139,7 @@ typedef struct {
 void ced_hit(float x,float y,float z,unsigned type,unsigned size,unsigned color);
 
 //to give a bit of downward compatibility
-void ced_hit_ID(float x,float y,float z,unsigned type, unsigned size,unsigned color, unsigned lcioID);
+void ced_hit_ID_old(float x,float y,float z,unsigned type, unsigned size,unsigned color, unsigned lcioID);
 
 
 void ced_hit_ID(float x,float y,float z,unsigned type,unsigned layer, unsigned size,unsigned color, unsigned lcioID);
@@ -423,9 +424,9 @@ void ced_cluellipse_r(float radius, float height, float *center, double *rotate,
 void ced_cluellipse_r_ID(float radius, float height, float *center, double *rotate, unsigned int layer, int color, int lcioid); //hauke
 
 
-//#ifdef __cplusplus
-// }
-//#endif
+#ifdef __cplusplus
+ }
+#endif
 	
 
 #endif /* __CED_CLI_H */

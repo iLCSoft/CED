@@ -7,6 +7,12 @@
 
 
  --------
+| v01-09 |
+ --------
+    - turned off C++ name mangling in client library libCED.so/dylib
+      to facilitate calling ced from python
+
+ --------
 | v01-08 |
  --------
 

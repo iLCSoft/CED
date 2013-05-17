@@ -7,7 +7,7 @@
 #include <ced_cli.h>
 #include <ced.h>
 #include <stdio.h>
-#include <iostream>
+//#include <iostream>
 
 #include <math.h>
 
@@ -23,7 +23,7 @@ void ced_hit(float x,float y,float z,unsigned type,unsigned size,unsigned color)
 }
 
 //deprecated
-void ced_hit_ID(float x,float y,float z,unsigned type, unsigned size,unsigned color, unsigned lcioID){
+void ced_hit_ID_old(float x,float y,float z,unsigned type, unsigned size,unsigned color, unsigned lcioID){
     ced_hit_ID(x,y,z,type & 0xFF,type >> CED_LAYER_SHIFT,size,color,lcioID);
 }
 
