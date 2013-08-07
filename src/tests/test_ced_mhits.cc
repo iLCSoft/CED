@@ -1,95 +1,61 @@
 #include <ced_cli.h>
 #include <time.h>
 #include <stdlib.h>
+#include <iostream>
 
 /** Simple test program to draw a million hits
  *  @author Jan Engels - Desy - IT
  */
 
 int main(){
+  
+  /*
+   * Initialisation */
+  ced_client_init("localhost",7286);
+  ced_register_elements();
+  
+  time_t t;
+  srand((unsigned) time(&t));
+  unsigned i;
 
-	/*
-	 * Initialisation */
-  	ced_client_init("localhost",7286);
-  	ced_register_elements();
 
-    time_t t;
-    srand((unsigned) time(&t));
-    unsigned i;
+  unsigned nPts = 4000 ;
 
-    //red
-    for( i=0; i<250000 ; i++){
-        ced_hit( rand()%5000, rand()%5000, rand()%5000, 0, 1, 0x990000 );
-    }
+  int boxL = 1000 ;
 
-  	//ced_send_event();    // Does not clean up screen
+  unsigned marker = 3 ;
+  unsigned layer =  7 ;
+  unsigned type = ( marker ) | ( layer << CED_LAYER_SHIFT ) ;
+  unsigned size = 80 ; 
+
+
+  // ced_line_ID( -boxL , 0. , 0. ,  +boxL , 0. , 0. , layer, 1 , 0x009900 , 0 ) ; 
+  // ced_line_ID( 0, -boxL , 0. ,  0, +boxL     , 0. , layer, 1 , 0x009900 , 0 ) ; 
+  // ced_line_ID( 0, 0, -boxL ,  0, 0, +boxL    , layer, 1 , 0x009900 , 0 ) ; 
+
+
+  //red
+  for( i=0; i<nPts ; i++){
+    ced_hit( rand()%boxL, rand()%boxL, rand()%boxL, type, size, 0x990000 );
+  }
     
-    //green
-    for( i=0; i<250000 ; i++){
-        ced_hit( 0-(rand()%5000), 0-(rand()%5000), 0-(rand()%5000), 0, 1, 0x009900 );
-    }
+  //green
+  for( i=0; i<nPts ; i++){
+    ced_hit( (rand()%boxL), -(rand()%boxL), -(rand()%boxL), type, size, 0x009900 );
+  }
 
-  	//ced_send_event();    // Does not clean up screen
-    
-    //cyan
-    for( i=0; i<250000 ; i++){
-        ced_hit( 0-(rand()%5000), rand()%5000, 0-(rand()%5000), 0, 1, 0x009999 );
-    }
+  //cyan
+  for( i=0; i<nPts ; i++){
+    ced_hit( -(rand()%boxL), rand()%boxL, -(rand()%boxL), type, size, 0x009999 );
+  }
 
-  	//ced_send_event();    // Does not clean up screen
-    
-    //blue
-    for( i=0; i<250000 ; i++){
-        ced_hit( rand()%5000, 0-(rand()%5000), rand()%5000, 0, 1, 0x0000ff );
-    }
+  //blue
+  for( i=0; i<nPts ; i++){
+    ced_hit( -rand()%boxL, -(rand()%boxL), rand()%boxL, type, size, 0x0000ff );
+  }
+
+  ced_send_event();    // Does not clean up screen
 
 
-/*****************************************************
- * This code used to crash CED before bug fix in r1559
- *****************************************************
-
-    //red
-    for( i=0; i<300000 ; i++){
-        ced_hit( rand()%5000, rand()%5000, rand()%5000, 0, 1, 0x990000 );
-    }
-
-  	//ced_send_event();    // Does not clean up screen
-    
-    //green
-    for( i=0; i<50000 ; i++){
-        ced_hit( 0-(rand()%5000), 0-(rand()%5000), 0-(rand()%5000), 0, 1, 0x009900 );
-    }
-
-  	//ced_send_event();    // Does not clean up screen
-    
-    //cyan
-    for( i=0; i<7000 ; i++){
-        ced_hit( 0-(rand()%5000), rand()%5000, 0-(rand()%5000), 0, 1, 0x009999 );
-    }
-
-  	//ced_send_event();    // Does not clean up screen
-    
-    //white
-    for( i=0; i<140 ; i++){
-        ced_hit( rand()%5000, 0-(rand()%5000), rand()%5000, 0, 1, 0xffffff );
-    }
-
-  	ced_send_event();    // Does not clean up screen
-  	//ced_draw_event();    // Make clean up screen before drawing
-
-    ced_hit( 3000, -3000, 3000, 0, 5, 0xffffff );
-  	ced_send_event();    // Does not clean up screen
-    ced_hit( 2000, -2000, 2000, 0, 5, 0xffffff );
-  	ced_send_event();    // Does not clean up screen
-
-    // ced can only draw 357142 hits at a time
-    // this hit will crash
-    ced_hit( 1000, -1000, 1000, 0, 5, 0xffffff );
-
-*/
-
-  	ced_send_event();    // Does not clean up screen
-  	//ced_draw_event();    // Make clean up screen before drawing
-
- return 0;
+  return 0;
 }
