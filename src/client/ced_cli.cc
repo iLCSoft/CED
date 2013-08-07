@@ -19,7 +19,7 @@
 static unsigned HIT_ID=0;
 
 void ced_hit(float x,float y,float z,unsigned type,unsigned size,unsigned color){
-    ced_hit_ID(x,y,z,type,0, size,color, 0);
+    ced_hit_ID(x,y,z, type & 0xFF,type >> CED_LAYER_SHIFT, size,color, 0);
 }
 
 //deprecated

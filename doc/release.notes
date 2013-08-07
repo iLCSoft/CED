@@ -6,6 +6,13 @@
 ##################################################
 
 
+ -----------
+| v01-09-01 |
+ -----------
+     - fixed wrappper function ced_hit(...,type,...) to call 
+       ced_hit_ID(...., type & 0xFF,type >> CED_LAYER_SHIFT ,....)
+       for backward compatibility with old code
+
  --------
 | v01-09 |
  --------
