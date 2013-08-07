@@ -19,12 +19,12 @@
 static unsigned HIT_ID=0;
 
 void ced_hit(float x,float y,float z,unsigned type,unsigned size,unsigned color){
-    ced_hit_ID(x,y,z, type & 0xFF,type >> CED_LAYER_SHIFT, size,color, 0);
+  ced_hit_ID(x,y,z, type & 0xFF,( type >> CED_LAYER_SHIFT ) & 0xFF, size,color, 0);
 }
 
 //deprecated
 void ced_hit_ID_old(float x,float y,float z,unsigned type, unsigned size,unsigned color, unsigned lcioID){
-    ced_hit_ID(x,y,z,type & 0xFF,type >> CED_LAYER_SHIFT,size,color,lcioID);
+  ced_hit_ID(x,y,z,type & 0xFF,(type >> CED_LAYER_SHIFT) & 0xFF,size,color,lcioID);
 }
 
 void ced_hit_ID(float x,float y,float z,unsigned type,unsigned layer, unsigned size,unsigned color, unsigned lcioID){
@@ -35,11 +35,11 @@ void ced_hit_ID(float x,float y,float z,unsigned type,unsigned layer, unsigned s
  h->p.y=y;
  h->p.z=z;
  h->type=type;
- if(layer > 255){ //downward compability
-    h->layer=layer >> CED_LAYER_SHIFT;
- }else{
-    h->layer=layer;
- }
+ // if(layer > 255){ //downward compability
+ //    h->layer=layer >> CED_LAYER_SHIFT;
+ // }else{
+ h->layer=layer;
+ // }
  h->size=size;
  h->color=color;
  h->lcioID=lcioID;
