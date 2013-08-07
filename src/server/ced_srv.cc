@@ -1318,6 +1318,17 @@ static void ced_draw_hit(CED_Hit *h){
     	       	 //     printf("cross type == %d \n",(h->type & CED_HIT_CROSS));
 //    	        d=h->size/2*setting.screenshot_sections;
     	        d=((GLfloat)h->size)/20.*setting.screenshot_sections;
+    	        glVertex3f(x-d,y-d,z);
+    	        glVertex3f(x+d,y+d,z);
+		glVertex3f(x+d,y-d,z);
+    	        glVertex3f(x-d,y+d,z);       
+            }
+    	    else if(h->type ==  CED_HIT_STAR){
+    	       	 //     printf("cross type == %d \n",(h->type & CED_HIT_CROSS));
+//    	        d=h->size/2*setting.screenshot_sections;
+    	        d=((GLfloat)h->size)/20.*setting.screenshot_sections;
+
+#if 0 // hauke's version
     	        glVertex3f(x-d,y-d,z+d);
     	        glVertex3f(x+d,y+d,z-d);
     
@@ -1329,8 +1340,17 @@ static void ced_draw_hit(CED_Hit *h){
     
     	        glVertex3f(x-d,y+d,z+d);
     	        glVertex3f(x+d,y-d,z-d);
+#else // vassillie's version
+    	        glVertex3f(x-d,y,z);
+    	        glVertex3f(x+d,y,z);
     
-            }
+		glVertex3f(x,y-d,z);
+    	        glVertex3f(x,y+d,z);
+
+		glVertex3f(x,y,z-d);
+    	        glVertex3f(x,y,z+d);
+#endif
+	    }
     	    else if(h->type ==  CED_HIT_VXD){
     	       	 //     printf("cross type == %d \n",(h->type & CED_HIT_CROSS));
 //    	        d=h->size/2*setting.screenshot_sections;
