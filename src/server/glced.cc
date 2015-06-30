@@ -4664,7 +4664,7 @@ int save_pixmap_as_bmp(unsigned char *buffer_all,const char *name,unsigned int w
 void screenshot(const char *name, int times)
 {
     if(times > 100){
-        std::cout << "Sorry 100x100 are the max value" << std::cout;
+        std::cout << "Sorry 100x100 are the max value" << std::endl ;
         return;
     }
 
