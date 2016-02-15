@@ -5,6 +5,12 @@
 #   original author A.Zhelezov, DESY
 ##################################################
 
+ -----------
+| v01-09-02 |
+ -----------
+   M /CED/trunk/src/server/glced.cc
+ - replace << std::cout w/ std::endl ( bug for c++11)
+
 
  -----------
 | v01-09-01 |
