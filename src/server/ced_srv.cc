@@ -1720,7 +1720,7 @@ static void ced_draw_geotube(CED_GeoTube *c){
         for(int k=0;k<2;k++){        
 
         //for(int k=1;k>=0;k--){        
-            GLfloat face_color[4]={((c->color>>16)&0xff)/255.0,((c->color>>8)&0xff)/255.0,((c->color)&0xff)/255.0, trans_value};  
+            GLfloat face_color[4]={static_cast<GLfloat>(((c->color>>16)&0xff)/255.0),static_cast<GLfloat>(((c->color>>8)&0xff)/255.0),static_cast<GLfloat>(((c->color)&0xff)/255.0), static_cast<GLfloat>(trans_value)};
             //GLfloat face_color[4]={((c->color>>16)&0xff)/255.0/2.0+(1.0-setting.bgcolor[0])/2.0,((c->color>>8)&0xff)/255.0/2.0+(1.0-setting.bgcolor[1])/2.0,((c->color)&0xff)/255.0/2.0+(1.0-setting.bgcolor[2])/2.0, trans_value}; //shape in detector color mixed with anti background color
     
     
@@ -1735,7 +1735,7 @@ static void ced_draw_geotube(CED_GeoTube *c){
             glGetDoublev(GL_COLOR_CLEAR_VALUE, setting.bgcolor);
             //GLfloat line_color[4]={((c->color>>16)&0xff)/255.0/2.0+(1.0-setting.bgcolor[0])/2.0,((c->color>>8)&0xff)/255.0/2.0+(1.0-setting.bgcolor[1])/2.0,((c->color)&0xff)/255.0/2.0+(1.0-setting.bgcolor[2])/2.0, 0.6}; //lines in detector color mixed with anti background color
     
-            GLfloat line_color[4]={((c->color>>16)&0xff)/255.0/2.0+(1.0-setting.bgcolor[0])/2.0,((c->color>>8)&0xff)/255.0/2.0+(1.0-setting.bgcolor[1])/2.0,((c->color)&0xff)/255.0/2.0+(1.0-setting.bgcolor[2])/2.0, (1-trans_value)+CED_GEOTUBE_LINE_MAX_TRANS}; //lines in detector color mixed with anti background color
+            GLfloat line_color[4]={static_cast<GLfloat>(((c->color>>16)&0xff)/255.0/2.0+(1.0-setting.bgcolor[0])/2.0),static_cast<GLfloat>(((c->color>>8)&0xff)/255.0/2.0+(1.0-setting.bgcolor[1])/2.0),static_cast<GLfloat>(((c->color)&0xff)/255.0/2.0+(1.0-setting.bgcolor[2])/2.0), static_cast<GLfloat>((1-trans_value)+CED_GEOTUBE_LINE_MAX_TRANS)}; //lines in detector color mixed with anti background color
     
     
             //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //default
@@ -2839,7 +2839,7 @@ static void ced_draw_geobox_r_solid(CED_GeoBoxR * box )  {
     if(box->layer < NUMBER_DETECTOR_LAYER){
        trans=setting.detector_trans[box->layer]; 
     }
-    GLfloat face_color[4]={((box->color>>16)&0xff)/255.0,((box->color>>8)&0xff)/255.0,((box->color)&0xff)/255.0, trans};  
+    GLfloat face_color[4]={static_cast<GLfloat>(((box->color>>16)&0xff)/255.0),static_cast<GLfloat>(((box->color>>8)&0xff)/255.0),static_cast<GLfloat>(((box->color)&0xff)/255.0), static_cast<GLfloat>(trans)};
     //GLfloat line_color[4]={((c->color>>16)&0xff)/255.0/2.0+(1.0-setting.bgcolor[0])/2.0,((c->color>>8)&0xff)/255.0/2.0+(1.0-setting.bgcolor[1])/2.0,((c->color)&0xff)/255.0/2.0+(1.0-setting.bgcolor[2])/2.0, (1-setting.trans_value)+CED_GEOTUBE_LINE_MAX_TRANS}; //lines in detector color mixed with anti background color
     glColor4f(face_color[0], face_color[1], face_color[2], face_color[3]);
     glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
