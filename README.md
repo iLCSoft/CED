@@ -86,7 +86,7 @@ The window has to be active and the mouse placed inside it.
 
 
 
-## Using the CED client library with Marllin:
+## Using the CED client library with Marlin:
 
 Somewhere at the beginning of file ******Processor.cc
 
