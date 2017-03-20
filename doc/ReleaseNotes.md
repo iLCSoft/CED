@@ -1,33 +1,29 @@
-##################################################
-#
-#   CED event display 
-#
-#   original author A.Zhelezov, DESY
-##################################################
+# CED Release notes
 
- -----------
-| v01-09-02 |
- -----------
+
+ 
+## v01-09-02 
+
    M /CED/trunk/src/server/glced.cc
  - replace << std::cout w/ std::endl ( bug for c++11)
 
 
- -----------
-| v01-09-01 |
- -----------
+
+## v01-09-01 
+
      - fixed wrappper function ced_hit(...,type,...) to call 
        ced_hit_ID(...., type & 0xFF,type >> CED_LAYER_SHIFT ,....)
        for backward compatibility with old code
 
- --------
-| v01-09 |
- --------
+
+## v01-09 
+
     - turned off C++ name mangling in client library libCED.so/dylib
       to facilitate calling ced from python
 
- --------
-| v01-08 |
- --------
+
+## v01-08 
+
 
 New features (A. Miyamoto):
 
@@ -52,9 +48,9 @@ New feature (O. Volynets):
 
     - Added shortcut ctrl+s for fast saving of screenshots in original size (i.e. without scaling)
 
- --------
-| v01-07 |
- --------
+
+## v01-07 
+
 
 Fixes/Changes:
 
@@ -88,9 +84,9 @@ Fixes/Changes:
 
     - Fixed menu detector transparency checkboxes
 
- --------
-| v01-06 |
- --------
+
+## v01-06 
+
 NOTE: Old config files (created by CED by save settings) are not longer readable, sorry!
 
 New features (H.Hoelbe, DESY):
@@ -177,9 +173,9 @@ Bugfixes (H. Hoelbe, DESY):
 
 
 
- --------
-| v01-05 |
- --------
+
+## v01-05 
+
 
     - Z-cutting now only affects the detector components, not the hits,tracks etc
       this change has been made to be consistency with phi-cutting
@@ -193,9 +189,9 @@ Bugfixes (H. Hoelbe, DESY):
     - Add ced_config.h: collects all options which can be set before build CED
 
 
- -----------
-| v01-04-01 |
- -----------
+
+## v01-04-01 
+
 
     - fixed memory leak
     - changes method of adding pickable points to lines from splitting lines to add more points to.
@@ -203,9 +199,9 @@ Bugfixes (H. Hoelbe, DESY):
 
 
 
- --------
-| v01-04 |
- --------
+
+## v01-04 
+
 
     - New features (H. Hoelbe, DESY):
         * Add screenshot function
@@ -230,9 +226,9 @@ Bugfixes (H. Hoelbe, DESY):
 
 
 
- --------
-| v01-03 |
- --------
+
+## v01-03 
+
 
    - New features (H. Hoelbe, DESY):
         * Save/Load settings option (saves zoom, background color, view position, etc in ~/.glced)
@@ -271,9 +267,9 @@ Bugfixes (H. Hoelbe, DESY):
         cause a dramatic performance penalty
 
 
- --------
-| v01-02 |
- --------
+
+## v01-02 
+
 
 
     New features (H. Hoelbe, DESY): 
@@ -317,9 +313,9 @@ Bugfixes (H. Hoelbe, DESY):
     Simplified CMakeLists ( added dependency to ILCUTIL package )
 
 
- --------
-| v01-01 |
- --------
+
+## v01-01 
+
 
     new features: (H. Hoelbe, DESY)
     - Add popup menu, to change background color, toggle layer visibly etc.
@@ -341,9 +337,9 @@ Bugfixes (H. Hoelbe, DESY):
        or using the popup menu
     -  removed old makefiles
 
- --------
-| v01-00  |
- ---------
+
+## v01-00  
+
      new features: (H. Hoelbe, DESY)
      -  enabled picking (double-click on objects)
      -  zoom (mouse-wheel)
@@ -360,17 +356,17 @@ Bugfixes (H. Hoelbe, DESY):
         -  CED no longer crashes when drawing more 
            than ~350.000 hits (H. Hoelbe)
 
- -----------
-| v00-07   |
- -----------
+
+## v00-07   
+
     * added new Fisheye view functionality 
     * added server client communication 
     * started to add picking functionality
     (S. Martin-Haugh)        
 
- -----------
-| v00-06   |
- -----------
+
+## v00-06   
+
     * added new functionality to draw (S. Darasz):
         - rotated and translated geo_cylinders
         - transparent and wireframe ellipsoids
@@ -382,9 +378,9 @@ Bugfixes (H. Hoelbe, DESY):
         - made cmake 2.6 compatible
         - bug fix for building ced server on mac
 
- --------
-| v00-05 |
- --------
+
+## v00-05 
+
       * restructered build process: 
         default is to build true client library libCED.so 
         - optionally also build CED server glced (needs glut/OpenGL)
@@ -392,14 +388,14 @@ Bugfixes (H. Hoelbe, DESY):
 
       * install only ced_cli.h 
 
- -----------
-| v00-04-01 |
- -----------
+
+## v00-04-01 
+
     - made headers dual use (C/C++)
  
-  -------
- | v00-04 |
-  -------
+
+## v00-04 
+
      -  improved CMakeLists.txt: (F.Gaede)
 	    create true client library libCED.so 
         
@@ -408,16 +404,16 @@ Bugfixes (H. Hoelbe, DESY):
 	 -  added a unique id variable (int) to CED_Hit, which is printed to
 		screen whenever the 'C' key is pressed to center on a hit
 
-  -------
- | v00-03 |
-  -------
+
+ ## v00-03 
+
     - minor fixes
     - improved test_ced.c with more examples
     - improved MacOSX support (cmake)
  
-  -------
- | v00-02 |
-  -------
+
+ ## v00-02 
+
      - new build scripts for CMake (J.Engels, DESY)
      - added ced_geobox for displaying a box with offset in x,y 
        (author A.Bulgheroni, INFN) 
@@ -428,7 +424,7 @@ Bugfixes (H. Hoelbe, DESY):
      - replaced fixed size window geometry with geometry comand-line option
      - added simple example program test_ced (only built with cmake)
        
-  -------
- | v00-01 |  
-  -------
+
+ ## v00-01   
+
      - initial release in marlinreco cvs
