@@ -9,7 +9,7 @@ CED is distributed under the [GPLv3 License](http://www.gnu.org/licenses/gpl-3.0
 
 
 ## License and Copyright
-Copyright (C) 2004-2016 DESY, Deutsches Elektronen Synchrotron
+Copyright (C) 2005-2017, CED Authors
 
 CED is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
