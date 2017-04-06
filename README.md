@@ -1,5 +1,6 @@
 # CED (C Event Display)
 [![Build Status](https://travis-ci.org/iLCSoft/CED.svg?branch=master)](https://travis-ci.org/iLCSoft/CED)
+[![Build Status](https://scan.coverity.com/projects/12338/badge.svg)](https://scan.coverity.com/projects/ilcsoft-ced)
 
 CED is a server client application for OpenGL drawing
 
