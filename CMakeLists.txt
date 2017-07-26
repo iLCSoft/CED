@@ -86,7 +86,12 @@ IF( CED_SERVER )
     IF( NOT CED_NOT_INCLUDE_OPENGL_LINKER_PATH ) 
       FOREACH( _opengl_lib ${OPENGL_LIBRARIES} )
         GET_FILENAME_COMPONENT( _opengl_lib_path ${_opengl_lib} PATH )
-        LIST( APPEND _opengl_linker_paths ${_opengl_lib_path} )
+        # the RPATH to be used when installing, but only if it's not a system directory
+        LIST(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES ${_opengl_lib_path} isSystemDir)
+        #MESSAGE( "isSystemDir: ${isSystemDir}" )
+        IF("${isSystemDir}" STREQUAL "-1")
+          LIST( APPEND _opengl_linker_paths ${_opengl_lib_path} )
+        ENDIF("${isSystemDir}" STREQUAL "-1")
       ENDFOREACH()
 
     # remove duplicate paths
