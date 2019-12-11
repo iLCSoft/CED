@@ -1,3 +1,10 @@
+# v01-09-03
+
+* 2017-07-26 Shaojun Lu ([PR#5](https://github.com/iLCSoft/CED/pull/5))
+  - Fix RPATH for CVMFS (ilc.desy.de) installation
+   - Do not add the system directory "/usr/lib64" into the executable files "glced" RPATH list, it will be able to find the right "libstdc++.so.6" from CERN CVMFS compiler with "LD_LIBRARY_PATH" setup.
+   - It cannot have influence on sim/reco.
+
 # CED Release notes
 
 
