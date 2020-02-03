@@ -727,13 +727,12 @@ class CED_PopUpMenu{
                          //selected_submenu->mouseOver();
                      }
 
-                    unsigned i;
-                    for(i=0;(unsigned) i<subsubMenus.size();i++){
-                        subsubMenus.at(i)->x_start=x_start;
-                        subsubMenus.at(i)->x_end  =x_end;
-                        subsubMenus.at(i)->y_start=y_start/*+height */+1+height*i;
-                        subsubMenus.at(i)->y_end  =y_end  /*+ height*/+1+height*i;
-                        subsubMenus.at(i)->draw();
+                    for(unsigned i2=0;(unsigned) i2<subsubMenus.size();i2++){
+                        subsubMenus.at(i2)->x_start=x_start;
+                        subsubMenus.at(i2)->x_end  =x_end;
+                        subsubMenus.at(i2)->y_start=y_start/*+height */+1+height*i;
+                        subsubMenus.at(i2)->y_end  =y_end  /*+ height*/+1+height*i;
+                        subsubMenus.at(i2)->draw();
                     }
                 }
             glEnable(GL_DEPTH_TEST);
