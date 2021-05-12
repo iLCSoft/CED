@@ -81,6 +81,9 @@ static GLfloat window_width=0.;
 static GLfloat window_height=0.;
 
 #include <ced_menu.h>
+#if defined(__CYGWIN__)
+#define M_PI 3.14159265358979323846f
+#endif
 
 
 #define DEFAULT_WORLD_SIZE 1000.  //SJA:FIXED Reduce world size to give better scale
