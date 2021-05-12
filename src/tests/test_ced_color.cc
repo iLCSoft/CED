@@ -1,6 +1,8 @@
 #include <ced_cli.h>
 #include <math.h>
 #include <iostream>
+#include <stdlib.h>
+#include <stdio.h>
 
 double length = 5;
 
@@ -18,7 +20,16 @@ int main(){
 
 	/*
 	 * Initialisation */
-  	ced_client_init("localhost",20131);
+        char *p;
+        p = getenv("CED_PORT");
+        if(p != NULL){
+            printf("Try to use user defined port %s.\n", p);
+            ced_client_init("localhost",atoi(p));
+        }else{
+            printf("CED_PORT undefined. Using CED_PORT=7286.\n");
+            ced_client_init("localhost",7286);
+        }
+
   	ced_register_elements();
   
   	/*

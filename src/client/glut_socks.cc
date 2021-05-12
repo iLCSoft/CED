@@ -115,7 +115,11 @@ static void tcp_server_accept(struct __glutSocketList *list){
   int fd;
   tcp_srv_sock *nl;
   struct sockaddr_in myclient;  
+#if defined(__CYGWIN__)
+  socklen_t size=sizeof(myclient);
+#else
   unsigned int size=sizeof(myclient);
+#endif
 ;
   
 
