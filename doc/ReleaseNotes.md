@@ -1,3 +1,11 @@
+# v01-09-04
+
+* 2022-03-18 Thomas Madlener ([PR#10](https://github.com/iLCSoft/CED/pull/10))
+  - Make sure to link against GLUT libraries
+
+* 2022-03-18 Thomas Madlener ([PR#9](https://github.com/iLCSoft/CED/pull/9))
+  - Migrate CI to github actions.
+
 # v01-09-03
 
 * 2017-07-26 Shaojun Lu ([PR#5](https://github.com/iLCSoft/CED/pull/5))
