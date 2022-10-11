@@ -37,7 +37,9 @@
 
 #define PORT  0x1234
 #define PI 3.14159265358979323846f 
-
+#if defined(__CYGWIN__)
+#define M_PI 3.14159265358979323846f
+#endif
 
 //hauke
 //int graphic[3];
