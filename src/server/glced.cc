@@ -2934,6 +2934,26 @@ void selectFromMenu(int id){ //hauke
         case DETECTOR18:
         case DETECTOR19:
         case DETECTOR20:
+        case DETECTOR21:
+        case DETECTOR22:
+        case DETECTOR23:
+        case DETECTOR24:
+        case DETECTOR25:
+        case DETECTOR26:
+        case DETECTOR27:
+        case DETECTOR28:
+        case DETECTOR29:
+        case DETECTOR30:
+        case DETECTOR31:
+        case DETECTOR32:
+        case DETECTOR33:
+        case DETECTOR34:
+        case DETECTOR35:
+        case DETECTOR36:
+        case DETECTOR37:
+        case DETECTOR38:
+        case DETECTOR39:
+        case DETECTOR40:
 
             glutSetMenu(detectorMenu);
             toggle_layer(id-DETECTOR1+NUMBER_DATA_LAYER);
