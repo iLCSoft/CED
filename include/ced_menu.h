@@ -1,13 +1,13 @@
 /****************************************************************
-NAME: 
+NAME:
     ced_menu.h
-AUTHOR: 
+AUTHOR:
     Hauke Hoelbe
 DATE:
     03.05.2012
-USED BY: 
+USED BY:
     glced.cc
-DESCRIPTION: 
+DESCRIPTION:
     provides definitions and classes for the CED main and popup menu.
 ****************************************************************/
 #ifndef __CED_MENU
@@ -22,10 +22,10 @@ void drawHelpString (const string & str, float x,float y){ //format help strings
 //    float y1=y;
 //    if( x1 < 0.0){
 //        x1=0.;
-//    }  
-//    if( y1 < 0.0){ 
+//    }
+//    if( y1 < 0.0){
 //        y1=0.;
-//    }  
+//    }
 //
 //    glRasterPos2f(x1,y1);
 
@@ -669,7 +669,7 @@ class CED_PopUpMenu{
                 width=11;
             }
 
-                                             
+
             unsigned  maxlength=title.length();
             unsigned i;
             for(i=0;(unsigned) i<subsubMenus.size();i++){
@@ -1019,11 +1019,11 @@ class CED_PopUpMenu{
 #define LAYER_17        47
 #define LAYER_18        48
 #define LAYER_19        49
-#define LAYER_20        50 
-#define LAYER_21        51 
-#define LAYER_22        52 
-#define LAYER_23        53 
-#define LAYER_24        54 
+#define LAYER_20        50
+#define LAYER_21        51
+#define LAYER_22        52
+#define LAYER_23        53
+#define LAYER_24        54
 #define LAYER_ALL       60
 
 #define DETECTOR1               4001
