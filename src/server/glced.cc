@@ -1,10 +1,10 @@
 /* "C" event display.
  * OpendGL (GLUT) based.
  *
- * Alexey Zhelezov, DESY/ITEP, 2005 
+ * Alexey Zhelezov, DESY/ITEP, 2005
  *
  * July 2005, Joergen Samson: Moved parts of the TCP/IP
- *            server to glut's timer loop to make glced 
+ *            server to glut's timer loop to make glced
  *            "standard glut" compliant
  *
  * June 2007, F.Gaede: - added world_size command line parameter
@@ -12,7 +12,7 @@
  *                     - replaced fixed size window geometry with geometry comand-line option
  *
  * 2010 - 2012, H. Hoelbe:
- *                     - improved picking function 
+ *                     - improved picking function
  *                     - added main und popup menu
  *                     - added help menu
  *                     - added grafik features:
@@ -66,14 +66,14 @@
 #include <errno.h>
 #include <sys/select.h>
 
-#include <ctype.h> 
+#include <ctype.h>
 #include <sys/time.h>
 #include <time.h>
 #include <netdb.h>
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include <stdlib.h> 
+#include <stdlib.h>
 #include <sys/stat.h>
 #include <sstream>
 
@@ -98,12 +98,12 @@ static int available_cutangles[]={0,30,45,90,100,135,120,150,170,180,190,200,220
 int last_selected_layer;
 extern CEDsettings setting;
 CEDsettings setting_old[5];
-static char layerDescription[CED_MAX_LAYER][CED_MAX_LAYER_CHAR]; 
+static char layerDescription[CED_MAX_LAYER][CED_MAX_LAYER_CHAR];
 //const char layer_keys[] = {'0','1', '2','3','4','5','6','7','8','9',')', '!', '@', '#', '$', '%', '^', '&', '*', '(', 't', 'y', 'u', 'i', 'o'};
 const char layer_keys[] = { DATALAYER_SHORTKEY_00, DATALAYER_SHORTKEY_01, DATALAYER_SHORTKEY_02, DATALAYER_SHORTKEY_03, DATALAYER_SHORTKEY_04, DATALAYER_SHORTKEY_05, DATALAYER_SHORTKEY_06, DATALAYER_SHORTKEY_07, DATALAYER_SHORTKEY_08, DATALAYER_SHORTKEY_09, DATALAYER_SHORTKEY_10, DATALAYER_SHORTKEY_11, DATALAYER_SHORTKEY_12, DATALAYER_SHORTKEY_13, DATALAYER_SHORTKEY_14, DATALAYER_SHORTKEY_15, DATALAYER_SHORTKEY_16, DATALAYER_SHORTKEY_17, DATALAYER_SHORTKEY_18, DATALAYER_SHORTKEY_19, DATALAYER_SHORTKEY_20, DATALAYER_SHORTKEY_21, DATALAYER_SHORTKEY_22, DATALAYER_SHORTKEY_23, DATALAYER_SHORTKEY_24};
 
 //const char detec_layer_keys[] = {'t','y','u','i','o','p','[',']','\\', 'T', 'Y','U','I','O','P','{','}','|',' ',' ',' '};
-const char detec_layer_keys[] = { DETECTORLAYER_SHORTKEY_00,   DETECTORLAYER_SHORTKEY_01,   DETECTORLAYER_SHORTKEY_02,   DETECTORLAYER_SHORTKEY_03,   DETECTORLAYER_SHORTKEY_04,   DETECTORLAYER_SHORTKEY_05,   DETECTORLAYER_SHORTKEY_06,   DETECTORLAYER_SHORTKEY_07,   DETECTORLAYER_SHORTKEY_08,   DETECTORLAYER_SHORTKEY_09,   DETECTORLAYER_SHORTKEY_10,   DETECTORLAYER_SHORTKEY_11,   DETECTORLAYER_SHORTKEY_12,   DETECTORLAYER_SHORTKEY_13,   DETECTORLAYER_SHORTKEY_14,   DETECTORLAYER_SHORTKEY_15,   DETECTORLAYER_SHORTKEY_16,   DETECTORLAYER_SHORTKEY_17,   DETECTORLAYER_SHORTKEY_18,   DETECTORLAYER_SHORTKEY_19};   
+const char detec_layer_keys[] = { DETECTORLAYER_SHORTKEY_00,   DETECTORLAYER_SHORTKEY_01,   DETECTORLAYER_SHORTKEY_02,   DETECTORLAYER_SHORTKEY_03,   DETECTORLAYER_SHORTKEY_04,   DETECTORLAYER_SHORTKEY_05,   DETECTORLAYER_SHORTKEY_06,   DETECTORLAYER_SHORTKEY_07,   DETECTORLAYER_SHORTKEY_08,   DETECTORLAYER_SHORTKEY_09,   DETECTORLAYER_SHORTKEY_10,   DETECTORLAYER_SHORTKEY_11,   DETECTORLAYER_SHORTKEY_12,   DETECTORLAYER_SHORTKEY_13,   DETECTORLAYER_SHORTKEY_14,   DETECTORLAYER_SHORTKEY_15,   DETECTORLAYER_SHORTKEY_16,   DETECTORLAYER_SHORTKEY_17,   DETECTORLAYER_SHORTKEY_18,   DETECTORLAYER_SHORTKEY_19};
 
 static int mainWindow=-1;
 static int layerMenu;
@@ -170,12 +170,12 @@ CED_Menu *ced_menu=NULL;
 static struct _geoCylinder {
   GLuint obj;
   GLfloat d;       // radius
-  //GLfloat ir;      
+  //GLfloat ir;
   GLuint  sides;   // poligon order
   GLfloat rotate;  // angle degree
   GLfloat z;       // 1/2 length
   GLfloat shift;   // in z
-  GLfloat r;       // R 
+  GLfloat r;       // R
   GLfloat g;       // G  color
   GLfloat b;       // B
 } geoCylinder[] = {
@@ -217,7 +217,7 @@ static void set_bg_color(float one, float two, float three, float four){
 static GLuint makeCylinder(struct _geoCylinder *c){
     GLUquadricObj *q1 = gluNewQuadric();
     GLuint obj;
-  
+
     glPushMatrix();
     obj = glGenLists(1);
     glNewList(obj, GL_COMPILE);
@@ -336,7 +336,7 @@ static GLfloat mouse_y=0.;
 
 
 // bitmaps for X,Y and Z
-static unsigned char x_bm[]={ 
+static unsigned char x_bm[]={
     0xc3,0x42,0x66,0x24,0x24,0x18,
     0x18,0x24,0x24,0x66,0x42,0xc3
 };
@@ -344,11 +344,11 @@ static unsigned char y_bm[]={
     0xc0,0x40,0x60,0x20,0x30,0x10,
     0x18,0x2c,0x24,0x66,0x42,0xc3
 };
-static unsigned char z_bm[]={ 
+static unsigned char z_bm[]={
     0xff,0x40,0x60,0x20,0x30,0x10,
     0x08,0x0c,0x04,0x06,0x02,0xff
 };
-  
+
 
 static void axe_arrow(void){
     GLfloat k=WORLD_SIZE/window_height;
@@ -384,7 +384,7 @@ static void display_world(void){
     glVertex3fv(axe[0]);
     glVertex3fv(axe[3]);
     glEnd();
-  
+
     glColor3f(0.5,0.5,0.8);
     glPushMatrix();
     //glTranslatef(mm.mv.x,mm.mv.y,mm.mv.z);
@@ -392,21 +392,21 @@ static void display_world(void){
     glRotatef(90.,0.0,1.0,0.0);
     axe_arrow();
     glPopMatrix();
-  
+
     glPushMatrix();
     //glTranslatef(mm.mv.x,mm.mv.y,mm.mv.z);
     glTranslatef(0.,WORLD_SIZE/2.-WORLD_SIZE/100.,0.);
     glRotatef(-90.,1.0,0.,0.);
     axe_arrow();
     glPopMatrix();
-  
-  
+
+
     glPushMatrix();
     //glTranslatef(mm.mv.x,mm.mv.y,mm.mv.z);
     glTranslatef(0.,0.,WORLD_SIZE/2.-WORLD_SIZE/100.);
     axe_arrow();
     glPopMatrix();
-  
+
     // Draw X,Y,Z ...
     //glColor3f(1.,1.,1.); //white labels
     //glColor3f(0.,0.,0.); //black labels
@@ -414,7 +414,7 @@ static void display_world(void){
     glGetDoublev(GL_COLOR_CLEAR_VALUE, setting.bgcolor);
     double dark=1.0-(setting.bgcolor[0]+setting.bgcolor[1]+setting.bgcolor[2])/3.0;
     //glColor3f(1-setting.bgcolor[0], 1-setting.bgcolor[1], 1-setting.bgcolor[2]);
-    glColor3f(dark,dark,dark); 
+    glColor3f(dark,dark,dark);
 
 
     glRasterPos3f(WORLD_SIZE/2.+WORLD_SIZE/8,0.,0.);
@@ -423,15 +423,15 @@ static void display_world(void){
     glBitmap(8,12,4,6,0,0,y_bm);
     glRasterPos3f(0.,0.,WORLD_SIZE/2.+WORLD_SIZE/8);
     glBitmap(8,12,4,6,0,0,z_bm);
-  
-    
+
+
     // cylinders
     /*
     glLineWidth(1.);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);    
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     for(i=0;i<sizeof(geoCylinder)/sizeof(struct _geoCylinder);i++){
       glPushMatrix();
-      //  glPolygonMode(GL_FRONT_AND_BACK, (i<2)?GL_FILL:GL_LINE);    
+      //  glPolygonMode(GL_FRONT_AND_BACK, (i<2)?GL_FILL:GL_LINE);
       glColor4f(geoCylinder[i].r,geoCylinder[i].g,geoCylinder[i].b,
   	      (i>=2)?1.:0.2);
       glCallList(geoCylinder[i].obj);
@@ -441,7 +441,7 @@ static void display_world(void){
     */
     //buildMenuPopup(); //hauke: test
     //glutAttachMenu(GLUT_RIGHT_BUTTON);
-  
+
 }
 
 
@@ -459,7 +459,7 @@ void printFPS(void){
     }
 
 
-    gettimeofday(&tv, 0); 
+    gettimeofday(&tv, 0);
 
     if(tv.tv_sec+tv.tv_usec/1000000.0-startTime < 1.0){
         fps++;
@@ -470,7 +470,7 @@ void printFPS(void){
         fps=1;
     }
 
-    //print on screen: 
+    //print on screen:
     //----------------------
 
     //saves the matrices on the stack
@@ -507,7 +507,7 @@ void printFPS(void){
     //for (c=text; *c != '\0'; c++) {
     //    glutBitmapCharacter(font, *c);
     //}
-    
+
     drawHelpString(text,-1200,-950);
 
     glEnd();
@@ -521,7 +521,7 @@ void printShortcuts(void){
 
     const unsigned int MAX_STR_LEN=30;
     int i;
-    
+
     int height=10;
     int width=2;
     if(setting.font==0){
@@ -546,7 +546,7 @@ void printShortcuts(void){
 
 
 
-    
+
     vector<string> shortcuts;
     shortcuts.push_back( "GENERAL SHORTCUTS:" );
 
@@ -594,7 +594,7 @@ void printShortcuts(void){
         }
         shortcuts.push_back(label);
     }
-        
+
     shortcuts.push_back( " " );
     shortcuts.push_back( "DETECTOR LAYERS: " );
 
@@ -637,7 +637,7 @@ void printShortcuts(void){
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    
+
 
     double border_factor_line=0.005;
     double border_factor_quad=0.0052;
@@ -660,10 +660,10 @@ void printShortcuts(void){
     }else{
         glColor4f(0.9,0.9,0.9,0.5);
     }
-   
+
 
     const int ITEMS_PER_COLUMN=int((h/3.0-boarder_quad*2)/(line)); //how many lines per column?
-    glBegin(GL_QUADS); 
+    glBegin(GL_QUADS);
     glVertex3f(boarder_quad, boarder_quad,0);
     glVertex3f(w-boarder_quad,boarder_quad,0);
     glVertex3f(w-boarder_quad, h/3.-boarder_quad,0);
@@ -678,9 +678,9 @@ void printShortcuts(void){
     }else{
         glColor4f(0.8,0.8,0.8,0.5);
     }
- 
+
     glLineWidth(HELP_FRAME_BOARDER_LINE_SIZE);
-    glBegin(GL_LINES); 
+    glBegin(GL_LINES);
     glVertex3f(boarder_line, boarder_line,0);
     glVertex3f(w-boarder_line,boarder_line,0);
 
@@ -701,9 +701,9 @@ void printShortcuts(void){
     }else{
         glColor3f(0,0,0);
     }
- 
 
-    
+
+
 
 
     for(i=0;(unsigned) i<shortcuts.size();i++){
@@ -721,9 +721,9 @@ void printShortcuts(void){
 static void display(void){
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glPushMatrix();
-  
-    // TODO: fix it! 
-    // in case of no rotate, in some cases it could get strange 
+
+    // TODO: fix it!
+    // in case of no rotate, in some cases it could get strange
     // lines in fisheye view from (0,0,0) to (-inf, -inf,x)
 
     setting.zoom=mm.sf;
@@ -743,11 +743,11 @@ static void display(void){
     }
     // draw static objects
     display_world(); //only axes?
-  
+
     // draw elements (hits + detector)
     ced_prepare_objmap();
     ced_do_draw_event();
-  
+
 
     if(showHelp == 1){
         printShortcuts();
@@ -820,7 +820,7 @@ static void write_world_into_front_buffer(void){
 ///////
     glMatrixMode(GL_PROJECTION);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    
+
     //glRotatef(mm.va,1.,0.,0.);
     //glRotatef(mm.ha,0.,1.0,0.);
 
@@ -836,16 +836,16 @@ static void write_world_into_front_buffer(void){
     glRotatef(mm.ha,0.,1.0,0.); //rotate
     glTranslatef(-mm.mv.x,-mm.mv.y,-mm.mv.z); //move
 
-  
+
       //glMatrixMode(GL_MODELVIEW); //
-  
+
     // draw static objects
 
     glMatrixMode(GL_MODELVIEW);
 
     //glTranslatef(-mm.mv.x,-mm.mv.y,-mm.mv.z);
 
-    display_world(); 
+    display_world();
 
 
     //glTranslatef(-mm.mv.x,-mm.mv.y,-mm.mv.z);
@@ -860,14 +860,14 @@ static void write_world_into_front_buffer(void){
      //     glDisable(GL_CLIP_PLANE0);
      //}
      //glClipPlane(GL_CLIP_PLANE0,clip_plane);
-  
-  
+
+
     // draw elements (hits + detector)
     ced_prepare_objmap();
 
     ced_do_draw_event();
 
-  
+
     //cout << "mm.sf: " << mm.sf << "hinterer clipping plane: " << 5000*2.0*mm.sf << std::endl;
     //gluPerspective(60,window_width/window_height,100*2.0*mm.sf,5000*2.0*mm.sf);
 
@@ -875,7 +875,7 @@ static void write_world_into_front_buffer(void){
 //
 //    gluPerspective(60,window_width/window_height,200*2.0*mm.sf,5000*2.0*mm.sf);
 //        glMatrixMode( GL_MODELVIEW );
-//  
+//
 //        glLoadIdentity();
 //        gluLookAt  (0,0,2000,    0,0,0,    0,1,0);
 //
@@ -899,10 +899,10 @@ static void write_world_into_front_buffer(void){
 //void drawHelpString (const string & str, float x,float y){ //format help strings strings: "[<key>] <description>"
 //    unsigned int i;
 //    glRasterPos2f(x,y);
-//  
+//
 //    int monospace = 0;
 //    for (i = 0; str[i]; i++){
-//        if(str[i] == '['){ 
+//        if(str[i] == '['){
 //            monospace = 1;
 //            if(setting.font == 0){
 //                glutBitmapCharacter (GLUT_BITMAP_HELVETICA_10, '[');
@@ -948,9 +948,9 @@ static void reshape(int w,int h){
     window_height=h;
     setting.win_w=w;
     setting.win_h=h;
- 
-  
-  
+
+
+
     //if(graphic[3]){
     if(setting.antia){
 
@@ -958,12 +958,12 @@ static void reshape(int w,int h){
         //glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
         //glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
         //glHint(GL_POLYGON_SMOOTH,GL_FASTEST);
-  
+
         //glEnable(GL_POINT_SMOOTH);
         //glEnable(GL_LINE_SMOOTH);
         //glEnable(GL_POLYGON_SMOOTH);
         //glShadeModel(GL_SMOOTH);
-  
+
         //glEnable(GL_BLEND);
         //glEnable (GL_BLEND);
         //glBlendFunc (GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
@@ -975,7 +975,7 @@ static void reshape(int w,int h){
         glDisable(GL_POINT_SMOOTH);
         glDisable(GL_LINE_SMOOTH);
     }
-  
+
     //if(graphic[2] == 0){
     if(setting.persp == false){
 
@@ -983,12 +983,12 @@ static void reshape(int w,int h){
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
         glOrtho(-WORLD_SIZE*w/h,WORLD_SIZE*w/h,-WORLD_SIZE,WORLD_SIZE, -15*WORLD_SIZE,15*WORLD_SIZE);
-  
+
         glMatrixMode(GL_MODELVIEW);
-        glLoadIdentity(); 
+        glLoadIdentity();
     }else{
         glViewport(0,0,w,h);
-  
+
         glMatrixMode( GL_PROJECTION );
         glLoadIdentity();
         //gluPerspective(60,window_width/window_height,100,500000);
@@ -1009,35 +1009,35 @@ static void reshape(int w,int h){
 
 
         glMatrixMode( GL_MODELVIEW );
-  
+
         glLoadIdentity();
-      
-        //glClearDepth(1.0);                  
-        //glEnable(GL_DEPTH_TEST);            
-        //glDepthFunc(GL_LEQUAL);             
-        //glDepthFunc(GL_LESS);             
-  
-  
-  
-  
+
+        //glClearDepth(1.0);
+        //glEnable(GL_DEPTH_TEST);
+        //glDepthFunc(GL_LEQUAL);
+        //glDepthFunc(GL_LESS);
+
+
+
+
         //glEnable (GL_LINE_SMOOTH);
-  
+
         //glHint (GL_LINE_SMOOTH_HINT, GL_DONT_CARE);
-  
-  
+
+
         //    glShadeModel(GL_SMOOTH);
-   
+
         //glDepthMask(GL_TRUE);
-  
-        // //glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); 
+
+        // //glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
         // //glBlendFunc(GL_DST_COLOR, GL_SRC_COLOR);
         //glBlendFunc(GL_ONE, GL_ZERO);
         //glEnable(GL_BLEND);
-      
+
         gluLookAt  (CAMERA_POSITION,    0,0,0,    0,1,0);
     }
-  
-  
+
+
  //   //hauke
  //   if(showHelp == 1){
  //       glutSetWindow (subWindow);
@@ -1046,7 +1046,7 @@ static void reshape(int w,int h){
 
 
 
-    //buildMainMenu(); 
+    //buildMainMenu();
     buildLayerMenus();
     //updateScreenshotMenu();
 }
@@ -1059,14 +1059,14 @@ void saveSettings(int slot){
 
     snprintf(dirname, 1000, "%s/.glced_cfg/", home);
     //if(exists){
-       mkdir(dirname,700); 
+       mkdir(dirname,700);
     //}
     snprintf(filename, 1000, "%s/.glced_cfg/settings%i", home, slot);
 
     //file.open(filename, ios::out | ios::binary);
     file.open(filename);
 
-    if(file.is_open()){ 
+    if(file.is_open()){
 //        file << setting.trans << endl;
 //        file << setting.persp << endl;
 //        file.close();
@@ -1074,10 +1074,10 @@ void saveSettings(int slot){
         setting.ha=mm.ha;
         setting.win_w=(int)window_width;
         setting.win_h=(int)window_height;
-        setting.zoom = mm.sf; 
+        setting.zoom = mm.sf;
         setting.fisheye_alpha=fisheye_alpha;
 
-        setting.fisheye_world_size = FISHEYE_WORLD_SIZE; 
+        setting.fisheye_world_size = FISHEYE_WORLD_SIZE;
         setting.world_size = WORLD_SIZE;
         //double bgcolor[4];
         glGetDoublev(GL_COLOR_CLEAR_VALUE, setting.bgcolor);
@@ -1085,8 +1085,8 @@ void saveSettings(int slot){
         //cout << "bgcolor: " << bgcolor[0] << ", " << bgcolor[1] << ", " << bgcolor[2] << ", "  << bgcolor[3] << "\n" ;
 
         //file.write((char*)&setting, sizeof(setting));
-        file<<"#Config version:"<<std::endl<<VERSION_CONFIG << std::endl; 
-        file<<"#Transp:"<<std::endl<<setting.trans << std::endl; 
+        file<<"#Config version:"<<std::endl<<VERSION_CONFIG << std::endl;
+        file<<"#Transp:"<<std::endl<<setting.trans << std::endl;
         file<<"#Persp:"<<std::endl<<setting.persp  << std::endl;
         file<<"#Anti A:"<<std::endl<<setting.antia<< std::endl;
         file<<"#Light:"<<std::endl<<setting.light<< std::endl;
@@ -1140,7 +1140,7 @@ void saveSettings(int slot){
 
         file<<"#Position:"<<std::endl<<
                 mm.mv.x<< std::endl <<
-                mm.mv.y<< std::endl << 
+                mm.mv.y<< std::endl <<
                 mm.mv.z<< std::endl;
 
 
@@ -1170,8 +1170,8 @@ void defaultSettings(void){
         setting.picking_highlight=false;
 
 
-    
-        
+
+
 
         for(int i=0;i < 4; i++){
             //setting.bgcolor[i]=0; //black
@@ -1235,16 +1235,16 @@ void defaultSettings(void){
             fisheye_alpha=0;
             setting.fixed_view=false;
             //update_cut_angle_menu();
-            set_world_size(DEFAULT_WORLD_SIZE ); 
+            set_world_size(DEFAULT_WORLD_SIZE );
             //std::cout << "DEFAULT_WORLD_SIZE "  << DEFAULT_WORLD_SIZE << "zoom: " << mm.sf << std::endl;
- 
+
 
             setting.va=mm.va;
             setting.ha=mm.ha;
             setting.zoom=mm.sf;
             setting.fisheye_alpha=fisheye_alpha;
-            
-            setting.fisheye_world_size= FISHEYE_WORLD_SIZE ; 
+
+            setting.fisheye_world_size= FISHEYE_WORLD_SIZE ;
             setting.world_size= WORLD_SIZE;
 
             setting.autoshot=false;
@@ -1272,11 +1272,11 @@ void loadSettings(int slot){
 //        file.read((char*)&setting, sizeof(setting));
             getline(file,line);getline(file,line);
             if(VERSION_CONFIG != atoi(line.c_str())){
-                //std::cout << "WARNING: Cant read configfile (" << filename << ") please delete or rename it" << std::endl; 
-                std::cout << "WARNING: Cant read configfile (" << filename << ") version does not match! Please delete or rename the file" << std::endl; 
+                //std::cout << "WARNING: Cant read configfile (" << filename << ") please delete or rename it" << std::endl;
+                std::cout << "WARNING: Cant read configfile (" << filename << ") version does not match! Please delete or rename the file" << std::endl;
                 defaultSettings();
                 return;
-            } else{ 
+            } else{
                 getline(file,line);getline(file,line);
                 setting.trans=atoi(line.c_str());
 
@@ -1309,7 +1309,7 @@ void loadSettings(int slot){
 
                 getline(file,line);getline(file,line);
                 setting.fixed_view=atoi(line.c_str());
-                
+
                 getline(file,line);getline(file,line);
                 setting.win_h=atoi(line.c_str());
 
@@ -1381,7 +1381,7 @@ void loadSettings(int slot){
 
 
 
-            //set_bg_color(setting.bgcolor[0],setting.bgcolor[1],setting.bgcolor[2],setting.bgcolor[3]); 
+            //set_bg_color(setting.bgcolor[0],setting.bgcolor[1],setting.bgcolor[2],setting.bgcolor[3]);
             std::cout << "Read settings from: " << filename << std::endl;
 
 	    setting.autoshot_scale=1;
@@ -1396,12 +1396,12 @@ void loadSettings(int slot){
 
     mm.va=setting.va;
     mm.ha=setting.ha;
-    mm.sf = setting.zoom; 
+    mm.sf = setting.zoom;
 
     fisheye_alpha=setting.fisheye_alpha;
 
 
-    FISHEYE_WORLD_SIZE = setting.fisheye_world_size; 
+    FISHEYE_WORLD_SIZE = setting.fisheye_world_size;
     WORLD_SIZE=setting.world_size;
 
     //reshape(setting.win_w, setting.win_h);
@@ -1419,7 +1419,7 @@ void mouseWheel(int button, int dir, int x, int y){ //hauke
 }
 
 static void mouse_passive(int x,int y){
-    //hier ced_menu 
+    //hier ced_menu
     ced_menu->mouseMove(x,y);
     popupmenu->mouseMove(x,y);
     //cout << "x = " << x <<  endl;
@@ -1443,8 +1443,8 @@ static void mouse(int btn,int state,int x,int y){
         mouseWheelUp = GLUT_WHEEL_UP;
     #else
         if(glutDeviceGet(GLUT_HAS_MOUSE)){
-            //printf("Your mouse have %i buttons\n", glutDeviceGet(GLUT_NUM_MOUSE_BUTTONS)); 
-    
+            //printf("Your mouse have %i buttons\n", glutDeviceGet(GLUT_NUM_MOUSE_BUTTONS));
+
             mouseWheelDown= glutDeviceGet(GLUT_NUM_MOUSE_BUTTONS)+1;
             mouseWheelUp=glutDeviceGet(GLUT_NUM_MOUSE_BUTTONS);
         }
@@ -1472,7 +1472,7 @@ static void mouse(int btn,int state,int x,int y){
 
 
         //hauke
-        gettimeofday(&tv, 0); 
+        gettimeofday(&tv, 0);
         //FIX IT: get the system double click time
         if( (tv.tv_sec*1000000+tv.tv_usec-doubleClickTime) < 300000 && (tv.tv_sec*1000000+tv.tv_usec-doubleClickTime) > 5){ //1000000=1sec
 
@@ -1510,7 +1510,7 @@ static void mouse(int btn,int state,int x,int y){
 
                sock=__glutSockets;
                id = SELECTED_ID;
-               //printf(" ced_get_selected : socket connected: %d", sock->fd );	
+               //printf(" ced_get_selected : socket connected: %d", sock->fd );
                if(client_connected){
                     send( sock->fd , &id , sizeof(int) , 0 );
                 }
@@ -1568,16 +1568,16 @@ static void mouse(int btn,int state,int x,int y){
 
         selectFromMenu(VIEW_ZOOM_OUT);
         return;
-    
+
       //  mm.mv.z-=150./mm.sf;
       //  glutPostRedisplay();
     }
     //end hauke
-    
+
 }
 
 void printBinaer(int x){
-    printf("Binaer:"); 
+    printf("Binaer:");
     int i;
     for(i=20;i>=0;--i) {
         printf("%d",((x>>i)&1));
@@ -1604,7 +1604,7 @@ static void toggle_layer(unsigned l){
     ced_visible_layers^=(1<<l);
     //std::cout << "ced_visible_layers: "<<ced_visible_layers << std::endl;
 
-    //  printf("Toggle Layer %u  and ced_visible_layers = %u \n",l,ced_visible_layers);  
+    //  printf("Toggle Layer %u  and ced_visible_layers = %u \n",l,ced_visible_layers);
     //printBinaer(ced_visible_layers);
 }
 */
@@ -1636,7 +1636,7 @@ static void show_all_layers(void){
 static void keypressed(unsigned char key,int x,int y){
     //SM-H: TODO: socket list for communicating with client
     //struct __glutSocketList *sock;
-  
+
     glutSetWindow(mainWindow); //hauke
     //if(key==0x1A ){ //ctrl+z
 
@@ -1645,14 +1645,14 @@ static void keypressed(unsigned char key,int x,int y){
     //std::cout << "key: " << int(key) << endl;
     if(false ){ //ctrl+z
         //selectFromMenu(UNDO);
-    } else if(key=='r'){ 
+    } else if(key=='r'){
         selectFromMenu(VIEW_RESET);
-    } else if(key=='R'){ 
+    } else if(key=='R'){
         selectFromMenu(CED_RESET);
-    } else if(key=='f'){     
+    } else if(key=='f'){
        selectFromMenu(VIEW_FRONT);
     } else if(key == 'F'){
-      selectFromMenu(TOGGLE_Z_PROJECTION); 
+      selectFromMenu(TOGGLE_Z_PROJECTION);
     } else if(key=='s'){
         selectFromMenu(VIEW_SIDE);
     } else if(key=='S'){
@@ -1665,9 +1665,9 @@ static void keypressed(unsigned char key,int x,int y){
       //selectFromMenu(VIEW_CENTER);
       if(!ced_get_selected(x,y,&mm.mv.x,&mm.mv.y,&mm.mv.z)) glutPostRedisplay();
     }/*else if(key=='w'){
-      mm.mv.x+=5; 
+      mm.mv.x+=5;
       //mm.mv.y=y;
-      //mm.mv.z)) 
+      //mm.mv.z))
         glutPostRedisplay();
     }*/  else if(key=='v' || key=='V'){
           selectFromMenu(VIEW_FISHEYE);
@@ -1839,30 +1839,30 @@ static void keypressed(unsigned char key,int x,int y){
         //if (glutGetModifiers() & GLUT_ACTIVE_CTRL){
 
             if(last_selected_layer > 0){
-              if(setting.detector_cut_z[last_selected_layer - NUMBER_DATA_LAYER] < 7000){ 
-                        setting.detector_cut_z[last_selected_layer - NUMBER_DATA_LAYER]+=100; 
+              if(setting.detector_cut_z[last_selected_layer - NUMBER_DATA_LAYER] < 7000){
+                        setting.detector_cut_z[last_selected_layer - NUMBER_DATA_LAYER]+=100;
               }
             }else{
                  for(int i = 0; i<NUMBER_DETECTOR_LAYER;i++){
                       if(setting.detector_cut_z[0] < 7000){
-                          setting.detector_cut_z[i]+=100; 
+                          setting.detector_cut_z[i]+=100;
                       }
-                  }         
+                  }
             }
 
         glutPostRedisplay();
     } else if(key == 'Z'){
             if(last_selected_layer > 0){
-              if(setting.detector_cut_z[last_selected_layer - NUMBER_DATA_LAYER] > -7000){ 
-                    setting.detector_cut_z[last_selected_layer - NUMBER_DATA_LAYER]-=100; 
+              if(setting.detector_cut_z[last_selected_layer - NUMBER_DATA_LAYER] > -7000){
+                    setting.detector_cut_z[last_selected_layer - NUMBER_DATA_LAYER]-=100;
               }
             }else{
                  for(int i = 0; i<NUMBER_DETECTOR_LAYER;i++){
                       if(setting.detector_cut_z[i] > -7000){
-                          setting.detector_cut_z[i]-=100; 
+                          setting.detector_cut_z[i]-=100;
                       }
                   }
-            }         
+            }
         glutPostRedisplay();
     } else if(key == '<'){
          if(last_selected_layer > 0){
@@ -1992,14 +1992,14 @@ static void motion(int x,int y){
     // printf("Mouse moved: %dx%d %f\n",x,y,angle_z);
     if((move_mode == NO_MOVE) || !window_width || !window_height)
       return;
-  
+
     if(move_mode == TURN_XY){
       //    angle_y=correct_angle(start_angle_y-(x-mouse_x)*180./window_width);
       //    turn_xy((x-mouse_x)*M_PI/window_height,
       //           (y-mouse_y)*M_PI/window_width);
       mm.ha=mm.ha_start+(x-mouse_x)*180./window_width;
       mm.va=mm.va_start+(y-mouse_y)*180./window_height;
-      
+
       //todo
     } else if (move_mode == ZOOM){
         mm.sf=mm.sf_start+(y-mouse_y)*10./window_height;
@@ -2009,38 +2009,38 @@ static void motion(int x,int y){
   	  mm.sf=2000.;
     } else if (move_mode == ORIGIN){
         //cout << "move" << endl;
-        /* 
-        //old code: do not work with rotate 
+        /*
+        //old code: do not work with rotate
         mm.mv.x=mm.mv_start.x-(x-mouse_x)*WORLD_SIZE/window_width
         mm.mv.y=mm.mv_start.y+(y-mouse_y)*WORLD_SIZE/window_height
         */
- 
-            
+
+
 //        float grad2rad=3.141*2/360;
         float grad2rad=M_PI*2/360;
         float x_factor_x =  cos(mm.ha*grad2rad);
         float x_factor_y =  cos((mm.va-90)*grad2rad)*cos((mm.ha+90)*grad2rad);
-        float y_factor_x =  0; 
+        float y_factor_x =  0;
         float y_factor_y = -cos(mm.va*grad2rad);
         float z_factor_x =  cos((mm.ha-90)*grad2rad);
         float z_factor_y = -cos(mm.ha*grad2rad)*cos((mm.va+90)*grad2rad);
-  
+
         //float scale_factor=2200/mm.sf/exp(log(window_width*window_height)/2) ;
         float scale_factor=580/mm.sf/exp(log(window_width*window_height)/2.5) ;
-  
-  
+
+
         //mm.mv.x=mm.mv_start.x- (x-mouse_x)*WORLD_SIZE/window_width*10*x_factor_x - (y-mouse_y)*WORLD_SIZE/window_width*10*x_factor_y;
         //mm.mv.y=mm.mv_start.y- (x-mouse_x)*WORLD_SIZE/window_width*10*y_factor_x - (y-mouse_y)*WORLD_SIZE/window_width*10*y_factor_y;
         //mm.mv.z=mm.mv_start.z - (x-mouse_x)*WORLD_SIZE/window_width*10*z_factor_x - (y-mouse_y)*WORLD_SIZE/window_width*10*z_factor_y;
-  
+
         mm.mv.x=mm.mv_start.x- scale_factor*(x-mouse_x)*x_factor_x - scale_factor*(y-mouse_y)*x_factor_y;
         mm.mv.y=mm.mv_start.y- scale_factor*(x-mouse_x)*y_factor_x - scale_factor*(y-mouse_y)*y_factor_y;
         mm.mv.z=mm.mv_start.z -scale_factor*(x-mouse_x)*z_factor_x - scale_factor*(y-mouse_y)*z_factor_y;
-  
-  
+
+
         //printf("y_factor_x = %f, y_factor_y=%f\n", y_factor_x, y_factor_y);
         //printf("mm.ha = %f, mm.va = %f\n",mm.ha, mm.va);
-    }   
+    }
     glutPostRedisplay();
 }
 
@@ -2051,12 +2051,12 @@ static void timer (int val)
     int rc;
     struct __glutSocketList *sock;
     int max_fd=0;
-  
+
     /* set timeout to 0 for nonblocking select call */
     struct timeval timeout={0,0};
-  
+
     FD_ZERO(&fds);
-  
+
     for(sock=__glutSockets;sock;sock=sock->next)
       {
         FD_SET(sock->fd,&fds);
@@ -2065,17 +2065,17 @@ static void timer (int val)
       }
     /* FIXME? Is this the correct way for a non blocking select call? */
     rc = select(max_fd + 1, &fds, NULL, NULL, &timeout);
-    if (rc < 0) 
+    if (rc < 0)
       {
-        if (errno == EINTR) 
+        if (errno == EINTR)
          {
   	  //glutTimerFunc(500,timer,01);
         //glutTimerFunc(50,timer,1);
         glutTimerFunc(1,timer,1);
-  
+
   	  return;
-  	} 
-        else 
+  	}
+        else
   	{
   	  perror("In glced::timer, during select.");
   	  exit(-1);
@@ -2093,16 +2093,16 @@ static void timer (int val)
   	      //glutTimerFunc(500,timer,01);
             //glutTimerFunc(50,timer,01);
           glutTimerFunc(1,timer,01);
-  
-  
+
+
   	      return ; /* to avoid complexity with removed sockets */
   	    }
   	}
       }
-  
+
     //fix for old glut version
-    glutSetWindow(mainWindow); 
-  
+    glutSetWindow(mainWindow);
+
     //glutTimerFunc(200,timer,01);
     glutTimerFunc(1,timer,01);
     return;
@@ -2143,7 +2143,7 @@ void drawString (char *s){
 //    glClearColor(0.5, 0.5, 0.5, 0.5);
 //
 //
-//    //std::cout << glutGet(GLUT_WINDOW_WIDTH) << " vs " << window_width << std::endl; 
+//    //std::cout << glutGet(GLUT_WINDOW_WIDTH) << " vs " << window_width << std::endl;
 //    glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 //
 //    float line = 45/window_height; //height of one line
@@ -2223,7 +2223,7 @@ void drawString (char *s){
 //                break;
 //            }
 //        }
-//        
+//
 //       //sprintf(label,"[%c] %s%i: %s", layer_keys[i], (i<10)?"0":"", i, layerDescription[i]);
 //        sprintf(label,"[%c] %s%i: %s", layer_keys[i], (i<10)?"0":"", i, tmp);
 //        drawHelpString(label, ((int)(aline/ITEMS_PER_COLUMN)+actual_column)*column,(ITEMS_PER_COLUMN-(aline%ITEMS_PER_COLUMN))*line);
@@ -2266,7 +2266,7 @@ void writeString(char *str,int x,int y){
     for(i=0;str[i];i++){
        //glRasterPos2f(x+i*10,y);
        glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_10,str[i]);
-       glutStrokeCharacter(GLUT_STROKE_ROMAN, str[i]); 
+       glutStrokeCharacter(GLUT_STROKE_ROMAN, str[i]);
        printf("char = %c", str[i]);
     }
     //glPopMatrix();
@@ -2280,7 +2280,7 @@ void toggleHelpWindow(void){ //hauke
     }
     glutPostRedisplay();
 //    mainWindow=glutGetWindow();
-//    
+//
 //    if(showHelp == 1){
 //        glutDestroyWindow(subWindow);
 //        showHelp=0;
@@ -2289,7 +2289,7 @@ void toggleHelpWindow(void){ //hauke
 //
 //        glutDisplayFunc(subDisplay);
 //        glutReshapeFunc(subReshape);
-//            
+//
 //        glutKeyboardFunc(keypressed);
 //        glutSpecialFunc(SpecialKey);
 //
@@ -2297,7 +2297,7 @@ void toggleHelpWindow(void){ //hauke
 //
 //        glutSetWindow(mainWindow);
 //        showHelp=1;
-//    }    
+//    }
 //    glutSetWindow(mainWindow);
 }
 
@@ -2307,12 +2307,12 @@ void updateLayerEntryInPopupMenu(int id){ //id is layer id, not menu id!
 //    if(id < 0 || id > NUMBER_POPUP_LAYER-1){
 //        return;
 //    }
-//    strncpy(tmp, layerDescription[id], 40); 
+//    strncpy(tmp, layerDescription[id], 40);
 //    tmp[40]=0;
-//    
+//
 //    sprintf(string,"[%s] Layer %s%i [%c]: %s%s",isLayerVisible(id)?"X":"   ", (id < 10)?"0":"" ,id, layer_keys[id], tmp, (strlen(layerDescription[id]) > 40)?"...":"");
 //    glutSetMenu(layerMenu);
-//    glutChangeToMenuEntry(id+2,string, id+LAYER_0);                     
+//    glutChangeToMenuEntry(id+2,string, id+LAYER_0);
 }
 
 void updateScreenshotMenu(void){
@@ -2353,10 +2353,10 @@ void updateSaveLoadMenu(int id){ //id is save id, not menu id!
 //    }
 //
 //    glutSetMenu(subSave);
-//    glutChangeToMenuEntry(id,menuStr, SAVE1+id-1);                     
-//    
+//    glutChangeToMenuEntry(id,menuStr, SAVE1+id-1);
+//
 //    glutSetMenu(subLoad);
-//    glutChangeToMenuEntry(id,menuStr, LOAD1+id-1);                     
+//    glutChangeToMenuEntry(id,menuStr, LOAD1+id-1);
 //
 //    //std::cout << menuStr << std::endl;
 }
@@ -2368,14 +2368,14 @@ void updateLayerEntryDetector(int id){ //id is layer id, not menu id!
 //    if(id < NUMBER_DATA_LAYER || id > NUMBER_DETECTOR_LAYER+NUMBER_DATA_LAYER-1 || id > CED_MAX_LAYER-1 || id < 0){
 //        return;
 //    }
-//    strncpy(tmp, layerDescription[id], 100); 
+//    strncpy(tmp, layerDescription[id], 100);
 //    tmp[100]=0;
-//    
+//
 //    //sprintf(string,"[%s] Layer %s%i [%c]: %s%s",isLayerVisible(id)?"X":"   ", (id < 10)?"0":"" ,id, layer_keys[id], tmp, (strlen(layerDescription[id]) > 40)?"...":"");
 //    sprintf(string,"[%s] Layer %s%i [%c]: %s%s",isLayerVisible(id)?"X":"   ", (id < 10)?"0":"" ,id,detec_layer_keys[id-NUMBER_DATA_LAYER],tmp, (strlen(layerDescription[id]) > 100)?"...":"");
 //
 //    glutSetMenu(detectorMenu);
-//    glutChangeToMenuEntry(id-NUMBER_DATA_LAYER+2,string, id-NUMBER_DATA_LAYER+DETECTOR1);                     
+//    glutChangeToMenuEntry(id-NUMBER_DATA_LAYER+2,string, id-NUMBER_DATA_LAYER+DETECTOR1);
 }
 
 
@@ -2424,7 +2424,7 @@ void copySetting(CEDsettings &dest, CEDsettings &source, const char *name){
             dest.detector_cut_z[i]=source.detector_cut_z[i];
         }
     }
-    
+
     else if(strcmp(name,"cut angle")==0){
         for(int i=0;i<NUMBER_DETECTOR_LAYER;i++){
             dest.detector_cut_angle[i]=source.detector_cut_angle[i];
@@ -2432,7 +2432,7 @@ void copySetting(CEDsettings &dest, CEDsettings &source, const char *name){
     }
     else{
         std::cout << "WARNING: unknown settingtype: " << name << std::endl;
-    } 
+    }
 
 }
 
@@ -2441,7 +2441,7 @@ void selectFromMenu(int id){ //hauke
     static CEDsettings backup_setting;
     //static float z_cutting_backup;
     //static float cut_angle_backup;
-    static float mm_ha_backup; 
+    static float mm_ha_backup;
     static float mm_va_backup;
     static int graphic_2_backup;
     //static int fullscreen=false;
@@ -2466,7 +2466,7 @@ void selectFromMenu(int id){ //hauke
                struct __glutSocketList *sock;
                sock=__glutSockets;
                int id = SELECTED_ID;
-               //printf(" ced_get_selected : socket connected: %d", sock->fd );	
+               //printf(" ced_get_selected : socket connected: %d", sock->fd );
                if(client_connected){
                     send( sock->fd , &id , sizeof(int) , 0 );
                 }
@@ -2478,63 +2478,63 @@ void selectFromMenu(int id){ //hauke
             break;
 
         case BGCOLOR_OPTION1:
-            set_bg_color(CED_BGCOLOR_OPTION1_COLORCODE); 
+            set_bg_color(CED_BGCOLOR_OPTION1_COLORCODE);
             break;
 
         case BGCOLOR_OPTION2:
-            set_bg_color(CED_BGCOLOR_OPTION2_COLORCODE); 
+            set_bg_color(CED_BGCOLOR_OPTION2_COLORCODE);
             break;
 
         case BGCOLOR_OPTION3:
-            set_bg_color(CED_BGCOLOR_OPTION3_COLORCODE); 
+            set_bg_color(CED_BGCOLOR_OPTION3_COLORCODE);
             break;
 
         case BGCOLOR_OPTION4:
-            set_bg_color(CED_BGCOLOR_OPTION4_COLORCODE); 
+            set_bg_color(CED_BGCOLOR_OPTION4_COLORCODE);
             break;
 
         case BGCOLOR_OPTION5:
-            set_bg_color(CED_BGCOLOR_OPTION5_COLORCODE); 
+            set_bg_color(CED_BGCOLOR_OPTION5_COLORCODE);
             break;
 
         case BGCOLOR_OPTION6:
-            set_bg_color(CED_BGCOLOR_OPTION6_COLORCODE); 
+            set_bg_color(CED_BGCOLOR_OPTION6_COLORCODE);
             break;
 
         case BGCOLOR_OPTION7:
-            set_bg_color(CED_BGCOLOR_OPTION7_COLORCODE); 
+            set_bg_color(CED_BGCOLOR_OPTION7_COLORCODE);
             break;
 
         case BGCOLOR_OPTION8:
-            set_bg_color(CED_BGCOLOR_OPTION8_COLORCODE); 
+            set_bg_color(CED_BGCOLOR_OPTION8_COLORCODE);
             break;
 
         case BGCOLOR_OPTION9:
-            set_bg_color(CED_BGCOLOR_OPTION9_COLORCODE); 
+            set_bg_color(CED_BGCOLOR_OPTION9_COLORCODE);
             break;
 
         case BGCOLOR_OPTION10:
-            set_bg_color(CED_BGCOLOR_OPTION10_COLORCODE); 
+            set_bg_color(CED_BGCOLOR_OPTION10_COLORCODE);
             break;
 
         case BGCOLOR_OPTION11:
-            set_bg_color(CED_BGCOLOR_OPTION11_COLORCODE); 
+            set_bg_color(CED_BGCOLOR_OPTION11_COLORCODE);
             break;
 
         case BGCOLOR_OPTION12:
-            set_bg_color(CED_BGCOLOR_OPTION12_COLORCODE); 
+            set_bg_color(CED_BGCOLOR_OPTION12_COLORCODE);
             break;
 
         case BGCOLOR_OPTION13:
-            set_bg_color(CED_BGCOLOR_OPTION13_COLORCODE); 
+            set_bg_color(CED_BGCOLOR_OPTION13_COLORCODE);
             break;
 
         case BGCOLOR_OPTION14:
-            set_bg_color(CED_BGCOLOR_OPTION14_COLORCODE); 
+            set_bg_color(CED_BGCOLOR_OPTION14_COLORCODE);
             break;
 
         case BGCOLOR_OPTION15:
-            set_bg_color(CED_BGCOLOR_OPTION15_COLORCODE); 
+            set_bg_color(CED_BGCOLOR_OPTION15_COLORCODE);
             break;
 
 
@@ -2543,7 +2543,7 @@ void selectFromMenu(int id){ //hauke
 
 
 //        case BGCOLOR_GAINSBORO:
-//            set_bg_color(0.862745,0.862745,0.862745,0); 
+//            set_bg_color(0.862745,0.862745,0.862745,0);
 //            //set_bg_color(0.862745,0.862745,0.862745,0);
 //            break;
 //
@@ -2615,7 +2615,7 @@ void selectFromMenu(int id){ //hauke
             fisheye_alpha=0;
             setting.fixed_view=false;
             //update_cut_angle_menu();
-            set_world_size(DEFAULT_WORLD_SIZE ); 
+            set_world_size(DEFAULT_WORLD_SIZE );
             break;
 
         case CED_RESET:
@@ -2641,7 +2641,7 @@ void selectFromMenu(int id){ //hauke
             fisheye_alpha=0;
             setting.fixed_view=false;
             //update_cut_angle_menu();
-            set_world_size(DEFAULT_WORLD_SIZE ); 
+            set_world_size(DEFAULT_WORLD_SIZE );
             //std::cout << "DEFAULT_WORLD_SIZE "  << DEFAULT_WORLD_SIZE << "zoom: " << mm.sf << std::endl;
             setting.light=false;
 
@@ -2799,7 +2799,7 @@ void selectFromMenu(int id){ //hauke
                 //if(graphic[2]==1){selectFromMenu(GRAFIC_PERSP); }
                 if(setting.persp==true){selectFromMenu(GRAFIC_PERSP); }
 
-               
+
                //side view
                 mm_ha_backup=mm.ha;
                 mm_va_backup = mm.va;
@@ -2873,7 +2873,7 @@ void selectFromMenu(int id){ //hauke
             for(int i=0;i<NUMBER_DATA_LAYER;i++){ //try to turn all layers on
                 if(!isLayerVisible(i)){
                    //sprintf(string,"[X] Layer %s%i [%c]: %s", (i < 10)?"0":"" ,i, layer_keys[i], layerDescription[i]);
-                   //glutChangeToMenuEntry(i+2,string, LAYER_0+i);                     
+                   //glutChangeToMenuEntry(i+2,string, LAYER_0+i);
                    toggle_layer(i);
                    //updateLayerEntryInPopupMenu(i);
                    anz++;
@@ -2884,7 +2884,7 @@ void selectFromMenu(int id){ //hauke
 
                 for(int i=0;i<NUMBER_DATA_LAYER;i++){
                    //sprintf(string,"[   ] Layer %s%i [%c]: %s",(i < 10)?"0":"" ,i, layer_keys[i], layerDescription[i]);
-                   //glutChangeToMenuEntry(i+2,string, LAYER_0+i);                     
+                   //glutChangeToMenuEntry(i+2,string, LAYER_0+i);
                    toggle_layer(i);
                    //updateLayerEntryInPopupMenu(id);
                 }
@@ -2897,7 +2897,7 @@ void selectFromMenu(int id){ //hauke
             for(int i=NUMBER_DATA_LAYER;i<NUMBER_DETECTOR_LAYER+NUMBER_DATA_LAYER;i++){ //try to turn all layers on
                 if(!isLayerVisible(i)){
                    //sprintf(string,"[X] Layer %s%i [%c]: %s", (i < 10)?"0":"" ,i, layer_keys[i], layerDescription[i]);
-                   //glutChangeToMenuEntry(i+2,string, LAYER_0+i);                     
+                   //glutChangeToMenuEntry(i+2,string, LAYER_0+i);
                    toggle_layer(i);
                    //updateLayerEntryDetector(i);
                    anz++;
@@ -2906,7 +2906,7 @@ void selectFromMenu(int id){ //hauke
             if(anz == 0){ //turn all layers off
                 for(int i=NUMBER_DATA_LAYER;i<NUMBER_DETECTOR_LAYER+NUMBER_DATA_LAYER;i++){
                    //sprintf(string,"[   ] Layer %s%i [%c]: %s",(i < 10)?"0":"" ,i, layer_keys[i], layerDescription[i]);
-                   //glutChangeToMenuEntry(i+2,string, LAYER_0+i);                     
+                   //glutChangeToMenuEntry(i+2,string, LAYER_0+i);
                    toggle_layer(i);
                    //updateLayerEntryDetector(id);
                 }
@@ -2939,7 +2939,7 @@ void selectFromMenu(int id){ //hauke
             toggle_layer(id-DETECTOR1+NUMBER_DATA_LAYER);
             //std::cout << "toogle layer " << id-DETECTOR1 + NUMBER_DATA_LAYER<< std::endl;
             //updateLayerEntryDetector(id-DETECTOR1+NUMBER_DATA_LAYER);
-            
+
             break;
 
 
@@ -3034,7 +3034,7 @@ void selectFromMenu(int id){ //hauke
 
 
 
-        
+
 
         case CUT_Z_7000:z_cut=7000;
             for(int i=0;i<NUMBER_DETECTOR_LAYER;i++)
@@ -3177,13 +3177,13 @@ void selectFromMenu(int id){ //hauke
 //////            glutGameModeString("1280x1024:32@60");
 //////            glutEnterGameMode();
 ////            if(fullscreen == false){
-////                glutFullScreen(); 
+////                glutFullScreen();
 ////                fullscreen = true;
 ////            }else{
-////                fullscreen = false; 
+////                fullscreen = false;
 ////                reshape(setting.win_w, setting.win_h);
 ////            }
-//            
+//
         case AXES:
             if(setting.show_axes){
                 setting.show_axes= false;
@@ -3192,7 +3192,7 @@ void selectFromMenu(int id){ //hauke
             }
             break;
 
-        case FPS:  
+        case FPS:
             //cout << "call fps" << endl;
             if(setting.fps){
                 glutIdleFunc(NULL);
@@ -3220,7 +3220,7 @@ void selectFromMenu(int id){ //hauke
             selectFromMenu(GRAFIC_LIGHT);
             selectFromMenu(GRAFIC_PERSP);
             break;
-            
+
         case GRAFIC_LOW:
             setting.light=true;
             setting.trans=true;
@@ -3251,7 +3251,7 @@ void selectFromMenu(int id){ //hauke
             }
 
             break;
-            
+
         case GRAFIC_LIGHT:
             //if(graphic[0] == 1){
             if(setting.light == true){
@@ -3259,7 +3259,7 @@ void selectFromMenu(int id){ //hauke
                 //printf("Light  is now on\n");
                 //graphic[0] = 0;
                 setting.light=false;
-                glDisable(GL_LIGHTING); 
+                glDisable(GL_LIGHTING);
             }else{
 
                  //printf("Light is now on\n");
@@ -3274,10 +3274,10 @@ void selectFromMenu(int id){ //hauke
                  GLfloat light0_diff[] = {1, 1, 1, 0.5};
 //      mm.ha=mm.ha_start+(x-mouse_x)*180./window_width;
 //      mm.va=mm.va_start+(y-mouse_y)*180./window_height;
- 
-                
+
+
                  GLfloat light0_pos[] = {20000, 20000, 20000};
-                 
+
             glBegin(GL_QUADS);
             glVertex3d(2000,2000,20000);
             glVertex3d(2500,2000,20000);
@@ -3288,7 +3288,7 @@ void selectFromMenu(int id){ //hauke
                  //GLfloat light0_dir[] = {-1, -1, 0};
 
                  //GLfloat angle[] = {30};
-                 //GLfloat light0_ambi[]= {0.5, 0.5, 0.5, 0.5};     
+                 //GLfloat light0_ambi[]= {0.5, 0.5, 0.5, 0.5};
 
 /////////////////
 
@@ -3314,8 +3314,8 @@ void selectFromMenu(int id){ //hauke
                  //glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, light0_dir);
                  //glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, light0_dir);
                  //glLightfv(GL_LIGHT2, GL_SPOT_DIRECTION, light0_dir);
- 
-                 
+
+
                  ////glClearColor (0.0, 0.0, 0.0, 0.0);
                  //glShadeModel (GL_SMOOTH);
 
@@ -3331,7 +3331,7 @@ void selectFromMenu(int id){ //hauke
 
                  glEnable(GL_NORMALIZE);
 
-                 glEnable(GL_LIGHTING); 
+                 glEnable(GL_LIGHTING);
                  //glEnable(GL_LIGHT0);
                  glEnable(GL_LIGHT0);
 
@@ -3366,11 +3366,11 @@ void selectFromMenu(int id){ //hauke
 
         case TOGGLE_DETECTOR_PICKING:
             setting.detector_picking = abs(setting.detector_picking-1);
-            break; 
+            break;
 
         case GRAFIC_FOG:
                 glGetDoublev(GL_COLOR_CLEAR_VALUE, setting.bgcolor);
-                //GLfloat fogcolor[4]={setting.bgcolor[0],setting.bgcolor[1],setting.bgcolor[2],1.0};   
+                //GLfloat fogcolor[4]={setting.bgcolor[0],setting.bgcolor[1],setting.bgcolor[2],1.0};
                 GLfloat fogcolor[4];
                 fogcolor[0]=setting.bgcolor[0];
                 fogcolor[1]=setting.bgcolor[1];
@@ -3378,14 +3378,14 @@ void selectFromMenu(int id){ //hauke
                 fogcolor[3]=0.5;
 
 
-                glFogfv(GL_FOG_COLOR,fogcolor);          
-                glFogf(GL_FOG_DENSITY,0.5);                 
-                //glFogi(GL_FOG_MODE,GL_EXP);             
+                glFogfv(GL_FOG_COLOR,fogcolor);
+                glFogf(GL_FOG_DENSITY,0.5);
+                //glFogi(GL_FOG_MODE,GL_EXP);
 
-                glFogi(GL_FOG_MODE,GL_LINEAR);            
-                glFogf(GL_FOG_START,500.0);              
-                glFogf(GL_FOG_END,3000.0);                
-                glHint(GL_FOG_HINT, GL_FASTEST);          
+                glFogi(GL_FOG_MODE,GL_LINEAR);
+                glFogf(GL_FOG_START,500.0);
+                glFogf(GL_FOG_END,3000.0);
+                glHint(GL_FOG_HINT, GL_FASTEST);
                 glEnable(GL_FOG);
                 break;
 
@@ -3410,7 +3410,7 @@ void selectFromMenu(int id){ //hauke
         case SAVE3:
         case SAVE4:
         case SAVE5:
-            saveSettings(id-SAVE1+1); 
+            saveSettings(id-SAVE1+1);
             updateSaveLoadMenu(id-SAVE1+1);
             break;
 
@@ -3419,8 +3419,8 @@ void selectFromMenu(int id){ //hauke
         case LOAD3:
         case LOAD4:
         case LOAD5:
-            loadSettings(id-LOAD1+1); 
-            set_bg_color(setting.bgcolor[0],setting.bgcolor[1],setting.bgcolor[2],setting.bgcolor[3]); 
+            loadSettings(id-LOAD1+1);
+            set_bg_color(setting.bgcolor[0],setting.bgcolor[1],setting.bgcolor[2],setting.bgcolor[3]);
             break;
 
         case SAVE_IMAGE1:
@@ -3476,7 +3476,7 @@ void selectFromMenu(int id){ //hauke
     }
 
     glutPostRedisplay();
-    //printf("bgcolor = %f %f %f %f\n",setting.bgcolor[0],setting.bgcolor[1],setting.bgcolor[2],setting.bgcolor[2]); 
+    //printf("bgcolor = %f %f %f %f\n",setting.bgcolor[0],setting.bgcolor[1],setting.bgcolor[2],setting.bgcolor[2]);
 
 
 
@@ -3488,16 +3488,16 @@ void buildPopUpMenu(int x, int y){
 
     GLfloat p_x, p_y, p_z;
     int id, layer, type;
-    
+
     //delete the old one first!!!
 
     popupmenu=new CED_PopUpMenu("");
-    
+
     buildLayerMenus();
     popupmenu->addItem(datalayermenu);
     popupmenu->addItem(detectorlayermenu);
     popupmenu->addItem(new CED_SubSubMenu("---",0));
-    
+
     selected_layer=-1;
     if(!find_selected_object(x,y,&p_x,&p_y,&p_z, &id, &layer, &type)){ //if ==1 found hit, else clicked on background
         //cout << "TODO: ID: " << id << endl;
@@ -3525,8 +3525,8 @@ void buildPopUpMenu(int x, int y){
             sprintf(tmp,"Hide layer %i: %s)",layer,layerDescription[layer] );
             popupmenu->addItem(new CED_SubSubMenu(tmp,LAYER_0+layer));
 
-            pre_pick_point.x=p_x; 
-            pre_pick_point.y=p_y; 
+            pre_pick_point.x=p_x;
+            pre_pick_point.y=p_y;
             pre_pick_point.z=p_z;
         }else if(type == 1){
             //popupmenu=new CED_PopUpMenu("Select detector component");
@@ -3543,7 +3543,7 @@ void buildPopUpMenu(int x, int y){
 
             //sprintf(tmp,"Cut detector at this layer",layer, layerDescription[layer]);
             //popupmenu->addItem(new CED_SubSubMenu(tmp, layer-NUMBER_DATA_LAYER+DETECTOR1));
- 
+
 
             sprintf(tmp,"Coordinates: (%.1f, %.1f, %1.f)",p_x,p_y,p_z);
             popupmenu->addItem(new CED_SubSubMenu(tmp,0));
@@ -3591,7 +3591,7 @@ void buildPopUpMenu(int x, int y){
             //cuts->addItem(new CED_SubSubMenu("Cut at z=5000",  0));
 
 
-            
+
 
             snprintf(tmp,199,"Transparency (%.0f)",100*setting.detector_trans[layer-NUMBER_DATA_LAYER]);
             CED_SubSubMenu *trans=new CED_SubSubMenu(tmp);
@@ -3607,8 +3607,8 @@ void buildPopUpMenu(int x, int y){
 
 
 
-            //pre_pick_point.x=p_x; 
-            //pre_pick_point.y=p_y; 
+            //pre_pick_point.x=p_x;
+            //pre_pick_point.y=p_y;
             //pre_pick_point.z=p_z;
         }
     }else{
@@ -3690,7 +3690,7 @@ void buildPopUpMenu(int x, int y){
     int pos_y=popupmenu->size()*height;
 
     popupmenu->isExtend=true;
-    
+
     if( (x + width+10) > window_width){
         popupmenu->x_start=x-width-10;
         popupmenu->x_end=x-10;
@@ -3717,7 +3717,7 @@ void buildLayerMenus(void){
     //    delete ced_menu;
     //}
 
-    detectorlayermenu=new CED_SubSubMenu("Detector layers",0); 
+    detectorlayermenu=new CED_SubSubMenu("Detector layers",0);
     datalayermenu=new CED_SubSubMenu("Data layers",0);
     int i;
     char str[2000];
@@ -3771,8 +3771,8 @@ void buildMainMenu(void){
         layers->addItem(new CED_SubSubMenu("[X] Axis", AXES));
     }else{
         layers->addItem(new CED_SubSubMenu("[ ] Axis", AXES));
-    }    
-        
+    }
+
     layers->addItem(new CED_SubSubMenu("---", AXES));
     bool result=true;
     for(int i=0;i<NUMBER_DATA_LAYER;i++){
@@ -4089,7 +4089,7 @@ void buildMainMenu(void){
     if(userDefinedBGColor[0] >= 0){ //is set
         background->addItem(new CED_SubSubMenu("User defined",BGCOLOR_USER));
     }
-    
+
 
     settings->addItem(new CED_SubSubMenu("---",0));
     settings->addItem(background);
@@ -4352,7 +4352,7 @@ int main(int argc,char *argv[]){
     //glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
     //  glutInitWindowSize(600,600); // change to smaller window size */
     /*   glutInitWindowPosition(500,0); */
-  
+
     //glutInitWindowSize(500,500);
     //cout << setting.win_w << " x " << setting.win_h << std::endl;
 
@@ -4360,7 +4360,7 @@ int main(int argc,char *argv[]){
             //glutGameModeString("1280x1024:32@60");
             //glutEnterGameMode();
 
-    loadSettings(1);  
+    loadSettings(1);
     setting.screenshot_sections=1;
 
 
@@ -4368,23 +4368,23 @@ int main(int argc,char *argv[]){
 
     //set_bg_color(0.0,0.0,0.0,0.0); //set to default (black)
     //set_bg_color(bgColors[0][0],bgColors[0][1],bgColors[0][2],bgColors[0][3]); //set to default (light blue [0.0, 0.2, 0.4, 0.0])
-  
+
     //graphic[1]=1; //transp
     //graphic[2]=1; //persp
     //cut_angle=0; //degrees
     //phi_projection=false;
     //projection=false;
-  
+
     //trans_value=0.8;
 
 
 
     char hex[]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
     int tmp[6];
-  
+
     int i;
     for(i=1;i<argc ; i++){
-  
+
       if(!strcmp( argv[i] , "-world_size" ) ) {
         float w_size = atof(  argv[++i] )  ;
         printf( "  setting world size to  %f " , w_size ) ;
@@ -4415,7 +4415,7 @@ int main(int argc,char *argv[]){
                   if(toupper(argv[i][k+n]) == hex[j]){
                       tmp[k]=j;
                   }
-  
+
               }
               if(tmp[k]==999){
                   printf("Unknown digit '%c'!\nSet background color to default value.\n",argv[i+1][k+n]);
@@ -4426,23 +4426,23 @@ int main(int argc,char *argv[]){
                   userDefinedBGColor[1] = (tmp[2]*16 + tmp[3])/255.0;
                   userDefinedBGColor[2] = (tmp[4]*16 + tmp[5])/255.0;
                   userDefinedBGColor[3] = 0.0;
-              
-                  printf("set color to: %f/%f/%f\n",(tmp[0]*16 + tmp[1])/255.0, (tmp[2]*16 + tmp[3])/255.0, (tmp[4]*16 + tmp[5])/255.0); 
+
+                  printf("set color to: %f/%f/%f\n",(tmp[0]*16 + tmp[1])/255.0, (tmp[2]*16 + tmp[3])/255.0, (tmp[4]*16 + tmp[5])/255.0);
                   set_bg_color((tmp[0]*16 + tmp[1])/255.0,(tmp[2]*16 + tmp[3])/255.0,(tmp[4]*16 + tmp[5])/255.0,0.0);
               }
           }
         } else {
           printf("Unknown background color.\nPlease choose black/blue/white or a hexadecimal number with 6 digits!\nSet background color to default value.\n");
         }
-      
-      } else if(!strcmp( argv[i] , "-h" ) || 
-         !strcmp( argv[i] , "--help" )|| 
+
+      } else if(!strcmp( argv[i] , "-h" ) ||
+         !strcmp( argv[i] , "--help" )||
          !strcmp( argv[i] , "-?" )
          ) {
 
 
       printf( "\n  CED event display server: \n\n"
-          "   Usage:  glced [-bgcolor COLOR] [-world_size LENGTH] [-geometry X_GEOMETRY] [-trust TRUSTED_HOST]\n\n" 
+          "   Usage:  glced [-bgcolor COLOR] [-world_size LENGTH] [-geometry X_GEOMETRY] [-trust TRUSTED_HOST]\n\n"
           "        options:  \n"
           "              COLOR:        Background color (values: black, white, blue or hexadecimal number)\n"
           "              LENGTH:       Visible world-cube size in mm (default: 6000) \n"
@@ -4450,7 +4450,7 @@ int main(int argc,char *argv[]){
           "                              (W:width, H: height, X: x-offset, Y: y-offset) \n"
           "              TRUSTED_HOST: Ip or name of the host who is allowed to connect to CED\n\n"
           "   Example: \n\n"
-          "     ./bin/glced -bgcolor 4C4C66 -world_size 1000. -geometry 600x600+500+0  -trust 192.168.11.22 > /tmp/glced.log 2>&1 & \n\n" 
+          "     ./bin/glced -bgcolor 4C4C66 -world_size 1000. -geometry 600x600+500+0  -trust 192.168.11.22 > /tmp/glced.log 2>&1 & \n\n"
           "    "
           "   Change port (before starting glced):"
               "         export CED_PORT=<portnumber>\n\n\n"
@@ -4474,7 +4474,7 @@ int main(int argc,char *argv[]){
             snprintf(trusted_hosts, 50, "%u.%u.%u.%u",(unsigned char)host->h_addr[0] ,(unsigned char)host->h_addr[1] ,(unsigned char)host->h_addr[2] ,(unsigned char)host->h_addr[3]);
             printf("Trust ip: %s\n", trusted_hosts);
           } else {
-            printf("ERROR: Host %s is unknown!\n", argv[i+1]);  
+            printf("ERROR: Host %s is unknown!\n", argv[i+1]);
           }
       } else if(!strcmp(argv[i], "-geometry")){
         geometry = true;
@@ -4483,9 +4483,9 @@ int main(int argc,char *argv[]){
           //exit(1);
       }
     }
-  
+
     ced_register_elements();
-  
+
     char *p;
     p = getenv ( "CED_PORT" );
     if(p != NULL){
@@ -4494,8 +4494,8 @@ int main(int argc,char *argv[]){
     }else{
       glut_tcp_server(7286,input_data);
     }
-  
- 
+
+
 
     if(geometry == false){
         glutInitWindowSize(setting.win_w,setting.win_h);
@@ -4504,17 +4504,17 @@ int main(int argc,char *argv[]){
     mainWindow=glutCreateWindow("C Event Display (CED)");
 
 
-  
+
     //glHint (GL_LINE_SMOOTH_HINT, GL_DONT_CARE);
     //glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
     //glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
     glEnable(GL_POINT_SMOOTH);
     glEnable(GL_LINE_SMOOTH);
-    //glHint(GL_POLYGON_SMOOTH,GL_FASTEST); 
+    //glHint(GL_POLYGON_SMOOTH,GL_FASTEST);
     //glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
     //glEnable(GL_POLYGON_SMOOTH);
     glShadeModel(GL_SMOOTH);
-  
+
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
 
@@ -4527,7 +4527,7 @@ int main(int argc,char *argv[]){
     #ifndef __APPLE__
     //glutMouseWheelFunc(mouseWheel); //dont works under mac os!
     #endif
-  
+
     glutMouseFunc(mouse);
     glutPassiveMotionFunc(mouse_passive);
 
@@ -4541,19 +4541,19 @@ int main(int argc,char *argv[]){
     glutSpecialFunc(SpecialKey);
     glutMotionFunc(motion);
 
-  
+
     //glutTimerFunc(2000,time,23);
     //glutTimerFunc(500,timer,23);
-  
+
     //workaraound for franks mac
-    buildMenuPopup(); 
+    buildMenuPopup();
 
 
     buildLayerMenus();
-    buildMainMenu(); 
+    buildMainMenu();
     popupmenu=new CED_PopUpMenu("");
 
-    //glutAttachMenu(GLUT_RIGHT_BUTTON); 
+    //glutAttachMenu(GLUT_RIGHT_BUTTON);
     //for(i=0;i<NUMBER_POPUP_LAYER;i++){ //fill the layer section
     //  updateLayerEntryInPopupMenu(i);
     //}
@@ -4562,11 +4562,11 @@ int main(int argc,char *argv[]){
     //}
 
     glutTimerFunc(500,timer,1);
-  
+
     //glDisable(GL_BLEND);
     if(setting.light == true){
         setting.light=false;
-        selectFromMenu(GRAFIC_LIGHT); 
+        selectFromMenu(GRAFIC_LIGHT);
     }
 
 
@@ -4640,9 +4640,9 @@ int save_pixmap_as_bmp(unsigned char *buffer_all,const char *name,unsigned int w
     header[15] = 0;
     header[16] = 0;
     header[17] = 0;
-    header[18] = (unsigned char)(wi & 255);      
+    header[18] = (unsigned char)(wi & 255);
     header[19] = (unsigned char)((wi >> 8) & 255);
-    header[20] = (unsigned char)(hi & 255);      
+    header[20] = (unsigned char)(hi & 255);
     header[21] = (unsigned char)((hi >> 8) & 255);
     header[22] = 1;
     header[23] = 0;
@@ -4706,12 +4706,12 @@ void screenshot(const char *name, int times)
         return;
     }
     std::cout << " Done" << std::endl;
-    
+
 
     std::cout << "    Generating image ";
 
     if(setting.persp == true){
-        glTranslatef(0.0, 0.0, +2000); //HOTFIX!!! TODO: find the place where this translation is made 
+        glTranslatef(0.0, 0.0, +2000); //HOTFIX!!! TODO: find the place where this translation is made
         double near_plane=200.;
         for(int i=0;i<times;i++){
             for(int j=0;j<times;j++){
@@ -4727,13 +4727,13 @@ void screenshot(const char *name, int times)
                 if(w >= h){
                 glFrustum((-1*near_plane/2.      + 2*i*(near_plane/2.)/times)*w*1.0/h,
                           (-1*near_plane/2.      +(i+1)*2*(near_plane/2.)/times)*w*1.0/h,
-                          (-1*(near_plane/2.)    + 2*j*(near_plane/2.)/times), 
+                          (-1*(near_plane/2.)    + 2*j*(near_plane/2.)/times),
                           (-1*(near_plane/2.)    +(j+1)*2*(near_plane/2.)/times),
                           near_plane ,50000.0*mm.sf*2+50000/(mm.sf*2));
                 }else{
                 glFrustum((-1*near_plane/2.      + 2*i*(near_plane/2.)/times),
                           (-1*near_plane/2.      +(i+1)*2*(near_plane/2.)/times),
-                          (-1*(near_plane/2.)    + 2*j*(near_plane/2.)/times)*h*1.0/w, 
+                          (-1*(near_plane/2.)    + 2*j*(near_plane/2.)/times)*h*1.0/w,
                           (-1*(near_plane/2.)    +(j+1)*2*(near_plane/2.)/times)*h*1.0/w,
                           near_plane*h*1./w ,50000.0*mm.sf*2+50000/(mm.sf*2));
 
@@ -4742,7 +4742,7 @@ void screenshot(const char *name, int times)
                 glViewport(0,0,w,h);
                 gluLookAt  (0,0,2000,    0,0,0,    0,1,0);
                 glViewport(0,0,w,h);
- 
+
                 glMatrixMode(GL_MODELVIEW);
                 write_world_into_front_buffer();
 
@@ -4773,7 +4773,7 @@ void screenshot(const char *name, int times)
 
                 glOrtho((-1*near_plane/2.      + 2*i*(near_plane/2.)/times)*w*1.0/h*WORLD_SIZE,
                           (-1*near_plane/2.      +(i+1)*2*(near_plane/2.)/times)*w*1.0/h*WORLD_SIZE,
-                          (-1*(near_plane/2.)    + 2*j*(near_plane/2.)/times)*WORLD_SIZE, 
+                          (-1*(near_plane/2.)    + 2*j*(near_plane/2.)/times)*WORLD_SIZE,
                           (-1*(near_plane/2.)    +(j+1)*2*(near_plane/2.)/times)*WORLD_SIZE,
                           near_plane ,(50000.0*mm.sf*2+50000/(mm.sf*2)));
                 }else{
@@ -4783,7 +4783,7 @@ void screenshot(const char *name, int times)
                 WORLD_SIZE*=w*1./h;
                 glOrtho((-1*near_plane/2.      + 2*i*(near_plane/2.)/times)*WORLD_SIZE,
                           (-1*near_plane/2.      +(i+1)*2*(near_plane/2.)/times)*WORLD_SIZE,
-                          (-1*(near_plane/2.)    + 2*j*(near_plane/2.)/times)*h*1.0/w*WORLD_SIZE, 
+                          (-1*(near_plane/2.)    + 2*j*(near_plane/2.)/times)*h*1.0/w*WORLD_SIZE,
                           (-1*(near_plane/2.)    +(j+1)*2*(near_plane/2.)/times)*h*1.0/w*WORLD_SIZE,
                           near_plane,(50000.0*mm.sf*2+50000/(mm.sf*2)));
 
