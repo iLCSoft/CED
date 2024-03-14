@@ -164,7 +164,7 @@
 #define NUMBER_DATA_LAYER                   25
 
 //number of layers reserved for detector components
-#define NUMBER_DETECTOR_LAYER               20
+#define NUMBER_DETECTOR_LAYER               40
 
 //layer description text: maximal number of chars for one entry
 #define CED_MAX_LAYER_CHAR                  400

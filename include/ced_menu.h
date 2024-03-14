@@ -1046,6 +1046,26 @@ class CED_PopUpMenu{
 #define DETECTOR18               4018
 #define DETECTOR19               4019
 #define DETECTOR20              4020
+#define DETECTOR21              4021
+#define DETECTOR22              4022
+#define DETECTOR23              4023
+#define DETECTOR24              4024
+#define DETECTOR25              4025
+#define DETECTOR26              4026
+#define DETECTOR27              4027
+#define DETECTOR28              4028
+#define DETECTOR29              4029
+#define DETECTOR30              4030
+#define DETECTOR31              4031
+#define DETECTOR32              4032
+#define DETECTOR33              4033
+#define DETECTOR34              4034
+#define DETECTOR35              4035
+#define DETECTOR36              4036
+#define DETECTOR37              4037
+#define DETECTOR38              4038
+#define DETECTOR39              4039
+#define DETECTOR40              4040
 
 #define DETECTOR_ALL            4100
 
