@@ -1653,336 +1653,245 @@ static void show_all_layers(void){
 }
 */
 
-static void keypressed(unsigned char key,int x,int y){
-    //SM-H: TODO: socket list for communicating with client
-    //struct __glutSocketList *sock;
-
-    glutSetWindow(mainWindow); //hauke
-    //if(key==0x1A ){ //ctrl+z
-
-    //if(key=='u' ){ //ctrl+z
-
-    //std::cout << "key: " << int(key) << endl;
-    if(false ){ //ctrl+z
-        //selectFromMenu(UNDO);
-    } else if(key=='r'){
-        selectFromMenu(VIEW_RESET);
-    } else if(key=='R'){
-        selectFromMenu(CED_RESET);
-    } else if(key=='f'){
-       selectFromMenu(VIEW_FRONT);
-    } else if(key == 'F'){
-      selectFromMenu(TOGGLE_Z_PROJECTION);
-    } else if(key=='s'){
-        selectFromMenu(VIEW_SIDE);
-    } else if(key=='S'){
-        selectFromMenu(TOGGLE_PHI_PROJECTION);
-    } else if(key==27) { //esc
-        exit(0);
-    } else if(key==19 ) { //ctrl+s
-        selectFromMenu(SAVE_IMAGE1);
-    } else if(key=='c' || key=='C'){
-      //selectFromMenu(VIEW_CENTER);
-      if(!ced_get_selected(x,y,&mm.mv.x,&mm.mv.y,&mm.mv.z)) glutPostRedisplay();
-    }/*else if(key=='w'){
-      mm.mv.x+=5;
-      //mm.mv.y=y;
-      //mm.mv.z))
-        glutPostRedisplay();
-    }*/  else if(key=='v' || key=='V'){
-          selectFromMenu(VIEW_FISHEYE);
-    //} else if((key>='0') && (key<='9')){
-    //      selectFromMenu(LAYER_0+key-'0');
-    //} else if(key==')'){ // 0
-    //      selectFromMenu(LAYER_10);
-    //} else if(key=='!'){ // 1
-    //      selectFromMenu(LAYER_11);
-    //} else if(key=='@'){ // 2
-    //      selectFromMenu(LAYER_12);
-    //} else if(key=='#'){ // 3
-    //      selectFromMenu(LAYER_13);
-    //} else if(key=='$'){ // 4
-    //      selectFromMenu(LAYER_14);
-    //} else if(key=='%'){ // 5
-    //      selectFromMenu(LAYER_15);
-    //} else if(key=='^'){ // 6
-    //      selectFromMenu(LAYER_16);
-    //} else if(key=='&'){ // 7
-    //      selectFromMenu(LAYER_17);
-    //} else if(key=='*'){ // 8
-    //      selectFromMenu(LAYER_18);
-    //} else if(key=='('){ // 9
-    //      selectFromMenu(LAYER_19);
-    } else if(key== DATALAYER_SHORTKEY_00){
-    selectFromMenu(LAYER_0);
-    } else if(key== DATALAYER_SHORTKEY_01){
-    selectFromMenu(LAYER_1);
-    } else if(key== DATALAYER_SHORTKEY_02){
-    selectFromMenu(LAYER_2);
-    } else if(key== DATALAYER_SHORTKEY_03){
-    selectFromMenu(LAYER_3);
-    } else if(key== DATALAYER_SHORTKEY_04){
-    selectFromMenu(LAYER_4);
-    } else if(key== DATALAYER_SHORTKEY_05){
-    selectFromMenu(LAYER_5);
-    } else if(key== DATALAYER_SHORTKEY_06){
-    selectFromMenu(LAYER_6);
-    } else if(key== DATALAYER_SHORTKEY_07){
-    selectFromMenu(LAYER_7);
-    } else if(key== DATALAYER_SHORTKEY_08){
-    selectFromMenu(LAYER_8);
-    } else if(key== DATALAYER_SHORTKEY_09){
-    selectFromMenu(LAYER_9);
-    } else if(key== DATALAYER_SHORTKEY_10){
-    selectFromMenu(LAYER_10);
-    } else if(key== DATALAYER_SHORTKEY_11){
-    selectFromMenu(LAYER_11);
-    } else if(key== DATALAYER_SHORTKEY_12){
-    selectFromMenu(LAYER_12);
-    } else if(key== DATALAYER_SHORTKEY_13){
-    selectFromMenu(LAYER_13);
-    } else if(key== DATALAYER_SHORTKEY_14){
-    selectFromMenu(LAYER_14);
-    } else if(key== DATALAYER_SHORTKEY_15){
-    selectFromMenu(LAYER_15);
-    } else if(key== DATALAYER_SHORTKEY_16){
-    selectFromMenu(LAYER_16);
-    } else if(key== DATALAYER_SHORTKEY_17){
-    selectFromMenu(LAYER_17);
-    } else if(key== DATALAYER_SHORTKEY_18){
-    selectFromMenu(LAYER_18);
-    } else if(key== DATALAYER_SHORTKEY_19){
-    selectFromMenu(LAYER_19);
-    } else if(key== DATALAYER_SHORTKEY_20){
-    selectFromMenu(LAYER_20);
-    } else if(key== DATALAYER_SHORTKEY_21){
-    selectFromMenu(LAYER_21);
-    } else if(key== DATALAYER_SHORTKEY_22){
-    selectFromMenu(LAYER_22);
-    } else if(key== DATALAYER_SHORTKEY_23){
-    selectFromMenu(LAYER_23);
-    } else if(key== DATALAYER_SHORTKEY_24){
-    selectFromMenu(LAYER_24);
-    } else if(key=='`'){
-    selectFromMenu(LAYER_ALL);
+#define SELECT_FROM_MENU(key, action)                                          \
+  case key:                                                                    \
+    selectFromMenu(action);                                                    \
+    break
 
 
-//const char detec_layer_keys[] = {'t','y','u','i','o','p','[',']','\\', 'T', 'Y','U','I','O','P','{','}','|',' ',' ',' '};
-   } else if(key==DETECTORLAYER_SHORTKEY_00){
-          selectFromMenu(DETECTOR1);
-   } else if(key==DETECTORLAYER_SHORTKEY_01){
-          selectFromMenu(DETECTOR2);
-   } else if(key==DETECTORLAYER_SHORTKEY_02){
-          selectFromMenu(DETECTOR3);
-   } else if(key==DETECTORLAYER_SHORTKEY_03){
-          selectFromMenu(DETECTOR4);
-   } else if(key==DETECTORLAYER_SHORTKEY_04){
-          selectFromMenu(DETECTOR5);
-   } else if(key==DETECTORLAYER_SHORTKEY_05){
-          selectFromMenu(DETECTOR6);
-   } else if(key==DETECTORLAYER_SHORTKEY_06){
-          selectFromMenu(DETECTOR7);
-   } else if(key==DETECTORLAYER_SHORTKEY_07){
-          selectFromMenu(DETECTOR8);
-   } else if(key==DETECTORLAYER_SHORTKEY_08){
-          selectFromMenu(DETECTOR9);
-   } else if(key==DETECTORLAYER_SHORTKEY_09){
-          selectFromMenu(DETECTOR10);
-   } else if(key==DETECTORLAYER_SHORTKEY_10){
-          selectFromMenu(DETECTOR11);
-   } else if(key==DETECTORLAYER_SHORTKEY_11){
-          selectFromMenu(DETECTOR12);
-   } else if(key==DETECTORLAYER_SHORTKEY_12){
-          selectFromMenu(DETECTOR13);
-   } else if(key==DETECTORLAYER_SHORTKEY_13){
-          selectFromMenu(DETECTOR14);
-   } else if(key==DETECTORLAYER_SHORTKEY_14){
-          selectFromMenu(DETECTOR15);
-   } else if(key==DETECTORLAYER_SHORTKEY_15){
-          selectFromMenu(DETECTOR16);
-   } else if(key==DETECTORLAYER_SHORTKEY_16){
-          selectFromMenu(DETECTOR17);
-   } else if(key==DETECTORLAYER_SHORTKEY_17){
-          selectFromMenu(DETECTOR18);
-   } else if(key==DETECTORLAYER_SHORTKEY_18){
-          selectFromMenu(DETECTOR19);
-   } else if(key==DETECTORLAYER_SHORTKEY_19){
-          selectFromMenu(DETECTOR20);
+static void keypressed(unsigned char key, int x, int y) {
+  // SM-H: TODO: socket list for communicating with client
+  // struct __glutSocketList *sock;
 
-//    } else if(key=='t'){
-//          selectFromMenu(DETECTOR1);
-//    } else if(key=='y'){
-//          selectFromMenu(DETECTOR2);
-//    } else if(key=='u'){
-//          selectFromMenu(DETECTOR3);
-//    } else if(key=='i'){
-//          selectFromMenu(DETECTOR4);
-//    } else if(key=='o'){
-//          selectFromMenu(DETECTOR5);
-//    } else if(key=='p'){
-//          selectFromMenu(DETECTOR6);
-//    } else if(key=='['){
-//          selectFromMenu(DETECTOR7);
-//    } else if(key==']'){
-//          selectFromMenu(DETECTOR8);
-//    } else if(key=='\\'){
-//          selectFromMenu(DETECTOR9);
-//    } else if(key=='T'){
-//          selectFromMenu(DETECTOR10);
-//    } else if(key=='Y'){
-//          selectFromMenu(DETECTOR11);
-//    } else if(key=='U'){
-//          selectFromMenu(DETECTOR12);
-//    } else if(key=='I'){
-//          selectFromMenu(DETECTOR13);
-//    } else if(key=='O'){
-//          selectFromMenu(DETECTOR14);
-//    } else if(key=='P'){
-//          selectFromMenu(DETECTOR15);
-//    } else if(key=='{'){
-//          selectFromMenu(DETECTOR16);
-//    } else if(key=='}'){
-//          selectFromMenu(DETECTOR17);
-//    } else if(key=='|'){
-//          selectFromMenu(DETECTOR18);
-    } else if(key=='~'){
-          selectFromMenu(DETECTOR_ALL);
-    } else if(key == '+'|| key == '='){
-          selectFromMenu(VIEW_ZOOM_IN);
-    } else if(key == '-'|| key == '_'){
-          selectFromMenu(VIEW_ZOOM_OUT);
-    }else if (key == 26 || key == 'x'){ //ctrl+z
-       selectFromMenu(UNDO);
-    } else if(key == 'z'){
+  glutSetWindow(mainWindow); // hauke
+  // if(key==0x1A ){ //ctrl+z
 
-       // if (glutGetModifiers() == GLUT_ACTIVE_CTRL) {
-        //if (glutGetModifiers() & GLUT_ACTIVE_CTRL){
+  // if(key=='u' ){ //ctrl+z
 
-            if(last_selected_layer > 0){
-              if(setting.detector_cut_z[last_selected_layer - NUMBER_DATA_LAYER] < 7000){
-                        setting.detector_cut_z[last_selected_layer - NUMBER_DATA_LAYER]+=100;
-              }
-            }else{
-                 for(int i = 0; i<NUMBER_DETECTOR_LAYER;i++){
-                      if(setting.detector_cut_z[0] < 7000){
-                          setting.detector_cut_z[i]+=100;
-                      }
-                  }
-            }
+  switch (key) {
+    SELECT_FROM_MENU('r', VIEW_RESET);
+    SELECT_FROM_MENU('R', CED_RESET);
+    SELECT_FROM_MENU('f', VIEW_FRONT);
+    SELECT_FROM_MENU('F', TOGGLE_Z_PROJECTION);
+    SELECT_FROM_MENU('s', VIEW_SIDE);
+    SELECT_FROM_MENU('S', TOGGLE_PHI_PROJECTION);
+    SELECT_FROM_MENU('v', VIEW_FISHEYE);
+    SELECT_FROM_MENU('V', VIEW_FISHEYE);
+    SELECT_FROM_MENU('+', VIEW_ZOOM_IN);
+    SELECT_FROM_MENU('-', VIEW_ZOOM_OUT);
 
-        glutPostRedisplay();
-    } else if(key == 'Z'){
-            if(last_selected_layer > 0){
-              if(setting.detector_cut_z[last_selected_layer - NUMBER_DATA_LAYER] > -7000){
-                    setting.detector_cut_z[last_selected_layer - NUMBER_DATA_LAYER]-=100;
-              }
-            }else{
-                 for(int i = 0; i<NUMBER_DETECTOR_LAYER;i++){
-                      if(setting.detector_cut_z[i] > -7000){
-                          setting.detector_cut_z[i]-=100;
-                      }
-                  }
-            }
-        glutPostRedisplay();
-    } else if(key == '<'){
-         if(last_selected_layer > 0){
-            if(setting.detector_trans[last_selected_layer - NUMBER_DATA_LAYER] > 0.005){
-              setting.detector_trans[last_selected_layer - NUMBER_DATA_LAYER]-=0.005;
-            }else{
-              setting.detector_trans[last_selected_layer - NUMBER_DATA_LAYER]=0;
-            }
-        }else{
-            for(int i = 0; i<NUMBER_DETECTOR_LAYER;i++){
-                if(setting.detector_trans[i] > 0.005){
-                    setting.detector_trans[i]-=0.005;
-                }else{
-                    setting.detector_trans[i]=0;
-                }
-            }
-
-        }
-         glutPostRedisplay();
-    }else if(key == '>'){
-          if(last_selected_layer > 0){
-                if(setting.detector_trans[last_selected_layer - NUMBER_DATA_LAYER] < 1-0.005){
-                  setting.detector_trans[last_selected_layer - NUMBER_DATA_LAYER]+=0.005;
-                }else{
-                  setting.detector_trans[last_selected_layer - NUMBER_DATA_LAYER]=1.;
-                }
-            }else{
-               for(int i = 0; i<NUMBER_DETECTOR_LAYER;i++){
-                    if(setting.detector_trans[i] < 1-0.005){
-                        setting.detector_trans[i]+=0.005;
-                    }else{
-                      setting.detector_trans[i]=1.;
-                    }
-                }
-            }
-
-          glutPostRedisplay();
-
-    }else if(key == 'm'){
-         if(last_selected_layer > 0){
-            if( setting.detector_cut_angle[last_selected_layer - NUMBER_DATA_LAYER] > 0){
-              setting.detector_cut_angle[last_selected_layer - NUMBER_DATA_LAYER]-=0.5;
-            }
-          }else{
-               for(int i = 0; i<NUMBER_DETECTOR_LAYER;i++){
-                   if( setting.detector_cut_angle[i] > 0){
-                        setting.detector_cut_angle[i]-=0.5;
-                    }
-            }
-        }
-        glutPostRedisplay();
-    } else if(key == 'M'){
-         if(last_selected_layer > 0){
-          if(setting.detector_cut_angle[last_selected_layer - NUMBER_DATA_LAYER] < 360){
-            setting.detector_cut_angle[last_selected_layer - NUMBER_DATA_LAYER]+=0.5;
-            }
-          }
-         else{
-          for(int i = 0; i<NUMBER_DETECTOR_LAYER;i++){
-                if(setting.detector_cut_angle[i] < 360){
-                  setting.detector_cut_angle[i]+=0.5;
-                }
-          }
-        }
-
+    SELECT_FROM_MENU(26, UNDO);
+    SELECT_FROM_MENU('x', UNDO);
+    SELECT_FROM_MENU(19, SAVE_IMAGE1);
+  case 27: // esc
+    exit(0);
+  case 'c':
+  case 'C':
+    // selectFromMenu(VIEW_CENTER);
+    if (!ced_get_selected(x, y, &mm.mv.x, &mm.mv.y, &mm.mv.z)) {
       glutPostRedisplay();
-
-    } else if(key=='t'){ // t - momentum at ip layer 2
-      toggle_layer(20);
-      glutPostRedisplay();
-    } else if(key=='y'){ // y - momentum at ip layer = 3
-      toggle_layer(21);
-      glutPostRedisplay();
-    } else if(key=='u'){ // u - momentum at ip layer = 4
-      toggle_layer(22);
-      glutPostRedisplay();
-    } else if(key=='i'){ // i - momentum at ip layer = 5
-      toggle_layer(23);
-      glutPostRedisplay();
-    } else if(key=='o'){ // o - momentum at ip layer = 6
-      toggle_layer(24);
-      glutPostRedisplay();
-    } else if(key=='b'){ // toggle background color
-        ++iBGcolor;
-        if (iBGcolor >= sizeof(bgColors)/sizeof(color_t)){
-            glClearColor(userDefinedBGColor[0],userDefinedBGColor[1],userDefinedBGColor[2],userDefinedBGColor[3]);
-            iBGcolor=-1;
-            printf("using color: %s\n","user defined");
-            glutPostRedisplay();
-            return;
-        }else{
-            glClearColor(bgColors[iBGcolor][0],bgColors[iBGcolor][1],bgColors[iBGcolor][2],bgColors[iBGcolor][3]);
-            glutPostRedisplay();
-            printf("using color %u\n",iBGcolor);
-        }
-    } else if(key == 'h'){
-          toggleHelpWindow();
     }
+    break;
 
+    SELECT_FROM_MENU('`', LAYER_ALL);
+    SELECT_FROM_MENU(DATALAYER_SHORTKEY_00, LAYER_0);
+    SELECT_FROM_MENU(DATALAYER_SHORTKEY_01, LAYER_1);
+    SELECT_FROM_MENU(DATALAYER_SHORTKEY_02, LAYER_2);
+    SELECT_FROM_MENU(DATALAYER_SHORTKEY_03, LAYER_3);
+    SELECT_FROM_MENU(DATALAYER_SHORTKEY_04, LAYER_4);
+    SELECT_FROM_MENU(DATALAYER_SHORTKEY_05, LAYER_5);
+    SELECT_FROM_MENU(DATALAYER_SHORTKEY_06, LAYER_6);
+    SELECT_FROM_MENU(DATALAYER_SHORTKEY_07, LAYER_7);
+    SELECT_FROM_MENU(DATALAYER_SHORTKEY_08, LAYER_8);
+    SELECT_FROM_MENU(DATALAYER_SHORTKEY_09, LAYER_9);
+    SELECT_FROM_MENU(DATALAYER_SHORTKEY_10, LAYER_10);
+    SELECT_FROM_MENU(DATALAYER_SHORTKEY_11, LAYER_11);
+    SELECT_FROM_MENU(DATALAYER_SHORTKEY_12, LAYER_12);
+    SELECT_FROM_MENU(DATALAYER_SHORTKEY_13, LAYER_13);
+    SELECT_FROM_MENU(DATALAYER_SHORTKEY_14, LAYER_14);
+    SELECT_FROM_MENU(DATALAYER_SHORTKEY_15, LAYER_15);
+    SELECT_FROM_MENU(DATALAYER_SHORTKEY_16, LAYER_16);
+    SELECT_FROM_MENU(DATALAYER_SHORTKEY_17, LAYER_17);
+    SELECT_FROM_MENU(DATALAYER_SHORTKEY_18, LAYER_18);
+    SELECT_FROM_MENU(DATALAYER_SHORTKEY_19, LAYER_19);
+    SELECT_FROM_MENU(DATALAYER_SHORTKEY_20, LAYER_20);
+    SELECT_FROM_MENU(DATALAYER_SHORTKEY_21, LAYER_21);
+    SELECT_FROM_MENU(DATALAYER_SHORTKEY_22, LAYER_22);
+    SELECT_FROM_MENU(DATALAYER_SHORTKEY_23, LAYER_23);
+    SELECT_FROM_MENU(DATALAYER_SHORTKEY_24, LAYER_24);
 
+    SELECT_FROM_MENU('~', DETECTOR_ALL);
+    SELECT_FROM_MENU(DETECTORLAYER_SHORTKEY_00, DETECTOR1);
+    SELECT_FROM_MENU(DETECTORLAYER_SHORTKEY_01, DETECTOR2);
+    SELECT_FROM_MENU(DETECTORLAYER_SHORTKEY_02, DETECTOR3);
+    SELECT_FROM_MENU(DETECTORLAYER_SHORTKEY_03, DETECTOR4);
+    SELECT_FROM_MENU(DETECTORLAYER_SHORTKEY_04, DETECTOR5);
+    SELECT_FROM_MENU(DETECTORLAYER_SHORTKEY_05, DETECTOR6);
+    SELECT_FROM_MENU(DETECTORLAYER_SHORTKEY_06, DETECTOR7);
+    SELECT_FROM_MENU(DETECTORLAYER_SHORTKEY_07, DETECTOR8);
+    SELECT_FROM_MENU(DETECTORLAYER_SHORTKEY_08, DETECTOR9);
+    SELECT_FROM_MENU(DETECTORLAYER_SHORTKEY_09, DETECTOR10);
+    SELECT_FROM_MENU(DETECTORLAYER_SHORTKEY_10, DETECTOR11);
+    SELECT_FROM_MENU(DETECTORLAYER_SHORTKEY_11, DETECTOR12);
+    SELECT_FROM_MENU(DETECTORLAYER_SHORTKEY_12, DETECTOR13);
+    SELECT_FROM_MENU(DETECTORLAYER_SHORTKEY_13, DETECTOR14);
+    SELECT_FROM_MENU(DETECTORLAYER_SHORTKEY_14, DETECTOR15);
+    SELECT_FROM_MENU(DETECTORLAYER_SHORTKEY_15, DETECTOR16);
+    SELECT_FROM_MENU(DETECTORLAYER_SHORTKEY_16, DETECTOR17);
+    SELECT_FROM_MENU(DETECTORLAYER_SHORTKEY_17, DETECTOR18);
+    SELECT_FROM_MENU(DETECTORLAYER_SHORTKEY_18, DETECTOR19);
+    SELECT_FROM_MENU(DETECTORLAYER_SHORTKEY_19, DETECTOR20);
+    SELECT_FROM_MENU(DETECTORLAYER_SHORTKEY_20, DETECTOR21);
+    SELECT_FROM_MENU(DETECTORLAYER_SHORTKEY_21, DETECTOR22);
+    SELECT_FROM_MENU(DETECTORLAYER_SHORTKEY_22, DETECTOR23);
+    SELECT_FROM_MENU(DETECTORLAYER_SHORTKEY_23, DETECTOR24);
+    SELECT_FROM_MENU(DETECTORLAYER_SHORTKEY_24, DETECTOR25);
+    SELECT_FROM_MENU(DETECTORLAYER_SHORTKEY_25, DETECTOR26);
+    SELECT_FROM_MENU(DETECTORLAYER_SHORTKEY_26, DETECTOR27);
+    SELECT_FROM_MENU(DETECTORLAYER_SHORTKEY_27, DETECTOR28);
+    SELECT_FROM_MENU(DETECTORLAYER_SHORTKEY_28, DETECTOR29);
+    SELECT_FROM_MENU(DETECTORLAYER_SHORTKEY_29, DETECTOR30);
+    SELECT_FROM_MENU(DETECTORLAYER_SHORTKEY_30, DETECTOR31);
+    SELECT_FROM_MENU(DETECTORLAYER_SHORTKEY_31, DETECTOR32);
+    SELECT_FROM_MENU(DETECTORLAYER_SHORTKEY_32, DETECTOR33);
+    SELECT_FROM_MENU(DETECTORLAYER_SHORTKEY_33, DETECTOR34);
+    SELECT_FROM_MENU(DETECTORLAYER_SHORTKEY_34, DETECTOR35);
+    SELECT_FROM_MENU(DETECTORLAYER_SHORTKEY_35, DETECTOR36);
+    SELECT_FROM_MENU(DETECTORLAYER_SHORTKEY_36, DETECTOR37);
+    SELECT_FROM_MENU(DETECTORLAYER_SHORTKEY_37, DETECTOR38);
+    SELECT_FROM_MENU(DETECTORLAYER_SHORTKEY_38, DETECTOR39);
+    SELECT_FROM_MENU(DETECTORLAYER_SHORTKEY_39, DETECTOR40);
+
+  case 'z':
+    if (last_selected_layer > 0) {
+      if (setting.detector_cut_z[last_selected_layer - NUMBER_DATA_LAYER] <
+          7000) {
+        setting.detector_cut_z[last_selected_layer - NUMBER_DATA_LAYER] += 100;
+      }
+    } else {
+      for (int i = 0; i < NUMBER_DETECTOR_LAYER; i++) {
+        if (setting.detector_cut_z[0] < 7000) {
+          setting.detector_cut_z[i] += 100;
+        }
+      }
+    }
+    glutPostRedisplay();
+    break;
+
+  case 'Z':
+    if (last_selected_layer > 0) {
+      if (setting.detector_cut_z[last_selected_layer - NUMBER_DATA_LAYER] >
+          -7000) {
+        setting.detector_cut_z[last_selected_layer - NUMBER_DATA_LAYER] -= 100;
+      }
+    } else {
+      for (int i = 0; i < NUMBER_DETECTOR_LAYER; i++) {
+        if (setting.detector_cut_z[i] > -7000) {
+          setting.detector_cut_z[i] -= 100;
+        }
+      }
+    }
+    glutPostRedisplay();
+    break;
+
+  case '<':
+    if (last_selected_layer > 0) {
+      if (setting.detector_trans[last_selected_layer - NUMBER_DATA_LAYER] >
+          0.005) {
+        setting.detector_trans[last_selected_layer - NUMBER_DATA_LAYER] -=
+            0.005;
+      } else {
+        setting.detector_trans[last_selected_layer - NUMBER_DATA_LAYER] = 0;
+      }
+    } else {
+      for (int i = 0; i < NUMBER_DETECTOR_LAYER; i++) {
+        if (setting.detector_trans[i] > 0.005) {
+          setting.detector_trans[i] -= 0.005;
+        } else {
+          setting.detector_trans[i] = 0;
+        }
+      }
+    }
+    glutPostRedisplay();
+    break;
+
+  case '>':
+    if (last_selected_layer > 0) {
+      if (setting.detector_trans[last_selected_layer - NUMBER_DATA_LAYER] <
+          1 - 0.005) {
+        setting.detector_trans[last_selected_layer - NUMBER_DATA_LAYER] +=
+            0.005;
+      } else {
+        setting.detector_trans[last_selected_layer - NUMBER_DATA_LAYER] = 1.;
+      }
+    } else {
+      for (int i = 0; i < NUMBER_DETECTOR_LAYER; i++) {
+        if (setting.detector_trans[i] < 1 - 0.005) {
+          setting.detector_trans[i] += 0.005;
+        } else {
+          setting.detector_trans[i] = 1.;
+        }
+      }
+    }
+    glutPostRedisplay();
+    break;
+
+  case 'm':
+    if (last_selected_layer > 0) {
+      if (setting.detector_cut_angle[last_selected_layer - NUMBER_DATA_LAYER] >
+          0) {
+        setting.detector_cut_angle[last_selected_layer - NUMBER_DATA_LAYER] -=
+            0.5;
+      }
+    } else {
+      for (int i = 0; i < NUMBER_DETECTOR_LAYER; i++) {
+        if (setting.detector_cut_angle[i] > 0) {
+          setting.detector_cut_angle[i] -= 0.5;
+        }
+      }
+    }
+    glutPostRedisplay();
+    break;
+
+  case 'M':
+    if (last_selected_layer > 0) {
+      if (setting.detector_cut_angle[last_selected_layer - NUMBER_DATA_LAYER] <
+          360) {
+        setting.detector_cut_angle[last_selected_layer - NUMBER_DATA_LAYER] +=
+            0.5;
+      }
+    } else {
+      for (int i = 0; i < NUMBER_DETECTOR_LAYER; i++) {
+        if (setting.detector_cut_angle[i] < 360) {
+          setting.detector_cut_angle[i] += 0.5;
+        }
+      }
+    }
+    glutPostRedisplay();
+    break;
+
+    case 'b': // toggle background color
+    ++iBGcolor;
+    if (iBGcolor >= sizeof(bgColors) / sizeof(color_t)) {
+      glClearColor(userDefinedBGColor[0], userDefinedBGColor[1],
+                   userDefinedBGColor[2], userDefinedBGColor[3]);
+      iBGcolor = -1;
+      printf("using color: %s\n", "user defined");
+      glutPostRedisplay();
+      return;
+    } else {
+      glClearColor(bgColors[iBGcolor][0], bgColors[iBGcolor][1],
+                   bgColors[iBGcolor][2], bgColors[iBGcolor][3]);
+      glutPostRedisplay();
+      printf("using color %u\n", iBGcolor);
+    }
+    break;
+  case 'h':
+    toggleHelpWindow();
+    break;
+  default:
+    std::cerr << "Unknown keyboard shortcut: " << key << std::endl;
+  }
 }
 
 static void SpecialKey( int key, int x, int y ){
