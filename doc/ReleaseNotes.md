@@ -1,3 +1,16 @@
+# v01-10
+
+* 2024-07-25 tmadlener ([PR#13](https://github.com/iLCSoft/CED/pull/13))
+  - Make sure that all detector layers have a keyboard shortcut and that they can be properly addressed by that after [#11](https://github.com/iLCSoft/CED/pull/11)
+  - Refactor the `keypressed` function and eliminate a few previously undetected clashes in available keyboard shortcuts 
+    - `t`, `u`, `y`, `i` were bound twice and now exclusively used for toggling data layers
+
+* 2024-07-23 tmadlener ([PR#14](https://github.com/iLCSoft/CED/pull/14))
+  - Remove CentOS7 from the Key4hep based CI workflows
+
+* 2024-03-27 Leonhard Reichenbach ([PR#11](https://github.com/iLCSoft/CED/pull/11))
+  - Increased the number of possible detector layers to 40
+
 # v01-09-04
 
 * 2022-03-18 Thomas Madlener ([PR#10](https://github.com/iLCSoft/CED/pull/10))
