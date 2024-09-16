@@ -1,4 +1,4 @@
-########################################################
+#######################################################
 # cmake file for building CED
 # @author Jan Engels, Desy IT
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6 FATAL_ERROR)
@@ -123,12 +123,16 @@ IF( CED_SERVER )
 
     INSTALL( TARGETS glced DESTINATION bin )
 
+    # Install dll in bin directory in the case of CYGWIN
+    IF( CYGWIN )
+       INSTALL( TARGETS CED DESTINATION bin )
+    ENDIF()
+
 ENDIF( CED_SERVER )
 
 
 # ------------------ CED TESTS ------------------
-#FOREACH( _testname test_ced test_ced_mhits test_ced_color )
-FOREACH( _testname test_ced test_ced_mhits )
+FOREACH( _testname test_ced test_ced_mhits test_ced_color )
 
     IF( BUILD_TESTING )
         ADD_EXECUTABLE( ${_testname} ./src/tests/${_testname}.cc )
