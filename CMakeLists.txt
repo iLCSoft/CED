@@ -127,20 +127,18 @@ ENDIF( CED_SERVER )
 
 
 # ------------------ CED TESTS ------------------
+IF( BUILD_TESTING )
 #FOREACH( _testname test_ced test_ced_mhits test_ced_color )
-FOREACH( _testname test_ced test_ced_mhits )
+  FOREACH( _testname test_ced test_ced_mhits )
 
-    IF( BUILD_TESTING )
-        ADD_EXECUTABLE( ${_testname} ./src/tests/${_testname}.cc )
-    ELSE()
-        ADD_EXECUTABLE( ${_testname} EXCLUDE_FROM_ALL ./src/tests/${_testname}.cc )
-    ENDIF()
+    ADD_EXECUTABLE( ${_testname} ./src/tests/${_testname}.cc )
 
     TARGET_LINK_LIBRARIES( ${_testname} CED )
 
     INSTALL( TARGETS ${_testname} DESTINATION bin )
 
-ENDFOREACH()
+  ENDFOREACH()
+ENDIF()
 
 
 
