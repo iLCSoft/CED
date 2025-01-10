@@ -295,12 +295,10 @@ class CED_SubSubMenu{
             subsub->y_end  =y_end + height;
             subsubMenus.push_back(subsub);
         }
-        CED_SubSubMenu(string t, int nr=0){
-            title=t;
-            optionNr=nr;
-            isExtend=false;
-            isMouseOver=false;
-            dead=false;
+        CED_SubSubMenu(string t, int nr=0)
+          : title(t),
+            optionNr(nr)
+        {
         }
         ~CED_SubSubMenu(){
             if(dead == true){
@@ -317,20 +315,20 @@ class CED_SubSubMenu{
         }
 
 
-        bool isAktive;
+        bool isAktive = false;
         string title;
         int optionNr;
-        bool isExtend;
-        bool isMouseOver;
-        int x_start;
-        int x_end;
-        int y_start;
-        int y_end;
+        bool isExtend = false;
+        bool isMouseOver = false;
+        int x_start = 0;
+        int x_end = 0;
+        int y_start = 0;
+        int y_end = 0;
 
-        bool dead;
+        bool dead = false;
 
     private:
-        vector<CED_SubSubMenu *> subsubMenus;
+        vector<CED_SubSubMenu *> subsubMenus{};
 };
 
 
@@ -469,12 +467,10 @@ class CED_SubMenu{
             subsubMenus.push_back(subsub);
 
         }
-        CED_SubMenu(string t, int nr=0){
-            title=t;
-            optionNr=nr;
-            isExtend=false;
-            isMouseOver=false;
-            selected_submenu=NULL;
+        CED_SubMenu(string t, int nr=0)
+          : title(t),
+            optionNr(nr)
+        {
         }
         ~CED_SubMenu(){
             for(int i=0;(unsigned) i<subsubMenus.size();i++){
@@ -483,21 +479,23 @@ class CED_SubMenu{
             }
         }
 
+       CED_SubMenu(const CED_SubMenu&) = delete;
+       CED_SubMenu& operator=(const CED_SubMenu&) = delete;
 
 
         string title;
         int optionNr;
-        bool isExtend;
-        bool isMouseOver;
-        int x_start;
-        int x_end;
-        int y_start;
-        int y_end;
+        bool isExtend = false;
+        bool isMouseOver = false;
+        int x_start = 0;
+        int x_end = 0;
+        int y_start = 0;
+        int y_end = 0;
 
 
     private:
-        CED_SubSubMenu *selected_submenu;
-        vector<CED_SubSubMenu *> subsubMenus;
+        CED_SubSubMenu *selected_submenu = nullptr;
+        vector<CED_SubSubMenu *> subsubMenus{};
 };
 
 class CED_Menu{
@@ -633,8 +631,9 @@ class CED_Menu{
             subMenus.push_back(sub);
             x_offset+=5;
         }
-        CED_Menu(){
-            x_offset=1;
+        CED_Menu()
+          : x_offset(1)
+        {
         }
         ~CED_Menu(){
             cout << "delete ced menu" <<  endl;
@@ -644,7 +643,7 @@ class CED_Menu{
         }
 
     private:
-        vector<CED_SubMenu *> subMenus;
+        vector<CED_SubMenu *> subMenus{};
         unsigned x_offset;
 };
 
@@ -806,33 +805,32 @@ class CED_PopUpMenu{
             subsubMenus.push_back(subsub);
 
         }
-        CED_PopUpMenu(string t, int nr=0){
-            title=t;
-            optionNr=nr;
-            isExtend=false;
-            isMouseOver=false;
-            selected_submenu=NULL;
-            //click_x=
-            //click_y=
+        CED_PopUpMenu(string t, int nr=0)
+          : title(t),
+            optionNr(nr)
+        {
         }
+
+        CED_PopUpMenu(const CED_PopUpMenu&) = delete;
+        CED_PopUpMenu& operator=(const CED_PopUpMenu&) = delete;
 
         int size(void){
             return(subsubMenus.size());
         }
         string title;
         int optionNr;
-        bool isExtend;
-        bool isMouseOver;
-        int x_start;
-        int x_end;
-        int y_start;
-        int y_end;
-        int x_click;
-        int y_click;
+        bool isExtend = false;
+        bool isMouseOver = false;
+        int x_start = 0;
+        int x_end = 0;
+        int y_start = 0;
+        int y_end = 0;
+        int x_click = 0;
+        int y_click = 0;
 
     private:
-        vector<CED_SubSubMenu *> subsubMenus;
-        CED_SubSubMenu *selected_submenu;
+        vector<CED_SubSubMenu *> subsubMenus{};
+        CED_SubSubMenu *selected_submenu = nullptr;
 
 };
 
