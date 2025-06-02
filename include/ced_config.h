@@ -105,7 +105,7 @@
 #define CED_BGCOLOR_OPTION1_NAME            "Gainsboro"
 #define CED_BGCOLOR_OPTION1_COLORCODE       0.862745,0.862745,0.862745,0
 
-#define CED_BGCOLOR_OPTION2_NAME            "Lightgrey"
+#define CED_BGCOLOR_OPTION2_NAME            "Lightgray"
 #define CED_BGCOLOR_OPTION2_COLORCODE       0.827451,0.827451,0.827451,0
 
 #define CED_BGCOLOR_OPTION3_NAME            "Darkgray"
