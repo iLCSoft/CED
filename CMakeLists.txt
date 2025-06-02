@@ -109,6 +109,7 @@ IF( CED_SERVER )
     #ENDIF()
 
     AUX_SOURCE_DIRECTORY( ./src/server server_sources )
+    LIST(APPEND server_sources src/FontSettings.cpp)
     ADD_EXECUTABLE( glced ${server_sources} )
 
     SET_TARGET_PROPERTIES( glced PROPERTIES
