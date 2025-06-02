@@ -586,7 +586,6 @@ class CED_Menu{
             if(setting.font==2){
                 length=10.0;
             }
-            //cout << "length: " << length << endl;
 
             sub->x_start=x_offset;
             sub->y_start=1;
