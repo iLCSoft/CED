@@ -3619,18 +3619,17 @@ void buildPopUpMenu(int x, int y){
 
     }
 
-    int height=10;
+    FontDimensions dim = getFontDimensions(setting.font);
+    int height = dim.height;
+
     int width=200;
     if(setting.font==0){
-        height=10;
         width=150;
     }
     if(setting.font==1){
-        height=12;
         width=200;
     }
     if(setting.font==2){
-        height=20;
         width=300;
     }
 

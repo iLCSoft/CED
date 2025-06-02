@@ -573,19 +573,18 @@ class CED_Menu{
         }
 
         void addSubMenu(CED_SubMenu *sub){
+            FontDimensions dim = getFontDimensions(setting.font);
+            int height = dim.height;
+
             double length=10;
-            int height=10;
             if(setting.font==0){
                 length=4.8;
-                height=10;
             }
             if(setting.font==1){
                 length=5.2;
-                height=12;
             }
             if(setting.font==2){
                 length=10.0;
-                height=20;
             }
             //cout << "length: " << length << endl;
 
