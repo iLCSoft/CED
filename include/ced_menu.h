@@ -800,6 +800,8 @@ class CED_PopUpMenu{
 #define FONT0                        2010
 #define FONT1                        2011
 #define FONT2                        2012
+#define FONT3                        2013
+#define FONT4                        2014
 
 #define UNDO                         2312
 
