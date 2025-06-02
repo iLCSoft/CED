@@ -19,57 +19,75 @@ using namespace std;
 extern CEDsettings setting;
 extern GLfloat window_width;
 
-void drawHelpString (const string & str, float x,float y){ //format help strings strings: "[<key>] <description>"
+void drawHelpString(const std::string& str, float x, float y) {
     unsigned int i;
-//    float x1=x;
-//    float y1=y;
-//    if( x1 < 0.0){
-//        x1=0.;
-//    }
-//    if( y1 < 0.0){
-//        y1=0.;
-//    }
-//
-//    glRasterPos2f(x1,y1);
 
-    glRasterPos2f(x,y);
+    // Set OpenGL raster position for bitmap OR transform for stroke
+    if (setting.font <= 2) {
+        glRasterPos2f(x, y);  // for bitmap fonts
+    } else {
+        glPushMatrix();
+
+        float scale;
+        if (setting.font == 3) {
+            scale = 0.3f;
+        } else if (setting.font == 4) {
+            scale = 0.6f;
+        } else {
+            scale = 1.0f;  // fallback or unused
+        }
+
+        // Position in screen coords (x, y)
+        // Stroke fonts are ~119 units high in font-space
+        float font_height = 0.05f;
+
+        // Translate to (x, y), then adjust up so text appears aligned
+        glTranslatef(x, y, 0.0f);
+
+        // Flip Y *before* drawing, then move up by height
+        glScalef(scale, -scale, scale);
+        glTranslatef(0.0f, -font_height, 0.0f);
+
+    }
 
     int monospace = 0;
-    for (i = 0; str[i]; i++){
-        if(str[i] == '['){
+
+    for (i = 0; i < str.size(); i++) {
+        if (str[i] == '[') {
             monospace = 1;
-            if(setting.font == 0){
-                glutBitmapCharacter (GLUT_BITMAP_HELVETICA_10, '[');
-            }else if(setting.font == 1){
-                glutBitmapCharacter (GLUT_BITMAP_HELVETICA_12, '[');
-            }else if(setting.font == 2){
-                glutBitmapCharacter (GLUT_BITMAP_HELVETICA_18, '[');
+            if (setting.font <= 2) {
+                if (setting.font == 0) glutBitmapCharacter(GLUT_BITMAP_HELVETICA_10, '[');
+                else if (setting.font == 1) glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, '[');
+                else glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, '[');
+            } else {
+                glutStrokeCharacter(GLUT_STROKE_ROMAN, '[');
             }
-            i++;
+            continue;
+        } else if (str[i] == ']') {
+            monospace = 0;
         }
-        else if(str[i] == ']'){
-             monospace = 0;
-        }
-        if(monospace){
-            if(setting.font == 0){
-                glutBitmapCharacter(GLUT_BITMAP_8_BY_13, str[i]);
-            }else if(setting.font == 1){
-                glutBitmapCharacter(GLUT_BITMAP_8_BY_13, str[i]);
-            }else if(setting.font == 2){
-                glutBitmapCharacter(GLUT_BITMAP_9_BY_15, str[i]);
+
+        if (monospace) {
+            if (setting.font <= 2) {
+                if (setting.font == 0) glutBitmapCharacter(GLUT_BITMAP_8_BY_13, str[i]);
+                else if (setting.font == 1) glutBitmapCharacter(GLUT_BITMAP_8_BY_13, str[i]);
+                else glutBitmapCharacter(GLUT_BITMAP_9_BY_15, str[i]);
+            } else {
+                glutStrokeCharacter(GLUT_STROKE_ROMAN, str[i]);
             }
-        }else{
-            //glutBitmapCharacter (GLUT_BITMAP_HELVETICA_10, str[i]);
-            //glutBitmapCharacter ( GLUT_BITMAP_HELVETICA_12 , str[i]);
-            //glutBitmapCharacter ( GLUT_BITMAP_HELVETICA_18 , str[i]);
-            if(setting.font == 0){
-                glutBitmapCharacter (GLUT_BITMAP_HELVETICA_10, str[i]);
-            }else if(setting.font == 1){
-                glutBitmapCharacter (GLUT_BITMAP_HELVETICA_12, str[i]);
-            }else if(setting.font == 2){
-                glutBitmapCharacter (GLUT_BITMAP_HELVETICA_18, str[i]);
+        } else {
+            if (setting.font <= 2) {
+                if (setting.font == 0) glutBitmapCharacter(GLUT_BITMAP_HELVETICA_10, str[i]);
+                else if (setting.font == 1) glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, str[i]);
+                else glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, str[i]);
+            } else {
+                glutStrokeCharacter(GLUT_STROKE_ROMAN, str[i]);
             }
         }
+    }
+
+    if (setting.font > 2) {
+        glPopMatrix();  // restore matrix after stroke drawing
     }
 }
 
