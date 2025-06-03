@@ -894,7 +894,7 @@ void drawPartialCylinder(double length, double R /*radius*/, double iR /*inner r
 
 
             //inner_side_points.push_back((my_point){iR*sin(360.0/edges*(i)*2*PI/360.0),iR*cos(360.0/edges*(i)*2*PI/360.0)});
-            inner_side_points.emplace_back(iR*xl*sin((angle_cut_off_left)*2*PI/360.0),iR*xl*cos((angle_cut_off_left)*2*PI/360.0));
+            inner_side_points.emplace_back(iR*xl*sin((angle_cut_off_left)*2*PI/360.0), iR*xl*cos((angle_cut_off_left)*2*PI/360.0));
 
             i=i+1; 
 
