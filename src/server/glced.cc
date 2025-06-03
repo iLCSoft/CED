@@ -76,6 +76,7 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <sstream>
+#include <iomanip>
 
 static GLfloat window_width=0.;
 static GLfloat window_height=0.;
@@ -506,8 +507,8 @@ void printFPS(void){
     GLfloat w=glutGet(GLUT_SCREEN_WIDTH);
     GLfloat h=glutGet(GLUT_SCREEN_HEIGHT); ;
 
-    int  WORLD_SIZE=1000; //static worldsize maybe will get problems in the future...
-    glOrtho(-WORLD_SIZE*w/h,WORLD_SIZE*w/h,-WORLD_SIZE,WORLD_SIZE, -15*WORLD_SIZE,15*WORLD_SIZE);
+    int  world_size=1000; //static worldsize maybe will get problems in the future...
+    glOrtho(-world_size*w/h,world_size*w/h,-world_size,world_size, -15*world_size,15*world_size);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
@@ -537,6 +538,27 @@ void printFPS(void){
     glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
 }
+
+std::string truncateTo(std::string str, size_t max_len) {
+  if (str.size() >= max_len) {
+      auto truncStr =  str.substr(0, max_len);
+      truncStr[max_len-3] = '.';
+      truncStr[max_len-2] = '.';
+      truncStr[max_len-1] = '.';
+      return truncStr;
+  }
+  return str;
+}
+
+std::string formatShortcut(int iLayer, const char key, const char *description,
+                           size_t max_len) {
+  std::stringstream sstr;
+  sstr << "(" << (isLayerVisible(iLayer) ? "X" : "_") << ") [" << key << "] "
+       << std::setfill('0') << std::setw(2) << iLayer << ": " << description;
+
+  return truncateTo(sstr.str(), max_len);
+}
+
 void printShortcuts(void){
 
     const unsigned int MAX_STR_LEN=30;
@@ -602,31 +624,15 @@ void printShortcuts(void){
     shortcuts.push_back( "DATA LAYERS:" );
 
 
-    char label[MAX_STR_LEN+1];
-
     for(i=0;i<NUMBER_DATA_LAYER;i++){
-        snprintf(label,MAX_STR_LEN+1, "(%s) [%c] %s%i: %s", isLayerVisible(i)?"X":"_",layer_keys[i], (i<10)?"0":"", i, layerDescription[i]);
-        if(strlen(label) >= MAX_STR_LEN){
-            label[MAX_STR_LEN-3]='.';
-            label[MAX_STR_LEN-2]='.';
-            label[MAX_STR_LEN-1]='.';
-            label[MAX_STR_LEN]=0;
-        }
-        shortcuts.push_back(label);
+        shortcuts.emplace_back(formatShortcut(i, layer_keys[i], layerDescription[i], MAX_STR_LEN));
     }
 
     shortcuts.push_back( " " );
     shortcuts.push_back( "DETECTOR LAYERS: " );
 
     for(i=NUMBER_DATA_LAYER;i<NUMBER_DETECTOR_LAYER+NUMBER_DATA_LAYER;i++){
-        snprintf(label,MAX_STR_LEN+1, "(%s) [%c] %s%i: %s", isLayerVisible(i)?"X":"_",detec_layer_keys[-1*NUMBER_DATA_LAYER+i], ((i)<10)?"0":"", (i), layerDescription[i]);
-        if(strlen(label) >= MAX_STR_LEN){
-            label[MAX_STR_LEN-3]='.';
-            label[MAX_STR_LEN-2]='.';
-            label[MAX_STR_LEN-1]='.';
-            label[MAX_STR_LEN]=0;
-        }
-        shortcuts.push_back(label);
+        shortcuts.emplace_back(formatShortcut(i, detec_layer_keys[-1 * NUMBER_DATA_LAYER + i], layerDescription[i], MAX_STR_LEN));
     }
 
     glMatrixMode(GL_PROJECTION);
@@ -647,13 +653,13 @@ void printShortcuts(void){
     GLfloat w=glutGet(GLUT_WINDOW_WIDTH);
     GLfloat h=glutGet(GLUT_WINDOW_HEIGHT); ;
 
-    int  WORLD_SIZE=1000; //static worldsize maybe will get problems in the future...
+    int  world_size=1000; //static worldsize maybe will get problems in the future...
 
     //glOrtho(0,w,h, 0,0,15*WORLD_SIZE);
 
     //glOrtho(0,w,h,-10,0,15*WORLD_SIZE);
 
-    glOrtho(0,w,h,-1*height,0,15*WORLD_SIZE);
+    glOrtho(0,w,h,-1*height,0,15*world_size);
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
@@ -1430,7 +1436,7 @@ void loadSettings(int slot){
 
 
 
-void mouseWheel(int button, int dir, int x, int y){ //hauke
+void mouseWheel(int, int dir, int, int ){ //hauke
     if(dir > 0){
         selectFromMenu(VIEW_ZOOM_IN);
     }else{
@@ -1894,7 +1900,7 @@ static void keypressed(unsigned char key, int x, int y) {
   }
 }
 
-static void SpecialKey( int key, int x, int y ){
+static void SpecialKey( int key, int, int ){
    switch (key) {
    case GLUT_KEY_RIGHT:
        mm.mv.z+=50.;
@@ -1973,7 +1979,7 @@ static void motion(int x,int y){
     glutPostRedisplay();
 }
 
-static void timer (int val)
+static void timer (int)
 {
     //change timer for testing to 1
     fd_set fds;
@@ -2230,7 +2236,7 @@ void toggleHelpWindow(void){ //hauke
 //    glutSetWindow(mainWindow);
 }
 
-void updateLayerEntryInPopupMenu(int id){ //id is layer id, not menu id!
+void updateLayerEntryInPopupMenu(int){ //id is layer id, not menu id!
 //    char string[200];
 //    char tmp[41];
 //    if(id < 0 || id > NUMBER_POPUP_LAYER-1){
@@ -2267,7 +2273,7 @@ void updateScreenshotMenu(void){
 //    glutChangeToMenuEntry(5,tmp,SAVE_IMAGE100);
 //
 }
-void updateSaveLoadMenu(int id){ //id is save id, not menu id!
+void updateSaveLoadMenu(int){ //id is save id, not menu id!
 //    struct stat s;
 //
 //
@@ -2291,7 +2297,7 @@ void updateSaveLoadMenu(int id){ //id is save id, not menu id!
 }
 
 
-void updateLayerEntryDetector(int id){ //id is layer id, not menu id!
+void updateLayerEntryDetector(int){ //id is layer id, not menu id!
 //    char string[200];
 //    char tmp[101];
 //    if(id < NUMBER_DATA_LAYER || id > NUMBER_DETECTOR_LAYER+NUMBER_DATA_LAYER-1 || id > CED_MAX_LAYER-1 || id < 0){
@@ -2394,10 +2400,10 @@ void selectFromMenu(int id){ //hauke
             if(!ced_picking(popupmenu->x_click,popupmenu->y_click ,&mm.mv.x,&mm.mv.y,&mm.mv.z)){
                struct __glutSocketList *sock;
                sock=__glutSockets;
-               int id = SELECTED_ID;
+               int sel_id = SELECTED_ID;
                //printf(" ced_get_selected : socket connected: %d", sock->fd );
                if(client_connected){
-                    send( sock->fd , &id , sizeof(int) , 0 );
+                    send( sock->fd , &sel_id , sizeof(int) , 0 );
                 }
             }
             break;
@@ -2534,7 +2540,7 @@ void selectFromMenu(int id){ //hauke
 
         case BGCOLOR_USER:
             set_bg_color(userDefinedBGColor[0],userDefinedBGColor[1], userDefinedBGColor[2], userDefinedBGColor[3]);
-
+            [[fallthrough]];
 
         case VIEW_RESET:
             setting.phi_projection = false; // no phi projection
@@ -3520,9 +3526,9 @@ void buildPopUpMenu(int x, int y){
             }
             popupmenu->addItem(phicuts);
 
-            char tmp[200];
-            snprintf(tmp,199,"Z-cut (%.0f)",setting.detector_cut_z[layer-NUMBER_DATA_LAYER]);
-            CED_SubSubMenu *zcuts=new CED_SubSubMenu(tmp);
+            char new_tmp[200];
+            snprintf(new_tmp,199,"Z-cut (%.0f)",setting.detector_cut_z[layer-NUMBER_DATA_LAYER]);
+            CED_SubSubMenu *zcuts=new CED_SubSubMenu(new_tmp);
             zcuts->addItem(new CED_SubSubMenu("Cut at z=-6000", LAYER_CUT_Z_M6000));
             zcuts->addItem(new CED_SubSubMenu("Cut at z=-4000", LAYER_CUT_Z_M4000));
             zcuts->addItem(new CED_SubSubMenu("Cut at z=-2000", LAYER_CUT_Z_M2000));
@@ -3542,8 +3548,8 @@ void buildPopUpMenu(int x, int y){
 
 
 
-            snprintf(tmp,199,"Transparency (%.0f)",100*setting.detector_trans[layer-NUMBER_DATA_LAYER]);
-            CED_SubSubMenu *trans=new CED_SubSubMenu(tmp);
+            snprintf(new_tmp,199,"Transparency (%.0f)",100*setting.detector_trans[layer-NUMBER_DATA_LAYER]);
+            CED_SubSubMenu *trans=new CED_SubSubMenu(new_tmp);
             trans->addItem(new CED_SubSubMenu("    0%",LAYER_TRANS0));
             trans->addItem(new CED_SubSubMenu("  40%", LAYER_TRANS40));
             trans->addItem(new CED_SubSubMenu("  60%", LAYER_TRANS60));
@@ -3660,6 +3666,27 @@ void buildPopUpMenu(int x, int y){
     popupmenu->x_click=x;
    // cout << "TODO: x,y: " << x << ", " << y << endl;
 }
+
+
+std::string formatSubmenuEntry(int iLayer, const char key,
+                               const char *description, size_t max_len) {
+  std::stringstream sstr;
+  sstr << (isLayerVisible(iLayer) ? "[X]" : "[ ]") << " " << std::setfill('0')
+       << std::setw(2) << iLayer;
+
+  // truncate the string such that the description has length max_len
+  // i.e. add the other chars to the length of the final string
+  int padding = 7;
+
+  if (key != '0') {
+    sstr << " [" << key << "]";
+    padding = 11;
+  }
+  sstr << ": " << description;
+
+  return truncateTo(sstr.str(), max_len + padding);
+}
+
 void buildLayerMenus(void){
     //std::cout << "enter buildLayerMenus" << std::endl;
     //if(ced_menu != NULL && detectorlayermenu != NULL && datalayermenu != NULL){
@@ -3669,33 +3696,12 @@ void buildLayerMenus(void){
     detectorlayermenu=new CED_SubSubMenu("Detector layers",0);
     datalayermenu=new CED_SubSubMenu("Data layers",0);
     int i;
-    char str[2000];
-    unsigned max=150;
-    char tmp[max+1];
+    constexpr unsigned max=150;
     for(i=0;i<NUMBER_POPUP_LAYER;i++){
-//        std::cout << "description: " << layerDescription[i] << std::endl;
-        if(strlen(layerDescription[i]) > max-1){
-            snprintf(tmp,max-3,"%s",layerDescription[i]);
-            sprintf(tmp,"%s...",tmp);
-        }else{
-            sprintf(tmp,"%s",layerDescription[i]);
-        }
-
-        sprintf(str,"%s %s%i [%c]: %s", isLayerVisible(i)?"[X]":"[ ]", (i < 10)?"  ":"" ,i, layer_keys[i], tmp);
-        //std::cout << str << std::endl;
-        datalayermenu->addItem(new CED_SubSubMenu(str,LAYER_0+i));
+        datalayermenu->addItem(new CED_SubSubMenu(formatSubmenuEntry(i, layer_keys[i], layerDescription[i], max), LAYER_0+i));
     }
     for(i=NUMBER_DATA_LAYER;i<NUMBER_DETECTOR_LAYER+NUMBER_DATA_LAYER;i++){
-        //sprintf(str,"Detector Layer %s%i [%c]: %s", (i < 10)?"  ":"" ,i, layer_keys[i], layerDescription[i]);
-        if(strlen(layerDescription[i]) > max){
-            snprintf(tmp,max-3,"%s",layerDescription[i]);
-            sprintf(tmp,"%s...",tmp);
-        }else{
-            sprintf(tmp,"%s",layerDescription[i]);
-        }
-
-        sprintf(str,"%s %s%i: %s", isLayerVisible(i)?"[X]":"[ ]",(i < 10)?"  ":"" ,i, layerDescription[i]);
-        detectorlayermenu->addItem(new CED_SubSubMenu(str,DETECTOR1+i-NUMBER_DATA_LAYER));
+        detectorlayermenu->addItem(new CED_SubSubMenu(formatSubmenuEntry(i, '0', layerDescription[i], max), DETECTOR1+i-NUMBER_DATA_LAYER));
     }
 
 
@@ -3724,8 +3730,8 @@ void buildMainMenu(void){
 
     layers->addItem(new CED_SubSubMenu("---", AXES));
     bool result=true;
-    for(int i=0;i<NUMBER_DATA_LAYER;i++){
-        if(setting.layer[i] == false){
+    for(int ii=0;ii<NUMBER_DATA_LAYER;ii++){
+        if(setting.layer[ii] == false){
             result=false;
             break;
         }
@@ -4222,8 +4228,8 @@ int buildMenuPopup(void){ //hauke
     glutAddMenuEntry("Slot 4",LOAD4);
     glutAddMenuEntry("Slot 5",LOAD5);
 
-    for(int i=1;i<=5;i++){
-        updateSaveLoadMenu(i);
+    for(int ii=1;ii<=5;ii++){
+        updateSaveLoadMenu(ii);
     }
 
 
@@ -4610,7 +4616,7 @@ int save_pixmap_as_bmp(unsigned char *buffer_all,const char *name,unsigned int w
     return(0);
 }
 
-void screenshot(const char *name, int times)
+void screenshot(const char *, int times)
 {
     if(times > 100){
         std::cout << "Sorry 100x100 are the max value" << std::endl ;

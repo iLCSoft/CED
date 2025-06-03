@@ -66,7 +66,7 @@ extern int selected_layer;
 //#define IS_VISIBLE(x) ((1<<((x>>8)&0xff))&ced_visible_layers)
 //#define IS_VISIBLE(x) ((x < (CED_MAX_LAYER-1) && x >= 0)?ced_visible_layers[x]:false)
 
-#define IS_VISIBLE(x) ((x < (CED_MAX_LAYER-1) && x >= 0)?setting.layer[x]:false)
+#define IS_VISIBLE(x) ((x < (CED_MAX_LAYER-1) && (int)x >= 0)?setting.layer[x]:false)
 
 
 /*
@@ -426,15 +426,15 @@ void drawPartialLineCylinder(double length, double R /*radius*/, double iR /*inn
             double phi2=360.0/edges*(i-1);
 
             if(360.0-phi <= angle_cut_off){
-                double x = cos(2*PI/edges/2)/cos((360.0- (phi-360.0/edges/2)-angle_cut_off)*2*PI/360.0);
+                double xx = cos(2*PI/edges/2)/cos((360.0- (phi-360.0/edges/2)-angle_cut_off)*2*PI/360.0);
 
                 if(outer_face){
                     //outer
                     glBegin(GL_LINE_LOOP);
                     glVertex3d(R*sin(phi2*2*PI/360.0), R*cos(phi2*2*PI/360.0),-length/2);
                     glVertex3d(R*sin(phi2*2*PI/360.0), R*cos(phi2*2*PI/360.0),length/2);
-                    glVertex3d(R*x*sin((360.0-angle_cut_off)*2*PI/360.0), R*x*cos((360.0-angle_cut_off)*2*PI/360.0), length/2);
-                    glVertex3d(R*x*sin((360.0-angle_cut_off)*2*PI/360.0), R*x*cos((360.0-angle_cut_off)*2*PI/360.0), -length/2);
+                    glVertex3d(R*xx*sin((360.0-angle_cut_off)*2*PI/360.0), R*xx*cos((360.0-angle_cut_off)*2*PI/360.0), length/2);
+                    glVertex3d(R*xx*sin((360.0-angle_cut_off)*2*PI/360.0), R*xx*cos((360.0-angle_cut_off)*2*PI/360.0), -length/2);
                     glEnd();
                 }
 
@@ -444,8 +444,8 @@ void drawPartialLineCylinder(double length, double R /*radius*/, double iR /*inn
                         glBegin(GL_LINE_LOOP);
                         glVertex3d(iR*sin(phi2*2*PI/360.0), iR*cos(phi2*2*PI/360.0),-length/2);
                         glVertex3d(iR*sin(phi2*2*PI/360.0), iR*cos(phi2*2*PI/360.0),length/2);
-                        glVertex3d(iR*x*sin((360.0-angle_cut_off)*2*PI/360.0), iR*x*cos((360.0-angle_cut_off)*2*PI/360.0), length/2);
-                        glVertex3d(iR*x*sin((360.0-angle_cut_off)*2*PI/360.0), iR*x*cos((360.0-angle_cut_off)*2*PI/360.0), -length/2);
+                        glVertex3d(iR*xx*sin((360.0-angle_cut_off)*2*PI/360.0), iR*xx*cos((360.0-angle_cut_off)*2*PI/360.0), length/2);
+                        glVertex3d(iR*xx*sin((360.0-angle_cut_off)*2*PI/360.0), iR*xx*cos((360.0-angle_cut_off)*2*PI/360.0), -length/2);
                         glEnd();
                     }
                 }
@@ -667,15 +667,15 @@ void drawPartialCylinder(double length, double R /*radius*/, double iR /*inner r
         double phi2=360.0/edges*(i-1);
 
         if(360.0-phi <= angle_cut_off){
-            double x = cos(2*PI/edges/2)/cos((360.0- (phi-360.0/edges/2)-angle_cut_off)*2*PI/360.0);
+            double xx = cos(2*PI/edges/2)/cos((360.0- (phi-360.0/edges/2)-angle_cut_off)*2*PI/360.0);
 
             if(outer_face == true){
                 //outer
 
                 struct point3d p1 = {R*sin(phi2*2*PI/360.0), R*cos(phi2*2*PI/360.0),-length/2};
                 struct point3d p2 = {R*sin(phi2*2*PI/360.0), R*cos(phi2*2*PI/360.0),length/2};
-                struct point3d p3 = {R*x*sin((360.0-angle_cut_off)*2*PI/360.0), R*x*cos((360.0-angle_cut_off)*2*PI/360.0), length/2};
-                struct point3d p4 = {R*x*sin((360.0-angle_cut_off)*2*PI/360.0), R*x*cos((360.0-angle_cut_off)*2*PI/360.0), -length/2};
+                struct point3d p3 = {R*xx*sin((360.0-angle_cut_off)*2*PI/360.0), R*xx*cos((360.0-angle_cut_off)*2*PI/360.0), length/2};
+                struct point3d p4 = {R*xx*sin((360.0-angle_cut_off)*2*PI/360.0), R*xx*cos((360.0-angle_cut_off)*2*PI/360.0), -length/2};
                 struct point3d n;    
                 calNormals(n,p1,p2,p3);
 
@@ -894,7 +894,7 @@ void drawPartialCylinder(double length, double R /*radius*/, double iR /*inner r
 
 
             //inner_side_points.push_back((my_point){iR*sin(360.0/edges*(i)*2*PI/360.0),iR*cos(360.0/edges*(i)*2*PI/360.0)});
-            inner_side_points.push_back((my_point){iR*xl*sin((angle_cut_off_left)*2*PI/360.0),iR*xl*cos((angle_cut_off_left)*2*PI/360.0)});
+            inner_side_points.emplace_back(iR*xl*sin((angle_cut_off_left)*2*PI/360.0),iR*xl*cos((angle_cut_off_left)*2*PI/360.0));
 
             i=i+1; 
 
@@ -903,13 +903,13 @@ void drawPartialCylinder(double length, double R /*radius*/, double iR /*inner r
                 phi=360.0/edges*i;
                 if(360.0-phi <= angle_cut_off){
                     x = cos(2*PI/edges/2)/cos((360.0- (phi-360.0/edges/2)-angle_cut_off)*2*PI/360.0);
-                    inner_side_points.push_back((my_point){iR*sin(360.0/edges*(i-1)*2*PI/360.0), iR*cos(360.0/edges*(i-1)*2*PI/360.0)});
-                    inner_side_points.push_back((my_point){iR*x*sin((360.0-angle_cut_off)*2*PI/360.0), iR*x*cos((360.0-angle_cut_off)*2*PI/360.0)});
+                    inner_side_points.emplace_back(iR*sin(360.0/edges*(i-1)*2*PI/360.0), iR*cos(360.0/edges*(i-1)*2*PI/360.0));
+                    inner_side_points.emplace_back(iR*x*sin((360.0-angle_cut_off)*2*PI/360.0), iR*x*cos((360.0-angle_cut_off)*2*PI/360.0));
                     break;
                 }else{
                     if(i != 0){
-                        inner_side_points.push_back((my_point){iR*sin(360.0/edges*(i-1)*2*PI/360.0), iR*cos(360.0/edges*(i-1)*2*PI/360.0)});
-                        inner_side_points.push_back((my_point){iR*sin(phi*2*PI/360.0), iR*cos(phi*2*PI/360.0)});
+                        inner_side_points.emplace_back(iR*sin(360.0/edges*(i-1)*2*PI/360.0), iR*cos(360.0/edges*(i-1)*2*PI/360.0));
+                        inner_side_points.emplace_back(iR*sin(phi*2*PI/360.0), iR*cos(phi*2*PI/360.0));
                     }
                 }
             }
@@ -933,8 +933,8 @@ void drawPartialCylinder(double length, double R /*radius*/, double iR /*inner r
 
 
         
-        outer_side_points.push_back((my_point){R*xl*sin((angle_cut_off_left)*2*PI/360.0), R*xl*cos(angle_cut_off_left*2*PI/360.0)});
-        outer_side_points.push_back((my_point){R*sin(360.0/edges*(i)*2*PI/360.0),R*cos(360.0/edges*(i)*2*PI/360.0)});
+        outer_side_points.emplace_back(R*xl*sin((angle_cut_off_left)*2*PI/360.0), R*xl*cos(angle_cut_off_left*2*PI/360.0));
+        outer_side_points.emplace_back(R*sin(360.0/edges*(i)*2*PI/360.0),R*cos(360.0/edges*(i)*2*PI/360.0));
 
         i=i+1; 
 
@@ -944,21 +944,21 @@ void drawPartialCylinder(double length, double R /*radius*/, double iR /*inner r
             if(360.0-phi <= angle_cut_off){
                 x = cos(2*PI/edges/2)/cos((360.0- (phi-360.0/edges/2)-angle_cut_off)*2*PI/360.0);
 
-                outer_side_points.push_back((my_point){R*x*sin((360.0-angle_cut_off)*2*PI/360.0), R*x*cos((360.0-angle_cut_off)*2*PI/360.0)});
+                outer_side_points.emplace_back(R*x*sin((360.0-angle_cut_off)*2*PI/360.0), R*x*cos((360.0-angle_cut_off)*2*PI/360.0));
                 //outer_side_points.push_back((my_point){R*x*sin((360.0-angle_cut_off)*2*PI/360.0), R*x*cos((360.0-angle_cut_off)*2*PI/360.0)});
                 break;
             }else{
-                outer_side_points.push_back((my_point){R*sin(phi*2*PI/360.0), R*cos(phi*2*PI/360.0)});
+                outer_side_points.emplace_back(R*sin(phi*2*PI/360.0), R*cos(phi*2*PI/360.0));
                 //if(i != 0){
                 //    outer_side_points.push_back((my_point){R*sin(phi*2*PI/360.0), R*cos(phi*2*PI/360.0)});
                 //}
             }
         }
 
-        for(unsigned int i=0;i<inner_side_points.size();i++){ //transform the points to inner rotate angle
-            my_point tmp = my_point(inner_side_points[i]);
-            inner_side_points[i].x=tmp.x*cos(irotate/360*2*PI) - sin(irotate/360*2*PI)*tmp.y;
-            inner_side_points[i].y=tmp.x*sin(irotate/360*2*PI) + tmp.y*cos(irotate/360.0*2*PI);
+        for(unsigned int ii=0;ii<inner_side_points.size();ii++){ //transform the points to inner rotate angle
+            my_point tmp = my_point(inner_side_points[ii]);
+            inner_side_points[ii].x=tmp.x*cos(irotate/360*2*PI) - sin(irotate/360*2*PI)*tmp.y;
+            inner_side_points[ii].y=tmp.x*sin(irotate/360*2*PI) + tmp.y*cos(irotate/360.0*2*PI);
         }
 
         for(j=0;j<2;j++){  //here do the drawing
@@ -1213,7 +1213,7 @@ static void renderBitmapString( float x, float y, void *font, char* string) {
 * A extra picking function, do the same as ced_get_selected,   *
 * without center the selected object                           *
 ***************************************************************/
-int ced_picking(int x,int y,GLfloat *wx,GLfloat *wy,GLfloat *wz){
+int ced_picking(int x,int y,GLfloat*, GLfloat*, GLfloat*){
     mouse_x=x;
     mouse_y=y;
 
@@ -1530,7 +1530,7 @@ static void ced_draw_line(CED_Line *h){
 
 
 static unsigned CED_PICKING_TEXT_ID=0;
-static void ced_write_picking_text(CED_PICKING_TEXT *text){
+static void ced_write_picking_text(CED_PICKING_TEXT *){
 /*
     static int biggest_number_picking_text=0;
     if(text->id > biggest_number_picking_text){
@@ -1669,28 +1669,28 @@ static void ced_draw_geotube(CED_GeoTube *c){
         }
 
         for(; tmpz <= z0-2*(z0-z1); tmpz+=200){
-             for(double tmpr=d_i; tmpr < d_o; tmpr+=600){
+             for(double tmprr=d_i; tmprr < d_o; tmprr+=600){
                  for(double y=0;y<2*3.14-2*3.14*cut_angle/360.;y+=0.20){
                       //z0 left end
                       //z1 middle
                       //right z0-2*(z0-z1)
                       CED_Point tmp2;
-                      tmp2.x = tmpr*sin(y);
-                      tmp2.y = tmpr*cos(y);
+                      tmp2.x = tmprr*sin(y);
+                      tmp2.y = tmprr*cos(y);
                       tmp2.z = tmpz;
                       ced_add_objmap(&tmp2,20,0,c->type,1 );
 
                  } 
              }
 
-             for(double tmpr=d_i+300; tmpr < d_o; tmpr+=600){
+             for(double tmprr=d_i+300; tmprr < d_o; tmprr+=600){
                  for(double y=0.1;y<2*3.14-2*3.14*cut_angle/360.;y+=0.20){
                       //z0 left end
                       //z1 middle
                       //right z0-2*(z0-z1)
                       CED_Point tmp2;
-                      tmp2.x = tmpr*sin(y);
-                      tmp2.y = tmpr*cos(y);
+                      tmp2.x = tmprr*sin(y);
+                      tmp2.y = tmprr*cos(y);
                       tmp2.z = tmpz;
                       ced_add_objmap(&tmp2,20,0,c->type,1 );
 
@@ -2417,7 +2417,7 @@ static void ced_draw_legend(CED_Legend *legend){
 		break;
 		/** LIN */
 		case 'b':
-			strncpy( footer, "LIN", 3 );	
+			strncpy( footer, "LIN", 4 );
 			renderBitmapString(x_min-x_offset_legend,y_min-y_offset_legend, font, footer);
 			glEnd();
 		break;
