@@ -12,6 +12,9 @@ DESCRIPTION:
 ****************************************************************/
 #ifndef __CED_MENU
 #define __CED_MENU
+
+#include <FontSettings.h>
+
 using namespace std;
 extern CEDsettings setting;
 extern GLfloat window_width;
@@ -85,21 +88,10 @@ class CED_SubSubMenu{
             title=new_title;
         }
         void draw(){
-                int height=10;
-                int width=2;
-                if(setting.font==0){
-                    height=10;
-                    width=6;
-                }
-                if(setting.font==1){
-                    height=12;
-                    width=8;
-                }
-                if(setting.font==2){
-                    height=20;
-                    width=11;
-                }
 
+                FontDimensions dim = getFontDimensions(setting.font);
+                int height = dim.height;
+                int width = dim.width;
 
                 if(isExtend || isMouseOver){
                     isAktive=true;
@@ -274,20 +266,8 @@ class CED_SubSubMenu{
 
 
         void addItem(CED_SubSubMenu *subsub){
-           int height=10;
-//           int width=6;
-           if(setting.font==0){
-               height=10;
-//               width=6;
-           }
-           if(setting.font==1){
-               height=12;
-//               width=8;
-           }
-           if(setting.font==2){
-               height=20;
-//               width=11;
-           }
+            FontDimensions dim = getFontDimensions(setting.font);
+            int height = dim.height;
 
             subsub->x_start=x_start;
             subsub->x_end  =x_start+50; //TODO
@@ -340,21 +320,10 @@ class CED_SubMenu{
             title=new_title;
         }
         void draw(){
-                int height=10;
-                int width=6;
-                if(setting.font==0){
-                    height=10;
-                    width=6;
-                }
-                if(setting.font==1){
-                    height=12;
-                    width=8;
-                }
-                if(setting.font==2){
-                    height=20;
-                    width=11;
-                }
 
+                FontDimensions dim = getFontDimensions(setting.font);
+                int height = dim.height;
+                int width = dim.width;
 
                 if(isExtend || isMouseOver){
                     glColor4f(0.662745,0.662745,0.662745,1);
@@ -537,17 +506,8 @@ class CED_Menu{
 
             glColor4f(0.827451,0.827451,0.827451,1);
 
-            int height=10;
-            if(setting.font==0){
-                height=10;
-            }
-            if(setting.font==1){
-                height=12;
-            }
-            if(setting.font==2){
-                height=20;
-            }
-
+            FontDimensions dim = getFontDimensions(setting.font);
+            int height = dim.height;
 
 
             glBegin(GL_QUADS);
@@ -613,21 +573,19 @@ class CED_Menu{
         }
 
         void addSubMenu(CED_SubMenu *sub){
+            FontDimensions dim = getFontDimensions(setting.font);
+            int height = dim.height;
+
             double length=10;
-            int height=10;
             if(setting.font==0){
                 length=4.8;
-                height=10;
             }
             if(setting.font==1){
                 length=5.2;
-                height=12;
             }
             if(setting.font==2){
                 length=10.0;
-                height=20;
             }
-            //cout << "length: " << length << endl;
 
             sub->x_start=x_offset;
             sub->y_start=1;
@@ -658,21 +616,9 @@ class CED_PopUpMenu{
             title=new_title;
         }
         void draw(){
-            int height=10;
-            int width=6;
-            if(setting.font==0){
-                height=10;
-                width=6;
-            }
-            if(setting.font==1){
-                height=12;
-                width=8;
-            }
-            if(setting.font==2){
-                height=20;
-                width=11;
-            }
-
+            FontDimensions dim = getFontDimensions(setting.font);
+            int height = dim.height;
+            int width = dim.width;
 
             unsigned  maxlength=title.length();
             for(unsigned i=0u; i<subsubMenus.size();i++){

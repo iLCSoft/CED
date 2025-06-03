@@ -78,6 +78,8 @@
 #include <sstream>
 #include <iomanip>
 
+#include <FontSettings.h>
+
 static GLfloat window_width=0.;
 static GLfloat window_height=0.;
 
@@ -564,20 +566,10 @@ void printShortcuts(void){
     const unsigned int MAX_STR_LEN=30;
     int i;
 
-    int height=10;
-    int width=2;
-    if(setting.font==0){
-        height=10+2;
-        width=6;
-    }
-    if(setting.font==1){
-        height=12+2;
-        width=8;
-    }
-    if(setting.font==2){
-        height=20+2;
-        width=11;
-    }
+    FontDimensions dim = getFontDimensions(setting.font);
+    int height = dim.height;
+    int width = dim.width;
+    height += 2;
 
 
     //float line = 12; //height of one line
@@ -3627,18 +3619,17 @@ void buildPopUpMenu(int x, int y){
 
     }
 
-    int height=10;
+    FontDimensions dim = getFontDimensions(setting.font);
+    int height = dim.height;
+
     int width=200;
     if(setting.font==0){
-        height=10;
         width=150;
     }
     if(setting.font==1){
-        height=12;
         width=200;
     }
     if(setting.font==2){
-        height=20;
         width=300;
     }
 
