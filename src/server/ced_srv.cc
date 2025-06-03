@@ -490,7 +490,7 @@ void drawPartialLineCylinder(double length, double R /*radius*/, double iR /*inn
  */
 
 struct my_point {
-    // Constructor from two doubles which is necessary for gcc11 (before c++20)
+    // Constructor from two doubles which is necessary for c++17
     constexpr my_point(double xx, double yy) : x(xx), y(yy) {}
 
     double x;
