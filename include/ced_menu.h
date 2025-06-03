@@ -675,8 +675,7 @@ class CED_PopUpMenu{
 
 
             unsigned  maxlength=title.length();
-            unsigned i;
-            for(i=0;(unsigned) i<subsubMenus.size();i++){
+            for(unsigned i=0u; i<subsubMenus.size();i++){
                 if(subsubMenus.at(i)->title.length() > maxlength){
                     maxlength=subsubMenus.at(i)->title.length();
                 }
@@ -731,8 +730,7 @@ class CED_PopUpMenu{
                          //selected_submenu->mouseOver();
                      }
 
-                    unsigned ii;
-                    for(ii=0;(unsigned) i<subsubMenus.size();ii++){
+                    for(unsigned i=0u; i<subsubMenus.size();i++){
                         subsubMenus.at(i)->x_start=x_start;
                         subsubMenus.at(i)->x_end  =x_end;
                         subsubMenus.at(i)->y_start=y_start/*+height */+1+height*i;
