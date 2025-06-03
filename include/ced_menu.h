@@ -317,20 +317,20 @@ class CED_SubSubMenu{
         }
 
 
-        bool isAktive;
-        string title;
-        int optionNr;
-        bool isExtend;
-        bool isMouseOver;
-        int x_start;
-        int x_end;
-        int y_start;
-        int y_end;
+        bool isAktive{};
+        string title{};
+        int optionNr{};
+        bool isExtend{};
+        bool isMouseOver{};
+        int x_start{};
+        int x_end{};
+        int y_start{};
+        int y_end{};
 
-        bool dead;
+        bool dead{};
 
     private:
-        vector<CED_SubSubMenu *> subsubMenus;
+        vector<CED_SubSubMenu *> subsubMenus{};
 };
 
 
@@ -483,21 +483,25 @@ class CED_SubMenu{
             }
         }
 
+        CED_SubMenu(const CED_SubMenu&) = delete;
+        CED_SubMenu& operator=(const CED_SubMenu&) = delete;
+        CED_SubMenu(CED_SubMenu&&) = default;
+        CED_SubMenu& operator=(CED_SubMenu&&) = default;
 
 
-        string title;
-        int optionNr;
-        bool isExtend;
-        bool isMouseOver;
-        int x_start;
-        int x_end;
-        int y_start;
-        int y_end;
+        string title{};
+        int optionNr{};
+        bool isExtend{};
+        bool isMouseOver{};
+        int x_start{};
+        int x_end{};
+        int y_start{};
+        int y_end{};
 
 
     private:
-        CED_SubSubMenu *selected_submenu;
-        vector<CED_SubSubMenu *> subsubMenus;
+        CED_SubSubMenu *selected_submenu{};
+        vector<CED_SubSubMenu *> subsubMenus{};
 };
 
 class CED_Menu{
@@ -644,8 +648,8 @@ class CED_Menu{
         }
 
     private:
-        vector<CED_SubMenu *> subMenus;
-        unsigned x_offset;
+        vector<CED_SubMenu *> subMenus{};
+        unsigned x_offset{};
 };
 
 class CED_PopUpMenu{
@@ -671,8 +675,7 @@ class CED_PopUpMenu{
 
 
             unsigned  maxlength=title.length();
-            unsigned i;
-            for(i=0;(unsigned) i<subsubMenus.size();i++){
+            for(unsigned i=0u; i<subsubMenus.size();i++){
                 if(subsubMenus.at(i)->title.length() > maxlength){
                     maxlength=subsubMenus.at(i)->title.length();
                 }
@@ -727,8 +730,7 @@ class CED_PopUpMenu{
                          //selected_submenu->mouseOver();
                      }
 
-                    unsigned i;
-                    for(i=0;(unsigned) i<subsubMenus.size();i++){
+                    for(unsigned i=0u; i<subsubMenus.size();i++){
                         subsubMenus.at(i)->x_start=x_start;
                         subsubMenus.at(i)->x_end  =x_end;
                         subsubMenus.at(i)->y_start=y_start/*+height */+1+height*i;
@@ -817,23 +819,29 @@ class CED_PopUpMenu{
             //click_y=
         }
 
+        CED_PopUpMenu(const CED_PopUpMenu&) = delete;
+        CED_PopUpMenu& operator=(const CED_PopUpMenu&) = delete;
+        CED_PopUpMenu(CED_PopUpMenu&&) = default;
+        CED_PopUpMenu& operator=(CED_PopUpMenu&&) = default;
+
+
         int size(void){
             return(subsubMenus.size());
         }
-        string title;
-        int optionNr;
-        bool isExtend;
-        bool isMouseOver;
-        int x_start;
-        int x_end;
-        int y_start;
-        int y_end;
-        int x_click;
-        int y_click;
+        string title{};
+        int optionNr{};
+        bool isExtend{};
+        bool isMouseOver{};
+        int x_start{};
+        int x_end{};
+        int y_start{};
+        int y_end{};
+        int x_click{};
+        int y_click{};
 
     private:
-        vector<CED_SubSubMenu *> subsubMenus;
-        CED_SubSubMenu *selected_submenu;
+        vector<CED_SubSubMenu *> subsubMenus{};
+        CED_SubSubMenu *selected_submenu{};
 
 };
 
