@@ -1,3 +1,15 @@
+# v01-10-01
+
+* 2025-06-03 Thomas Madlener ([PR#18](https://github.com/iLCSoft/CED/pull/18))
+  - Switch to the latest version of the key4hep workflow
+  - Fix several warnings that are now flagged as errors
+
+* 2025-06-03 Victor Schwan ([PR#17](https://github.com/iLCSoft/CED/pull/17))
+  - Refactor setting of font dimensions into helper function
+
+* 2025-06-03 jmcarcell ([PR#15](https://github.com/iLCSoft/CED/pull/15))
+  - Do not install any tests when building with `-DBUILD_TESTING=OFF`. Currently it fails to configure.
+
 # v01-10
 
 * 2024-07-25 tmadlener ([PR#13](https://github.com/iLCSoft/CED/pull/13))
