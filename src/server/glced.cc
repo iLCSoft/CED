@@ -2755,6 +2755,15 @@ void selectFromMenu(int id){ //hauke
             //buildMainMenu();
             break;
 
+        case FONT3:
+            setting.font=3;
+            //buildMainMenu();
+            break;
+
+        case FONT4:
+            setting.font=4;
+            //buildMainMenu();
+            break;
 
         case UNDO:
             setting=setting_old[0];
@@ -3632,6 +3641,12 @@ void buildPopUpMenu(int x, int y){
     if(setting.font==2){
         width=300;
     }
+    if(setting.font==3){
+        width=600;
+    }
+    if(setting.font==4){
+        width=1200;
+    }
 
     int pos_y=popupmenu->size()*height;
 
@@ -3993,6 +4008,16 @@ void buildMainMenu(void){
         font->addItem(new CED_SubSubMenu("[X] Big",FONT2));
     }else{
         font->addItem(new CED_SubSubMenu("[ ] Big",FONT2));
+    }
+    if(setting.font == 3){
+        font->addItem(new CED_SubSubMenu("[X] Bigger",FONT3));
+    }else{
+        font->addItem(new CED_SubSubMenu("[ ] Bigger",FONT3));
+    }
+    if(setting.font == 4){
+        font->addItem(new CED_SubSubMenu("[X] Huge",FONT4));
+    }else{
+        font->addItem(new CED_SubSubMenu("[ ] Huge",FONT4));
     }
     settings->addItem(font);
 
