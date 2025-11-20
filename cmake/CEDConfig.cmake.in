@@ -50,15 +50,6 @@ INCLUDE( "@ILCSOFT_CMAKE_MODULES_ROOT@/MacroCheckPackageLibs.cmake" )
 CHECK_PACKAGE_LIBS( CED CED )
 
 
-
-
-# ---------- libraries dependencies -------------------------------------------
-# this sets CED_${COMPONENT}_LIB_DEPENDS variables
-INCLUDE( "${CED_ROOT}/lib/cmake/CEDLibDeps.cmake" )
- 
-
-
-
 # ---------- final checking ---------------------------------------------------
 INCLUDE( FindPackageHandleStandardArgs )
 # set CED_FOUND to TRUE if all listed variables are TRUE and not empty
