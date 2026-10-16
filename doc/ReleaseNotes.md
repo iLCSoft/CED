@@ -1,3 +1,20 @@
+# v01-10-02
+
+* 2026-09-16 Juan Miguel Carceller ([PR#26](https://github.com/ilcsoft/CED/pull/26))
+  - Declare CXX as the CMake project language to disable looking for a C compiler
+
+* 2026-09-10 Thomas Madlener ([PR#25](https://github.com/ilcsoft/CED/pull/25))
+  - Switch to the latest version of the key4hep-build workflow
+
+* 2026-04-07 sss ([PR#23](https://github.com/ilcsoft/CED/pull/23))
+  - Update character encoding in a comment from latin-1 to utf-8 to avoid a warning from clang.
+
+* 2026-01-20 Bohdan Dudar ([PR#22](https://github.com/ilcsoft/CED/pull/22))
+  - Experimental: Add `ced_hit_ID_animate()` that allows animated layers in CED
+
+* 2025-11-21 Bohdan Dudar ([PR#21](https://github.com/ilcsoft/CED/pull/21))
+  - Boost minimal cmake version and quick fix CMP0033 policy
+
 # v01-10-01
 
 * 2025-06-03 Thomas Madlener ([PR#18](https://github.com/iLCSoft/CED/pull/18))
