@@ -19,10 +19,6 @@ SET( ${PROJECT_NAME}_VERSION_PATCH 2 )
 
 FIND_PACKAGE( ILCUTIL COMPONENTS ILCSOFT_CMAKE_MODULES REQUIRED )
 
-# GLUT and OpenGL are required by glced
-FIND_PACKAGE( GLUT REQUIRED )
-FIND_PACKAGE( OpenGL QUIET )
-
 # load default settings from ILCSOFT_CMAKE_MODULES
 INCLUDE( ilcsoft_default_settings )
 
@@ -62,7 +58,7 @@ INSTALL_SHARED_LIBRARY( CED DESTINATION lib )
 
 # link CED client library to the math library
 FIND_LIBRARY( c_math_lib NAMES m )
-TARGET_LINK_LIBRARIES( CED ${GLUT_LIBRARIES} ${c_math_lib} )
+TARGET_LINK_LIBRARIES( CED PRIVATE ${c_math_lib} )
 MARK_AS_ADVANCED( c_math_lib )
 
 
@@ -73,11 +69,8 @@ MESSAGE( STATUS "CED_SERVER = ${CED_SERVER}" )
 
 IF( CED_SERVER )
 
-    IF( NOT GLUT_FOUND OR NOT OPENGL_FOUND )
-        MESSAGE( FATAL_ERROR "could not find packages glut + opengl required to build glced" )
-    ENDIF()
-
-    INCLUDE_DIRECTORIES( ${GLUT_INCLUDE_DIR} )
+    FIND_PACKAGE( GLUT REQUIRED )
+    FIND_PACKAGE( OpenGL REQUIRED )
 
     # copy paths from OPENGL_LIBRARIES to rpath list of glced to avoid system
     # opengl libraries used in the linking process of glced to be overwriten
@@ -116,10 +109,8 @@ IF( CED_SERVER )
         INSTALL_NAME_DIR "${CMAKE_INSTALL_NAME_DIR};${_opengl_linker_paths}"
     )
 
-    TARGET_LINK_LIBRARIES( glced CED 
-        ${GLUT_glut_LIBRARY}
-        ${OPENGL_LIBRARIES}
-    )
+    TARGET_INCLUDE_DIRECTORIES( glced PRIVATE ${GLUT_INCLUDE_DIRS} )
+    TARGET_LINK_LIBRARIES( glced PRIVATE CED ${GLUT_glut_LIBRARY} ${OPENGL_LIBRARIES} )
 
     INSTALL( TARGETS glced DESTINATION bin )
 
